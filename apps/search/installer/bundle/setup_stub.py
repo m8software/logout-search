@@ -9,6 +9,7 @@ single-file build of the whole program would do.
     logout-search-setup.exe                  everything
     logout-search-setup.exe --dest FOLDER    another folder than %LOCALAPPDATA%\\logout-search
     logout-search-setup.exe --no-run         unpack only (the build's own test)
+    logout-search-setup.exe --pin 1234       also set the admin PIN (a paired device then changes settings with it)
     logout-search-setup.exe --update --dest BASE   the daily automatic update (installer/autoupdate.py): no window, no
                                                    questions; closes the running copy, replaces BASE/app, starts the
                                                    tray again. The data and every setting stay. Its log is
@@ -104,7 +105,8 @@ def main(argv=None) -> int:
         restart_tray(app, base)
         print("updated; the tray is started again", flush=True)
         return 0
-    rc = subprocess.call([exe, "setup", "--dest", base, "--copied"])
+    pin = argv[argv.index("--pin") + 1] if "--pin" in argv and argv.index("--pin") + 1 < len(argv) else ""
+    rc = subprocess.call([exe, "setup", "--dest", base, "--copied"] + (["--pin", pin] if pin else []))
     pause()
     return rc
 

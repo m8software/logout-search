@@ -19,6 +19,9 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search host      run --dest BASE [--port 8090]              (what the browser starts; see `host register`)
     logout-search peer      --dest BASE [--port 8090]                  (what `start` runs beside the engine; see below)
     logout-search version   [--dest BASE]
+    logout-search uninstall [--dest BASE] [--yes]                 (stop it, stop it starting at logon, remove it all)
+    logout-search pin [PIN | --clear]                              (show the admin PIN, set it, or remove it)
+--dest, where a command takes the data folder, defaults to the usual one (BASE/data) since 2026-11-14.
 
 Runs from this checkout (`python3 logout_search.py ...`) or as the bundle `bundle/build.py` makes with PyInstaller, where it
 is the only executable: the engine (serve/api), install.py and the update tools are inside it, with Python and the
@@ -515,7 +518,7 @@ def admin_handler(data: str):
         return {"pin_set": adminpin.is_set(data), "unlocked": unlocked, "locked_for": adminpin.locked_for(data),
                 # how to set it on this computer, for the page's line (Linux and macOS have no tray)
                 "pin_how": ("its tray menu > Admin PIN" if PLATFORM == "win32" else
-                            f"in a terminal there: logout-search admin pin set 1234 --dest {data}"),
+                            "in a terminal there: logout-search pin 1234"),
                 "collectors": dict(hs.load(data), **({} if eff["profile"] == "custom" or eff["applied"] == "search"
                                                      else hs._custom_from(eff["applied"]))),
                 "data_use": {"profile": eff["profile"], "in_force": eff["applied"], "metered": eff["metered"],
@@ -676,6 +679,11 @@ def peer_run(a) -> int:
 
 
 # ================================================================================================ setup (a double-click)
+def default_data() -> str:
+    """The data folder of the usual install: what --dest means when it is left out."""
+    return os.path.join(os.environ.get("LOGOUT_SEARCH_HOME") or default_base(), "data")
+
+
 def default_base() -> str:
     """The one folder everything goes under, per system."""
     if PLATFORM == "win32":
@@ -739,7 +747,8 @@ def setup(a) -> int:
         except OSError as e:
             say(f"could not copy the program to {app}: {e}\nIf logout search is already running, stop it (or sign out and in) and run this again.")
             return 1
-        rc = subprocess.call([os.path.join(app, exe_name()), "setup", "--dest", base, "--port", str(a.port), "--copied"])
+        rc = subprocess.call([os.path.join(app, exe_name()), "setup", "--dest", base, "--port", str(a.port), "--copied"]
+                             + (["--pin", a.pin] if a.pin else []))
         return rc
     say(f"2/5  downloading the search data to {data}\n     about 11 GB; it is safe to stop and run this again, it carries on where it stopped")
     os.environ["LOGOUT_INSTALL_QUIET"] = "1"
@@ -771,6 +780,14 @@ def setup(a) -> int:
             subprocess.Popen(start_cmd(data, a.port), stdout=log, stderr=log, stdin=subprocess.DEVNULL, start_new_session=True)
     # no browser extension any more: the page reaches this engine the way a phone does, through the pairing peer
     say("4/5  letting this computer's browser and your other devices use it")
+    pin = a.pin or os.environ.get("LOGOUT_SEARCH_PIN", "")
+    if pin:                                              # the admin PIN, when the install was asked to set one
+        import adminpin
+        try:
+            adminpin.set_pin(data, pin)
+            say("     admin PIN set: a paired device can change this engine's settings from search.logout.cloud with it")
+        except ValueError as e:
+            say(f"     admin PIN not set: {e} (set it later: logout-search pin 1234)")
     say("5/5  waiting for the engine to answer (the first start reads the index into memory)")
     ready = install.wait_ready(a.port, lambda: True, timeout=600.0) == "ready"
     say("")
@@ -785,6 +802,47 @@ def setup(a) -> int:
     else:
         say(f"Installed, but the engine has not answered yet. Its log: {os.path.join(data, 'state', 'engine.log')}")
     return 0 if ready else 1
+
+
+# ================================================================================================ uninstall
+def uninstall(a) -> int:
+    """Stop the engine, stop it starting at logon, remove the link in ~/.local/bin and the whole folder (the program,
+    the search data, news, settings, pairings). Windows: the tray's own uninstall (Settings > Apps runs the same)."""
+    import shutil
+    base = os.path.abspath(a.dest) if a.dest else default_base()
+    data = os.path.join(base, "data")
+    if PLATFORM == "win32":
+        tray = os.path.join(base, "app", "logout-search-tray.exe")
+        return subprocess.call([tray, "--uninstall", "--dest", base]) if os.path.isfile(tray) else 1
+    # only a folder that is one of ours: an app or data folder of this program inside it
+    ours = os.path.basename(base.rstrip(os.sep)) and (os.path.isdir(os.path.join(base, "app")) or os.path.isdir(data))
+    if not ours or base in ("/", home()):
+        say(f"refused: {base} does not look like a logout search install (no app or data folder in it)")
+        return 2
+    size = 0
+    for d, _dirs, fs in os.walk(base):
+        for f in fs:
+            try:
+                size += os.lstat(os.path.join(d, f)).st_size
+            except OSError:
+                pass
+    say(f"This removes logout search from this computer: {base} ({size / 1e9:.1f} GB: the program, the search data, "
+        "news, settings and pairings), and stops it starting at logon. Your other devices will no longer be able to use it.")
+    if not a.yes:
+        if not (sys.stdin and sys.stdin.isatty()):
+            say("run it again with --yes to go ahead")
+            return 2
+        if input("Remove it? [y/N] ").strip().lower() not in ("y", "yes"):
+            say("nothing removed")
+            return 1
+    if os.path.isdir(data):
+        autostart(argparse.Namespace(state="off", dest=data, port=8090, print=False))   # stops the service too
+    link = os.path.join(home(), ".local", "bin", "logout-search")
+    if os.path.islink(link) and os.path.realpath(link).startswith(os.path.realpath(base) + os.sep):
+        os.remove(link)
+    shutil.rmtree(base, ignore_errors=True)
+    say("removed" if not os.path.exists(base) else f"mostly removed; some files under {base} were in use: delete the folder by hand")
+    return 0 if not os.path.exists(base) else 1
 
 
 # ================================================================================================ autostart
@@ -1081,8 +1139,8 @@ def version(a) -> None:
     info = {"launcher": VERSION, "platform": PLATFORM, "frozen": FROZEN, "python": platform.python_version(),
             "certificates": os.environ.get("SSL_CERT_FILE") or "built-in",
             "engine_dir": engine_dir(), "program": program()}
-    if a.dest:
-        b = os.path.abspath(a.dest)
+    b = os.path.abspath(a.dest) if a.dest else default_data()   # the usual install's, when there is one
+    if a.dest or os.path.isdir(b):
         info["release"] = release_ptr.current_id(b)
         info["previous"] = release_ptr.current_id(b, "previous")
     print(json.dumps(info, indent=1, sort_keys=True))
@@ -1095,41 +1153,48 @@ def main(argv=None) -> int:
     sp.add_parser("status", add_help=False)
     sp.add_parser("addon", add_help=False)
     s = sp.add_parser("start")
-    s.add_argument("--dest", required=True)
+    s.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     s.add_argument("--port", type=int, default=8090)
     s.add_argument("--print-env", action="store_true")
     s.add_argument("--format", choices=["posix", "cmd", "powershell", "json"])
     s.add_argument("--no-smoke", action="store_true", help="skip the three fixed searches run once the engine reports ready")
     s.add_argument("--no-peer", action="store_true", help="do not let other devices pair with this engine")
     u = sp.add_parser("update")
-    u.add_argument("--dest", required=True)
+    u.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     u.add_argument("--source", required=True)
     u.add_argument("--pubkey", required=True, help="the PEM file of the pinned public key")
     u.add_argument("--check", action="store_true", help="say whether an update exists; download nothing")
     co = sp.add_parser("collectors")
     co.add_argument("action", choices=["status", "on", "off", "set"])
     co.add_argument("args", nargs="*", help="on/off: a collector (default all); set: KEY VALUE")
-    co.add_argument("--dest", required=True, help="the data folder (BASE/data)")
+    co.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     sp.add_parser("collect", add_help=False)             # internal: one collector (what `start` runs)
     adm = sp.add_parser("admin")
     adm.add_argument("what", choices=["pin"])
     adm.add_argument("action", choices=["show", "set", "clear", "ask"])
     adm.add_argument("value", nargs="?", help="set: the new PIN, 4 to 8 digits")
-    adm.add_argument("--dest", required=True, help="the data folder (BASE/data)")
+    adm.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     upd = sp.add_parser("autoupdate")
     upd.add_argument("action", choices=["status", "on", "off", "now", "at", "addons"])
     upd.add_argument("value", nargs="?", help="at: the hour (0-23) the two-hour window starts; addons: on|off")
-    upd.add_argument("--dest", required=True, help="the data folder (BASE/data)")
+    upd.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     au = sp.add_parser("autostart")
     au.add_argument("state", choices=["on", "off"])
-    au.add_argument("--dest", required=True)
+    au.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     au.add_argument("--port", type=int, default=8090)
     au.add_argument("--print", action="store_true", help="show what would be written and run; change nothing")
     h = sp.add_parser("host")
     h.add_argument("action", choices=["register", "unregister", "run"])
-    h.add_argument("--dest", required=True)
+    h.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     h.add_argument("--port", type=int, default=8090)
     h.add_argument("--print", action="store_true")
+    pn = sp.add_parser("pin", help="the admin PIN: show it, set it (4 to 8 digits), or --clear it")
+    pn.add_argument("value", nargs="?", help="the new PIN; leave out to show the current one")
+    pn.add_argument("--clear", action="store_true", help="remove the PIN")
+    pn.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
+    un = sp.add_parser("uninstall", help="remove logout search from this computer")
+    un.add_argument("--dest", help="the install folder (default: the usual one for this system)")
+    un.add_argument("--yes", action="store_true", help="do not ask")
     v = sp.add_parser("version")
     v.add_argument("--dest")
     pe = sp.add_parser("peer")
@@ -1141,6 +1206,7 @@ def main(argv=None) -> int:
     se.add_argument("--port", type=int, default=8090)
     se.add_argument("--print", action="store_true", help="show the steps; change nothing")
     se.add_argument("--copied", action="store_true", help=argparse.SUPPRESS)
+    se.add_argument("--pin", help="set the admin PIN at the end (4 to 8 digits); also LOGOUT_SEARCH_PIN")
     sp.add_parser("net-check", help="one HTTPS request to where the data comes from (is this system's certificate list found?)")
     sp.add_parser("engine", add_help=False)             # internal: run search_api.py (what `start` spawns)
     sp.add_parser("_update-apply", add_help=False)      # internal: update_apply.py's main (what `update` spawns)
@@ -1152,6 +1218,9 @@ def main(argv=None) -> int:
         return rc
     if argv and argv[0] == "collect":
         return run_collect(argv[1] if len(argv) > 1 else "", argv[2:])
+    if argv and argv[0] in ("status", "addon") and "--dest" not in argv and not any(x.startswith("--dest=") for x in argv) \
+            and not ({"-h", "--help"} & set(argv)):
+        argv = list(argv) + ["--dest", default_data()]          # the usual install, as every other command
     if argv and argv[0] in ("install", "status", "addon", "engine", "_update-apply"):
         if argv[0] == "engine":
             if argv[1:] == ["--check-imports"]:
@@ -1164,6 +1233,8 @@ def main(argv=None) -> int:
         run_install(argv)
         return 0
     a, rest = ap.parse_known_args(argv)
+    if a.cmd in ("start", "update", "collectors", "admin", "autoupdate", "autostart", "host", "pin") and not getattr(a, "dest", None):
+        a.dest = default_data()
     if a.cmd == "start":
         start(a)
     elif a.cmd == "update":
@@ -1184,6 +1255,10 @@ def main(argv=None) -> int:
             host_run(a)
         else:
             return host_register(a)
+    elif a.cmd == "pin":
+        return admin_command("clear" if a.clear else "set" if a.value else "show", a.value, os.path.abspath(a.dest))
+    elif a.cmd == "uninstall":
+        return uninstall(a)
     elif a.cmd == "version":
         version(a)
     elif a.cmd == "peer":
