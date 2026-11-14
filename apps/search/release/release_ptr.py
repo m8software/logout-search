@@ -13,8 +13,23 @@ import os
 
 
 def fsync_path(p: str) -> None:
-    if os.name == "nt" and os.path.isdir(p):
-        return                                   # Windows cannot open a directory for fsync; NTFS journals the rename itself
+    if os.name == "nt":
+        # Windows cannot open a directory for fsync (NTFS journals the rename itself), and its fsync (_commit) refuses a
+        # handle opened read-only: EBADF, which stopped every Windows install at its last step (owner, 2026-11-14). A file
+        # is opened for writing to flush it; one that cannot be (read-only, in use) was written and closed already.
+        if os.path.isdir(p):
+            return
+        try:
+            fd = os.open(p, os.O_RDWR | getattr(os, "O_BINARY", 0))
+        except OSError:
+            return
+        try:
+            os.fsync(fd)
+        except OSError:
+            pass
+        finally:
+            os.close(fd)
+        return
     fd = os.open(p, os.O_RDONLY)
     try:
         os.fsync(fd)

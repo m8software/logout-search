@@ -49,6 +49,21 @@ jobs:
           assert os.path.isfile(os.path.join(base, "current", "manifest.json"))
           assert os.path.basename(os.path.realpath(os.path.join(base, "current"))) == "r2"
           print("pointer ok:", "symlink" if os.path.islink(os.path.join(base, "current")) else "junction")
+      - name: Flushing an installed release to disk works on this system (Windows refused it before 2026-11-14)
+        shell: python
+        run: |
+          import os, stat, sys, tempfile
+          sys.path.insert(0, os.path.join("apps", "search", "release"))
+          import release_ptr
+          root = tempfile.mkdtemp()
+          os.makedirs(os.path.join(root, "text", "wiki"))
+          for n in ("manifest.json", os.path.join("text", "wiki", "a.idx")):
+              open(os.path.join(root, n), "wb").write(b"x" * 100)
+          ro = os.path.join(root, "text", "wiki", "a.idx")
+          os.chmod(ro, stat.S_IREAD)                              # a read-only file is skipped, never an error
+          release_ptr.fsync_tree(root)
+          release_ptr.fsync_path(root)
+          print("fsync ok")
       - name: The launcher's dry runs on this system
         env:
           PYTHONUTF8: "1"
