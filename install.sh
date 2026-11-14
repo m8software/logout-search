@@ -61,7 +61,7 @@ rm -rf "$APP.old"
 mv "$APP.new" "$APP"
 rm -rf "$APP.old"
 ln -sf "$APP/logout-search" "$BIN/logout-search"
-"$APP/logout-search" version >/dev/null || die "the program does not run on this system"
+"$APP/logout-search" version >/dev/null 2>&1 || die "the program does not start on this system (it needs glibc 2.35 or newer: Ubuntu 22.04, Debian 12, Fedora 36 or later). Run it from source instead: https://github.com/$REPO"
 
 if [ "${LOGOUT_SEARCH_NO_DATA:-0}" = "1" ]; then
     say "done: the program is at $BIN/logout-search (no data installed, as asked)"
