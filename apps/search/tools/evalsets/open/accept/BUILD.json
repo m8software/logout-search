@@ -1,0 +1,62 @@
+{
+ "endpoint": "https://qlever.dev/api/wikidata",
+ "fetched": "2026-10-13",
+ "issue": "",
+ "licence": "CC0 1.0 (Wikidata)",
+ "rule": "owner decision 2026-10-13: a thing's own official site above its article is a correct result",
+ "sets": {
+  "head-brand": {
+   "dev": 504,
+   "nothing-new": 831,
+   "rows": 1000,
+   "tokens": 1086,
+   "with_alternatives": 169
+  },
+  "maker-product": {
+   "dev": 211,
+   "no-item": 6,
+   "nothing-new": 359,
+   "rows": 400,
+   "tokens": 50,
+   "with_alternatives": 35
+  },
+  "own-title": {
+   "dev": 623,
+   "nothing-new": 1102,
+   "rows": 1190,
+   "tokens": 710,
+   "with_alternatives": 88
+  },
+  "site-nav": {
+   "dev": 750,
+   "no-item": 5,
+   "nothing-new": 1466,
+   "rows": 1505,
+   "tokens": 42,
+   "with_alternatives": 34
+  },
+  "typo-site": {
+   "dev": 246,
+   "no-item": 3,
+   "nothing-new": 488,
+   "rows": 500,
+   "tokens": 10,
+   "with_alternatives": 9
+  },
+  "typo-wiki": {
+   "dev": 248,
+   "no-site": 415,
+   "rows": 500,
+   "tokens": 90,
+   "with_alternatives": 85
+  },
+  "wiki-redirect": {
+   "dev": 1201,
+   "no-site": 1962,
+   "rows": 2400,
+   "tokens": 478,
+   "with_alternatives": 438
+  }
+ },
+ "source": "Wikidata P856 (official website), every statement of rank normal or preferred, through QLever"
+}

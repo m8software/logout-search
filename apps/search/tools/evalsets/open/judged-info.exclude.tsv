@@ -1,0 +1,2001 @@
+# Queries of the judged informational set, in exclude.tsv's shape: no head list, training
+# pool or precompute may contain them. key = the query lower-cased and single-spaced (form=query) or the
+# engine's exact-tier key, letters and digits only (form=norm). Both halves are here: the set is judged once
+# and frozen. Append these rows to evalsets/open/exclude.tsv (sq-eval.py --write-exclude keeps judged rows).
+key	form	set	split	source
+3d modeling software free	query	judged-info	test	judged-info
+3dmodelingsoftwarefree	norm	judged-info	test	judged-info
+accounting software online	query	judged-info	test	judged-info
+accountingsoftwareonline	norm	judged-info	test	judged-info
+ad blocker	query	judged-info	test	judged-info
+adblocker	norm	judged-info	test	judged-info
+adopt a pet website	query	judged-info	test	judged-info
+adoptapetwebsite	norm	judged-info	test	judged-info
+ai chatbot	query	judged-info	test	judged-info
+ai image generator	query	judged-info	test	judged-info
+aichatbot	norm	judged-info	test	judged-info
+aiimagegenerator	norm	judged-info	test	judged-info
+air quality map	query	judged-info	test	judged-info
+airline tickets booking	query	judged-info	test	judged-info
+airlineticketsbooking	norm	judged-info	test	judged-info
+airqualitymap	norm	judged-info	test	judged-info
+al drivers license renewal	query	judged-info	test	judged-info
+al nursing license lookup	query	judged-info	test	judged-info
+aldriverslicenserenewal	norm	judged-info	test	judged-info
+alnursinglicenselookup	norm	judged-info	test	judged-info
+anime streaming	query	judged-info	test	judged-info
+animestreaming	norm	judged-info	test	judged-info
+anonymous forum	query	judged-info	test	judged-info
+anonymousforum	norm	judged-info	test	judged-info
+apartment rental listings	query	judged-info	test	judged-info
+apartmentrentallistings	norm	judged-info	test	judged-info
+api testing tool	query	judged-info	test	judged-info
+apitestingtool	norm	judged-info	test	judged-info
+apply for food stamps arizona	query	judged-info	test	judged-info
+apply for food stamps wy	query	judged-info	test	judged-info
+applyforfoodstampsarizona	norm	judged-info	test	judged-info
+applyforfoodstampswy	norm	judged-info	test	judged-info
+ar state tax refund status	query	judged-info	test	judged-info
+arkansas unemployment benefits apply	query	judged-info	test	judged-info
+arkansasunemploymentbenefitsapply	norm	judged-info	test	judged-info
+arstatetaxrefundstatus	norm	judged-info	test	judged-info
+astronomy news	query	judged-info	test	judged-info
+astronomynews	norm	judged-info	test	judged-info
+audiobook app	query	judged-info	test	judged-info
+audiobookapp	norm	judged-info	test	judged-info
+auto parts store online	query	judged-info	test	judged-info
+autopartsstoreonline	norm	judged-info	test	judged-info
+az marriage license	query	judged-info	test	judged-info
+azmarriagelicense	norm	judged-info	test	judged-info
+baby registry	query	judged-info	test	judged-info
+babyregistry	norm	judged-info	test	judged-info
+become a notary in ar	query	judged-info	test	judged-info
+become a notary in idaho	query	judged-info	test	judged-info
+become a notary in michigan	query	judged-info	test	judged-info
+become a notary in oh	query	judged-info	test	judged-info
+become a notary in oregon	query	judged-info	test	judged-info
+become a notary in va	query	judged-info	test	judged-info
+becomeanotaryinar	norm	judged-info	test	judged-info
+becomeanotaryinidaho	norm	judged-info	test	judged-info
+becomeanotaryinmichigan	norm	judged-info	test	judged-info
+becomeanotaryinoh	norm	judged-info	test	judged-info
+becomeanotaryinoregon	norm	judged-info	test	judged-info
+becomeanotaryinva	norm	judged-info	test	judged-info
+bike sharing app	query	judged-info	test	judged-info
+bikesharingapp	norm	judged-info	test	judged-info
+bird identification app	query	judged-info	test	judged-info
+birdidentificationapp	norm	judged-info	test	judged-info
+blog hosting platform	query	judged-info	test	judged-info
+bloghostingplatform	norm	judged-info	test	judged-info
+book reviews site	query	judged-info	test	judged-info
+bookreviewssite	norm	judged-info	test	judged-info
+browser extension store	query	judged-info	test	judged-info
+browserextensionstore	norm	judged-info	test	judged-info
+budgeting app	query	judged-info	test	judged-info
+budgetingapp	norm	judged-info	test	judged-info
+buy refurbished phones	query	judged-info	test	judged-info
+buyrefurbishedphones	norm	judged-info	test	judged-info
+calendar app	query	judged-info	test	judged-info
+calendarapp	norm	judged-info	test	judged-info
+calorie counter app	query	judged-info	test	judged-info
+caloriecounterapp	norm	judged-info	test	judged-info
+capital of afghanistan	query	judged-info	test	judged-info
+capital of albania	query	judged-info	test	judged-info
+capital of algeria	query	judged-info	test	judged-info
+capital of andorra	query	judged-info	test	judged-info
+capital of argentina	query	judged-info	test	judged-info
+capital of armenia	query	judged-info	test	judged-info
+capital of australia	query	judged-info	test	judged-info
+capital of austria	query	judged-info	test	judged-info
+capital of azerbaijan	query	judged-info	test	judged-info
+capital of bangladesh	query	judged-info	test	judged-info
+capital of belarus	query	judged-info	test	judged-info
+capital of belgium	query	judged-info	test	judged-info
+capital of bosnia and herzegovina	query	judged-info	test	judged-info
+capital of brazil	query	judged-info	test	judged-info
+capital of bulgaria	query	judged-info	test	judged-info
+capital of burkina faso	query	judged-info	test	judged-info
+capital of canada	query	judged-info	test	judged-info
+capital of china	query	judged-info	test	judged-info
+capital of colombia	query	judged-info	test	judged-info
+capital of croatia	query	judged-info	test	judged-info
+capital of cuba	query	judged-info	test	judged-info
+capital of cyprus	query	judged-info	test	judged-info
+capital of czech republic	query	judged-info	test	judged-info
+capital of democratic republic of the congo	query	judged-info	test	judged-info
+capital of denmark	query	judged-info	test	judged-info
+capital of egypt	query	judged-info	test	judged-info
+capital of eritrea	query	judged-info	test	judged-info
+capital of ethiopia	query	judged-info	test	judged-info
+capital of finland	query	judged-info	test	judged-info
+capital of france	query	judged-info	test	judged-info
+capital of germany	query	judged-info	test	judged-info
+capital of greece	query	judged-info	test	judged-info
+capital of iceland	query	judged-info	test	judged-info
+capital of india	query	judged-info	test	judged-info
+capital of indonesia	query	judged-info	test	judged-info
+capital of iran	query	judged-info	test	judged-info
+capital of israel	query	judged-info	test	judged-info
+capital of italy	query	judged-info	test	judged-info
+capital of japan	query	judged-info	test	judged-info
+capital of kazakhstan	query	judged-info	test	judged-info
+capital of kyrgyzstan	query	judged-info	test	judged-info
+capital of lebanon	query	judged-info	test	judged-info
+capital of liechtenstein	query	judged-info	test	judged-info
+capital of lithuania	query	judged-info	test	judged-info
+capital of luxembourg	query	judged-info	test	judged-info
+capital of madagascar	query	judged-info	test	judged-info
+capital of malaysia	query	judged-info	test	judged-info
+capital of malta	query	judged-info	test	judged-info
+capital of mexico	query	judged-info	test	judged-info
+capital of monaco	query	judged-info	test	judged-info
+capital of mongolia	query	judged-info	test	judged-info
+capital of montenegro	query	judged-info	test	judged-info
+capital of morocco	query	judged-info	test	judged-info
+capital of myanmar	query	judged-info	test	judged-info
+capital of nepal	query	judged-info	test	judged-info
+capital of netherlands	query	judged-info	test	judged-info
+capital of new zealand	query	judged-info	test	judged-info
+capital of nigeria	query	judged-info	test	judged-info
+capital of north korea	query	judged-info	test	judged-info
+capital of norway	query	judged-info	test	judged-info
+capital of pakistan	query	judged-info	test	judged-info
+capital of philippines	query	judged-info	test	judged-info
+capital of poland	query	judged-info	test	judged-info
+capital of portugal	query	judged-info	test	judged-info
+capital of republic of ireland	query	judged-info	test	judged-info
+capital of romania	query	judged-info	test	judged-info
+capital of russia	query	judged-info	test	judged-info
+capital of saudi arabia	query	judged-info	test	judged-info
+capital of serbia	query	judged-info	test	judged-info
+capital of singapore	query	judged-info	test	judged-info
+capital of slovakia	query	judged-info	test	judged-info
+capital of slovenia	query	judged-info	test	judged-info
+capital of south africa	query	judged-info	test	judged-info
+capital of south korea	query	judged-info	test	judged-info
+capital of spain	query	judged-info	test	judged-info
+capital of sri lanka	query	judged-info	test	judged-info
+capital of sweden	query	judged-info	test	judged-info
+capital of switzerland	query	judged-info	test	judged-info
+capital of syria	query	judged-info	test	judged-info
+capital of taiwan	query	judged-info	test	judged-info
+capital of thailand	query	judged-info	test	judged-info
+capital of turkey	query	judged-info	test	judged-info
+capital of ukraine	query	judged-info	test	judged-info
+capital of united arab emirates	query	judged-info	test	judged-info
+capital of united kingdom	query	judged-info	test	judged-info
+capital of united states	query	judged-info	test	judged-info
+capital of uzbekistan	query	judged-info	test	judged-info
+capital of vietnam	query	judged-info	test	judged-info
+capital of yemen	query	judged-info	test	judged-info
+capital of zimbabwe	query	judged-info	test	judged-info
+capitalofafghanistan	norm	judged-info	test	judged-info
+capitalofalbania	norm	judged-info	test	judged-info
+capitalofalgeria	norm	judged-info	test	judged-info
+capitalofandorra	norm	judged-info	test	judged-info
+capitalofargentina	norm	judged-info	test	judged-info
+capitalofarmenia	norm	judged-info	test	judged-info
+capitalofaustralia	norm	judged-info	test	judged-info
+capitalofaustria	norm	judged-info	test	judged-info
+capitalofazerbaijan	norm	judged-info	test	judged-info
+capitalofbangladesh	norm	judged-info	test	judged-info
+capitalofbelarus	norm	judged-info	test	judged-info
+capitalofbelgium	norm	judged-info	test	judged-info
+capitalofbosniaandherzegovina	norm	judged-info	test	judged-info
+capitalofbrazil	norm	judged-info	test	judged-info
+capitalofbulgaria	norm	judged-info	test	judged-info
+capitalofburkinafaso	norm	judged-info	test	judged-info
+capitalofcanada	norm	judged-info	test	judged-info
+capitalofchina	norm	judged-info	test	judged-info
+capitalofcolombia	norm	judged-info	test	judged-info
+capitalofcroatia	norm	judged-info	test	judged-info
+capitalofcuba	norm	judged-info	test	judged-info
+capitalofcyprus	norm	judged-info	test	judged-info
+capitalofczechrepublic	norm	judged-info	test	judged-info
+capitalofdemocraticrepublicofthecongo	norm	judged-info	test	judged-info
+capitalofdenmark	norm	judged-info	test	judged-info
+capitalofegypt	norm	judged-info	test	judged-info
+capitaloferitrea	norm	judged-info	test	judged-info
+capitalofethiopia	norm	judged-info	test	judged-info
+capitaloffinland	norm	judged-info	test	judged-info
+capitaloffrance	norm	judged-info	test	judged-info
+capitalofgermany	norm	judged-info	test	judged-info
+capitalofgreece	norm	judged-info	test	judged-info
+capitaloficeland	norm	judged-info	test	judged-info
+capitalofindia	norm	judged-info	test	judged-info
+capitalofindonesia	norm	judged-info	test	judged-info
+capitalofiran	norm	judged-info	test	judged-info
+capitalofisrael	norm	judged-info	test	judged-info
+capitalofitaly	norm	judged-info	test	judged-info
+capitalofjapan	norm	judged-info	test	judged-info
+capitalofkazakhstan	norm	judged-info	test	judged-info
+capitalofkyrgyzstan	norm	judged-info	test	judged-info
+capitaloflebanon	norm	judged-info	test	judged-info
+capitalofliechtenstein	norm	judged-info	test	judged-info
+capitaloflithuania	norm	judged-info	test	judged-info
+capitalofluxembourg	norm	judged-info	test	judged-info
+capitalofmadagascar	norm	judged-info	test	judged-info
+capitalofmalaysia	norm	judged-info	test	judged-info
+capitalofmalta	norm	judged-info	test	judged-info
+capitalofmexico	norm	judged-info	test	judged-info
+capitalofmonaco	norm	judged-info	test	judged-info
+capitalofmongolia	norm	judged-info	test	judged-info
+capitalofmontenegro	norm	judged-info	test	judged-info
+capitalofmorocco	norm	judged-info	test	judged-info
+capitalofmyanmar	norm	judged-info	test	judged-info
+capitalofnepal	norm	judged-info	test	judged-info
+capitalofnetherlands	norm	judged-info	test	judged-info
+capitalofnewzealand	norm	judged-info	test	judged-info
+capitalofnigeria	norm	judged-info	test	judged-info
+capitalofnorthkorea	norm	judged-info	test	judged-info
+capitalofnorway	norm	judged-info	test	judged-info
+capitalofpakistan	norm	judged-info	test	judged-info
+capitalofphilippines	norm	judged-info	test	judged-info
+capitalofpoland	norm	judged-info	test	judged-info
+capitalofportugal	norm	judged-info	test	judged-info
+capitalofrepublicofireland	norm	judged-info	test	judged-info
+capitalofromania	norm	judged-info	test	judged-info
+capitalofrussia	norm	judged-info	test	judged-info
+capitalofsaudiarabia	norm	judged-info	test	judged-info
+capitalofserbia	norm	judged-info	test	judged-info
+capitalofsingapore	norm	judged-info	test	judged-info
+capitalofslovakia	norm	judged-info	test	judged-info
+capitalofslovenia	norm	judged-info	test	judged-info
+capitalofsouthafrica	norm	judged-info	test	judged-info
+capitalofsouthkorea	norm	judged-info	test	judged-info
+capitalofspain	norm	judged-info	test	judged-info
+capitalofsrilanka	norm	judged-info	test	judged-info
+capitalofsweden	norm	judged-info	test	judged-info
+capitalofswitzerland	norm	judged-info	test	judged-info
+capitalofsyria	norm	judged-info	test	judged-info
+capitaloftaiwan	norm	judged-info	test	judged-info
+capitalofthailand	norm	judged-info	test	judged-info
+capitalofturkey	norm	judged-info	test	judged-info
+capitalofukraine	norm	judged-info	test	judged-info
+capitalofunitedarabemirates	norm	judged-info	test	judged-info
+capitalofunitedkingdom	norm	judged-info	test	judged-info
+capitalofunitedstates	norm	judged-info	test	judged-info
+capitalofuzbekistan	norm	judged-info	test	judged-info
+capitalofvietnam	norm	judged-info	test	judged-info
+capitalofyemen	norm	judged-info	test	judged-info
+capitalofzimbabwe	norm	judged-info	test	judged-info
+car history report	query	judged-info	test	judged-info
+car rental comparison	query	judged-info	test	judged-info
+car value estimate	query	judged-info	test	judged-info
+carhistoryreport	norm	judged-info	test	judged-info
+carrentalcomparison	norm	judged-info	test	judged-info
+carvalueestimate	norm	judged-info	test	judged-info
+cashback website	query	judged-info	test	judged-info
+cashbackwebsite	norm	judged-info	test	judged-info
+charity evaluator	query	judged-info	test	judged-info
+charityevaluator	norm	judged-info	test	judged-info
+citizen science projects	query	judged-info	test	judged-info
+citizenscienceprojects	norm	judged-info	test	judged-info
+cloud storage service	query	judged-info	test	judged-info
+cloudstorageservice	norm	judged-info	test	judged-info
+co jury duty	query	judged-info	test	judged-info
+coding practice site	query	judged-info	test	judged-info
+codingpracticesite	norm	judged-info	test	judged-info
+cojuryduty	norm	judged-info	test	judged-info
+college search site	query	judged-info	test	judged-info
+collegesearchsite	norm	judged-info	test	judged-info
+color palette generator	query	judged-info	test	judged-info
+colorado medicaid application	query	judged-info	test	judged-info
+coloradomedicaidapplication	norm	judged-info	test	judged-info
+colorpalettegenerator	norm	judged-info	test	judged-info
+company reviews by employees	query	judged-info	test	judged-info
+companyreviewsbyemployees	norm	judged-info	test	judged-info
+concert tickets	query	judged-info	test	judged-info
+concerttickets	norm	judged-info	test	judged-info
+convert video to mp3	query	judged-info	test	judged-info
+convertvideotomp3	norm	judged-info	test	judged-info
+coupon codes site	query	judged-info	test	judged-info
+couponcodessite	norm	judged-info	test	judged-info
+credit card comparison site	query	judged-info	test	judged-info
+creditcardcomparisonsite	norm	judged-info	test	judged-info
+crossword puzzle online	query	judged-info	test	judged-info
+crosswordpuzzleonline	norm	judged-info	test	judged-info
+crowdfunding for creators	query	judged-info	test	judged-info
+crowdfundingforcreators	norm	judged-info	test	judged-info
+crowdsourced travel photos	query	judged-info	test	judged-info
+crowdsourcedtravelphotos	norm	judged-info	test	judged-info
+cryptocurrency exchange	query	judged-info	test	judged-info
+cryptocurrencyexchange	norm	judged-info	test	judged-info
+currency converter	query	judged-info	test	judged-info
+currencyconverter	norm	judged-info	test	judged-info
+custom t-shirt printing	query	judged-info	test	judged-info
+customtshirtprinting	norm	judged-info	test	judged-info
+dating app	query	judged-info	test	judged-info
+datingapp	norm	judged-info	test	judged-info
+developer documentation site	query	judged-info	test	judged-info
+developerdocumentationsite	norm	judged-info	test	judged-info
+diagram maker online	query	judged-info	test	judged-info
+diagrammakeronline	norm	judged-info	test	judged-info
+dictionary website	query	judged-info	test	judged-info
+dictionarywebsite	norm	judged-info	test	judged-info
+diy projects site	query	judged-info	test	judged-info
+diyprojectssite	norm	judged-info	test	judged-info
+dna testing service	query	judged-info	test	judged-info
+dnatestingservice	norm	judged-info	test	judged-info
+dns lookup tool	query	judged-info	test	judged-info
+dnslookuptool	norm	judged-info	test	judged-info
+doctor reviews site	query	judged-info	test	judged-info
+doctorreviewssite	norm	judged-info	test	judged-info
+domain name registrar	query	judged-info	test	judged-info
+domainnameregistrar	norm	judged-info	test	judged-info
+driving directions	query	judged-info	test	judged-info
+drivingdirections	norm	judged-info	test	judged-info
+e-signature service	query	judged-info	test	judged-info
+earthquake tracker	query	judged-info	test	judged-info
+earthquaketracker	norm	judged-info	test	judged-info
+edit pdf online free	query	judged-info	test	judged-info
+editpdfonlinefree	norm	judged-info	test	judged-info
+effects of social media on teenagers	query	judged-info	test	judged-info
+effectsofsocialmediaonteenagers	norm	judged-info	test	judged-info
+electric vehicle charging map	query	judged-info	test	judged-info
+electricvehiclechargingmap	norm	judged-info	test	judged-info
+email marketing service	query	judged-info	test	judged-info
+email provider with privacy	query	judged-info	test	judged-info
+emailmarketingservice	norm	judged-info	test	judged-info
+emailproviderwithprivacy	norm	judged-info	test	judged-info
+encrypted messaging app	query	judged-info	test	judged-info
+encryptedmessagingapp	norm	judged-info	test	judged-info
+esignatureservice	norm	judged-info	test	judged-info
+esports news	query	judged-info	test	judged-info
+esportsnews	norm	judged-info	test	judged-info
+event ticketing site	query	judged-info	test	judged-info
+eventticketingsite	norm	judged-info	test	judged-info
+fact checking website	query	judged-info	test	judged-info
+factcheckingwebsite	norm	judged-info	test	judged-info
+fan wiki hosting	query	judged-info	test	judged-info
+fantasy football app	query	judged-info	test	judged-info
+fantasyfootballapp	norm	judged-info	test	judged-info
+fanwikihosting	norm	judged-info	test	judged-info
+file converter online	query	judged-info	test	judged-info
+fileconverteronline	norm	judged-info	test	judged-info
+film database	query	judged-info	test	judged-info
+filmdatabase	norm	judged-info	test	judged-info
+flashcard app	query	judged-info	test	judged-info
+flashcardapp	norm	judged-info	test	judged-info
+flight tracker	query	judged-info	test	judged-info
+flighttracker	norm	judged-info	test	judged-info
+florida drivers license renewal	query	judged-info	test	judged-info
+florida unemployment benefits apply	query	judged-info	test	judged-info
+floridadriverslicenserenewal	norm	judged-info	test	judged-info
+floridaunemploymentbenefitsapply	norm	judged-info	test	judged-info
+font download site	query	judged-info	test	judged-info
+fontdownloadsite	norm	judged-info	test	judged-info
+food delivery app	query	judged-info	test	judged-info
+fooddeliveryapp	norm	judged-info	test	judged-info
+free ebook library	query	judged-info	test	judged-info
+free email service	query	judged-info	test	judged-info
+free file sharing site	query	judged-info	test	judged-info
+free icons website	query	judged-info	test	judged-info
+free movie streaming legal	query	judged-info	test	judged-info
+free online games	query	judged-info	test	judged-info
+free website builder	query	judged-info	test	judged-info
+freeebooklibrary	norm	judged-info	test	judged-info
+freeemailservice	norm	judged-info	test	judged-info
+freefilesharingsite	norm	judged-info	test	judged-info
+freeiconswebsite	norm	judged-info	test	judged-info
+freelance marketplace	query	judged-info	test	judged-info
+freelancemarketplace	norm	judged-info	test	judged-info
+freemoviestreaminglegal	norm	judged-info	test	judged-info
+freeonlinegames	norm	judged-info	test	judged-info
+freewebsitebuilder	norm	judged-info	test	judged-info
+furniture store online	query	judged-info	test	judged-info
+furniturestoreonline	norm	judged-info	test	judged-info
+game reviews site	query	judged-info	test	judged-info
+game store for pc	query	judged-info	test	judged-info
+gamereviewssite	norm	judged-info	test	judged-info
+gamestoreforpc	norm	judged-info	test	judged-info
+gardening guide site	query	judged-info	test	judged-info
+gardeningguidesite	norm	judged-info	test	judged-info
+gas prices near me app	query	judged-info	test	judged-info
+gaspricesnearmeapp	norm	judged-info	test	judged-info
+genealogy website	query	judged-info	test	judged-info
+genealogywebsite	norm	judged-info	test	judged-info
+gift ideas site	query	judged-info	test	judged-info
+giftideassite	norm	judged-info	test	judged-info
+government benefits site	query	judged-info	test	judged-info
+governmentbenefitssite	norm	judged-info	test	judged-info
+grammar checker	query	judged-info	test	judged-info
+grammarchecker	norm	judged-info	test	judged-info
+graphic design tool online	query	judged-info	test	judged-info
+graphicdesigntoolonline	norm	judged-info	test	judged-info
+guitar tabs site	query	judged-info	test	judged-info
+guitartabssite	norm	judged-info	test	judged-info
+habit tracker	query	judged-info	test	judged-info
+habittracker	norm	judged-info	test	judged-info
+handyman booking app	query	judged-info	test	judged-info
+handymanbookingapp	norm	judged-info	test	judged-info
+hawaii birth certificate copy	query	judged-info	test	judged-info
+hawaiibirthcertificatecopy	norm	judged-info	test	judged-info
+history of e-books	query	judged-info	test	judged-info
+history of online dating	query	judged-info	test	judged-info
+history of online shopping	query	judged-info	test	judged-info
+history of social media	query	judged-info	test	judged-info
+history of the smartphone	query	judged-info	test	judged-info
+history of the world wide web	query	judged-info	test	judged-info
+history of video games	query	judged-info	test	judged-info
+historyofebooks	norm	judged-info	test	judged-info
+historyofonlinedating	norm	judged-info	test	judged-info
+historyofonlineshopping	norm	judged-info	test	judged-info
+historyofsocialmedia	norm	judged-info	test	judged-info
+historyofthesmartphone	norm	judged-info	test	judged-info
+historyoftheworldwideweb	norm	judged-info	test	judged-info
+historyofvideogames	norm	judged-info	test	judged-info
+home decor ideas	query	judged-info	test	judged-info
+home services marketplace	query	judged-info	test	judged-info
+home swap site	query	judged-info	test	judged-info
+home value estimate	query	judged-info	test	judged-info
+homedecorideas	norm	judged-info	test	judged-info
+homeservicesmarketplace	norm	judged-info	test	judged-info
+homeswapsite	norm	judged-info	test	judged-info
+homevalueestimate	norm	judged-info	test	judged-info
+hotel price comparison	query	judged-info	test	judged-info
+hotelpricecomparison	norm	judged-info	test	judged-info
+how do dating apps match people	query	judged-info	test	judged-info
+how do podcasts make money	query	judged-info	test	judged-info
+how do recommendation algorithms work	query	judged-info	test	judged-info
+how do search engines work	query	judged-info	test	judged-info
+how does a password manager work	query	judged-info	test	judged-info
+how does a price comparison site make money	query	judged-info	test	judged-info
+how does action potential work	query	judged-info	test	judged-info
+how does airplane work	query	judged-info	test	judged-info
+how does apoptosis work	query	judged-info	test	judged-info
+how does aposematism work	query	judged-info	test	judged-info
+how does asexual reproduction work	query	judged-info	test	judged-info
+how does augmented reality work	query	judged-info	test	judged-info
+how does automation work	query	judged-info	test	judged-info
+how does autophagy work	query	judged-info	test	judged-info
+how does big mac work	query	judged-info	test	judged-info
+how does bioluminescence work	query	judged-info	test	judged-info
+how does cellular respiration work	query	judged-info	test	judged-info
+how does circadian rhythm work	query	judged-info	test	judged-info
+how does citric acid cycle work	query	judged-info	test	judged-info
+how does cocoa bean work	query	judged-info	test	judged-info
+how does cognition work	query	judged-info	test	judged-info
+how does computer work	query	judged-info	test	judged-info
+how does crochet work	query	judged-info	test	judged-info
+how does defecation work	query	judged-info	test	judged-info
+how does dijkstra's algorithm work	query	judged-info	test	judged-info
+how does dns work	query	judged-info	test	judged-info
+how does ejaculation work	query	judged-info	test	judged-info
+how does electrolysis work	query	judged-info	test	judged-info
+how does email encryption work	query	judged-info	test	judged-info
+how does embalming work	query	judged-info	test	judged-info
+how does erection work	query	judged-info	test	judged-info
+how does estrous cycle work	query	judged-info	test	judged-info
+how does euclidean algorithm work	query	judged-info	test	judged-info
+how does expansion of the universe work	query	judged-info	test	judged-info
+how does female ejaculation work	query	judged-info	test	judged-info
+how does fermentation work	query	judged-info	test	judged-info
+how does glycolysis work	query	judged-info	test	judged-info
+how does gps navigation work	query	judged-info	test	judged-info
+how does haber process work	query	judged-info	test	judged-info
+how does heat pump work	query	judged-info	test	judged-info
+how does hibernation work	query	judged-info	test	judged-info
+how does imax work	query	judged-info	test	judged-info
+how does internet of things work	query	judged-info	test	judged-info
+how does iphone air work	query	judged-info	test	judged-info
+how does iron dome work	query	judged-info	test	judged-info
+how does johari window work	query	judged-info	test	judged-info
+how does johnnie walker work	query	judged-info	test	judged-info
+how does kalman filter work	query	judged-info	test	judged-info
+how does levenshtein distance work	query	judged-info	test	judged-info
+how does life work	query	judged-info	test	judged-info
+how does loom work	query	judged-info	test	judged-info
+how does luhn algorithm work	query	judged-info	test	judged-info
+how does malt work	query	judged-info	test	judged-info
+how does mechanical turk work	query	judged-info	test	judged-info
+how does menarche work	query	judged-info	test	judged-info
+how does menopause work	query	judged-info	test	judged-info
+how does menstrual cycle work	query	judged-info	test	judged-info
+how does menstruation work	query	judged-info	test	judged-info
+how does metabolism work	query	judged-info	test	judged-info
+how does minimax work	query	judged-info	test	judged-info
+how does mitosis work	query	judged-info	test	judged-info
+how does mnemonic work	query	judged-info	test	judged-info
+how does mycorrhiza work	query	judged-info	test	judged-info
+how does oil work	query	judged-info	test	judged-info
+how does operant conditioning work	query	judged-info	test	judged-info
+how does osmosis work	query	judged-info	test	judged-info
+how does ozone depletion work	query	judged-info	test	judged-info
+how does pagerank work	query	judged-info	test	judged-info
+how does perceptron work	query	judged-info	test	judged-info
+how does perfume work	query	judged-info	test	judged-info
+how does petroleum work	query	judged-info	test	judged-info
+how does photosynthesis work	query	judged-info	test	judged-info
+how does pomodoro technique work	query	judged-info	test	judged-info
+how does positron emission tomography work	query	judged-info	test	judged-info
+how does power over ethernet work	query	judged-info	test	judged-info
+how does printing press work	query	judged-info	test	judged-info
+how does prompt engineering work	query	judged-info	test	judged-info
+how does proprioception work	query	judged-info	test	judged-info
+how does radio work	query	judged-info	test	judged-info
+how does reproduction work	query	judged-info	test	judged-info
+how does ride sharing work	query	judged-info	test	judged-info
+how does rubber duck debugging work	query	judged-info	test	judged-info
+how does sexual reproduction work	query	judged-info	test	judged-info
+how does sleep work	query	judged-info	test	judged-info
+how does socratic method work	query	judged-info	test	judged-info
+how does sonar work	query	judged-info	test	judged-info
+how does streaming television work	query	judged-info	test	judged-info
+how does sugarcane work	query	judged-info	test	judged-info
+how does swot analysis work	query	judged-info	test	judged-info
+how does text to speech work	query	judged-info	test	judged-info
+how does torpor work	query	judged-info	test	judged-info
+how does traffic light work	query	judged-info	test	judged-info
+how does tumbleweed work	query	judged-info	test	judged-info
+how does urination work	query	judged-info	test	judged-info
+how does video streaming work	query	judged-info	test	judged-info
+how does voice over ip work	query	judged-info	test	judged-info
+how does vomiting work	query	judged-info	test	judged-info
+how does voronoi diagram work	query	judged-info	test	judged-info
+how does waze work	query	judged-info	test	judged-info
+how does wd-40 work	query	judged-info	test	judged-info
+how does weather work	query	judged-info	test	judged-info
+how does whopper work	query	judged-info	test	judged-info
+howdodatingappsmatchpeople	norm	judged-info	test	judged-info
+howdoesactionpotentialwork	norm	judged-info	test	judged-info
+howdoesairplanework	norm	judged-info	test	judged-info
+howdoesapasswordmanagerwork	norm	judged-info	test	judged-info
+howdoesapoptosiswork	norm	judged-info	test	judged-info
+howdoesaposematismwork	norm	judged-info	test	judged-info
+howdoesapricecomparisonsitemakemoney	norm	judged-info	test	judged-info
+howdoesasexualreproductionwork	norm	judged-info	test	judged-info
+howdoesaugmentedrealitywork	norm	judged-info	test	judged-info
+howdoesautomationwork	norm	judged-info	test	judged-info
+howdoesautophagywork	norm	judged-info	test	judged-info
+howdoesbigmacwork	norm	judged-info	test	judged-info
+howdoesbioluminescencework	norm	judged-info	test	judged-info
+howdoescellularrespirationwork	norm	judged-info	test	judged-info
+howdoescircadianrhythmwork	norm	judged-info	test	judged-info
+howdoescitricacidcyclework	norm	judged-info	test	judged-info
+howdoescocoabeanwork	norm	judged-info	test	judged-info
+howdoescognitionwork	norm	judged-info	test	judged-info
+howdoescomputerwork	norm	judged-info	test	judged-info
+howdoescrochetwork	norm	judged-info	test	judged-info
+howdoesdefecationwork	norm	judged-info	test	judged-info
+howdoesdijkstrasalgorithmwork	norm	judged-info	test	judged-info
+howdoesdnswork	norm	judged-info	test	judged-info
+howdoesejaculationwork	norm	judged-info	test	judged-info
+howdoeselectrolysiswork	norm	judged-info	test	judged-info
+howdoesemailencryptionwork	norm	judged-info	test	judged-info
+howdoesembalmingwork	norm	judged-info	test	judged-info
+howdoeserectionwork	norm	judged-info	test	judged-info
+howdoesestrouscyclework	norm	judged-info	test	judged-info
+howdoeseuclideanalgorithmwork	norm	judged-info	test	judged-info
+howdoesexpansionoftheuniversework	norm	judged-info	test	judged-info
+howdoesfemaleejaculationwork	norm	judged-info	test	judged-info
+howdoesfermentationwork	norm	judged-info	test	judged-info
+howdoesglycolysiswork	norm	judged-info	test	judged-info
+howdoesgpsnavigationwork	norm	judged-info	test	judged-info
+howdoeshaberprocesswork	norm	judged-info	test	judged-info
+howdoesheatpumpwork	norm	judged-info	test	judged-info
+howdoeshibernationwork	norm	judged-info	test	judged-info
+howdoesimaxwork	norm	judged-info	test	judged-info
+howdoesinternetofthingswork	norm	judged-info	test	judged-info
+howdoesiphoneairwork	norm	judged-info	test	judged-info
+howdoesirondomework	norm	judged-info	test	judged-info
+howdoesjohariwindowwork	norm	judged-info	test	judged-info
+howdoesjohnniewalkerwork	norm	judged-info	test	judged-info
+howdoeskalmanfilterwork	norm	judged-info	test	judged-info
+howdoeslevenshteindistancework	norm	judged-info	test	judged-info
+howdoeslifework	norm	judged-info	test	judged-info
+howdoesloomwork	norm	judged-info	test	judged-info
+howdoesluhnalgorithmwork	norm	judged-info	test	judged-info
+howdoesmaltwork	norm	judged-info	test	judged-info
+howdoesmechanicalturkwork	norm	judged-info	test	judged-info
+howdoesmenarchework	norm	judged-info	test	judged-info
+howdoesmenopausework	norm	judged-info	test	judged-info
+howdoesmenstrualcyclework	norm	judged-info	test	judged-info
+howdoesmenstruationwork	norm	judged-info	test	judged-info
+howdoesmetabolismwork	norm	judged-info	test	judged-info
+howdoesminimaxwork	norm	judged-info	test	judged-info
+howdoesmitosiswork	norm	judged-info	test	judged-info
+howdoesmnemonicwork	norm	judged-info	test	judged-info
+howdoesmycorrhizawork	norm	judged-info	test	judged-info
+howdoesoilwork	norm	judged-info	test	judged-info
+howdoesoperantconditioningwork	norm	judged-info	test	judged-info
+howdoesosmosiswork	norm	judged-info	test	judged-info
+howdoesozonedepletionwork	norm	judged-info	test	judged-info
+howdoespagerankwork	norm	judged-info	test	judged-info
+howdoesperceptronwork	norm	judged-info	test	judged-info
+howdoesperfumework	norm	judged-info	test	judged-info
+howdoespetroleumwork	norm	judged-info	test	judged-info
+howdoesphotosynthesiswork	norm	judged-info	test	judged-info
+howdoespomodorotechniquework	norm	judged-info	test	judged-info
+howdoespositronemissiontomographywork	norm	judged-info	test	judged-info
+howdoespoweroverethernetwork	norm	judged-info	test	judged-info
+howdoesprintingpresswork	norm	judged-info	test	judged-info
+howdoespromptengineeringwork	norm	judged-info	test	judged-info
+howdoesproprioceptionwork	norm	judged-info	test	judged-info
+howdoesradiowork	norm	judged-info	test	judged-info
+howdoesreproductionwork	norm	judged-info	test	judged-info
+howdoesridesharingwork	norm	judged-info	test	judged-info
+howdoesrubberduckdebuggingwork	norm	judged-info	test	judged-info
+howdoessexualreproductionwork	norm	judged-info	test	judged-info
+howdoessleepwork	norm	judged-info	test	judged-info
+howdoessocraticmethodwork	norm	judged-info	test	judged-info
+howdoessonarwork	norm	judged-info	test	judged-info
+howdoesstreamingtelevisionwork	norm	judged-info	test	judged-info
+howdoessugarcanework	norm	judged-info	test	judged-info
+howdoesswotanalysiswork	norm	judged-info	test	judged-info
+howdoestexttospeechwork	norm	judged-info	test	judged-info
+howdoestorporwork	norm	judged-info	test	judged-info
+howdoestrafficlightwork	norm	judged-info	test	judged-info
+howdoestumbleweedwork	norm	judged-info	test	judged-info
+howdoesurinationwork	norm	judged-info	test	judged-info
+howdoesvideostreamingwork	norm	judged-info	test	judged-info
+howdoesvoiceoveripwork	norm	judged-info	test	judged-info
+howdoesvomitingwork	norm	judged-info	test	judged-info
+howdoesvoronoidiagramwork	norm	judged-info	test	judged-info
+howdoeswazework	norm	judged-info	test	judged-info
+howdoeswd40work	norm	judged-info	test	judged-info
+howdoesweatherwork	norm	judged-info	test	judged-info
+howdoeswhopperwork	norm	judged-info	test	judged-info
+howdopodcastsmakemoney	norm	judged-info	test	judged-info
+howdorecommendationalgorithmswork	norm	judged-info	test	judged-info
+howdosearchengineswork	norm	judged-info	test	judged-info
+id jury duty	query	judged-info	test	judged-info
+idaho jury duty	query	judged-info	test	judged-info
+idaho nursing license lookup	query	judged-info	test	judged-info
+idaho state parks camping reservations	query	judged-info	test	judged-info
+idahojuryduty	norm	judged-info	test	judged-info
+idahonursinglicenselookup	norm	judged-info	test	judged-info
+idahostateparkscampingreservations	norm	judged-info	test	judged-info
+idjuryduty	norm	judged-info	test	judged-info
+image hosting site	query	judged-info	test	judged-info
+imagehostingsite	norm	judged-info	test	judged-info
+indiana firearms permit	query	judged-info	test	judged-info
+indiana unemployment benefits apply	query	judged-info	test	judged-info
+indianafirearmspermit	norm	judged-info	test	judged-info
+indianaunemploymentbenefitsapply	norm	judged-info	test	judged-info
+insurance quotes comparison	query	judged-info	test	judged-info
+insurancequotescomparison	norm	judged-info	test	judged-info
+interior design app	query	judged-info	test	judged-info
+interiordesignapp	norm	judged-info	test	judged-info
+internet radio streaming	query	judged-info	test	judged-info
+internetradiostreaming	norm	judged-info	test	judged-info
+investment research site	query	judged-info	test	judged-info
+investmentresearchsite	norm	judged-info	test	judged-info
+invoice software for small business	query	judged-info	test	judged-info
+invoicesoftwareforsmallbusiness	norm	judged-info	test	judged-info
+iowa birth certificate copy	query	judged-info	test	judged-info
+iowa child support payment	query	judged-info	test	judged-info
+iowabirthcertificatecopy	norm	judged-info	test	judged-info
+iowachildsupportpayment	norm	judged-info	test	judged-info
+kanban board online	query	judged-info	test	judged-info
+kanbanboardonline	norm	judged-info	test	judged-info
+kansas drivers license renewal	query	judged-info	test	judged-info
+kansas real id requirements	query	judged-info	test	judged-info
+kansasdriverslicenserenewal	norm	judged-info	test	judged-info
+kansasrealidrequirements	norm	judged-info	test	judged-info
+kentucky child support payment	query	judged-info	test	judged-info
+kentuckychildsupportpayment	norm	judged-info	test	judged-info
+kids learning games	query	judged-info	test	judged-info
+kidslearninggames	norm	judged-info	test	judged-info
+knitting patterns	query	judged-info	test	judged-info
+knittingpatterns	norm	judged-info	test	judged-info
+language exchange app	query	judged-info	test	judged-info
+languageexchangeapp	norm	judged-info	test	judged-info
+learn to code online	query	judged-info	test	judged-info
+learntocodeonline	norm	judged-info	test	judged-info
+link in bio tool	query	judged-info	test	judged-info
+linkinbiotool	norm	judged-info	test	judged-info
+linux distribution	query	judged-info	test	judged-info
+linuxdistribution	norm	judged-info	test	judged-info
+live streaming platform for gamers	query	judged-info	test	judged-info
+livestreamingplatformforgamers	norm	judged-info	test	judged-info
+logo maker	query	judged-info	test	judged-info
+logomaker	norm	judged-info	test	judged-info
+louisiana real id requirements	query	judged-info	test	judged-info
+louisianarealidrequirements	norm	judged-info	test	judged-info
+lyrics website	query	judged-info	test	judged-info
+lyricswebsite	norm	judged-info	test	judged-info
+ma real id requirements	query	judged-info	test	judged-info
+maine firearms permit	query	judged-info	test	judged-info
+mainefirearmspermit	norm	judged-info	test	judged-info
+manga reader	query	judged-info	test	judged-info
+mangareader	norm	judged-info	test	judged-info
+map website	query	judged-info	test	judged-info
+mapwebsite	norm	judged-info	test	judged-info
+marealidrequirements	norm	judged-info	test	judged-info
+massachusetts child support payment	query	judged-info	test	judged-info
+massachusetts drivers license renewal	query	judged-info	test	judged-info
+massachusettschildsupportpayment	norm	judged-info	test	judged-info
+massachusettsdriverslicenserenewal	norm	judged-info	test	judged-info
+math homework help site	query	judged-info	test	judged-info
+mathhomeworkhelpsite	norm	judged-info	test	judged-info
+meal kit delivery	query	judged-info	test	judged-info
+mealkitdelivery	norm	judged-info	test	judged-info
+meditation app	query	judged-info	test	judged-info
+meditationapp	norm	judged-info	test	judged-info
+meme site	query	judged-info	test	judged-info
+memesite	norm	judged-info	test	judged-info
+merge pdf files online	query	judged-info	test	judged-info
+mergepdffilesonline	norm	judged-info	test	judged-info
+mind map tool	query	judged-info	test	judged-info
+mindmaptool	norm	judged-info	test	judged-info
+mn state tax refund status	query	judged-info	test	judged-info
+mnstatetaxrefundstatus	norm	judged-info	test	judged-info
+money transfer abroad	query	judged-info	test	judged-info
+moneytransferabroad	norm	judged-info	test	judged-info
+mortgage calculator site	query	judged-info	test	judged-info
+mortgagecalculatorsite	norm	judged-info	test	judged-info
+movie showtimes site	query	judged-info	test	judged-info
+movieshowtimessite	norm	judged-info	test	judged-info
+moving company quotes	query	judged-info	test	judged-info
+movingcompanyquotes	norm	judged-info	test	judged-info
+music production software	query	judged-info	test	judged-info
+music streaming app	query	judged-info	test	judged-info
+musicproductionsoftware	norm	judged-info	test	judged-info
+musicstreamingapp	norm	judged-info	test	judged-info
+ne jury duty	query	judged-info	test	judged-info
+ne state parks camping reservations	query	judged-info	test	judged-info
+nebraska unclaimed property	query	judged-info	test	judged-info
+nebraskaunclaimedproperty	norm	judged-info	test	judged-info
+neighborhood social network	query	judged-info	test	judged-info
+neighborhoodsocialnetwork	norm	judged-info	test	judged-info
+nejuryduty	norm	judged-info	test	judged-info
+nestateparkscampingreservations	norm	judged-info	test	judged-info
+news aggregator	query	judged-info	test	judged-info
+newsaggregator	norm	judged-info	test	judged-info
+newsletter platform	query	judged-info	test	judged-info
+newsletterplatform	norm	judged-info	test	judged-info
+north carolina nursing license lookup	query	judged-info	test	judged-info
+north carolina unclaimed property	query	judged-info	test	judged-info
+northcarolinanursinglicenselookup	norm	judged-info	test	judged-info
+northcarolinaunclaimedproperty	norm	judged-info	test	judged-info
+note taking app with markdown	query	judged-info	test	judged-info
+notetakingappwithmarkdown	norm	judged-info	test	judged-info
+nv child support payment	query	judged-info	test	judged-info
+nvchildsupportpayment	norm	judged-info	test	judged-info
+ohio marriage license	query	judged-info	test	judged-info
+ohio state parks camping reservations	query	judged-info	test	judged-info
+ohiomarriagelicense	norm	judged-info	test	judged-info
+ohiostateparkscampingreservations	norm	judged-info	test	judged-info
+ok medicaid application	query	judged-info	test	judged-info
+okmedicaidapplication	norm	judged-info	test	judged-info
+online auction site	query	judged-info	test	judged-info
+online backup service	query	judged-info	test	judged-info
+online bank	query	judged-info	test	judged-info
+online chess	query	judged-info	test	judged-info
+online code editor	query	judged-info	test	judged-info
+online course platform	query	judged-info	test	judged-info
+online dictionary for slang	query	judged-info	test	judged-info
+online encyclopedia	query	judged-info	test	judged-info
+online florist	query	judged-info	test	judged-info
+online form builder	query	judged-info	test	judged-info
+online forum for car enthusiasts	query	judged-info	test	judged-info
+online graphing calculator	query	judged-info	test	judged-info
+online grocery delivery	query	judged-info	test	judged-info
+online library catalog	query	judged-info	test	judged-info
+online marketplace for local buying and selling	query	judged-info	test	judged-info
+online paste bin	query	judged-info	test	judged-info
+online pharmacy	query	judged-info	test	judged-info
+online photo editor	query	judged-info	test	judged-info
+online stopwatch	query	judged-info	test	judged-info
+online store builder	query	judged-info	test	judged-info
+online thesaurus	query	judged-info	test	judged-info
+online tutoring	query	judged-info	test	judged-info
+online whiteboard	query	judged-info	test	judged-info
+onlineauctionsite	norm	judged-info	test	judged-info
+onlinebackupservice	norm	judged-info	test	judged-info
+onlinebank	norm	judged-info	test	judged-info
+onlinechess	norm	judged-info	test	judged-info
+onlinecodeeditor	norm	judged-info	test	judged-info
+onlinecourseplatform	norm	judged-info	test	judged-info
+onlinedictionaryforslang	norm	judged-info	test	judged-info
+onlineencyclopedia	norm	judged-info	test	judged-info
+onlineflorist	norm	judged-info	test	judged-info
+onlineformbuilder	norm	judged-info	test	judged-info
+onlineforumforcarenthusiasts	norm	judged-info	test	judged-info
+onlinegraphingcalculator	norm	judged-info	test	judged-info
+onlinegrocerydelivery	norm	judged-info	test	judged-info
+onlinelibrarycatalog	norm	judged-info	test	judged-info
+onlinemarketplaceforlocalbuyingandselling	norm	judged-info	test	judged-info
+onlinepastebin	norm	judged-info	test	judged-info
+onlinepharmacy	norm	judged-info	test	judged-info
+onlinephotoeditor	norm	judged-info	test	judged-info
+onlinestopwatch	norm	judged-info	test	judged-info
+onlinestorebuilder	norm	judged-info	test	judged-info
+onlinethesaurus	norm	judged-info	test	judged-info
+onlinetutoring	norm	judged-info	test	judged-info
+onlinewhiteboard	norm	judged-info	test	judged-info
+open source code hosting	query	judged-info	test	judged-info
+open source office suite	query	judged-info	test	judged-info
+opensourcecodehosting	norm	judged-info	test	judged-info
+opensourceofficesuite	norm	judged-info	test	judged-info
+pa fishing license	query	judged-info	test	judged-info
+package registry for javascript	query	judged-info	test	judged-info
+package tracking site	query	judged-info	test	judged-info
+packageregistryforjavascript	norm	judged-info	test	judged-info
+packagetrackingsite	norm	judged-info	test	judged-info
+pafishinglicense	norm	judged-info	test	judged-info
+paint color visualizer	query	judged-info	test	judged-info
+paintcolorvisualizer	norm	judged-info	test	judged-info
+parenting forum	query	judged-info	test	judged-info
+parentingforum	norm	judged-info	test	judged-info
+parking reservation app	query	judged-info	test	judged-info
+parkingreservationapp	norm	judged-info	test	judged-info
+passport application	query	judged-info	test	judged-info
+passportapplication	norm	judged-info	test	judged-info
+password generator	query	judged-info	test	judged-info
+passwordgenerator	norm	judged-info	test	judged-info
+pay traffic ticket pa	query	judged-info	test	judged-info
+pay traffic ticket rhode island	query	judged-info	test	judged-info
+pay traffic ticket va	query	judged-info	test	judged-info
+pay traffic ticket vermont	query	judged-info	test	judged-info
+payment processor for websites	query	judged-info	test	judged-info
+paymentprocessorforwebsites	norm	judged-info	test	judged-info
+paytrafficticketpa	norm	judged-info	test	judged-info
+paytrafficticketrhodeisland	norm	judged-info	test	judged-info
+paytrafficticketva	norm	judged-info	test	judged-info
+paytrafficticketvermont	norm	judged-info	test	judged-info
+peer to peer file sharing history	query	judged-info	test	judged-info
+peer to peer payments app	query	judged-info	test	judged-info
+peertopeerfilesharinghistory	norm	judged-info	test	judged-info
+peertopeerpaymentsapp	norm	judged-info	test	judged-info
+personal finance tracker	query	judged-info	test	judged-info
+personalfinancetracker	norm	judged-info	test	judged-info
+pet supplies online	query	judged-info	test	judged-info
+petition website	query	judged-info	test	judged-info
+petitionwebsite	norm	judged-info	test	judged-info
+petsuppliesonline	norm	judged-info	test	judged-info
+photo printing service	query	judged-info	test	judged-info
+photoprintingservice	norm	judged-info	test	judged-info
+plant identification app	query	judged-info	test	judged-info
+plantidentificationapp	norm	judged-info	test	judged-info
+play board games online	query	judged-info	test	judged-info
+playboardgamesonline	norm	judged-info	test	judged-info
+podcast app	query	judged-info	test	judged-info
+podcastapp	norm	judged-info	test	judged-info
+postage online	query	judged-info	test	judged-info
+postageonline	norm	judged-info	test	judged-info
+price comparison website	query	judged-info	test	judged-info
+pricecomparisonwebsite	norm	judged-info	test	judged-info
+print on demand service	query	judged-info	test	judged-info
+printondemandservice	norm	judged-info	test	judged-info
+project management tool	query	judged-info	test	judged-info
+projectmanagementtool	norm	judged-info	test	judged-info
+public transit app	query	judged-info	test	judged-info
+publictransitapp	norm	judged-info	test	judged-info
+qr code generator	query	judged-info	test	judged-info
+qrcodegenerator	norm	judged-info	test	judged-info
+question and answer site	query	judged-info	test	judged-info
+questionandanswersite	norm	judged-info	test	judged-info
+radio station finder	query	judged-info	test	judged-info
+radiostationfinder	norm	judged-info	test	judged-info
+random name picker	query	judged-info	test	judged-info
+randomnamepicker	norm	judged-info	test	judged-info
+reading tracker app	query	judged-info	test	judged-info
+readingtrackerapp	norm	judged-info	test	judged-info
+real estate listings site	query	judged-info	test	judged-info
+realestatelistingssite	norm	judged-info	test	judged-info
+recipe app	query	judged-info	test	judged-info
+recipeapp	norm	judged-info	test	judged-info
+register an llc in az	query	judged-info	test	judged-info
+register an llc in kentucky	query	judged-info	test	judged-info
+register an llc in new mexico	query	judged-info	test	judged-info
+register an llc in washington	query	judged-info	test	judged-info
+register an llc in wyoming	query	judged-info	test	judged-info
+register to vote in al	query	judged-info	test	judged-info
+registeranllcinaz	norm	judged-info	test	judged-info
+registeranllcinkentucky	norm	judged-info	test	judged-info
+registeranllcinnewmexico	norm	judged-info	test	judged-info
+registeranllcinwashington	norm	judged-info	test	judged-info
+registeranllcinwyoming	norm	judged-info	test	judged-info
+registertovoteinal	norm	judged-info	test	judged-info
+remote desktop software	query	judged-info	test	judged-info
+remote job board	query	judged-info	test	judged-info
+remotedesktopsoftware	norm	judged-info	test	judged-info
+remotejobboard	norm	judged-info	test	judged-info
+renew car registration alabama	query	judged-info	test	judged-info
+renew car registration nebraska	query	judged-info	test	judged-info
+renew car registration oregon	query	judged-info	test	judged-info
+renewcarregistrationalabama	norm	judged-info	test	judged-info
+renewcarregistrationnebraska	norm	judged-info	test	judged-info
+renewcarregistrationoregon	norm	judged-info	test	judged-info
+restaurant reservation app	query	judged-info	test	judged-info
+restaurantreservationapp	norm	judged-info	test	judged-info
+resume builder	query	judged-info	test	judged-info
+resumebuilder	norm	judged-info	test	judged-info
+retirement calculator	query	judged-info	test	judged-info
+retirementcalculator	norm	judged-info	test	judged-info
+rhode island medicaid application	query	judged-info	test	judged-info
+rhodeislandmedicaidapplication	norm	judged-info	test	judged-info
+rideshare app	query	judged-info	test	judged-info
+rideshareapp	norm	judged-info	test	judged-info
+roommate finder	query	judged-info	test	judged-info
+roommatefinder	norm	judged-info	test	judged-info
+royalty free music	query	judged-info	test	judged-info
+royaltyfreemusic	norm	judged-info	test	judged-info
+running app	query	judged-info	test	judged-info
+runningapp	norm	judged-info	test	judged-info
+salary comparison site	query	judged-info	test	judged-info
+salarycomparisonsite	norm	judged-info	test	judged-info
+scholarship search	query	judged-info	test	judged-info
+scholarshipsearch	norm	judged-info	test	judged-info
+screen recording software	query	judged-info	test	judged-info
+screenrecordingsoftware	norm	judged-info	test	judged-info
+sd medicaid application	query	judged-info	test	judged-info
+sdmedicaidapplication	norm	judged-info	test	judged-info
+secure email	query	judged-info	test	judged-info
+secureemail	norm	judged-info	test	judged-info
+sell used electronics	query	judged-info	test	judged-info
+sellusedelectronics	norm	judged-info	test	judged-info
+send large files online	query	judged-info	test	judged-info
+sendlargefilesonline	norm	judged-info	test	judged-info
+sheet music site	query	judged-info	test	judged-info
+sheetmusicsite	norm	judged-info	test	judged-info
+shipping rates comparison	query	judged-info	test	judged-info
+shippingratescomparison	norm	judged-info	test	judged-info
+short video app	query	judged-info	test	judged-info
+shortvideoapp	norm	judged-info	test	judged-info
+sleep tracking app	query	judged-info	test	judged-info
+sleeptrackingapp	norm	judged-info	test	judged-info
+small business loans marketplace	query	judged-info	test	judged-info
+smallbusinessloansmarketplace	norm	judged-info	test	judged-info
+sneaker resale site	query	judged-info	test	judged-info
+sneakerresalesite	norm	judged-info	test	judged-info
+social media scheduler	query	judged-info	test	judged-info
+social network for professionals	query	judged-info	test	judged-info
+socialmediascheduler	norm	judged-info	test	judged-info
+socialnetworkforprofessionals	norm	judged-info	test	judged-info
+software download site	query	judged-info	test	judged-info
+softwaredownloadsite	norm	judged-info	test	judged-info
+sound effects library	query	judged-info	test	judged-info
+soundeffectslibrary	norm	judged-info	test	judged-info
+speech to text online	query	judged-info	test	judged-info
+speechtotextonline	norm	judged-info	test	judged-info
+speedrun leaderboards	query	judged-info	test	judged-info
+speedrunleaderboards	norm	judged-info	test	judged-info
+sports betting site	query	judged-info	test	judged-info
+sports news app	query	judged-info	test	judged-info
+sportsbettingsite	norm	judged-info	test	judged-info
+sportsnewsapp	norm	judged-info	test	judged-info
+star map app	query	judged-info	test	judged-info
+starmapapp	norm	judged-info	test	judged-info
+stock photos free	query	judged-info	test	judged-info
+stock trading app	query	judged-info	test	judged-info
+stockphotosfree	norm	judged-info	test	judged-info
+stocktradingapp	norm	judged-info	test	judged-info
+streaming service for movies	query	judged-info	test	judged-info
+streamingserviceformovies	norm	judged-info	test	judged-info
+student loan help	query	judged-info	test	judged-info
+studentloanhelp	norm	judged-info	test	judged-info
+survey maker	query	judged-info	test	judged-info
+surveymaker	norm	judged-info	test	judged-info
+symptom checker	query	judged-info	test	judged-info
+symptomchecker	norm	judged-info	test	judged-info
+tax filing software	query	judged-info	test	judged-info
+taxfilingsoftware	norm	judged-info	test	judged-info
+team chat app	query	judged-info	test	judged-info
+teamchatapp	norm	judged-info	test	judged-info
+tech job board	query	judged-info	test	judged-info
+techjobboard	norm	judged-info	test	judged-info
+telehealth service	query	judged-info	test	judged-info
+telehealthservice	norm	judged-info	test	judged-info
+tennessee nursing license lookup	query	judged-info	test	judged-info
+tennesseenursinglicenselookup	norm	judged-info	test	judged-info
+text to speech	query	judged-info	test	judged-info
+textbook rental	query	judged-info	test	judged-info
+textbookrental	norm	judged-info	test	judged-info
+texttospeech	norm	judged-info	test	judged-info
+time tracking software	query	judged-info	test	judged-info
+timetrackingsoftware	norm	judged-info	test	judged-info
+timezone converter	query	judged-info	test	judged-info
+timezoneconverter	norm	judged-info	test	judged-info
+tip jar for creators	query	judged-info	test	judged-info
+tipjarforcreators	norm	judged-info	test	judged-info
+tn birth certificate copy	query	judged-info	test	judged-info
+tnbirthcertificatecopy	norm	judged-info	test	judged-info
+todo list app	query	judged-info	test	judged-info
+todolistapp	norm	judged-info	test	judged-info
+train tickets online	query	judged-info	test	judged-info
+trainticketsonline	norm	judged-info	test	judged-info
+translate text online	query	judged-info	test	judged-info
+translatetextonline	norm	judged-info	test	judged-info
+travel guide website	query	judged-info	test	judged-info
+travel reviews site	query	judged-info	test	judged-info
+travelguidewebsite	norm	judged-info	test	judged-info
+travelreviewssite	norm	judged-info	test	judged-info
+tv guide	query	judged-info	test	judged-info
+tv show tracker	query	judged-info	test	judged-info
+tvguide	norm	judged-info	test	judged-info
+tvshowtracker	norm	judged-info	test	judged-info
+two factor authentication app	query	judged-info	test	judged-info
+twofactorauthenticationapp	norm	judged-info	test	judged-info
+typing practice	query	judged-info	test	judged-info
+typingpractice	norm	judged-info	test	judged-info
+unit converter	query	judged-info	test	judged-info
+unitconverter	norm	judged-info	test	judged-info
+url shortener	query	judged-info	test	judged-info
+urlshortener	norm	judged-info	test	judged-info
+va nursing license lookup	query	judged-info	test	judged-info
+vanursinglicenselookup	norm	judged-info	test	judged-info
+vermont state tax refund status	query	judged-info	test	judged-info
+vermontstatetaxrefundstatus	norm	judged-info	test	judged-info
+vet telehealth	query	judged-info	test	judged-info
+vettelehealth	norm	judged-info	test	judged-info
+video calling app	query	judged-info	test	judged-info
+video conferencing software	query	judged-info	test	judged-info
+video game wiki	query	judged-info	test	judged-info
+videocallingapp	norm	judged-info	test	judged-info
+videoconferencingsoftware	norm	judged-info	test	judged-info
+videogamewiki	norm	judged-info	test	judged-info
+vintage clothing marketplace	query	judged-info	test	judged-info
+vintageclothingmarketplace	norm	judged-info	test	judged-info
+virginia firearms permit	query	judged-info	test	judged-info
+virginiafirearmspermit	norm	judged-info	test	judged-info
+volunteer opportunities site	query	judged-info	test	judged-info
+volunteeropportunitiessite	norm	judged-info	test	judged-info
+vt state parks camping reservations	query	judged-info	test	judged-info
+vtstateparkscampingreservations	norm	judged-info	test	judged-info
+wa jury duty	query	judged-info	test	judged-info
+wajuryduty	norm	judged-info	test	judged-info
+weather radar site	query	judged-info	test	judged-info
+weatherradarsite	norm	judged-info	test	judged-info
+web hosting company	query	judged-info	test	judged-info
+webcomics site	query	judged-info	test	judged-info
+webcomicssite	norm	judged-info	test	judged-info
+webhostingcompany	norm	judged-info	test	judged-info
+website analytics	query	judged-info	test	judged-info
+website speed test	query	judged-info	test	judged-info
+websiteanalytics	norm	judged-info	test	judged-info
+websitespeedtest	norm	judged-info	test	judged-info
+wedding planning site	query	judged-info	test	judged-info
+weddingplanningsite	norm	judged-info	test	judged-info
+what does ac milan do	query	judged-info	test	judged-info
+what does acf fiorentina do	query	judged-info	test	judged-info
+what does amd do	query	judged-info	test	judged-info
+what does american airlines do	query	judged-info	test	judged-info
+what does arsenal f.c. do	query	judged-info	test	judged-info
+what does at&t do	query	judged-info	test	judged-info
+what does atalanta bc do	query	judged-info	test	judged-info
+what does athletic bilbao do	query	judged-info	test	judged-info
+what does audi do	query	judged-info	test	judged-info
+what does bayer 04 leverkusen do	query	judged-info	test	judged-info
+what does beşiktaş j.k. do	query	judged-info	test	judged-info
+what does bharatiya janata party do	query	judged-info	test	judged-info
+what does birmingham city f.c. do	query	judged-info	test	judged-info
+what does blackburn rovers f.c. do	query	judged-info	test	judged-info
+what does bmw do	query	judged-info	test	judged-info
+what does borussia dortmund do	query	judged-info	test	judged-info
+what does brighton & hove albion f.c. do	query	judged-info	test	judged-info
+what does british airways do	query	judged-info	test	judged-info
+what does burnley f.c. do	query	judged-info	test	judged-info
+what does celtic f.c. do	query	judged-info	test	judged-info
+what does cern do	query	judged-info	test	judged-info
+what does chinese communist party do	query	judged-info	test	judged-info
+what does commonwealth of independent states do	query	judged-info	test	judged-info
+what does delta air lines do	query	judged-info	test	judged-info
+what does everton f.c. do	query	judged-info	test	judged-info
+what does fc porto do	query	judged-info	test	judged-info
+what does fc shakhtar donetsk do	query	judged-info	test	judged-info
+what does ferrari do	query	judged-info	test	judged-info
+what does fifa do	query	judged-info	test	judged-info
+what does ford motor company do	query	judged-info	test	judged-info
+what does google do	query	judged-info	test	judged-info
+what does hamas do	query	judged-info	test	judged-info
+what does hezbollah do	query	judged-info	test	judged-info
+what does honda do	query	judged-info	test	judged-info
+what does hull city a.f.c. do	query	judged-info	test	judged-info
+what does hyundai motor company do	query	judged-info	test	judged-info
+what does imdb do	query	judged-info	test	judged-info
+what does internet archive do	query	judged-info	test	judged-info
+what does kia do	query	judged-info	test	judged-info
+what does ku klux klan do	query	judged-info	test	judged-info
+what does kuomintang do	query	judged-info	test	judged-info
+what does lamborghini do	query	judged-info	test	judged-info
+what does leeds united f.c. do	query	judged-info	test	judged-info
+what does leicester city f.c. do	query	judged-info	test	judged-info
+what does likud do	query	judged-info	test	judged-info
+what does liverpool f.c. do	query	judged-info	test	judged-info
+what does lufthansa do	query	judged-info	test	judged-info
+what does massachusetts institute of technology do	query	judged-info	test	judged-info
+what does mcdonald's do	query	judged-info	test	judged-info
+what does mercedes-benz do	query	judged-info	test	judged-info
+what does meta platforms do	query	judged-info	test	judged-info
+what does middlesbrough f.c. do	query	judged-info	test	judged-info
+what does motorola do	query	judged-info	test	judged-info
+what does muslim brotherhood do	query	judged-info	test	judged-info
+what does national rally do	query	judged-info	test	judged-info
+what does nato do	query	judged-info	test	judged-info
+what does netflix do	query	judged-info	test	judged-info
+what does newcastle united f.c. do	query	judged-info	test	judged-info
+what does nintendo do	query	judged-info	test	judged-info
+what does non-aligned movement do	query	judged-info	test	judged-info
+what does norwich city f.c. do	query	judged-info	test	judged-info
+what does nottingham forest f.c. do	query	judged-info	test	judged-info
+what does oracle corporation do	query	judged-info	test	judged-info
+what does panathinaikos f.c. do	query	judged-info	test	judged-info
+what does philips do	query	judged-info	test	judged-info
+what does queens park rangers f.c. do	query	judged-info	test	judged-info
+what does rb leipzig do	query	judged-info	test	judged-info
+what does real betis do	query	judged-info	test	judged-info
+what does real sociedad do	query	judged-info	test	judged-info
+what does ryanair do	query	judged-info	test	judged-info
+what does santos fc do	query	judged-info	test	judged-info
+what does sega do	query	judged-info	test	judged-info
+what does sevilla fc do	query	judged-info	test	judged-info
+what does sinn féin do	query	judged-info	test	judged-info
+what does sony do	query	judged-info	test	judged-info
+what does southampton f.c. do	query	judged-info	test	judged-info
+what does ss lazio do	query	judged-info	test	judged-info
+what does sturmabteilung do	query	judged-info	test	judged-info
+what does sun microsystems do	query	judged-info	test	judged-info
+what does tesla, inc. do	query	judged-info	test	judged-info
+what does the coca-cola company do	query	judged-info	test	judged-info
+what does united airlines do	query	judged-info	test	judged-info
+what does united nations do	query	judged-info	test	judged-info
+what does united russia do	query	judged-info	test	judged-info
+what does university of oxford do	query	judged-info	test	judged-info
+what does walmart do	query	judged-info	test	judged-info
+what does warsaw pact do	query	judged-info	test	judged-info
+what does west bromwich albion f.c. do	query	judged-info	test	judged-info
+what does wikileaks do	query	judged-info	test	judged-info
+what does wikimedia foundation do	query	judged-info	test	judged-info
+what is a blog	query	judged-info	test	judged-info
+what is a content delivery network	query	judged-info	test	judged-info
+what is a crowdfunding campaign	query	judged-info	test	judged-info
+what is a cryptocurrency exchange	query	judged-info	test	judged-info
+what is a freelance worker	query	judged-info	test	judged-info
+what is a meal kit	query	judged-info	test	judged-info
+what is a mind map	query	judged-info	test	judged-info
+what is a qr code	query	judged-info	test	judged-info
+what is a url shortener	query	judged-info	test	judged-info
+what is a vpn	query	judged-info	test	judged-info
+what is a wiki	query	judged-info	test	judged-info
+what is aluminium	query	judged-info	test	judged-info
+what is an ad blocker	query	judged-info	test	judged-info
+what is an online auction	query	judged-info	test	judged-info
+what is anarchism	query	judged-info	test	judged-info
+what is anthropology	query	judged-info	test	judged-info
+what is antimony	query	judged-info	test	judged-info
+what is antisemitism	query	judged-info	test	judged-info
+what is art	query	judged-info	test	judged-info
+what is baháʼí faith	query	judged-info	test	judged-info
+what is biology	query	judged-info	test	judged-info
+what is bismuth	query	judged-info	test	judged-info
+what is black hole	query	judged-info	test	judged-info
+what is buddhism	query	judged-info	test	judged-info
+what is business	query	judged-info	test	judged-info
+what is c++	query	judged-info	test	judged-info
+what is cancer	query	judged-info	test	judged-info
+what is carbon	query	judged-info	test	judged-info
+what is chemistry	query	judged-info	test	judged-info
+what is christianity	query	judged-info	test	judged-info
+what is cloud computing	query	judged-info	test	judged-info
+what is cobalt	query	judged-info	test	judged-info
+what is communication	query	judged-info	test	judged-info
+what is communism	query	judged-info	test	judged-info
+what is computer science	query	judged-info	test	judged-info
+what is confucianism	query	judged-info	test	judged-info
+what is conservatism	query	judged-info	test	judged-info
+what is copper	query	judged-info	test	judged-info
+what is copyright	query	judged-info	test	judged-info
+what is democracy	query	judged-info	test	judged-info
+what is economics	query	judged-info	test	judged-info
+what is education	query	judged-info	test	judged-info
+what is energy	query	judged-info	test	judged-info
+what is ethics	query	judged-info	test	judged-info
+what is fascism	query	judged-info	test	judged-info
+what is galaxy	query	judged-info	test	judged-info
+what is geography	query	judged-info	test	judged-info
+what is gold	query	judged-info	test	judged-info
+what is health	query	judged-info	test	judged-info
+what is helium	query	judged-info	test	judged-info
+what is hinduism	query	judged-info	test	judged-info
+what is history	query	judged-info	test	judged-info
+what is hiv/aids	query	judged-info	test	judged-info
+what is hydrogen	query	judged-info	test	judged-info
+what is information technology	query	judged-info	test	judged-info
+what is iron	query	judged-info	test	judged-info
+what is jainism	query	judged-info	test	judged-info
+what is javascript	query	judged-info	test	judged-info
+what is judaism	query	judged-info	test	judged-info
+what is knowledge	query	judged-info	test	judged-info
+what is krypton	query	judged-info	test	judged-info
+what is lead	query	judged-info	test	judged-info
+what is liberalism	query	judged-info	test	judged-info
+what is lithium	query	judged-info	test	judged-info
+what is machine translation	query	judged-info	test	judged-info
+what is marxism	query	judged-info	test	judged-info
+what is mathematics	query	judged-info	test	judged-info
+what is metaphysics	query	judged-info	test	judged-info
+what is music	query	judged-info	test	judged-info
+what is my ip	query	judged-info	test	judged-info
+what is natural science	query	judged-info	test	judged-info
+what is nazism	query	judged-info	test	judged-info
+what is nitrogen	query	judged-info	test	judged-info
+what is number	query	judged-info	test	judged-info
+what is oganesson	query	judged-info	test	judged-info
+what is open source software	query	judged-info	test	judged-info
+what is oxygen	query	judged-info	test	judged-info
+what is persian language	query	judged-info	test	judged-info
+what is philosophy	query	judged-info	test	judged-info
+what is photography	query	judged-info	test	judged-info
+what is physics	query	judged-info	test	judged-info
+what is planet	query	judged-info	test	judged-info
+what is platinum	query	judged-info	test	judged-info
+what is plutonium	query	judged-info	test	judged-info
+what is politics	query	judged-info	test	judged-info
+what is potassium	query	judged-info	test	judged-info
+what is psychology	query	judged-info	test	judged-info
+what is religion	query	judged-info	test	judged-info
+what is science	query	judged-info	test	judged-info
+what is sharia	query	judged-info	test	judged-info
+what is shinto	query	judged-info	test	judged-info
+what is silicon	query	judged-info	test	judged-info
+what is silver	query	judged-info	test	judged-info
+what is socialism	query	judged-info	test	judged-info
+what is sociology	query	judged-info	test	judged-info
+what is sodium	query	judged-info	test	judged-info
+what is star	query	judged-info	test	judged-info
+what is sulfur	query	judged-info	test	judged-info
+what is taoism	query	judged-info	test	judged-info
+what is technology	query	judged-info	test	judged-info
+what is telehealth	query	judged-info	test	judged-info
+what is tin	query	judged-info	test	judged-info
+what is titanium	query	judged-info	test	judged-info
+what is tungsten	query	judged-info	test	judged-info
+what is two factor authentication	query	judged-info	test	judged-info
+what is unix	query	judged-info	test	judged-info
+what is uranium	query	judged-info	test	judged-info
+what is web hosting	query	judged-info	test	judged-info
+what is zionism	query	judged-info	test	judged-info
+what is zoroastrianism	query	judged-info	test	judged-info
+whatdoesacffiorentinado	norm	judged-info	test	judged-info
+whatdoesacmilando	norm	judged-info	test	judged-info
+whatdoesamddo	norm	judged-info	test	judged-info
+whatdoesamericanairlinesdo	norm	judged-info	test	judged-info
+whatdoesarsenalfcdo	norm	judged-info	test	judged-info
+whatdoesatalantabcdo	norm	judged-info	test	judged-info
+whatdoesathleticbilbaodo	norm	judged-info	test	judged-info
+whatdoesattdo	norm	judged-info	test	judged-info
+whatdoesaudido	norm	judged-info	test	judged-info
+whatdoesbayer04leverkusendo	norm	judged-info	test	judged-info
+whatdoesbeiktajkdo	norm	judged-info	test	judged-info
+whatdoesbharatiyajanatapartydo	norm	judged-info	test	judged-info
+whatdoesbirminghamcityfcdo	norm	judged-info	test	judged-info
+whatdoesblackburnroversfcdo	norm	judged-info	test	judged-info
+whatdoesbmwdo	norm	judged-info	test	judged-info
+whatdoesborussiadortmunddo	norm	judged-info	test	judged-info
+whatdoesbrightonhovealbionfcdo	norm	judged-info	test	judged-info
+whatdoesbritishairwaysdo	norm	judged-info	test	judged-info
+whatdoesburnleyfcdo	norm	judged-info	test	judged-info
+whatdoescelticfcdo	norm	judged-info	test	judged-info
+whatdoescerndo	norm	judged-info	test	judged-info
+whatdoeschinesecommunistpartydo	norm	judged-info	test	judged-info
+whatdoescommonwealthofindependentstatesdo	norm	judged-info	test	judged-info
+whatdoesdeltaairlinesdo	norm	judged-info	test	judged-info
+whatdoesevertonfcdo	norm	judged-info	test	judged-info
+whatdoesfcportodo	norm	judged-info	test	judged-info
+whatdoesfcshakhtardonetskdo	norm	judged-info	test	judged-info
+whatdoesferrarido	norm	judged-info	test	judged-info
+whatdoesfifado	norm	judged-info	test	judged-info
+whatdoesfordmotorcompanydo	norm	judged-info	test	judged-info
+whatdoesgoogledo	norm	judged-info	test	judged-info
+whatdoeshamasdo	norm	judged-info	test	judged-info
+whatdoeshezbollahdo	norm	judged-info	test	judged-info
+whatdoeshondado	norm	judged-info	test	judged-info
+whatdoeshullcityafcdo	norm	judged-info	test	judged-info
+whatdoeshyundaimotorcompanydo	norm	judged-info	test	judged-info
+whatdoesimdbdo	norm	judged-info	test	judged-info
+whatdoesinternetarchivedo	norm	judged-info	test	judged-info
+whatdoeskiado	norm	judged-info	test	judged-info
+whatdoeskukluxklando	norm	judged-info	test	judged-info
+whatdoeskuomintangdo	norm	judged-info	test	judged-info
+whatdoeslamborghinido	norm	judged-info	test	judged-info
+whatdoesleedsunitedfcdo	norm	judged-info	test	judged-info
+whatdoesleicestercityfcdo	norm	judged-info	test	judged-info
+whatdoeslikuddo	norm	judged-info	test	judged-info
+whatdoesliverpoolfcdo	norm	judged-info	test	judged-info
+whatdoeslufthansado	norm	judged-info	test	judged-info
+whatdoesmassachusettsinstituteoftechnologydo	norm	judged-info	test	judged-info
+whatdoesmcdonaldsdo	norm	judged-info	test	judged-info
+whatdoesmercedesbenzdo	norm	judged-info	test	judged-info
+whatdoesmetaplatformsdo	norm	judged-info	test	judged-info
+whatdoesmiddlesbroughfcdo	norm	judged-info	test	judged-info
+whatdoesmotorolado	norm	judged-info	test	judged-info
+whatdoesmuslimbrotherhooddo	norm	judged-info	test	judged-info
+whatdoesnationalrallydo	norm	judged-info	test	judged-info
+whatdoesnatodo	norm	judged-info	test	judged-info
+whatdoesnetflixdo	norm	judged-info	test	judged-info
+whatdoesnewcastleunitedfcdo	norm	judged-info	test	judged-info
+whatdoesnintendodo	norm	judged-info	test	judged-info
+whatdoesnonalignedmovementdo	norm	judged-info	test	judged-info
+whatdoesnorwichcityfcdo	norm	judged-info	test	judged-info
+whatdoesnottinghamforestfcdo	norm	judged-info	test	judged-info
+whatdoesoraclecorporationdo	norm	judged-info	test	judged-info
+whatdoespanathinaikosfcdo	norm	judged-info	test	judged-info
+whatdoesphilipsdo	norm	judged-info	test	judged-info
+whatdoesqueensparkrangersfcdo	norm	judged-info	test	judged-info
+whatdoesrbleipzigdo	norm	judged-info	test	judged-info
+whatdoesrealbetisdo	norm	judged-info	test	judged-info
+whatdoesrealsociedaddo	norm	judged-info	test	judged-info
+whatdoesryanairdo	norm	judged-info	test	judged-info
+whatdoessantosfcdo	norm	judged-info	test	judged-info
+whatdoessegado	norm	judged-info	test	judged-info
+whatdoessevillafcdo	norm	judged-info	test	judged-info
+whatdoessinnfindo	norm	judged-info	test	judged-info
+whatdoessonydo	norm	judged-info	test	judged-info
+whatdoessouthamptonfcdo	norm	judged-info	test	judged-info
+whatdoessslaziodo	norm	judged-info	test	judged-info
+whatdoessturmabteilungdo	norm	judged-info	test	judged-info
+whatdoessunmicrosystemsdo	norm	judged-info	test	judged-info
+whatdoesteslaincdo	norm	judged-info	test	judged-info
+whatdoesthecocacolacompanydo	norm	judged-info	test	judged-info
+whatdoesunitedairlinesdo	norm	judged-info	test	judged-info
+whatdoesunitednationsdo	norm	judged-info	test	judged-info
+whatdoesunitedrussiado	norm	judged-info	test	judged-info
+whatdoesuniversityofoxforddo	norm	judged-info	test	judged-info
+whatdoeswalmartdo	norm	judged-info	test	judged-info
+whatdoeswarsawpactdo	norm	judged-info	test	judged-info
+whatdoeswestbromwichalbionfcdo	norm	judged-info	test	judged-info
+whatdoeswikileaksdo	norm	judged-info	test	judged-info
+whatdoeswikimediafoundationdo	norm	judged-info	test	judged-info
+whatisablog	norm	judged-info	test	judged-info
+whatisacontentdeliverynetwork	norm	judged-info	test	judged-info
+whatisacrowdfundingcampaign	norm	judged-info	test	judged-info
+whatisacryptocurrencyexchange	norm	judged-info	test	judged-info
+whatisafreelanceworker	norm	judged-info	test	judged-info
+whatisaluminium	norm	judged-info	test	judged-info
+whatisamealkit	norm	judged-info	test	judged-info
+whatisamindmap	norm	judged-info	test	judged-info
+whatisanadblocker	norm	judged-info	test	judged-info
+whatisanarchism	norm	judged-info	test	judged-info
+whatisanonlineauction	norm	judged-info	test	judged-info
+whatisanthropology	norm	judged-info	test	judged-info
+whatisantimony	norm	judged-info	test	judged-info
+whatisantisemitism	norm	judged-info	test	judged-info
+whatisaqrcode	norm	judged-info	test	judged-info
+whatisart	norm	judged-info	test	judged-info
+whatisaurlshortener	norm	judged-info	test	judged-info
+whatisavpn	norm	judged-info	test	judged-info
+whatisawiki	norm	judged-info	test	judged-info
+whatisbahfaith	norm	judged-info	test	judged-info
+whatisbiology	norm	judged-info	test	judged-info
+whatisbismuth	norm	judged-info	test	judged-info
+whatisblackhole	norm	judged-info	test	judged-info
+whatisbuddhism	norm	judged-info	test	judged-info
+whatisbusiness	norm	judged-info	test	judged-info
+whatisc	norm	judged-info	test	judged-info
+whatiscancer	norm	judged-info	test	judged-info
+whatiscarbon	norm	judged-info	test	judged-info
+whatischemistry	norm	judged-info	test	judged-info
+whatischristianity	norm	judged-info	test	judged-info
+whatiscloudcomputing	norm	judged-info	test	judged-info
+whatiscobalt	norm	judged-info	test	judged-info
+whatiscommunication	norm	judged-info	test	judged-info
+whatiscommunism	norm	judged-info	test	judged-info
+whatiscomputerscience	norm	judged-info	test	judged-info
+whatisconfucianism	norm	judged-info	test	judged-info
+whatisconservatism	norm	judged-info	test	judged-info
+whatiscopper	norm	judged-info	test	judged-info
+whatiscopyright	norm	judged-info	test	judged-info
+whatisdemocracy	norm	judged-info	test	judged-info
+whatiseconomics	norm	judged-info	test	judged-info
+whatiseducation	norm	judged-info	test	judged-info
+whatisenergy	norm	judged-info	test	judged-info
+whatisethics	norm	judged-info	test	judged-info
+whatisfascism	norm	judged-info	test	judged-info
+whatisgalaxy	norm	judged-info	test	judged-info
+whatisgeography	norm	judged-info	test	judged-info
+whatisgold	norm	judged-info	test	judged-info
+whatishealth	norm	judged-info	test	judged-info
+whatishelium	norm	judged-info	test	judged-info
+whatishinduism	norm	judged-info	test	judged-info
+whatishistory	norm	judged-info	test	judged-info
+whatishivaids	norm	judged-info	test	judged-info
+whatishydrogen	norm	judged-info	test	judged-info
+whatisinformationtechnology	norm	judged-info	test	judged-info
+whatisiron	norm	judged-info	test	judged-info
+whatisjainism	norm	judged-info	test	judged-info
+whatisjavascript	norm	judged-info	test	judged-info
+whatisjudaism	norm	judged-info	test	judged-info
+whatisknowledge	norm	judged-info	test	judged-info
+whatiskrypton	norm	judged-info	test	judged-info
+whatislead	norm	judged-info	test	judged-info
+whatisliberalism	norm	judged-info	test	judged-info
+whatislithium	norm	judged-info	test	judged-info
+whatismachinetranslation	norm	judged-info	test	judged-info
+whatismarxism	norm	judged-info	test	judged-info
+whatismathematics	norm	judged-info	test	judged-info
+whatismetaphysics	norm	judged-info	test	judged-info
+whatismusic	norm	judged-info	test	judged-info
+whatismyip	norm	judged-info	test	judged-info
+whatisnaturalscience	norm	judged-info	test	judged-info
+whatisnazism	norm	judged-info	test	judged-info
+whatisnitrogen	norm	judged-info	test	judged-info
+whatisnumber	norm	judged-info	test	judged-info
+whatisoganesson	norm	judged-info	test	judged-info
+whatisopensourcesoftware	norm	judged-info	test	judged-info
+whatisoxygen	norm	judged-info	test	judged-info
+whatispersianlanguage	norm	judged-info	test	judged-info
+whatisphilosophy	norm	judged-info	test	judged-info
+whatisphotography	norm	judged-info	test	judged-info
+whatisphysics	norm	judged-info	test	judged-info
+whatisplanet	norm	judged-info	test	judged-info
+whatisplatinum	norm	judged-info	test	judged-info
+whatisplutonium	norm	judged-info	test	judged-info
+whatispolitics	norm	judged-info	test	judged-info
+whatispotassium	norm	judged-info	test	judged-info
+whatispsychology	norm	judged-info	test	judged-info
+whatisreligion	norm	judged-info	test	judged-info
+whatisscience	norm	judged-info	test	judged-info
+whatissharia	norm	judged-info	test	judged-info
+whatisshinto	norm	judged-info	test	judged-info
+whatissilicon	norm	judged-info	test	judged-info
+whatissilver	norm	judged-info	test	judged-info
+whatissocialism	norm	judged-info	test	judged-info
+whatissociology	norm	judged-info	test	judged-info
+whatissodium	norm	judged-info	test	judged-info
+whatisstar	norm	judged-info	test	judged-info
+whatissulfur	norm	judged-info	test	judged-info
+whatistaoism	norm	judged-info	test	judged-info
+whatistechnology	norm	judged-info	test	judged-info
+whatistelehealth	norm	judged-info	test	judged-info
+whatistin	norm	judged-info	test	judged-info
+whatistitanium	norm	judged-info	test	judged-info
+whatistungsten	norm	judged-info	test	judged-info
+whatistwofactorauthentication	norm	judged-info	test	judged-info
+whatisunix	norm	judged-info	test	judged-info
+whatisuranium	norm	judged-info	test	judged-info
+whatiswebhosting	norm	judged-info	test	judged-info
+whatiszionism	norm	judged-info	test	judged-info
+whatiszoroastrianism	norm	judged-info	test	judged-info
+when was adidas founded	query	judged-info	test	judged-info
+when was afc ajax founded	query	judged-info	test	judged-info
+when was afc bournemouth founded	query	judged-info	test	judged-info
+when was al-nassr fc founded	query	judged-info	test	judged-info
+when was alliance 90/the greens founded	query	judged-info	test	judged-info
+when was alphabet inc. founded	query	judged-info	test	judged-info
+when was alternative for germany founded	query	judged-info	test	judged-info
+when was american broadcasting company founded	query	judged-info	test	judged-info
+when was apple inc. founded	query	judged-info	test	judged-info
+when was as monaco fc founded	query	judged-info	test	judged-info
+when was as roma founded	query	judged-info	test	judged-info
+when was aston villa f.c. founded	query	judged-info	test	judged-info
+when was atlético madrid founded	query	judged-info	test	judged-info
+when was boeing founded	query	judged-info	test	judged-info
+when was bolton wanderers f.c. founded	query	judged-info	test	judged-info
+when was brentford f.c. founded	query	judged-info	test	judged-info
+when was brics founded	query	judged-info	test	judged-info
+when was christian democratic union of germany founded	query	judged-info	test	judged-info
+when was crystal palace f.c. founded	query	judged-info	test	judged-info
+when was deportivo de a coruña founded	query	judged-info	test	judged-info
+when was die linke founded	query	judged-info	test	judged-info
+when was dutch east india company founded	query	judged-info	test	judged-info
+when was east india company founded	query	judged-info	test	judged-info
+when was ebay founded	query	judged-info	test	judged-info
+when was electronic arts founded	query	judged-info	test	judged-info
+when was fc bayern munich founded	query	judged-info	test	judged-info
+when was fc schalke 04 founded	query	judged-info	test	judged-info
+when was feyenoord founded	query	judged-info	test	judged-info
+when was fulham f.c. founded	query	judged-info	test	judged-info
+when was g20 founded	query	judged-info	test	judged-info
+when was g7 founded	query	judged-info	test	judged-info
+when was general motors founded	query	judged-info	test	judged-info
+when was houthis founded	query	judged-info	test	judged-info
+when was ibm founded	query	judged-info	test	judged-info
+when was indian national congress founded	query	judged-info	test	judged-info
+when was inter milan founded	query	judged-info	test	judged-info
+when was juventus fc founded	query	judged-info	test	judged-info
+when was kfc founded	query	judged-info	test	judged-info
+when was league of nations founded	query	judged-info	test	judged-info
+when was lille osc founded	query	judged-info	test	judged-info
+when was lockheed martin founded	query	judged-info	test	judged-info
+when was major league soccer founded	query	judged-info	test	judged-info
+when was manchester city f.c. founded	query	judged-info	test	judged-info
+when was manchester united f.c. founded	query	judged-info	test	judged-info
+when was marvel comics founded	query	judged-info	test	judged-info
+when was metro-goldwyn-mayer founded	query	judged-info	test	judged-info
+when was microsoft founded	query	judged-info	test	judged-info
+when was nestlé founded	query	judged-info	test	judged-info
+when was nickelodeon founded	query	judged-info	test	judged-info
+when was nike, inc. founded	query	judged-info	test	judged-info
+when was nokia founded	query	judged-info	test	judged-info
+when was nvidia founded	query	judged-info	test	judged-info
+when was oecd founded	query	judged-info	test	judged-info
+when was olympique de marseille founded	query	judged-info	test	judged-info
+when was olympique lyonnais founded	query	judged-info	test	judged-info
+when was openai founded	query	judged-info	test	judged-info
+when was paris saint-germain fc founded	query	judged-info	test	judged-info
+when was pixar founded	query	judged-info	test	judged-info
+when was porsche founded	query	judged-info	test	judged-info
+when was psv eindhoven founded	query	judged-info	test	judged-info
+when was rangers f.c. founded	query	judged-info	test	judged-info
+when was rayo vallecano founded	query	judged-info	test	judged-info
+when was real madrid cf founded	query	judged-info	test	judged-info
+when was rotten tomatoes founded	query	judged-info	test	judged-info
+when was s.l. benfica founded	query	judged-info	test	judged-info
+when was social democratic party of germany founded	query	judged-info	test	judged-info
+when was spacex founded	query	judged-info	test	judged-info
+when was sporting cp founded	query	judged-info	test	judged-info
+when was ssc napoli founded	query	judged-info	test	judged-info
+when was stoke city f.c. founded	query	judged-info	test	judged-info
+when was sunderland a.f.c. founded	query	judged-info	test	judged-info
+when was swansea city a.f.c. founded	query	judged-info	test	judged-info
+when was taliban founded	query	judged-info	test	judged-info
+when was the guardian founded	query	judged-info	test	judged-info
+when was the walt disney company founded	query	judged-info	test	judged-info
+when was tokugawa shogunate founded	query	judged-info	test	judged-info
+when was tottenham hotspur f.c. founded	query	judged-info	test	judged-info
+when was toyota founded	query	judged-info	test	judged-info
+when was uber founded	query	judged-info	test	judged-info
+when was uefa founded	query	judged-info	test	judged-info
+when was valencia cf founded	query	judged-info	test	judged-info
+when was valve corporation founded	query	judged-info	test	judged-info
+when was villarreal cf founded	query	judged-info	test	judged-info
+when was volkswagen group founded	query	judged-info	test	judged-info
+when was west ham united f.c. founded	query	judged-info	test	judged-info
+when was wolverhampton wanderers f.c. founded	query	judged-info	test	judged-info
+when was wwe founded	query	judged-info	test	judged-info
+when was xiaomi founded	query	judged-info	test	judged-info
+when was yandex founded	query	judged-info	test	judged-info
+when was škoda auto founded	query	judged-info	test	judged-info
+whenwasadidasfounded	norm	judged-info	test	judged-info
+whenwasafcajaxfounded	norm	judged-info	test	judged-info
+whenwasafcbournemouthfounded	norm	judged-info	test	judged-info
+whenwasalliance90thegreensfounded	norm	judged-info	test	judged-info
+whenwasalnassrfcfounded	norm	judged-info	test	judged-info
+whenwasalphabetincfounded	norm	judged-info	test	judged-info
+whenwasalternativeforgermanyfounded	norm	judged-info	test	judged-info
+whenwasamericanbroadcastingcompanyfounded	norm	judged-info	test	judged-info
+whenwasappleincfounded	norm	judged-info	test	judged-info
+whenwasasmonacofcfounded	norm	judged-info	test	judged-info
+whenwasasromafounded	norm	judged-info	test	judged-info
+whenwasastonvillafcfounded	norm	judged-info	test	judged-info
+whenwasatlticomadridfounded	norm	judged-info	test	judged-info
+whenwasboeingfounded	norm	judged-info	test	judged-info
+whenwasboltonwanderersfcfounded	norm	judged-info	test	judged-info
+whenwasbrentfordfcfounded	norm	judged-info	test	judged-info
+whenwasbricsfounded	norm	judged-info	test	judged-info
+whenwaschristiandemocraticunionofgermanyfounded	norm	judged-info	test	judged-info
+whenwascrystalpalacefcfounded	norm	judged-info	test	judged-info
+whenwasdeportivodeacoruafounded	norm	judged-info	test	judged-info
+whenwasdielinkefounded	norm	judged-info	test	judged-info
+whenwasdutcheastindiacompanyfounded	norm	judged-info	test	judged-info
+whenwaseastindiacompanyfounded	norm	judged-info	test	judged-info
+whenwasebayfounded	norm	judged-info	test	judged-info
+whenwaselectronicartsfounded	norm	judged-info	test	judged-info
+whenwasfcbayernmunichfounded	norm	judged-info	test	judged-info
+whenwasfcschalke04founded	norm	judged-info	test	judged-info
+whenwasfeyenoordfounded	norm	judged-info	test	judged-info
+whenwasfulhamfcfounded	norm	judged-info	test	judged-info
+whenwasg20founded	norm	judged-info	test	judged-info
+whenwasg7founded	norm	judged-info	test	judged-info
+whenwasgeneralmotorsfounded	norm	judged-info	test	judged-info
+whenwashouthisfounded	norm	judged-info	test	judged-info
+whenwasibmfounded	norm	judged-info	test	judged-info
+whenwasindiannationalcongressfounded	norm	judged-info	test	judged-info
+whenwasintermilanfounded	norm	judged-info	test	judged-info
+whenwasjuventusfcfounded	norm	judged-info	test	judged-info
+whenwaskfcfounded	norm	judged-info	test	judged-info
+whenwaskodaautofounded	norm	judged-info	test	judged-info
+whenwasleagueofnationsfounded	norm	judged-info	test	judged-info
+whenwaslilleoscfounded	norm	judged-info	test	judged-info
+whenwaslockheedmartinfounded	norm	judged-info	test	judged-info
+whenwasmajorleaguesoccerfounded	norm	judged-info	test	judged-info
+whenwasmanchestercityfcfounded	norm	judged-info	test	judged-info
+whenwasmanchesterunitedfcfounded	norm	judged-info	test	judged-info
+whenwasmarvelcomicsfounded	norm	judged-info	test	judged-info
+whenwasmetrogoldwynmayerfounded	norm	judged-info	test	judged-info
+whenwasmicrosoftfounded	norm	judged-info	test	judged-info
+whenwasnestlfounded	norm	judged-info	test	judged-info
+whenwasnickelodeonfounded	norm	judged-info	test	judged-info
+whenwasnikeincfounded	norm	judged-info	test	judged-info
+whenwasnokiafounded	norm	judged-info	test	judged-info
+whenwasnvidiafounded	norm	judged-info	test	judged-info
+whenwasoecdfounded	norm	judged-info	test	judged-info
+whenwasolympiquedemarseillefounded	norm	judged-info	test	judged-info
+whenwasolympiquelyonnaisfounded	norm	judged-info	test	judged-info
+whenwasopenaifounded	norm	judged-info	test	judged-info
+whenwasparissaintgermainfcfounded	norm	judged-info	test	judged-info
+whenwaspixarfounded	norm	judged-info	test	judged-info
+whenwasporschefounded	norm	judged-info	test	judged-info
+whenwaspsveindhovenfounded	norm	judged-info	test	judged-info
+whenwasrangersfcfounded	norm	judged-info	test	judged-info
+whenwasrayovallecanofounded	norm	judged-info	test	judged-info
+whenwasrealmadridcffounded	norm	judged-info	test	judged-info
+whenwasrottentomatoesfounded	norm	judged-info	test	judged-info
+whenwasslbenficafounded	norm	judged-info	test	judged-info
+whenwassocialdemocraticpartyofgermanyfounded	norm	judged-info	test	judged-info
+whenwasspacexfounded	norm	judged-info	test	judged-info
+whenwassportingcpfounded	norm	judged-info	test	judged-info
+whenwassscnapolifounded	norm	judged-info	test	judged-info
+whenwasstokecityfcfounded	norm	judged-info	test	judged-info
+whenwassunderlandafcfounded	norm	judged-info	test	judged-info
+whenwasswanseacityafcfounded	norm	judged-info	test	judged-info
+whenwastalibanfounded	norm	judged-info	test	judged-info
+whenwastheguardianfounded	norm	judged-info	test	judged-info
+whenwasthewaltdisneycompanyfounded	norm	judged-info	test	judged-info
+whenwastokugawashogunatefounded	norm	judged-info	test	judged-info
+whenwastottenhamhotspurfcfounded	norm	judged-info	test	judged-info
+whenwastoyotafounded	norm	judged-info	test	judged-info
+whenwasuberfounded	norm	judged-info	test	judged-info
+whenwasuefafounded	norm	judged-info	test	judged-info
+whenwasvalenciacffounded	norm	judged-info	test	judged-info
+whenwasvalvecorporationfounded	norm	judged-info	test	judged-info
+whenwasvillarrealcffounded	norm	judged-info	test	judged-info
+whenwasvolkswagengroupfounded	norm	judged-info	test	judged-info
+whenwaswesthamunitedfcfounded	norm	judged-info	test	judged-info
+whenwaswolverhamptonwanderersfcfounded	norm	judged-info	test	judged-info
+whenwaswwefounded	norm	judged-info	test	judged-info
+whenwasxiaomifounded	norm	judged-info	test	judged-info
+whenwasyandexfounded	norm	judged-info	test	judged-info
+who directed 10 things i hate about you	query	judged-info	test	judged-info
+who directed 12 angry men	query	judged-info	test	judged-info
+who directed 2001: a space odyssey	query	judged-info	test	judged-info
+who directed a beautiful mind	query	judged-info	test	judged-info
+who directed apocalypse now	query	judged-info	test	judged-info
+who directed apocalypto	query	judged-info	test	judged-info
+who directed avatar: the way of water	query	judged-info	test	judged-info
+who directed avengers: age of ultron	query	judged-info	test	judged-info
+who directed avengers: endgame	query	judged-info	test	judged-info
+who directed avengers: infinity war	query	judged-info	test	judged-info
+who directed back to the future	query	judged-info	test	judged-info
+who directed batman begins	query	judged-info	test	judged-info
+who directed batman v superman: dawn of justice	query	judged-info	test	judged-info
+who directed blade runner	query	judged-info	test	judged-info
+who directed blade runner 2049	query	judged-info	test	judged-info
+who directed borat	query	judged-info	test	judged-info
+who directed brokeback mountain	query	judged-info	test	judged-info
+who directed captain america: civil war	query	judged-info	test	judged-info
+who directed captain america: the first avenger	query	judged-info	test	judged-info
+who directed captain america: the winter soldier	query	judged-info	test	judged-info
+who directed catch me if you can	query	judged-info	test	judged-info
+who directed citizen kane	query	judged-info	test	judged-info
+who directed dead poets society	query	judged-info	test	judged-info
+who directed django unchained	query	judged-info	test	judged-info
+who directed donnie darko	query	judged-info	test	judged-info
+who directed dr. strangelove	query	judged-info	test	judged-info
+who directed eternal sunshine of the spotless mind	query	judged-info	test	judged-info
+who directed eyes wide shut	query	judged-info	test	judged-info
+who directed fight club	query	judged-info	test	judged-info
+who directed forrest gump	query	judged-info	test	judged-info
+who directed full metal jacket	query	judged-info	test	judged-info
+who directed furious 7	query	judged-info	test	judged-info
+who directed gangs of new york	query	judged-info	test	judged-info
+who directed good will hunting	query	judged-info	test	judged-info
+who directed goodfellas	query	judged-info	test	judged-info
+who directed inception	query	judged-info	test	judged-info
+who directed inglourious basterds	query	judged-info	test	judged-info
+who directed iron man 3	query	judged-info	test	judged-info
+who directed jurassic park	query	judged-info	test	judged-info
+who directed jurassic world	query	judged-info	test	judged-info
+who directed la la land	query	judged-info	test	judged-info
+who directed léon: the professional	query	judged-info	test	judged-info
+who directed no country for old men	query	judged-info	test	judged-info
+who directed once upon a time in america	query	judged-info	test	judged-info
+who directed once upon a time in hollywood	query	judged-info	test	judged-info
+who directed pulp fiction	query	judged-info	test	judged-info
+who directed raiders of the lost ark	query	judged-info	test	judged-info
+who directed requiem for a dream	query	judged-info	test	judged-info
+who directed rocky	query	judged-info	test	judged-info
+who directed saving private ryan	query	judged-info	test	judged-info
+who directed schindler's list	query	judged-info	test	judged-info
+who directed shrek	query	judged-info	test	judged-info
+who directed slumdog millionaire	query	judged-info	test	judged-info
+who directed spider-man 3	query	judged-info	test	judged-info
+who directed spider-man: across the spider-verse	query	judged-info	test	judged-info
+who directed spider-man: far from home	query	judged-info	test	judged-info
+who directed spider-man: homecoming	query	judged-info	test	judged-info
+who directed spider-man: into the spider-verse	query	judged-info	test	judged-info
+who directed spider-man: no way home	query	judged-info	test	judged-info
+who directed star wars: the force awakens	query	judged-info	test	judged-info
+who directed taxi driver	query	judged-info	test	judged-info
+who directed terminator 2: judgment day	query	judged-info	test	judged-info
+who directed the bridge on the river kwai	query	judged-info	test	judged-info
+who directed the dark knight	query	judged-info	test	judged-info
+who directed the dark knight rises	query	judged-info	test	judged-info
+who directed the deer hunter	query	judged-info	test	judged-info
+who directed the departed	query	judged-info	test	judged-info
+who directed the exorcist	query	judged-info	test	judged-info
+who directed the fifth element	query	judged-info	test	judged-info
+who directed the godfather	query	judged-info	test	judged-info
+who directed the godfather part ii	query	judged-info	test	judged-info
+who directed the godfather part iii	query	judged-info	test	judged-info
+who directed the last samurai	query	judged-info	test	judged-info
+who directed the lion king	query	judged-info	test	judged-info
+who directed the matrix	query	judged-info	test	judged-info
+who directed the nightmare before christmas	query	judged-info	test	judged-info
+who directed the prestige	query	judged-info	test	judged-info
+who directed the prince of egypt	query	judged-info	test	judged-info
+who directed the shawshank redemption	query	judged-info	test	judged-info
+who directed the sixth sense	query	judged-info	test	judged-info
+who directed the social network	query	judged-info	test	judged-info
+who directed the terminator	query	judged-info	test	judged-info
+who directed the truman show	query	judged-info	test	judged-info
+who directed the usual suspects	query	judged-info	test	judged-info
+who directed the wizard of oz	query	judged-info	test	judged-info
+who directed thor: ragnarok	query	judged-info	test	judged-info
+who directed top gun	query	judged-info	test	judged-info
+who directed toy story	query	judged-info	test	judged-info
+who directed toy story 4	query	judged-info	test	judged-info
+who directed zootopia 2	query	judged-info	test	judged-info
+who wrote a game of thrones	query	judged-info	test	judged-info
+who wrote a tale of two cities	query	judged-info	test	judged-info
+who wrote adventures of huckleberry finn	query	judged-info	test	judged-info
+who wrote aeneid	query	judged-info	test	judged-info
+who wrote alice's adventures in wonderland	query	judged-info	test	judged-info
+who wrote all quiet on the western front	query	judged-info	test	judged-info
+who wrote allegory of the cave	query	judged-info	test	judged-info
+who wrote and then there were none	query	judged-info	test	judged-info
+who wrote animal farm	query	judged-info	test	judged-info
+who wrote anna karenina	query	judged-info	test	judged-info
+who wrote anne of green gables	query	judged-info	test	judged-info
+who wrote bhagavad gita	query	judged-info	test	judged-info
+who wrote book of genesis	query	judged-info	test	judged-info
+who wrote book of revelation	query	judged-info	test	judged-info
+who wrote brave new world	query	judged-info	test	judged-info
+who wrote catch-22	query	judged-info	test	judged-info
+who wrote charlie and the chocolate factory	query	judged-info	test	judged-info
+who wrote crime and punishment	query	judged-info	test	judged-info
+who wrote david copperfield	query	judged-info	test	judged-info
+who wrote divine comedy	query	judged-info	test	judged-info
+who wrote don quixote	query	judged-info	test	judged-info
+who wrote dracula	query	judged-info	test	judged-info
+who wrote fahrenheit 451	query	judged-info	test	judged-info
+who wrote fifty shades of grey	query	judged-info	test	judged-info
+who wrote for whom the bell tolls	query	judged-info	test	judged-info
+who wrote frankenstein	query	judged-info	test	judged-info
+who wrote great expectations	query	judged-info	test	judged-info
+who wrote hansel and gretel	query	judged-info	test	judged-info
+who wrote harry potter and the philosopher's stone	query	judged-info	test	judged-info
+who wrote heart of darkness	query	judged-info	test	judged-info
+who wrote historia augusta	query	judged-info	test	judged-info
+who wrote i ching	query	judged-info	test	judged-info
+who wrote iliad	query	judged-info	test	judged-info
+who wrote in search of lost time	query	judged-info	test	judged-info
+who wrote jane eyre	query	judged-info	test	judged-info
+who wrote journey to the west	query	judged-info	test	judged-info
+who wrote kama sutra	query	judged-info	test	judged-info
+who wrote les misérables	query	judged-info	test	judged-info
+who wrote life of pi	query	judged-info	test	judged-info
+who wrote little women	query	judged-info	test	judged-info
+who wrote lolita	query	judged-info	test	judged-info
+who wrote lord of the flies	query	judged-info	test	judged-info
+who wrote mahabharata	query	judged-info	test	judged-info
+who wrote mein kampf	query	judged-info	test	judged-info
+who wrote moby-dick	query	judged-info	test	judged-info
+who wrote nineteen eighty-four	query	judged-info	test	judged-info
+who wrote odyssey	query	judged-info	test	judged-info
+who wrote of mice and men	query	judged-info	test	judged-info
+who wrote old testament	query	judged-info	test	judged-info
+who wrote oliver twist	query	judged-info	test	judged-info
+who wrote one hundred years of solitude	query	judged-info	test	judged-info
+who wrote one thousand and one nights	query	judged-info	test	judged-info
+who wrote paradise lost	query	judged-info	test	judged-info
+who wrote pride and prejudice	query	judged-info	test	judged-info
+who wrote ramayana	query	judged-info	test	judged-info
+who wrote robinson crusoe	query	judged-info	test	judged-info
+who wrote rumpelstiltskin	query	judged-info	test	judged-info
+who wrote sense and sensibility	query	judged-info	test	judged-info
+who wrote slaughterhouse-five	query	judged-info	test	judged-info
+who wrote talmud	query	judged-info	test	judged-info
+who wrote the backrooms	query	judged-info	test	judged-info
+who wrote the brothers karamazov	query	judged-info	test	judged-info
+who wrote the canterbury tales	query	judged-info	test	judged-info
+who wrote the catcher in the rye	query	judged-info	test	judged-info
+who wrote the count of monte cristo	query	judged-info	test	judged-info
+who wrote the grapes of wrath	query	judged-info	test	judged-info
+who wrote the great gatsby	query	judged-info	test	judged-info
+who wrote the hobbit	query	judged-info	test	judged-info
+who wrote the hunchback of notre-dame	query	judged-info	test	judged-info
+who wrote the kite runner	query	judged-info	test	judged-info
+who wrote the little prince	query	judged-info	test	judged-info
+who wrote the lord of the rings	query	judged-info	test	judged-info
+who wrote the master and margarita	query	judged-info	test	judged-info
+who wrote the metamorphosis	query	judged-info	test	judged-info
+who wrote the myth of sisyphus	query	judged-info	test	judged-info
+who wrote the old man and the sea	query	judged-info	test	judged-info
+who wrote the picture of dorian gray	query	judged-info	test	judged-info
+who wrote the prince	query	judged-info	test	judged-info
+who wrote the satanic verses	query	judged-info	test	judged-info
+who wrote the silmarillion	query	judged-info	test	judged-info
+who wrote the three musketeers	query	judged-info	test	judged-info
+who wrote the war of the worlds	query	judged-info	test	judged-info
+who wrote the wonderful wizard of oz	query	judged-info	test	judged-info
+who wrote to kill a mockingbird	query	judged-info	test	judged-info
+who wrote torah	query	judged-info	test	judged-info
+who wrote treasure island	query	judged-info	test	judged-info
+who wrote waiting for godot	query	judged-info	test	judged-info
+who wrote war and peace	query	judged-info	test	judged-info
+who wrote watchmen	query	judged-info	test	judged-info
+who wrote wuthering heights	query	judged-info	test	judged-info
+whodirected10thingsihateaboutyou	norm	judged-info	test	judged-info
+whodirected12angrymen	norm	judged-info	test	judged-info
+whodirected2001aspaceodyssey	norm	judged-info	test	judged-info
+whodirectedabeautifulmind	norm	judged-info	test	judged-info
+whodirectedapocalypsenow	norm	judged-info	test	judged-info
+whodirectedapocalypto	norm	judged-info	test	judged-info
+whodirectedavatarthewayofwater	norm	judged-info	test	judged-info
+whodirectedavengersageofultron	norm	judged-info	test	judged-info
+whodirectedavengersendgame	norm	judged-info	test	judged-info
+whodirectedavengersinfinitywar	norm	judged-info	test	judged-info
+whodirectedbacktothefuture	norm	judged-info	test	judged-info
+whodirectedbatmanbegins	norm	judged-info	test	judged-info
+whodirectedbatmanvsupermandawnofjustice	norm	judged-info	test	judged-info
+whodirectedbladerunner	norm	judged-info	test	judged-info
+whodirectedbladerunner2049	norm	judged-info	test	judged-info
+whodirectedborat	norm	judged-info	test	judged-info
+whodirectedbrokebackmountain	norm	judged-info	test	judged-info
+whodirectedcaptainamericacivilwar	norm	judged-info	test	judged-info
+whodirectedcaptainamericathefirstavenger	norm	judged-info	test	judged-info
+whodirectedcaptainamericathewintersoldier	norm	judged-info	test	judged-info
+whodirectedcatchmeifyoucan	norm	judged-info	test	judged-info
+whodirectedcitizenkane	norm	judged-info	test	judged-info
+whodirecteddeadpoetssociety	norm	judged-info	test	judged-info
+whodirecteddjangounchained	norm	judged-info	test	judged-info
+whodirecteddonniedarko	norm	judged-info	test	judged-info
+whodirecteddrstrangelove	norm	judged-info	test	judged-info
+whodirectedeternalsunshineofthespotlessmind	norm	judged-info	test	judged-info
+whodirectedeyeswideshut	norm	judged-info	test	judged-info
+whodirectedfightclub	norm	judged-info	test	judged-info
+whodirectedforrestgump	norm	judged-info	test	judged-info
+whodirectedfullmetaljacket	norm	judged-info	test	judged-info
+whodirectedfurious7	norm	judged-info	test	judged-info
+whodirectedgangsofnewyork	norm	judged-info	test	judged-info
+whodirectedgoodfellas	norm	judged-info	test	judged-info
+whodirectedgoodwillhunting	norm	judged-info	test	judged-info
+whodirectedinception	norm	judged-info	test	judged-info
+whodirectedinglouriousbasterds	norm	judged-info	test	judged-info
+whodirectedironman3	norm	judged-info	test	judged-info
+whodirectedjurassicpark	norm	judged-info	test	judged-info
+whodirectedjurassicworld	norm	judged-info	test	judged-info
+whodirectedlalaland	norm	judged-info	test	judged-info
+whodirectedlontheprofessional	norm	judged-info	test	judged-info
+whodirectednocountryforoldmen	norm	judged-info	test	judged-info
+whodirectedonceuponatimeinamerica	norm	judged-info	test	judged-info
+whodirectedonceuponatimeinhollywood	norm	judged-info	test	judged-info
+whodirectedpulpfiction	norm	judged-info	test	judged-info
+whodirectedraidersofthelostark	norm	judged-info	test	judged-info
+whodirectedrequiemforadream	norm	judged-info	test	judged-info
+whodirectedrocky	norm	judged-info	test	judged-info
+whodirectedsavingprivateryan	norm	judged-info	test	judged-info
+whodirectedschindlerslist	norm	judged-info	test	judged-info
+whodirectedshrek	norm	judged-info	test	judged-info
+whodirectedslumdogmillionaire	norm	judged-info	test	judged-info
+whodirectedspiderman3	norm	judged-info	test	judged-info
+whodirectedspidermanacrossthespiderverse	norm	judged-info	test	judged-info
+whodirectedspidermanfarfromhome	norm	judged-info	test	judged-info
+whodirectedspidermanhomecoming	norm	judged-info	test	judged-info
+whodirectedspidermanintothespiderverse	norm	judged-info	test	judged-info
+whodirectedspidermannowayhome	norm	judged-info	test	judged-info
+whodirectedstarwarstheforceawakens	norm	judged-info	test	judged-info
+whodirectedtaxidriver	norm	judged-info	test	judged-info
+whodirectedterminator2judgmentday	norm	judged-info	test	judged-info
+whodirectedthebridgeontheriverkwai	norm	judged-info	test	judged-info
+whodirectedthedarkknight	norm	judged-info	test	judged-info
+whodirectedthedarkknightrises	norm	judged-info	test	judged-info
+whodirectedthedeerhunter	norm	judged-info	test	judged-info
+whodirectedthedeparted	norm	judged-info	test	judged-info
+whodirectedtheexorcist	norm	judged-info	test	judged-info
+whodirectedthefifthelement	norm	judged-info	test	judged-info
+whodirectedthegodfather	norm	judged-info	test	judged-info
+whodirectedthegodfatherpartii	norm	judged-info	test	judged-info
+whodirectedthegodfatherpartiii	norm	judged-info	test	judged-info
+whodirectedthelastsamurai	norm	judged-info	test	judged-info
+whodirectedthelionking	norm	judged-info	test	judged-info
+whodirectedthematrix	norm	judged-info	test	judged-info
+whodirectedthenightmarebeforechristmas	norm	judged-info	test	judged-info
+whodirectedtheprestige	norm	judged-info	test	judged-info
+whodirectedtheprinceofegypt	norm	judged-info	test	judged-info
+whodirectedtheshawshankredemption	norm	judged-info	test	judged-info
+whodirectedthesixthsense	norm	judged-info	test	judged-info
+whodirectedthesocialnetwork	norm	judged-info	test	judged-info
+whodirectedtheterminator	norm	judged-info	test	judged-info
+whodirectedthetrumanshow	norm	judged-info	test	judged-info
+whodirectedtheusualsuspects	norm	judged-info	test	judged-info
+whodirectedthewizardofoz	norm	judged-info	test	judged-info
+whodirectedthorragnarok	norm	judged-info	test	judged-info
+whodirectedtopgun	norm	judged-info	test	judged-info
+whodirectedtoystory	norm	judged-info	test	judged-info
+whodirectedtoystory4	norm	judged-info	test	judged-info
+whodirectedzootopia2	norm	judged-info	test	judged-info
+whowroteadventuresofhuckleberryfinn	norm	judged-info	test	judged-info
+whowroteaeneid	norm	judged-info	test	judged-info
+whowroteagameofthrones	norm	judged-info	test	judged-info
+whowrotealicesadventuresinwonderland	norm	judged-info	test	judged-info
+whowroteallegoryofthecave	norm	judged-info	test	judged-info
+whowroteallquietonthewesternfront	norm	judged-info	test	judged-info
+whowroteandthentherewerenone	norm	judged-info	test	judged-info
+whowroteanimalfarm	norm	judged-info	test	judged-info
+whowroteannakarenina	norm	judged-info	test	judged-info
+whowroteanneofgreengables	norm	judged-info	test	judged-info
+whowroteataleoftwocities	norm	judged-info	test	judged-info
+whowrotebhagavadgita	norm	judged-info	test	judged-info
+whowrotebookofgenesis	norm	judged-info	test	judged-info
+whowrotebookofrevelation	norm	judged-info	test	judged-info
+whowrotebravenewworld	norm	judged-info	test	judged-info
+whowrotecatch22	norm	judged-info	test	judged-info
+whowrotecharlieandthechocolatefactory	norm	judged-info	test	judged-info
+whowrotecrimeandpunishment	norm	judged-info	test	judged-info
+whowrotedavidcopperfield	norm	judged-info	test	judged-info
+whowrotedivinecomedy	norm	judged-info	test	judged-info
+whowrotedonquixote	norm	judged-info	test	judged-info
+whowrotedracula	norm	judged-info	test	judged-info
+whowrotefahrenheit451	norm	judged-info	test	judged-info
+whowrotefiftyshadesofgrey	norm	judged-info	test	judged-info
+whowroteforwhomthebelltolls	norm	judged-info	test	judged-info
+whowrotefrankenstein	norm	judged-info	test	judged-info
+whowrotegreatexpectations	norm	judged-info	test	judged-info
+whowrotehanselandgretel	norm	judged-info	test	judged-info
+whowroteharrypotterandthephilosophersstone	norm	judged-info	test	judged-info
+whowroteheartofdarkness	norm	judged-info	test	judged-info
+whowrotehistoriaaugusta	norm	judged-info	test	judged-info
+whowroteiching	norm	judged-info	test	judged-info
+whowroteiliad	norm	judged-info	test	judged-info
+whowroteinsearchoflosttime	norm	judged-info	test	judged-info
+whowrotejaneeyre	norm	judged-info	test	judged-info
+whowrotejourneytothewest	norm	judged-info	test	judged-info
+whowrotekamasutra	norm	judged-info	test	judged-info
+whowrotelesmisrables	norm	judged-info	test	judged-info
+whowrotelifeofpi	norm	judged-info	test	judged-info
+whowrotelittlewomen	norm	judged-info	test	judged-info
+whowrotelolita	norm	judged-info	test	judged-info
+whowrotelordoftheflies	norm	judged-info	test	judged-info
+whowrotemahabharata	norm	judged-info	test	judged-info
+whowrotemeinkampf	norm	judged-info	test	judged-info
+whowrotemobydick	norm	judged-info	test	judged-info
+whowrotenineteeneightyfour	norm	judged-info	test	judged-info
+whowroteodyssey	norm	judged-info	test	judged-info
+whowroteofmiceandmen	norm	judged-info	test	judged-info
+whowroteoldtestament	norm	judged-info	test	judged-info
+whowroteolivertwist	norm	judged-info	test	judged-info
+whowroteonehundredyearsofsolitude	norm	judged-info	test	judged-info
+whowroteonethousandandonenights	norm	judged-info	test	judged-info
+whowroteparadiselost	norm	judged-info	test	judged-info
+whowroteprideandprejudice	norm	judged-info	test	judged-info
+whowroteramayana	norm	judged-info	test	judged-info
+whowroterobinsoncrusoe	norm	judged-info	test	judged-info
+whowroterumpelstiltskin	norm	judged-info	test	judged-info
+whowrotesenseandsensibility	norm	judged-info	test	judged-info
+whowroteslaughterhousefive	norm	judged-info	test	judged-info
+whowrotetalmud	norm	judged-info	test	judged-info
+whowrotethebackrooms	norm	judged-info	test	judged-info
+whowrotethebrotherskaramazov	norm	judged-info	test	judged-info
+whowrotethecanterburytales	norm	judged-info	test	judged-info
+whowrotethecatcherintherye	norm	judged-info	test	judged-info
+whowrotethecountofmontecristo	norm	judged-info	test	judged-info
+whowrotethegrapesofwrath	norm	judged-info	test	judged-info
+whowrotethegreatgatsby	norm	judged-info	test	judged-info
+whowrotethehobbit	norm	judged-info	test	judged-info
+whowrotethehunchbackofnotredame	norm	judged-info	test	judged-info
+whowrotethekiterunner	norm	judged-info	test	judged-info
+whowrotethelittleprince	norm	judged-info	test	judged-info
+whowrotethelordoftherings	norm	judged-info	test	judged-info
+whowrotethemasterandmargarita	norm	judged-info	test	judged-info
+whowrotethemetamorphosis	norm	judged-info	test	judged-info
+whowrotethemythofsisyphus	norm	judged-info	test	judged-info
+whowrotetheoldmanandthesea	norm	judged-info	test	judged-info
+whowrotethepictureofdoriangray	norm	judged-info	test	judged-info
+whowrotetheprince	norm	judged-info	test	judged-info
+whowrotethesatanicverses	norm	judged-info	test	judged-info
+whowrotethesilmarillion	norm	judged-info	test	judged-info
+whowrotethethreemusketeers	norm	judged-info	test	judged-info
+whowrotethewaroftheworlds	norm	judged-info	test	judged-info
+whowrotethewonderfulwizardofoz	norm	judged-info	test	judged-info
+whowrotetokillamockingbird	norm	judged-info	test	judged-info
+whowrotetorah	norm	judged-info	test	judged-info
+whowrotetreasureisland	norm	judged-info	test	judged-info
+whowrotewaitingforgodot	norm	judged-info	test	judged-info
+whowrotewarandpeace	norm	judged-info	test	judged-info
+whowrotewatchmen	norm	judged-info	test	judged-info
+whowrotewutheringheights	norm	judged-info	test	judged-info
+wi unemployment benefits apply	query	judged-info	test	judged-info
+wisconsin state tax refund status	query	judged-info	test	judged-info
+wisconsinstatetaxrefundstatus	norm	judged-info	test	judged-info
+wiunemploymentbenefitsapply	norm	judged-info	test	judged-info
+woodworking plans	query	judged-info	test	judged-info
+woodworkingplans	norm	judged-info	test	judged-info
+workout tracking app	query	judged-info	test	judged-info
+workouttrackingapp	norm	judged-info	test	judged-info
+wy state parks camping reservations	query	judged-info	test	judged-info
+wystateparkscampingreservations	norm	judged-info	test	judged-info

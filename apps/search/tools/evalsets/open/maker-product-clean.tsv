@@ -1,0 +1,170 @@
+query	category	expected	set	stratum	split	entity
+chrome	site	google.com	maker-product-clean	views-rank:1-100,site:other	dev	googlechrome
+maps	site	google.com|maps.apple.com|yandex.com	maker-product-clean	views-rank:1-100,site:other,merged:3	dev	applemaps+googlemaps+yandexmaps
+switch 2	site	nintendo.com	maker-product-clean	views-rank:1-100,site:other	dev	nintendoswitch2
+translate	site	translate.google.com|translate.yandex.ru	maker-product-clean	views-rank:1-100,site:subdomain,merged:2	test	googletranslate+yandextranslate
+hot 100	site	billboard.com	maker-product-clean	views-rank:1-100,site:other	test	billboardhot100
+windows	site	windows.com	maker-product-clean	views-rank:1-100,site:other	dev	microsoftwindows
+an-225 mriya	site	antonov.com	maker-product-clean	views-rank:1-100,site:other	test	antonovan225mriya
+737 max	site	boeing.com	maker-product-clean	views-rank:1-100,site:other	test	boeing737max
+c-17 globemaster iii	site	boeing.com	maker-product-clean	views-rank:1-100,site:other	dev	boeingc17globemasteriii
+hilux	site	toyota.jp	maker-product-clean	views-rank:1-100,site:other	test	toyotahilux
+ch-47 chinook	site	boeing.com	maker-product-clean	views-rank:1-100,site:other	dev	boeingch47chinook
+rav4	site	toyota.com	maker-product-clean	views-rank:1-100,site:other	test	toyotarav4
+777x	site	boeing.com	maker-product-clean	views-rank:1-100,site:other	dev	boeing777x
+hk416	site	heckler-koch.com	maker-product-clean	views-rank:1-100,site:other	test	hecklerkochhk416
+mp5	site	heckler-koch.com	maker-product-clean	views-rank:1-100,site:other	test	hecklerkochmp5
+su-35	site	sukhoi.org	maker-product-clean	views-rank:1-100,site:other	test	sukhoisu35
+scholar	site	scholar.google.com	maker-product-clean	views-rank:1-100,site:subdomain	dev	googlescholar
+docs	site	google.com	maker-product-clean	views-rank:1-100,site:other	test	googledocs
+supra	site	toyota.co.uk|toyota.jp	maker-product-clean	views-rank:1-100,site:other	test	toyotasupra
+excel	site	products.office.com	maker-product-clean	views-rank:1-100,site:other	dev	microsoftexcel
+cayenne	site	porsche.com	maker-product-clean	views-rank:1-100,site:other	test	porschecayenne
+an-124 ruslan	site	antonov.com	maker-product-clean	views-rank:1-100,site:other	test	antonovan124ruslan
+cybertruck	site	tesla.com	maker-product-clean	views-rank:1-100,site:other	dev	teslacybertruck
+model y	site	tesla.com	maker-product-clean	views-rank:1-100,site:other	test	teslamodely
+outlook	site	outlook.office.com	maker-product-clean	views-rank:1-100,site:subdomain	test	microsoftoutlook
+photos	site	photos.google.com	maker-product-clean	views-rank:1-100,site:subdomain	dev	googlephotos
+yaris	site	toyota.fr	maker-product-clean	views-rank:1-100,site:other	test	toyotayaris
+g36	site	heckler-koch.com	maker-product-clean	views-rank:1-100,site:other	dev	hecklerkochg36
+c919	site	comac.cc	maker-product-clean	views-rank:1-100,site:other	dev	comacc919
+snapdragon	site	qualcomm.com	maker-product-clean	views-rank:1-100,site:other	test	qualcommsnapdragon
+global 500	site	fortune.com	maker-product-clean	views-rank:1-100,site:other	dev	fortuneglobal500
+jimny	site	globalsuzuki.com	maker-product-clean	views-rank:1-100,site:other	dev	suzukijimny
+countach	site	lamborghini.com	maker-product-clean	views-rank:1-100,site:other	dev	lamborghinicountach
+forester	site	subaru.com	maker-product-clean	views-rank:1-100,site:other	test	subaruforester
+ea-18g growler	site	boeing.com	maker-product-clean	views-rank:1-100,site:other	test	boeingea18ggrowler
+model 3	site	tesla.com	maker-product-clean	views-rank:1-100,site:other	test	teslamodel3
+cx-5	site	mazdausa.com	maker-product-clean	views-rank:1-100,site:other	dev	mazdacx5
+aventador	site	lamborghini.com	maker-product-clean	views-rank:1-100,site:other	dev	lamborghiniaventador
+fortuner	site	toyota.com.ph	maker-product-clean	views-rank:1-100,site:other	test	toyotafortuner
+corolla cross	site	toyota.com|toyota.jp	maker-product-clean	views-rank:1-100,site:other	test	toyotacorollacross
+urus	site	lamborghini.com	maker-product-clean	views-rank:1-100,site:other	dev	lamborghiniurus
+galaxy fold	site	samsung.com	maker-product-clean	views-rank:1-100,site:other	dev	samsunggalaxyfold
+panamera	site	porsche.com	maker-product-clean	views-rank:1-100,site:other	dev	porschepanamera
+sorento	site	kia.com	maker-product-clean	views-rank:1-100,site:other	dev	kiasorento
+powerpoint	site	powerpoint.cloud.microsoft	maker-product-clean	views-rank:1-100,site:subdomain	test	microsoftpowerpoint
+sportage	site	kia.com	maker-product-clean	views-rank:1-100,site:other	dev	kiasportage
+alphard	site	toyota.jp	maker-product-clean	views-rank:1-100,site:other	test	toyotaalphard
+vitara	site	globalsuzuki.com	maker-product-clean	views-rank:1-100,site:other	dev	suzukivitara
+sprinter	site	mbvans.com	maker-product-clean	views-rank:1-100,site:other	test	mercedesbenzsprinter
+continental gt	site	continentalgt.com	maker-product-clean	views-rank:1-100,site:other	dev	bentleycontinentalgt
+sienna	site	toyota.com	maker-product-clean	views-rank:1-100,site:other	test	toyotasienna
+corsa	site	opel.it	maker-product-clean	views-rank:1-100,site:other	test	opelcorsa
+street view	site	google.com	maker-product-clean	views-rank:1-100,site:other	dev	googlestreetview
+bloomington	site	bloomington.iu.edu	maker-product-clean	views-rank:101+,site:subdomain	test	indianauniversitybloomington
+altima	site	nissan-global.com	maker-product-clean	views-rank:101+,site:other	dev	nissanaltima
+revuelto	site	lamborghini.com	maker-product-clean	views-rank:101+,site:other	test	lamborghinirevuelto
+qashqai	site	nissan.com.au	maker-product-clean	views-rank:101+,site:other	dev	nissanqashqai
+macan	site	porsche.com	maker-product-clean	views-rank:101+,site:other	dev	porschemacan
+azure	site	azure.microsoft.com	maker-product-clean	views-rank:101+,site:subdomain	dev	microsoftazure
+fj cruiser	site	toyota-global.com	maker-product-clean	views-rank:101+,site:other	dev	toyotafjcruiser
+alexa	site	alexa.amazon.com	maker-product-clean	views-rank:101+,site:subdomain	dev	amazonalexa
+hk417	site	heckler-koch.com	maker-product-clean	views-rank:101+,site:other	dev	hecklerkochhk417
+c-hr	site	toyota.com|toyota.jp	maker-product-clean	views-rank:101+,site:other	dev	toyotachr
+stratocaster	site	fender.com	maker-product-clean	views-rank:101+,site:other	test	fenderstratocaster
+su-33	site	sukhoi.org	maker-product-clean	views-rank:101+,site:other	test	sukhoisu33
+flight simulator	site	flightsimulator.com	maker-product-clean	views-rank:101+,site:other	test	microsoftflightsimulator
+stadia	site	stadia.google.com	maker-product-clean	views-rank:101+,site:subdomain	dev	googlestadia
+cfm56	site	cfmaeroengines.com	maker-product-clean	views-rank:101+,site:other	test	cfminternationalcfm56
+intertoto cup	site	en.archive.uefa.com	maker-product-clean	views-rank:101+,site:other	dev	uefaintertotocup
+power bi	site	powerbi.microsoft.com	maker-product-clean	views-rank:101+,site:subdomain	test	microsoftpowerbi
+model x	site	tesla.com	maker-product-clean	views-rank:101+,site:other	test	teslamodelx
+taycan	site	porsche.com	maker-product-clean	views-rank:101+,site:other	test	porschetaycan
+vanquish	site	astonmartin.com	maker-product-clean	views-rank:101+,site:other	dev	astonmartinvanquish
+sls amg	site	mercedes-benz.com	maker-product-clean	views-rank:101+,site:other	dev	mercedesbenzslsamg
+bayraktar tb2	site	baykartech.com	maker-product-clean	views-rank:101+,site:other	dev	baykarbayraktartb2
+bz4x	site	gac-toyota.com.cn|toyota.com|toyota.de	maker-product-clean	views-rank:101+,site:other	test	toyotabz4x
+sf90 stradale	site	ferrari.com	maker-product-clean	views-rank:101+,site:other	test	ferrarisf90stradale
+workspace	site	workspace.google.com	maker-product-clean	views-rank:101+,site:subdomain	test	googleworkspace
+t-roc	site	volkswagen.cz	maker-product-clean	views-rank:101+,site:other	test	volkswagentroc
+sheets	site	google.com	maker-product-clean	views-rank:101+,site:other	test	googlesheets
+adsense	site	adsense.google.com	maker-product-clean	views-rank:101+,site:subdomain	test	googleadsense
+juke	site	nissan-global.com	maker-product-clean	views-rank:101+,site:other	dev	nissanjuke
+radio 4	site	bbc.co.uk	maker-product-clean	views-rank:101+,site:other	dev	bbcradio4
+ads	site	ads.google.com	maker-product-clean	views-rank:101+,site:subdomain	dev	googleads
+starlet	site	toyota.co.za	maker-product-clean	views-rank:101+,site:other	test	toyotastarlet
+telecaster	site	fender.com	maker-product-clean	views-rank:101+,site:other	dev	fendertelecaster
+bentayga	site	bentayga.bentleymotors.com	maker-product-clean	views-rank:101+,site:subdomain	test	bentleybentayga
+twizy	site	renault.fr	maker-product-clean	views-rank:101+,site:other	test	renaulttwizy
+global 2000	site	forbes.com	maker-product-clean	views-rank:101+,site:other	test	forbesglobal2000
+cx-30	site	changan-mazda.com.cn|mazdausa.com	maker-product-clean	views-rank:101+,site:other	dev	mazdacx30
+punto	site	fiat.it	maker-product-clean	views-rank:101+,site:other	dev	fiatpunto
+radio 1	site	bbc.co.uk	maker-product-clean	views-rank:101+,site:other	test	bbcradio1
+publisher	site	microsoft.com|products.office.com	maker-product-clean	views-rank:101+,site:other	dev	microsoftpublisher
+search console	site	search.google.com	maker-product-clean	views-rank:101+,site:other	test	googlesearchconsole
+analytics	site	marketingplatform.google.com	maker-product-clean	views-rank:101+,site:other	dev	googleanalytics
+iplayer	site	bbc.co.uk	maker-product-clean	views-rank:101+,site:other	dev	bbciplayer
+murano	site	nissan-global.com	maker-product-clean	views-rank:101+,site:other	dev	nissanmurano
+world university rankings	site	timeshighereducation.com	maker-product-clean	views-rank:101+,site:other	dev	timeshighereducationworlduniversityrankings
+after effects	site	adobe.com	maker-product-clean	views-rank:101+,site:other	test	adobeaftereffects
+mb-339	site	aermacchi.it	maker-product-clean	views-rank:101+,site:other	test	aermacchimb339
+radio 2	site	bbc.co.uk	maker-product-clean	views-rank:101+,site:other	dev	bbcradio2
+ignis	site	globalsuzuki.com	maker-product-clean	views-rank:101+,site:other	test	suzukiignis
+sql server	site	microsoft.com	maker-product-clean	views-rank:101+,site:other	test	microsoftsqlserver
+fc 24	site	ea.com	maker-product-clean	views-rank:101+,site:other	test	easportsfc24
+db11	site	db11.astonmartin.com	maker-product-clean	views-rank:101+,site:subdomain	dev	astonmartindb11
+dbx	site	astonmartin.com	maker-product-clean	views-rank:101+,site:other	test	astonmartindbx
+bayraktar akinci	site	baykartech.com	maker-product-clean	views-rank:101+,site:other	dev	baykarbayraktarakinci
+r-class	site	www5.mercedes-benz.com	maker-product-clean	views-rank:101+,site:other	test	mercedesbenzrclass
+cityhopper	site	klmcityhopper.nl	maker-product-clean	views-rank:101+,site:other	dev	klmcityhopper
+ev6	site	kia.com	maker-product-clean	views-rank:101+,site:other	dev	kiaev6
+glk-class	site	www5.mercedes-benz.com	maker-product-clean	views-rank:101+,site:other	test	mercedesbenzglkclass
+stelvio	site	alfaromeo.it	maker-product-clean	views-rank:101+,site:other	test	alfaromeostelvio
+mx-30	site	mazda.com	maker-product-clean	views-rank:101+,site:other	dev	mazdamx30
+levante	site	maserati.com|maseratiusa.com	maker-product-clean	views-rank:101+,site:other	test	maseratilevante
+aix	site	ibm.com	maker-product-clean	views-rank:101+,site:other	test	ibmaix
+tonale	site	alfaromeo.it	maker-product-clean	views-rank:101+,site:other	dev	alfaromeotonale
+e-tron gt	site	audi.de	maker-product-clean	views-rank:101+,site:other	dev	audietrongt
+indesign	site	adobe.com	maker-product-clean	views-rank:101+,site:other	test	adobeindesign
+visio	site	microsoft.com|office.microsoft.com	maker-product-clean	views-rank:101+,site:other	test	microsoftvisio
+q4 e-tron	site	audi.de	maker-product-clean	views-rank:101+,site:other	dev	audiq4etron
+sesto elemento	site	lamborghini.com	maker-product-clean	views-rank:101+,site:other	test	lamborghinisestoelemento
+eqs	site	mercedes-benz.com	maker-product-clean	views-rank:101+,site:other	dev	mercedesbenzeqs
+hangouts	site	hangouts.google.com	maker-product-clean	views-rank:101+,site:subdomain	dev	googlehangouts
+one-77	site	astonmartin.com	maker-product-clean	views-rank:101+,site:other	dev	astonmartinone77
+galaxy note 10	site	samsung.com	maker-product-clean	views-rank:101+,site:other	test	samsunggalaxynote10
+contacts	site	contacts.google.com	maker-product-clean	views-rank:101+,site:subdomain	dev	googlecontacts
+eee pc	site	eeepc.asus.com	maker-product-clean	views-rank:101+,site:subdomain	test	asuseeepc
+350 gt	site	lamborghini.com	maker-product-clean	views-rank:101+,site:other	dev	lamborghini350gt
+forfour	site	smart.com	maker-product-clean	views-rank:101+,site:other	dev	smartforfour
+flight simulator x	site	microsoft.com	maker-product-clean	views-rank:101+,site:other	test	microsoftflightsimulatorx
+an-178	site	antonov.com	maker-product-clean	views-rank:101+,site:other	dev	antonovan178
+silverlight	site	microsoft.com	maker-product-clean	views-rank:101+,site:other	dev	microsoftsilverlight
+revit	site	autodesk.com	maker-product-clean	views-rank:101+,site:other	dev	autodeskrevit
+public dns	site	developers.google.com	maker-product-clean	views-rank:101+,site:other	test	googlepublicdns
+telecom	site	sktelecom.com	maker-product-clean	views-rank:101+,site:other	dev	sktelecom
+500x	site	fiat.it|fiatusa.com	maker-product-clean	views-rank:101+,site:other	test	fiat500x
+galaxy note 8	site	samsung.com	maker-product-clean	views-rank:101+,site:other	dev	samsunggalaxynote8
+galaxy note 9	site	samsung.com	maker-product-clean	views-rank:101+,site:other	dev	samsunggalaxynote9
+500l	site	fiat.it	maker-product-clean	views-rank:101+,site:other	dev	fiat500l
+radio 3	site	bbc.co.uk	maker-product-clean	views-rank:101+,site:other	test	bbcradio3
+office 2010	site	products.office.com	maker-product-clean	views-rank:101+,site:other	dev	microsoftoffice2010
+seicento	site	fiatseicento.com	maker-product-clean	views-rank:101+,site:other	dev	fiatseicento
+hololens	site	learn.microsoft.com	maker-product-clean	views-rank:101+,site:other	dev	microsofthololens
+antara	site	media.gm.com	maker-product-clean	views-rank:101+,site:other	dev	opelantara
+trusteeship council	site	un.org	maker-product-clean	views-rank:101+,site:other	dev	unitednationstrusteeshipcouncil
+eos 60d	site	canon.es	maker-product-clean	views-rank:101+,site:other	test	canoneos60d
+mahanakhon	site	kingpowermahanakhon.co.th	maker-product-clean	views-rank:101+,site:other	dev	kingpowermahanakhon
+eos 600d	site	canon.es	maker-product-clean	views-rank:101+,site:other	dev	canoneos600d
+stilo	site	fiatstilo.com	maker-product-clean	views-rank:101+,site:other	dev	fiatstilo
+galaxy note 5	site	samsung.com	maker-product-clean	views-rank:101+,site:other	dev	samsunggalaxynote5
+lumia 1020	site	microsoft.com	maker-product-clean	views-rank:101+,site:other	dev	nokialumia1020
+baike	site	baike.baidu.com	maker-product-clean	views-rank:101+,site:subdomain	dev	baidubaike
+central stadium	site	centralstadium.kz	maker-product-clean	views-rank:101+,site:other	test	almatycentralstadium
+galaxy note 4	site	samsung.com	maker-product-clean	views-rank:101+,site:other	test	samsunggalaxynote4
+city guide	site	foursquare.com	maker-product-clean	views-rank:101+,site:other	dev	foursquarecityguide
+eos 550d	site	canon.es	maker-product-clean	views-rank:101+,site:other	test	canoneos550d
+lumia 800	site	nokia.com	maker-product-clean	views-rank:101+,site:other	dev	nokialumia800
+lumia 920	site	nokia.com	maker-product-clean	views-rank:101+,site:other	test	nokialumia920
+lybra	site	lancialybra.it	maker-product-clean	views-rank:101+,site:other	test	lancialybra
+estoque	site	lamborghini.com	maker-product-clean	views-rank:101+,site:other	test	lamborghiniestoque
+lumia 1520	site	microsoft.com	maker-product-clean	views-rank:101+,site:other	dev	nokialumia1520
+venga	site	kia.com	maker-product-clean	views-rank:101+,site:other	dev	kiavenga
+lumia 900	site	nokia.com	maker-product-clean	views-rank:101+,site:other	test	nokialumia900
+app engine	site	cloud.google.com	maker-product-clean	views-rank:101+,site:other	test	googleappengine
+infopath	site	office.microsoft.com	maker-product-clean	views-rank:101+,site:other	dev	microsoftinfopath
+lumia 520	site	microsoft.com	maker-product-clean	views-rank:101+,site:other	dev	nokialumia520
+lumia 710	site	nokia.com	maker-product-clean	views-rank:101+,site:other	test	nokialumia710
+lumia 720	site	nokia.com	maker-product-clean	views-rank:101+,site:other	dev	nokialumia720
+lumia 820	site	nokia.com	maker-product-clean	views-rank:101+,site:other	test	nokialumia820

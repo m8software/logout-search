@@ -1,0 +1,1129 @@
+model	topic	tag	detailed
+Gemma-4-12B QAT Q4_0 detail	how to make whipped cream	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to boil eggs	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to cook rice	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to make pancakes	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to bake bread	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to freeze bananas	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to make cold brew coffee	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to caramelize onions	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to make a roux	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to tie a tie	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to tie a bow tie	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to fold a paper airplane	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to knit a scarf	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to crochet a chain stitch	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to make an origami crane	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to braid hair	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to tie a bowline knot	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to remove a red wine stain	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to unclog a drain with a plunger	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to fold a fitted sheet	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to get rid of fruit flies	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to hang a picture on drywall	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to sharpen a kitchen knife	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to clean a cast iron pan	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to patch a small hole in drywall	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to jump start a car	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on windows	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on a mac	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to clear the browser cache in chrome	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to set up a new wifi router	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to factory reset an android phone	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to make a pdf smaller	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to unzip a file on windows	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to back up an iphone	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to find the ip address of a computer	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to prune tomato plants	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to grow grass from seed	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to remove dandelions from a lawn	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to start a compost pile	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to prune a rose bush	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to pack a suitcase	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to get over jet lag	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to get from narita airport to tokyo	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to use the paris metro	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to do long division	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to calculate a percentage	dq1	False
+Gemma-4-12B QAT Q4_0 detail	how to write a bibliography in mla format	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to make whipped cream	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to boil eggs	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to cook rice	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make pancakes	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to bake bread	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to freeze bananas	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make cold brew coffee	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to caramelize onions	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a roux	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a tie	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bow tie	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a paper airplane	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to knit a scarf	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to crochet a chain stitch	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to make an origami crane	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to braid hair	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bowline knot	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove a red wine stain	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to unclog a drain with a plunger	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to fix a running toilet	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a fitted sheet	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to get rid of fruit flies	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to hang a picture on drywall	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to sharpen a kitchen knife	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to clean a cast iron pan	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to patch a small hole in drywall	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to jump start a car	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on windows	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on a mac	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to clear the browser cache in chrome	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to set up a new wifi router	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to factory reset an android phone	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a pdf smaller	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to unzip a file on windows	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to back up an iphone	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the ip address of a computer	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune tomato plants	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to grow grass from seed	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove dandelions from a lawn	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to start a compost pile	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune a rose bush	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to pack a suitcase	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to get over jet lag	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to get from narita airport to tokyo	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to use the paris metro	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to calculate a percentage	dq1	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to write a bibliography in mla format	dq1	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the area of a circle	dq1	True
+Qwen3-14B Q4_K_M detail	how to make whipped cream	dq1	False
+Qwen3-14B Q4_K_M detail	how to boil eggs	dq1	True
+Qwen3-14B Q4_K_M detail	how to cook rice	dq1	True
+Qwen3-14B Q4_K_M detail	how to make pancakes	dq1	True
+Qwen3-14B Q4_K_M detail	how to bake bread	dq1	UNJUDGED
+Qwen3-14B Q4_K_M detail	how to freeze bananas	dq1	True
+Qwen3-14B Q4_K_M detail	how to make cold brew coffee	dq1	True
+Qwen3-14B Q4_K_M detail	how to caramelize onions	dq1	True
+Qwen3-14B Q4_K_M detail	how to make a roux	dq1	True
+Qwen3-14B Q4_K_M detail	how to tie a tie	dq1	False
+Qwen3-14B Q4_K_M detail	how to tie a bow tie	dq1	False
+Qwen3-14B Q4_K_M detail	how to fold a paper airplane	dq1	False
+Qwen3-14B Q4_K_M detail	how to knit a scarf	dq1	False
+Qwen3-14B Q4_K_M detail	how to crochet a chain stitch	dq1	False
+Qwen3-14B Q4_K_M detail	how to make an origami crane	dq1	False
+Qwen3-14B Q4_K_M detail	how to braid hair	dq1	True
+Qwen3-14B Q4_K_M detail	how to tie a bowline knot	dq1	False
+Qwen3-14B Q4_K_M detail	how to remove a red wine stain	dq1	False
+Qwen3-14B Q4_K_M detail	how to unclog a drain with a plunger	dq1	True
+Qwen3-14B Q4_K_M detail	how to fix a running toilet	dq1	False
+Qwen3-14B Q4_K_M detail	how to fold a fitted sheet	dq1	False
+Qwen3-14B Q4_K_M detail	how to get rid of fruit flies	dq1	False
+Qwen3-14B Q4_K_M detail	how to hang a picture on drywall	dq1	False
+Qwen3-14B Q4_K_M detail	how to sharpen a kitchen knife	dq1	False
+Qwen3-14B Q4_K_M detail	how to clean a cast iron pan	dq1	False
+Qwen3-14B Q4_K_M detail	how to patch a small hole in drywall	dq1	False
+Qwen3-14B Q4_K_M detail	how to jump start a car	dq1	True
+Qwen3-14B Q4_K_M detail	how to take a screenshot on windows	dq1	False
+Qwen3-14B Q4_K_M detail	how to take a screenshot on a mac	dq1	True
+Qwen3-14B Q4_K_M detail	how to clear the browser cache in chrome	dq1	True
+Qwen3-14B Q4_K_M detail	how to set up a new wifi router	dq1	True
+Qwen3-14B Q4_K_M detail	how to factory reset an android phone	dq1	True
+Qwen3-14B Q4_K_M detail	how to make a pdf smaller	dq1	False
+Qwen3-14B Q4_K_M detail	how to unzip a file on windows	dq1	True
+Qwen3-14B Q4_K_M detail	how to back up an iphone	dq1	True
+Qwen3-14B Q4_K_M detail	how to find the ip address of a computer	dq1	True
+Qwen3-14B Q4_K_M detail	how to prune tomato plants	dq1	False
+Qwen3-14B Q4_K_M detail	how to grow grass from seed	dq1	False
+Qwen3-14B Q4_K_M detail	how to remove dandelions from a lawn	dq1	False
+Qwen3-14B Q4_K_M detail	how to start a compost pile	dq1	True
+Qwen3-14B Q4_K_M detail	how to prune a rose bush	dq1	False
+Qwen3-14B Q4_K_M detail	how to pack a suitcase	dq1	False
+Qwen3-14B Q4_K_M detail	how to get over jet lag	dq1	False
+Qwen3-14B Q4_K_M detail	how to get from narita airport to tokyo	dq1	False
+Qwen3-14B Q4_K_M detail	how to use the paris metro	dq1	False
+Qwen3-14B Q4_K_M detail	how to do long division	dq1	False
+Qwen3-14B Q4_K_M detail	how to calculate a percentage	dq1	True
+Qwen3-14B Q4_K_M detail	how to write a bibliography in mla format	dq1	False
+Qwen3-14B Q4_K_M detail	how to find the area of a circle	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make whipped cream	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to boil eggs	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to cook rice	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to make pancakes	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to bake bread	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to freeze bananas	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make cold brew coffee	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to caramelize onions	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make a roux	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to tie a tie	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to tie a bow tie	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to fold a paper airplane	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to sew a button	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to knit a scarf	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to crochet a chain stitch	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make an origami crane	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to braid hair	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to tie a bowline knot	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to remove a red wine stain	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to unclog a drain with a plunger	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to fold a fitted sheet	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to get rid of fruit flies	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to hang a picture on drywall	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to sharpen a kitchen knife	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to clean a cast iron pan	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to patch a small hole in drywall	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to jump start a car	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to take a screenshot on windows	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to take a screenshot on a mac	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to clear the browser cache in chrome	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to set up a new wifi router	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to factory reset an android phone	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to make a pdf smaller	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to unzip a file on windows	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to back up an iphone	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to find the ip address of a computer	dq1	True
+Gemma-4-12B QAT Q4_0 arm-B	how to prune tomato plants	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to grow grass from seed	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to remove dandelions from a lawn	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to start a compost pile	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to prune a rose bush	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to pack a suitcase	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to get over jet lag	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to get from narita airport to tokyo	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to use the paris metro	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to do long division	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to calculate a percentage	dq1	False
+Gemma-4-12B QAT Q4_0 arm-B	how to write a bibliography in mla format	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make whipped cream	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to boil eggs	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to cook rice	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make pancakes	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to bake bread	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to freeze bananas	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make cold brew coffee	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to caramelize onions	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to make a roux	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to tie a tie	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to tie a bow tie	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to fold a paper airplane	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to sew a button	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to knit a scarf	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to crochet a chain stitch	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make an origami crane	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to braid hair	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to tie a bowline knot	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to remove a red wine stain	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to unclog a drain with a plunger	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to fix a running toilet	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to fold a fitted sheet	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to get rid of fruit flies	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to hang a picture on drywall	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to sharpen a kitchen knife	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to clean a cast iron pan	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to patch a small hole in drywall	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to jump start a car	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to take a screenshot on windows	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to take a screenshot on a mac	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to clear the browser cache in chrome	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to set up a new wifi router	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to factory reset an android phone	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to make a pdf smaller	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to unzip a file on windows	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to back up an iphone	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to find the ip address of a computer	dq1	True
+Gemma-4-12B QAT Q4_0 arm-C	how to prune tomato plants	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to grow grass from seed	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to remove dandelions from a lawn	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to start a compost pile	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to prune a rose bush	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to pack a suitcase	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to get over jet lag	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to get from narita airport to tokyo	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to use the paris metro	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to do long division	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to calculate a percentage	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to write a bibliography in mla format	dq1	False
+Gemma-4-12B QAT Q4_0 arm-C	how to find the area of a circle	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to make whipped cream	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to boil eggs	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to cook rice	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to make pancakes	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to bake bread	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to freeze bananas	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to make cold brew coffee	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to caramelize onions	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to make a roux	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to tie a tie	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to tie a bow tie	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to fold a paper airplane	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to sew a button	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to knit a scarf	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to crochet a chain stitch	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to make an origami crane	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to braid hair	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to tie a bowline knot	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to remove a red wine stain	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to unclog a drain with a plunger	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to fix a running toilet	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to fold a fitted sheet	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to get rid of fruit flies	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to hang a picture on drywall	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to sharpen a kitchen knife	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to clean a cast iron pan	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to patch a small hole in drywall	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to jump start a car	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to take a screenshot on windows	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to take a screenshot on a mac	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to clear the browser cache in chrome	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to set up a new wifi router	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to factory reset an android phone	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to make a pdf smaller	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to unzip a file on windows	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to back up an iphone	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to find the ip address of a computer	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to prune tomato plants	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to grow grass from seed	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to remove dandelions from a lawn	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to start a compost pile	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to prune a rose bush	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to pack a suitcase	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to get over jet lag	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to get from narita airport to tokyo	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to use the paris metro	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to do long division	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to calculate a percentage	dq1	True
+Gemma-4-12B QAT Q4_0 arm-D	how to write a bibliography in mla format	dq1	False
+Gemma-4-12B QAT Q4_0 arm-D	how to find the area of a circle	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make whipped cream	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to boil eggs	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to cook rice	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make pancakes	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to freeze bananas	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make cold brew coffee	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to caramelize onions	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make a roux	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to tie a tie	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to tie a bow tie	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to fold a paper airplane	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to knit a scarf	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to crochet a chain stitch	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make an origami crane	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to braid hair	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to tie a bowline knot	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to remove a red wine stain	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to unclog a drain with a plunger	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to fix a running toilet	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to fold a fitted sheet	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to get rid of fruit flies	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to hang a picture on drywall	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to sharpen a kitchen knife	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to clean a cast iron pan	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to patch a small hole in drywall	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to jump start a car	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to take a screenshot on windows	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to take a screenshot on a mac	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to clear the browser cache in chrome	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to set up a new wifi router	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to factory reset an android phone	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make a pdf smaller	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to unzip a file on windows	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to back up an iphone	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to find the ip address of a computer	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to prune tomato plants	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to grow grass from seed	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to remove dandelions from a lawn	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to start a compost pile	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to prune a rose bush	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to pack a suitcase	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to get from narita airport to tokyo	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to use the paris metro	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to calculate a percentage	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to write a bibliography in mla format	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to find the area of a circle	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make whipped cream	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to boil eggs	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to cook rice	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make pancakes	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to bake bread	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to freeze bananas	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make cold brew coffee	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to caramelize onions	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to tie a bow tie	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to fold a paper airplane	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to sew a button	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to knit a scarf	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to crochet a chain stitch	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make an origami crane	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to braid hair	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to tie a bowline knot	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to remove a red wine stain	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to unclog a drain with a plunger	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to fold a fitted sheet	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to get rid of fruit flies	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to hang a picture on drywall	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to sharpen a kitchen knife	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to clean a cast iron pan	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to patch a small hole in drywall	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to jump start a car	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to take a screenshot on windows	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to take a screenshot on a mac	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to clear the browser cache in chrome	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to set up a new wifi router	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to factory reset an android phone	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make a pdf smaller	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to unzip a file on windows	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to back up an iphone	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to find the ip address of a computer	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to prune tomato plants	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to grow grass from seed	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to start a compost pile	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to prune a rose bush	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to pack a suitcase	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to do long division	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to calculate a percentage	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to write a bibliography in mla format	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make whipped cream	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to boil eggs	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to cook rice	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make pancakes	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to bake bread	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to freeze bananas	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make cold brew coffee	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to caramelize onions	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make a roux	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to tie a bow tie	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to knit a scarf	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to crochet a chain stitch	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make an origami crane	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to braid hair	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to remove a red wine stain	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to unclog a drain with a plunger	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to fold a fitted sheet	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to get rid of fruit flies	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to hang a picture on drywall	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to sharpen a kitchen knife	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to clean a cast iron pan	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to patch a small hole in drywall	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to jump start a car	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to take a screenshot on windows	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to take a screenshot on a mac	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to clear the browser cache in chrome	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to set up a new wifi router	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to factory reset an android phone	dq1	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make a pdf smaller	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to unzip a file on windows	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to back up an iphone	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to find the ip address of a computer	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to remove dandelions from a lawn	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to start a compost pile	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to prune a rose bush	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to pack a suitcase	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to do long division	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to calculate a percentage	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to write a bibliography in mla format	dq1	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to find the area of a circle	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to make whipped cream	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to boil eggs	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to cook rice	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to make pancakes	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to bake bread	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to freeze bananas	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to caramelize onions	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to make a roux	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to tie a tie	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to fold a paper airplane	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to crochet a chain stitch	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to make an origami crane	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to braid hair	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to tie a bowline knot	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to remove a red wine stain	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to unclog a drain with a plunger	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to fix a running toilet	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to fold a fitted sheet	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to get rid of fruit flies	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to hang a picture on drywall	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to sharpen a kitchen knife	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to clean a cast iron pan	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to patch a small hole in drywall	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to take a screenshot on windows	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to take a screenshot on a mac	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to clear the browser cache in chrome	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to set up a new wifi router	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to factory reset an android phone	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to make a pdf smaller	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to unzip a file on windows	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to back up an iphone	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to find the ip address of a computer	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to prune tomato plants	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to grow grass from seed	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to remove dandelions from a lawn	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to start a compost pile	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to prune a rose bush	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to pack a suitcase	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to get over jet lag	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to get from narita airport to tokyo	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to use the paris metro	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to do long division	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to calculate a percentage	dq1	True
+Qwen3-14B Q4_K_M arm-B	how to write a bibliography in mla format	dq1	False
+Qwen3-14B Q4_K_M arm-B	how to find the area of a circle	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to make whipped cream	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to boil eggs	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to cook rice	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to make pancakes	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to bake bread	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to freeze bananas	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to make cold brew coffee	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to caramelize onions	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to make a roux	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to tie a tie	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to tie a bow tie	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to fold a paper airplane	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to sew a button	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to knit a scarf	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to crochet a chain stitch	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to make an origami crane	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to braid hair	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to tie a bowline knot	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to remove a red wine stain	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to unclog a drain with a plunger	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to fix a running toilet	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to fold a fitted sheet	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to get rid of fruit flies	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to hang a picture on drywall	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to sharpen a kitchen knife	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to clean a cast iron pan	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to patch a small hole in drywall	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to jump start a car	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to take a screenshot on windows	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to take a screenshot on a mac	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to clear the browser cache in chrome	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to set up a new wifi router	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to factory reset an android phone	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to make a pdf smaller	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to unzip a file on windows	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to back up an iphone	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to find the ip address of a computer	dq1	True
+Qwen3-14B Q4_K_M arm-C	how to prune tomato plants	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to grow grass from seed	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to remove dandelions from a lawn	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to start a compost pile	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to prune a rose bush	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to pack a suitcase	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to get over jet lag	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to get from narita airport to tokyo	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to use the paris metro	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to do long division	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to calculate a percentage	dq1	False
+Qwen3-14B Q4_K_M arm-C	how to write a bibliography in mla format	dq1	UNJUDGED
+Qwen3-14B Q4_K_M arm-C	how to find the area of a circle	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to make whipped cream	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to boil eggs	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to cook rice	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to make pancakes	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to bake bread	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to freeze bananas	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to make cold brew coffee	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to caramelize onions	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to make a roux	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to tie a tie	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to tie a bow tie	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to fold a paper airplane	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to sew a button	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to knit a scarf	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to crochet a chain stitch	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to make an origami crane	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to braid hair	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to tie a bowline knot	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to remove a red wine stain	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to unclog a drain with a plunger	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to fold a fitted sheet	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to get rid of fruit flies	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to hang a picture on drywall	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to sharpen a kitchen knife	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to clean a cast iron pan	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to patch a small hole in drywall	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to jump start a car	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to take a screenshot on windows	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to take a screenshot on a mac	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to clear the browser cache in chrome	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to set up a new wifi router	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to factory reset an android phone	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to make a pdf smaller	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to unzip a file on windows	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to back up an iphone	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to find the ip address of a computer	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to prune tomato plants	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to grow grass from seed	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to remove dandelions from a lawn	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to start a compost pile	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to prune a rose bush	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to pack a suitcase	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to get over jet lag	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to get from narita airport to tokyo	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to use the paris metro	dq1	False
+Qwen3-14B Q4_K_M arm-D	how to do long division	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to calculate a percentage	dq1	True
+Qwen3-14B Q4_K_M arm-D	how to write a bibliography in mla format	dq1	UNJUDGED
+Qwen3-14B Q4_K_M arm-D	how to find the area of a circle	dq1	True
+Gemma-4-12B QAT Q4_0 detail	how to make whipped cream	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to boil eggs	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to cook rice	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to make pancakes	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to bake bread	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to freeze bananas	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to make cold brew coffee	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to caramelize onions	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to make a roux	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to tie a tie	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to tie a bow tie	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to fold a paper airplane	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to knit a scarf	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to crochet a chain stitch	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to make an origami crane	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to braid hair	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to tie a bowline knot	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to remove a red wine stain	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to unclog a drain with a plunger	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to fold a fitted sheet	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to get rid of fruit flies	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to hang a picture on drywall	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to sharpen a kitchen knife	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to clean a cast iron pan	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to patch a small hole in drywall	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to jump start a car	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on windows	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on a mac	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to clear the browser cache in chrome	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to set up a new wifi router	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to factory reset an android phone	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to make a pdf smaller	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to unzip a file on windows	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to back up an iphone	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to find the ip address of a computer	dq2	True
+Gemma-4-12B QAT Q4_0 detail	how to prune tomato plants	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to grow grass from seed	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to remove dandelions from a lawn	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to start a compost pile	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to prune a rose bush	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to pack a suitcase	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to get over jet lag	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to get from narita airport to tokyo	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to use the paris metro	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to do long division	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to calculate a percentage	dq2	False
+Gemma-4-12B QAT Q4_0 detail	how to write a bibliography in mla format	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to make whipped cream	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to boil eggs	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to cook rice	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to make pancakes	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to bake bread	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to freeze bananas	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to make cold brew coffee	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to caramelize onions	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a roux	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a tie	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bow tie	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a paper airplane	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to knit a scarf	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to crochet a chain stitch	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to make an origami crane	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to braid hair	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bowline knot	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove a red wine stain	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to unclog a drain with a plunger	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to fix a running toilet	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a fitted sheet	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to get rid of fruit flies	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to hang a picture on drywall	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to sharpen a kitchen knife	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to clean a cast iron pan	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to patch a small hole in drywall	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to jump start a car	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on windows	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on a mac	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to clear the browser cache in chrome	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to set up a new wifi router	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to factory reset an android phone	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a pdf smaller	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to unzip a file on windows	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to back up an iphone	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the ip address of a computer	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune tomato plants	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to grow grass from seed	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove dandelions from a lawn	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to start a compost pile	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune a rose bush	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to pack a suitcase	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to get over jet lag	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to get from narita airport to tokyo	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to use the paris metro	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to calculate a percentage	dq2	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to write a bibliography in mla format	dq2	False
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the area of a circle	dq2	True
+Qwen3-14B Q4_K_M detail	how to make whipped cream	dq2	False
+Qwen3-14B Q4_K_M detail	how to boil eggs	dq2	True
+Qwen3-14B Q4_K_M detail	how to cook rice	dq2	True
+Qwen3-14B Q4_K_M detail	how to make pancakes	dq2	True
+Qwen3-14B Q4_K_M detail	how to bake bread	dq2	False
+Qwen3-14B Q4_K_M detail	how to freeze bananas	dq2	True
+Qwen3-14B Q4_K_M detail	how to make cold brew coffee	dq2	True
+Qwen3-14B Q4_K_M detail	how to caramelize onions	dq2	True
+Qwen3-14B Q4_K_M detail	how to make a roux	dq2	True
+Qwen3-14B Q4_K_M detail	how to tie a tie	dq2	False
+Qwen3-14B Q4_K_M detail	how to tie a bow tie	dq2	False
+Qwen3-14B Q4_K_M detail	how to fold a paper airplane	dq2	False
+Qwen3-14B Q4_K_M detail	how to knit a scarf	dq2	False
+Qwen3-14B Q4_K_M detail	how to crochet a chain stitch	dq2	False
+Qwen3-14B Q4_K_M detail	how to make an origami crane	dq2	False
+Qwen3-14B Q4_K_M detail	how to braid hair	dq2	True
+Qwen3-14B Q4_K_M detail	how to tie a bowline knot	dq2	True
+Qwen3-14B Q4_K_M detail	how to remove a red wine stain	dq2	True
+Qwen3-14B Q4_K_M detail	how to unclog a drain with a plunger	dq2	True
+Qwen3-14B Q4_K_M detail	how to fix a running toilet	dq2	False
+Qwen3-14B Q4_K_M detail	how to fold a fitted sheet	dq2	False
+Qwen3-14B Q4_K_M detail	how to get rid of fruit flies	dq2	False
+Qwen3-14B Q4_K_M detail	how to hang a picture on drywall	dq2	False
+Qwen3-14B Q4_K_M detail	how to sharpen a kitchen knife	dq2	True
+Qwen3-14B Q4_K_M detail	how to clean a cast iron pan	dq2	False
+Qwen3-14B Q4_K_M detail	how to patch a small hole in drywall	dq2	False
+Qwen3-14B Q4_K_M detail	how to jump start a car	dq2	True
+Qwen3-14B Q4_K_M detail	how to take a screenshot on windows	dq2	False
+Qwen3-14B Q4_K_M detail	how to take a screenshot on a mac	dq2	True
+Qwen3-14B Q4_K_M detail	how to clear the browser cache in chrome	dq2	True
+Qwen3-14B Q4_K_M detail	how to set up a new wifi router	dq2	True
+Qwen3-14B Q4_K_M detail	how to factory reset an android phone	dq2	True
+Qwen3-14B Q4_K_M detail	how to make a pdf smaller	dq2	False
+Qwen3-14B Q4_K_M detail	how to unzip a file on windows	dq2	True
+Qwen3-14B Q4_K_M detail	how to back up an iphone	dq2	False
+Qwen3-14B Q4_K_M detail	how to find the ip address of a computer	dq2	True
+Qwen3-14B Q4_K_M detail	how to prune tomato plants	dq2	False
+Qwen3-14B Q4_K_M detail	how to grow grass from seed	dq2	False
+Qwen3-14B Q4_K_M detail	how to remove dandelions from a lawn	dq2	False
+Qwen3-14B Q4_K_M detail	how to start a compost pile	dq2	False
+Qwen3-14B Q4_K_M detail	how to prune a rose bush	dq2	False
+Qwen3-14B Q4_K_M detail	how to pack a suitcase	dq2	False
+Qwen3-14B Q4_K_M detail	how to get over jet lag	dq2	False
+Qwen3-14B Q4_K_M detail	how to get from narita airport to tokyo	dq2	False
+Qwen3-14B Q4_K_M detail	how to use the paris metro	dq2	False
+Qwen3-14B Q4_K_M detail	how to do long division	dq2	False
+Qwen3-14B Q4_K_M detail	how to calculate a percentage	dq2	True
+Qwen3-14B Q4_K_M detail	how to write a bibliography in mla format	dq2	False
+Qwen3-14B Q4_K_M detail	how to find the area of a circle	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to make whipped cream	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to boil eggs	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to cook rice	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to make pancakes	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to bake bread	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to freeze bananas	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make cold brew coffee	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to caramelize onions	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make a roux	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to tie a tie	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to tie a bow tie	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to fold a paper airplane	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to sew a button	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to knit a scarf	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to crochet a chain stitch	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make an origami crane	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to braid hair	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to tie a bowline knot	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to remove a red wine stain	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to unclog a drain with a plunger	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to fold a fitted sheet	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to get rid of fruit flies	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to hang a picture on drywall	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to sharpen a kitchen knife	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to clean a cast iron pan	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to patch a small hole in drywall	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to jump start a car	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to take a screenshot on windows	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to take a screenshot on a mac	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to clear the browser cache in chrome	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to set up a new wifi router	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to factory reset an android phone	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to make a pdf smaller	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to unzip a file on windows	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to back up an iphone	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to find the ip address of a computer	dq2	True
+Gemma-4-12B QAT Q4_0 arm-B	how to prune tomato plants	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to grow grass from seed	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to remove dandelions from a lawn	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to start a compost pile	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to prune a rose bush	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to pack a suitcase	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to get over jet lag	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to get from narita airport to tokyo	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to use the paris metro	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to do long division	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to calculate a percentage	dq2	False
+Gemma-4-12B QAT Q4_0 arm-B	how to write a bibliography in mla format	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make whipped cream	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to boil eggs	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to cook rice	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make pancakes	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to bake bread	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to freeze bananas	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make cold brew coffee	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to caramelize onions	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to make a roux	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to tie a tie	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to tie a bow tie	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to fold a paper airplane	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to sew a button	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to knit a scarf	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to crochet a chain stitch	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to make an origami crane	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to braid hair	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to tie a bowline knot	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to remove a red wine stain	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to unclog a drain with a plunger	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to fix a running toilet	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to fold a fitted sheet	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to get rid of fruit flies	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to hang a picture on drywall	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to sharpen a kitchen knife	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to clean a cast iron pan	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to patch a small hole in drywall	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to jump start a car	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to take a screenshot on windows	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to take a screenshot on a mac	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to clear the browser cache in chrome	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to set up a new wifi router	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to factory reset an android phone	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to make a pdf smaller	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to unzip a file on windows	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to back up an iphone	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to find the ip address of a computer	dq2	True
+Gemma-4-12B QAT Q4_0 arm-C	how to prune tomato plants	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to grow grass from seed	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to remove dandelions from a lawn	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to start a compost pile	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to prune a rose bush	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to pack a suitcase	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to get over jet lag	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to get from narita airport to tokyo	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to use the paris metro	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to do long division	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to calculate a percentage	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to write a bibliography in mla format	dq2	False
+Gemma-4-12B QAT Q4_0 arm-C	how to find the area of a circle	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to make whipped cream	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to boil eggs	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to cook rice	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to make pancakes	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to bake bread	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to freeze bananas	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to make cold brew coffee	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to caramelize onions	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to make a roux	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to tie a tie	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to tie a bow tie	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to fold a paper airplane	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to sew a button	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to knit a scarf	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to crochet a chain stitch	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to make an origami crane	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to braid hair	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to tie a bowline knot	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to remove a red wine stain	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to unclog a drain with a plunger	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to fix a running toilet	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to fold a fitted sheet	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to get rid of fruit flies	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to hang a picture on drywall	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to sharpen a kitchen knife	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to clean a cast iron pan	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to patch a small hole in drywall	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to jump start a car	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to take a screenshot on windows	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to take a screenshot on a mac	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to clear the browser cache in chrome	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to set up a new wifi router	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to factory reset an android phone	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to make a pdf smaller	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to unzip a file on windows	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to back up an iphone	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to find the ip address of a computer	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to prune tomato plants	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to grow grass from seed	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to remove dandelions from a lawn	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to start a compost pile	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to prune a rose bush	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to pack a suitcase	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to get over jet lag	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to get from narita airport to tokyo	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to use the paris metro	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to do long division	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to calculate a percentage	dq2	True
+Gemma-4-12B QAT Q4_0 arm-D	how to write a bibliography in mla format	dq2	False
+Gemma-4-12B QAT Q4_0 arm-D	how to find the area of a circle	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make whipped cream	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to boil eggs	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to cook rice	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make pancakes	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to freeze bananas	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make cold brew coffee	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to caramelize onions	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make a roux	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to tie a tie	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to tie a bow tie	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to fold a paper airplane	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to knit a scarf	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to crochet a chain stitch	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make an origami crane	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to braid hair	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to tie a bowline knot	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to remove a red wine stain	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to unclog a drain with a plunger	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to fix a running toilet	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to fold a fitted sheet	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to get rid of fruit flies	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to hang a picture on drywall	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to sharpen a kitchen knife	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to clean a cast iron pan	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to patch a small hole in drywall	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to jump start a car	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to take a screenshot on windows	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to take a screenshot on a mac	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to clear the browser cache in chrome	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to set up a new wifi router	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to factory reset an android phone	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to make a pdf smaller	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to unzip a file on windows	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to back up an iphone	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to find the ip address of a computer	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to prune tomato plants	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to grow grass from seed	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to remove dandelions from a lawn	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to start a compost pile	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to prune a rose bush	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to pack a suitcase	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to get from narita airport to tokyo	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to use the paris metro	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to calculate a percentage	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to write a bibliography in mla format	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-B	how to find the area of a circle	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make whipped cream	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to boil eggs	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to cook rice	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make pancakes	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to bake bread	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to freeze bananas	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make cold brew coffee	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to caramelize onions	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to tie a bow tie	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to fold a paper airplane	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to sew a button	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to knit a scarf	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to crochet a chain stitch	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make an origami crane	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to braid hair	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to tie a bowline knot	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to remove a red wine stain	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to unclog a drain with a plunger	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to fold a fitted sheet	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to get rid of fruit flies	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to hang a picture on drywall	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to sharpen a kitchen knife	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to clean a cast iron pan	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to patch a small hole in drywall	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to jump start a car	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to take a screenshot on windows	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to take a screenshot on a mac	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to clear the browser cache in chrome	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to set up a new wifi router	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to factory reset an android phone	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to make a pdf smaller	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to unzip a file on windows	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to back up an iphone	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to find the ip address of a computer	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to prune tomato plants	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to grow grass from seed	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to start a compost pile	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to prune a rose bush	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to pack a suitcase	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to do long division	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to calculate a percentage	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-C	how to write a bibliography in mla format	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make whipped cream	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to boil eggs	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to cook rice	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make pancakes	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to bake bread	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to freeze bananas	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make cold brew coffee	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to caramelize onions	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make a roux	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to tie a bow tie	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to knit a scarf	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to crochet a chain stitch	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make an origami crane	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to braid hair	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to remove a red wine stain	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to unclog a drain with a plunger	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to fold a fitted sheet	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to get rid of fruit flies	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to hang a picture on drywall	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to sharpen a kitchen knife	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to clean a cast iron pan	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to patch a small hole in drywall	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to jump start a car	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to take a screenshot on windows	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to take a screenshot on a mac	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to clear the browser cache in chrome	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to set up a new wifi router	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to factory reset an android phone	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to make a pdf smaller	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to unzip a file on windows	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to back up an iphone	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to find the ip address of a computer	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to remove dandelions from a lawn	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to start a compost pile	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to prune a rose bush	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to pack a suitcase	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to do long division	dq2	True
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to calculate a percentage	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to write a bibliography in mla format	dq2	False
+gpt-oss-20b MXFP4 reasoning-low arm-D	how to find the area of a circle	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to make whipped cream	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to boil eggs	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to cook rice	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to make pancakes	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to bake bread	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to freeze bananas	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to caramelize onions	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to make a roux	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to tie a tie	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to fold a paper airplane	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to crochet a chain stitch	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to make an origami crane	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to braid hair	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to tie a bowline knot	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to remove a red wine stain	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to unclog a drain with a plunger	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to fix a running toilet	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to fold a fitted sheet	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to get rid of fruit flies	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to hang a picture on drywall	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to sharpen a kitchen knife	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to clean a cast iron pan	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to patch a small hole in drywall	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to take a screenshot on windows	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to take a screenshot on a mac	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to clear the browser cache in chrome	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to set up a new wifi router	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to factory reset an android phone	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to make a pdf smaller	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to unzip a file on windows	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to back up an iphone	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to find the ip address of a computer	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to prune tomato plants	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to grow grass from seed	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to remove dandelions from a lawn	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to start a compost pile	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to prune a rose bush	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to pack a suitcase	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to get over jet lag	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to get from narita airport to tokyo	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to use the paris metro	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to do long division	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to calculate a percentage	dq2	True
+Qwen3-14B Q4_K_M arm-B	how to write a bibliography in mla format	dq2	False
+Qwen3-14B Q4_K_M arm-B	how to find the area of a circle	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to make whipped cream	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to boil eggs	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to cook rice	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to make pancakes	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to bake bread	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to freeze bananas	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to make cold brew coffee	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to caramelize onions	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to make a roux	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to tie a tie	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to tie a bow tie	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to fold a paper airplane	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to sew a button	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to knit a scarf	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to crochet a chain stitch	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to make an origami crane	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to braid hair	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to tie a bowline knot	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to remove a red wine stain	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to unclog a drain with a plunger	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to fix a running toilet	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to fold a fitted sheet	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to get rid of fruit flies	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to hang a picture on drywall	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to sharpen a kitchen knife	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to clean a cast iron pan	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to patch a small hole in drywall	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to jump start a car	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to take a screenshot on windows	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to take a screenshot on a mac	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to clear the browser cache in chrome	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to set up a new wifi router	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to factory reset an android phone	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to make a pdf smaller	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to unzip a file on windows	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to back up an iphone	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to find the ip address of a computer	dq2	True
+Qwen3-14B Q4_K_M arm-C	how to prune tomato plants	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to grow grass from seed	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to remove dandelions from a lawn	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to start a compost pile	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to prune a rose bush	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to pack a suitcase	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to get over jet lag	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to get from narita airport to tokyo	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to use the paris metro	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to do long division	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to calculate a percentage	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to write a bibliography in mla format	dq2	False
+Qwen3-14B Q4_K_M arm-C	how to find the area of a circle	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to make whipped cream	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to boil eggs	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to cook rice	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to make pancakes	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to bake bread	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to freeze bananas	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to make cold brew coffee	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to caramelize onions	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to make a roux	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to tie a tie	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to tie a bow tie	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to fold a paper airplane	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to sew a button	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to knit a scarf	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to crochet a chain stitch	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to make an origami crane	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to braid hair	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to tie a bowline knot	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to remove a red wine stain	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to unclog a drain with a plunger	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to fold a fitted sheet	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to get rid of fruit flies	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to hang a picture on drywall	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to sharpen a kitchen knife	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to clean a cast iron pan	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to patch a small hole in drywall	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to jump start a car	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to take a screenshot on windows	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to take a screenshot on a mac	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to clear the browser cache in chrome	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to set up a new wifi router	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to factory reset an android phone	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to make a pdf smaller	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to unzip a file on windows	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to back up an iphone	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to find the ip address of a computer	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to prune tomato plants	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to grow grass from seed	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to remove dandelions from a lawn	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to start a compost pile	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to prune a rose bush	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to pack a suitcase	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to get over jet lag	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to get from narita airport to tokyo	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to use the paris metro	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to do long division	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to calculate a percentage	dq2	True
+Qwen3-14B Q4_K_M arm-D	how to write a bibliography in mla format	dq2	False
+Qwen3-14B Q4_K_M arm-D	how to find the area of a circle	dq2	True

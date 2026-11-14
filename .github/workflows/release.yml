@@ -1,0 +1,64 @@
+# A tag v* makes a release: the source, the installer, the one-folder bundles for Linux, Windows and macOS
+# (bundle.yml), their SHA-256 sums, and a signed statement of which commit and workflow produced them (verify
+# with `gh attestation verify <file> --repo <owner>/<repo>`).
+#
+# What this does NOT build: an engine image (the servers' own). The data is not here either: the bundle's
+# `logout-search install` downloads the signed release from the Hugging Face dataset.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  bundles:
+    uses: ./.github/workflows/bundle.yml
+
+  release:
+    needs: [ci, bundles]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # create the release
+      id-token: write        # sign the attestation
+      attestations: write    # store it
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: bundle-*
+          path: bundles
+          merge-multiple: true
+      - name: Build the release files
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          mkdir dist
+          # the three bundles (bundle.yml): one archive per system; their sums join SHA256SUMS below
+          mv bundles/* dist/
+          git archive --format=tar.gz --prefix="logout-search-${TAG}/" -o "dist/logout-search-${TAG}.tar.gz" "${TAG}"
+          # the installer and the two modules it imports, as one folder that runs on its own
+          mkdir "logout-search-installer-${TAG}"
+          cp apps/search/installer/install.py apps/search/release/release_check.py \
+             apps/search/release/release_ptr.py apps/search/release/registry_idents.py \
+             LICENSE "logout-search-installer-${TAG}/"
+          python3 "logout-search-installer-${TAG}/install.py" --help > /dev/null   # the folder runs on its own
+          tar -czf "dist/logout-search-installer-${TAG}.tar.gz" "logout-search-installer-${TAG}"
+          (cd dist && sha256sum -- * > SHA256SUMS)
+          cat dist/SHA256SUMS
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "${TAG}" dist/* --title "${TAG}" --generate-notes --verify-tag

@@ -1,0 +1,1026 @@
+# How-to category rules (owner 2026-10-12). Read by categories.py; tested by tests/unit/test-search-howto.sh.
+#
+# verdict<TAB>category<TAB>pattern
+#   verdict  allow!  an exception that wins over every deny row (the trivial car jobs the owner named)
+#            deny    never generated, never routed — the card stays off
+#            health  never generated; routed to the MedlinePlus topic (public domain)
+#            allow   may be generated (grounded first; ungrounded only in cooking/crafts/household/software)
+#   pattern  words matched as a contiguous run of STEMS inside the topic key (topics.key), so plural, -ing
+#            and -ed forms match; a one-word pattern matches that stem anywhere.
+# Precedence: allow! > deny > health > allow > (no match = unknown: not generated until the kinds model
+# or a person files it). Keep deny rows broad and allow rows narrow — a wrong allow ships a wrong card.
+#
+# --- exceptions: the trivial car jobs (jump-start, change a tyre) are IN; brakes, airbags, fuel are OUT
+allow!	vehicle-trivial	jump a car
+allow!	vehicle-trivial	jump start
+allow!	vehicle-trivial	jump start a car
+allow!	vehicle-trivial	jump a car battery
+allow!	vehicle-trivial	change a tire
+allow!	vehicle-trivial	change a flat tire
+allow!	vehicle-trivial	fix a flat tire
+allow!	vehicle-trivial	put on a spare tire
+allow!	vehicle-trivial	check tire pressure
+allow!	vehicle-trivial	inflate a tire
+allow!	vehicle-trivial	replace wiper blades
+allow!	vehicle-trivial	change wiper blades
+allow!	vehicle-trivial	washer fluid
+allow!	vehicle-trivial	fill washer fluid
+allow!	vehicle-trivial	check oil level
+allow!	vehicle-trivial	check the oil
+allow!	school	balance a chemical equation
+allow!	school	chemical equation
+allow!	household	remove a stripped screw
+allow!	software	burn a cd
+allow!	software	burn a dvd
+allow!	cooking	deep fry
+allow!	cooking	use a deep fryer
+allow!	household	fix a running toilet
+allow!	household	fix a leaky faucet
+allow!	household	replace a shower head
+allow!	household	change a light bulb
+allow!	household	replace a light bulb
+#
+# --- deny: medical procedures and drugs (a MedlinePlus topic is not an answer to these either)
+deny	medical	inject
+deny	medical	injection
+deny	medical	dosage
+deny	medical	dose
+deny	medical	prescription
+deny	medical	antibiotic
+deny	medical	medication
+deny	medical	pill
+deny	medical	overdose
+deny	medical	remove stitches
+deny	medical	suture
+deny	medical	pull a tooth
+deny	medical	remove a tooth
+deny	medical	piercing
+deny	medical	tattoo
+deny	medical	drug
+deny	medical	abortion
+deny	medical	insulin
+deny	medical	steroid
+deny	medical	iv drip
+deny	medical	drain an abscess
+deny	medical	pop a cyst
+deny	medical	set a bone
+deny	medical	dislocated
+# --- deny: legal
+deny	legal	lawsuit
+deny	legal	sue
+deny	legal	court
+deny	legal	contract
+deny	legal	lease
+deny	legal	evict
+deny	legal	eviction
+deny	legal	divorce
+deny	legal	custody
+deny	legal	write a will
+deny	legal	last will
+deny	legal	power of attorney
+deny	legal	visa
+deny	legal	immigration
+deny	legal	citizenship
+deny	legal	green card
+deny	legal	patent
+deny	legal	trademark
+deny	legal	copyright
+deny	legal	notarize
+deny	legal	lawyer
+deny	legal	attorney
+deny	legal	legal
+deny	legal	arrest
+deny	legal	warrant
+deny	legal	bail
+deny	legal	restraining order
+deny	legal	small claims
+deny	legal	deed
+deny	legal	llc
+deny	legal	incorporate
+# --- deny: mains electrical
+deny	electrical	wire
+deny	electrical	wiring
+deny	electrical	rewire
+deny	electrical	outlet
+deny	electrical	socket
+deny	electrical	breaker
+deny	electrical	fuse box
+deny	electrical	consumer unit
+deny	electrical	light switch
+deny	electrical	dimmer
+deny	electrical	ceiling fan
+deny	electrical	mains
+deny	electrical	voltage
+deny	electrical	electrical
+deny	electrical	electrician
+deny	electrical	hardwire
+deny	electrical	install a thermostat
+deny	electrical	wire a thermostat
+deny	electrical	generator
+deny	electrical	solar panel
+deny	electrical	ev charger
+deny	electrical	junction box
+deny	electrical	electric fence
+# --- deny: chemicals
+deny	chemicals	chemical
+deny	chemicals	acid
+deny	chemicals	lye
+deny	chemicals	caustic
+deny	chemicals	sodium hydroxide
+deny	chemicals	chlorine
+deny	chemicals	pesticide
+deny	chemicals	herbicide
+deny	chemicals	insecticide
+deny	chemicals	weed killer
+deny	chemicals	poison
+deny	chemicals	mercury
+deny	chemicals	thermite
+deny	chemicals	nitrate
+deny	chemicals	solvent
+deny	chemicals	methanol
+deny	chemicals	fumigate
+deny	chemicals	bleach
+deny	chemicals	mix bleach
+deny	chemicals	ammonia
+deny	chemicals	propane
+deny	chemicals	gas leak
+deny	chemicals	gas line
+deny	chemicals	gas valve
+deny	chemicals	natural gas
+# --- deny: weapons
+deny	weapons	gun
+deny	weapons	firearm
+deny	weapons	rifle
+deny	weapons	pistol
+deny	weapons	shotgun
+deny	weapons	ammo
+deny	weapons	ammunition
+deny	weapons	bullet
+deny	weapons	bomb
+deny	weapons	explosive
+deny	weapons	gunpowder
+deny	weapons	crossbow
+deny	weapons	sword
+deny	weapons	taser
+deny	weapons	pepper spray
+deny	weapons	silencer
+deny	weapons	weapon
+deny	weapons	grenade
+deny	weapons	reload
+# --- deny: vehicles beyond the trivial
+deny	vehicles	brake
+deny	vehicles	brake pad
+deny	vehicles	airbag
+deny	vehicles	fuel pump
+deny	vehicles	fuel line
+deny	vehicles	fuel filter
+deny	vehicles	fuel
+deny	vehicles	engine
+deny	vehicles	transmission
+deny	vehicles	clutch
+deny	vehicles	suspension
+deny	vehicles	steering
+deny	vehicles	timing belt
+deny	vehicles	spark plug
+deny	vehicles	catalytic
+deny	vehicles	exhaust
+deny	vehicles	radiator
+deny	vehicles	coolant
+deny	vehicles	alternator
+deny	vehicles	starter motor
+deny	vehicles	oil change
+deny	vehicles	change the oil
+deny	vehicles	change oil
+deny	vehicles	drive a car
+deny	vehicles	drive stick
+deny	vehicles	drive manual
+deny	vehicles	parallel park
+deny	vehicles	motorcycle
+deny	vehicles	tow
+deny	vehicles	hotwire
+deny	vehicles	jet ski
+deny	vehicles	car seat install
+deny	vehicles	install a car seat
+# --- deny: finance
+deny	finance	tax
+deny	finance	taxes
+deny	finance	file taxes
+deny	finance	invest
+deny	finance	stock market
+deny	finance	crypto
+deny	finance	bitcoin
+deny	finance	mortgage
+deny	finance	loan
+deny	finance	refinance
+deny	finance	401k
+deny	finance	ira
+deny	finance	pension
+deny	finance	bankruptcy
+deny	finance	option trading
+deny	finance	trade options
+deny	finance	forex
+deny	finance	buy a house
+deny	finance	sell a house
+deny	finance	insurance
+deny	finance	wire money
+deny	finance	credit score
+deny	finance	credit card
+deny	finance	debt
+deny	finance	money
+deny	finance	retire
+deny	finance	gamble
+deny	finance	bet
+# --- deny: anything with a licence or permit, and the dangerous trades
+deny	licensed	water heater
+deny	licensed	boiler
+deny	licensed	furnace
+deny	licensed	hvac
+deny	licensed	refrigerant
+deny	licensed	asbestos
+deny	licensed	demolish
+deny	licensed	build a deck
+deny	licensed	building permit
+deny	licensed	permit
+deny	licensed	license
+deny	licensed	licence
+deny	licensed	load bearing
+deny	licensed	septic
+deny	licensed	drill a well
+deny	licensed	fly a drone
+deny	licensed	drone
+deny	licensed	pilot
+deny	licensed	scuba
+deny	licensed	skydive
+deny	licensed	chainsaw
+deny	licensed	fell a tree
+deny	licensed	cut down a tree
+deny	licensed	roof
+deny	licensed	plumbing
+deny	licensed	welding
+deny	licensed	weld
+deny	licensed	forklift
+deny	licensed	pick a lock
+deny	licensed	lockpick
+deny	licensed	hack
+deny	licensed	fake id
+deny	licensed	burgle
+deny	licensed	hotwire
+deny	licensed	break a lock
+deny	licensed	hunt
+deny	licensed	fish without
+deny	licensed	fishing license
+deny	licensed	notary
+deny	licensed	daycare
+deny	licensed	sell food
+deny	licensed	sell alcohol
+deny	licensed	distill
+deny	licensed	moonshine
+deny	licensed	grow weed
+deny	licensed	grow cannabis
+deny	licensed	grow marijuana
+#
+# --- health: routed to the MedlinePlus topic, never generated
+health	health	blood pressure
+health	health	cholesterol
+health	health	blood sugar
+health	health	diabetes
+health	health	fever
+health	health	flu
+health	health	common cold
+health	health	cough
+health	health	headache
+health	health	migraine
+health	health	sore throat
+health	health	lose weight
+health	health	gain weight
+health	health	sleep better
+health	health	fall asleep
+health	health	insomnia
+health	health	anxiety
+health	health	depression
+health	health	stress
+health	health	panic attack
+health	health	quit smoking
+health	health	stop smoking
+health	health	back pain
+health	health	pain
+health	health	heartburn
+health	health	acid reflux
+health	health	constipation
+health	health	diarrhea
+health	health	nausea
+health	health	allergies
+health	health	allergy
+health	health	asthma
+health	health	cpr
+health	health	first aid
+health	health	choking
+health	health	treat a burn
+health	health	treat a cut
+health	health	stop bleeding
+health	health	nosebleed
+health	health	sunburn
+health	health	rash
+health	health	hangover
+health	health	pregnant
+health	health	pregnancy
+health	health	period cramps
+health	health	heart rate
+health	health	symptoms
+health	health	infection
+health	health	wound
+health	health	acne
+health	health	dandruff
+health	health	lice
+health	health	tick
+health	health	splinter
+health	health	hiccups
+health	health	eye strain
+health	health	blister
+health	health	bruise
+health	health	sprain
+health	health	swelling
+health	health	dehydration
+health	health	heat stroke
+health	health	hypothermia
+health	health	frostbite
+health	health	vitamin
+health	health	diet
+health	health	calories
+health	health	fasting
+health	health	breastfeed
+health	health	baby
+health	health	newborn
+health	health	ear wax
+health	health	toothache
+health	health	cavity
+health	health	gum
+#
+# --- allow: cooking
+allow	cooking	cook
+allow	cooking	bake
+allow	cooking	boil
+allow	cooking	fry
+allow	cooking	roast
+allow	cooking	grill
+allow	cooking	saute
+allow	cooking	steam
+allow	cooking	poach
+allow	cooking	recipe
+allow	cooking	whipped cream
+allow	cooking	whip cream
+allow	cooking	egg
+allow	cooking	rice
+allow	cooking	pasta
+allow	cooking	bread
+allow	cooking	cake
+allow	cooking	cookie
+allow	cooking	chicken
+allow	cooking	steak
+allow	cooking	sauce
+allow	cooking	marinate
+allow	cooking	knead
+allow	cooking	dough
+allow	cooking	coffee
+allow	cooking	tea
+allow	cooking	smoothie
+allow	cooking	freeze
+allow	cooking	thaw
+allow	cooking	defrost
+allow	cooking	peel
+allow	cooking	chop
+allow	cooking	dice
+allow	cooking	onion
+allow	cooking	garlic
+allow	cooking	potato
+allow	cooking	avocado
+allow	cooking	banana
+allow	cooking	pancake
+allow	cooking	pizza
+allow	cooking	soup
+allow	cooking	salad
+allow	cooking	brew
+allow	cooking	pickle
+allow	cooking	ferment
+allow	cooking	butter
+allow	cooking	cheese
+allow	cooking	fish
+allow	cooking	shrimp
+allow	cooking	bacon
+allow	cooking	oven
+allow	cooking	microwave
+allow	cooking	air fryer
+allow	cooking	slow cooker
+allow	cooking	pressure cooker
+allow	cooking	instant pot
+allow	cooking	oatmeal
+allow	cooking	popcorn
+allow	cooking	jam
+allow	cooking	cocktail
+allow	cooking	lemonade
+allow	cooking	hard boil
+allow	cooking	soft boil
+# --- allow: crafts
+allow	crafts	knit
+allow	crafts	crochet
+allow	crafts	sew
+allow	crafts	stitch
+allow	crafts	embroider
+allow	crafts	origami
+allow	crafts	fold paper
+allow	crafts	paper airplane
+allow	crafts	paper plane
+allow	crafts	draw
+allow	crafts	paint
+allow	crafts	sketch
+allow	crafts	tie a tie
+allow	crafts	tie a bow
+allow	crafts	tie a bow tie
+allow	crafts	tie a knot
+allow	crafts	braid
+allow	crafts	macrame
+allow	crafts	candle
+allow	crafts	soap
+allow	crafts	pottery
+allow	crafts	clay
+allow	crafts	woodwork
+allow	crafts	whittle
+allow	crafts	friendship bracelet
+allow	crafts	scrapbook
+allow	crafts	calligraphy
+allow	crafts	hem
+allow	crafts	sew a button
+allow	crafts	button
+allow	crafts	quilt
+allow	crafts	tie dye
+allow	crafts	wrap a gift
+allow	crafts	wrap a present
+allow	crafts	make a kite
+allow	crafts	ukulele
+allow	crafts	guitar
+allow	crafts	juggle
+allow	crafts	whistle
+allow	crafts	cartwheel
+# --- allow: household
+allow	household	clean
+allow	household	wash
+allow	household	remove a stain
+allow	household	stain
+allow	household	iron
+allow	household	fold
+allow	household	laundry
+allow	household	organize
+allow	household	declutter
+allow	household	unclog
+allow	household	plunger
+allow	household	drain
+allow	household	toilet
+allow	household	faucet
+allow	household	hang a picture
+allow	household	hang a shelf
+allow	household	hang curtains
+allow	household	patch drywall
+allow	household	patch a hole
+allow	household	paint a wall
+allow	household	paint a room
+allow	household	caulk
+allow	household	mop
+allow	household	vacuum
+allow	household	descale
+allow	household	get rid of fruit flies
+allow	household	get rid of ants
+allow	household	get rid of mice
+allow	household	get rid of mold
+allow	household	mold
+allow	household	smoke detector
+allow	household	fix a zipper
+allow	household	polish shoes
+allow	household	make a bed
+allow	household	fitted sheet
+allow	household	tie shoes
+allow	household	tie shoelaces
+allow	household	dishwasher
+allow	household	washing machine
+allow	household	dryer
+allow	household	refrigerator
+allow	household	freezer
+allow	household	oven
+allow	household	grout
+allow	household	carpet
+allow	household	window
+allow	household	mirror
+allow	household	wash a car
+allow	household	clean a car
+allow	household	sharpen a knife
+allow	household	sharpen
+allow	household	rust
+allow	household	wd40
+allow	household	stripped screw
+allow	household	assemble
+allow	household	ikea
+allow	household	hang a door
+allow	household	squeaky door
+allow	household	squeaky
+allow	household	measure
+allow	household	pack a box
+allow	household	move house
+allow	household	compost
+# --- allow: software and phones
+allow	software	screenshot
+allow	software	screen record
+allow	software	install
+allow	software	uninstall
+allow	software	update
+allow	software	reset
+allow	software	factory reset
+allow	software	password
+allow	software	wifi
+allow	software	wi fi
+allow	software	bluetooth
+allow	software	pair
+allow	software	sync
+allow	software	backup
+allow	software	iphone
+allow	software	ipad
+allow	software	android
+allow	software	windows
+allow	software	mac
+allow	software	linux
+allow	software	ubuntu
+allow	software	excel
+allow	software	spreadsheet
+allow	software	google sheets
+allow	software	google docs
+allow	software	word document
+allow	software	pdf
+allow	software	zip
+allow	software	unzip
+allow	software	email
+allow	software	gmail
+allow	software	outlook
+allow	software	chrome
+allow	software	firefox
+allow	software	safari
+allow	software	browser
+allow	software	app
+allow	software	download
+allow	software	print
+allow	software	printer
+allow	software	airdrop
+allow	software	dark mode
+allow	software	block a number
+allow	software	mute
+allow	software	delete account
+allow	software	deactivate
+allow	software	vpn
+allow	software	python
+allow	software	javascript
+allow	software	git
+allow	software	ssh
+allow	software	terminal
+allow	software	command line
+allow	software	formula
+allow	software	format
+allow	software	phone
+allow	software	computer
+allow	software	keyboard
+allow	software	mouse
+allow	software	monitor
+allow	software	router
+allow	software	hotspot
+allow	software	qr code
+allow	software	emoji
+allow	software	font
+allow	software	wallpaper
+allow	software	ringtone
+allow	software	voicemail
+allow	software	text message
+allow	software	whatsapp
+allow	software	instagram
+allow	software	facebook
+allow	software	youtube
+allow	software	tiktok
+allow	software	zoom
+allow	software	microsoft teams
+allow	software	teams meeting
+allow	software	teams chat
+allow	software	teams channel
+allow	software	teams call
+allow	software	slack
+allow	software	spotify
+allow	software	netflix
+allow	software	cache
+allow	software	cookies browser
+allow	software	clear cookies
+allow	software	storage
+allow	software	sd card
+allow	software	usb
+allow	software	hdmi
+allow	software	screen mirror
+allow	software	cast
+allow	software	tv
+# --- allow: gardening
+allow	gardening	plant
+allow	gardening	grow
+allow	gardening	prune
+allow	gardening	water plants
+allow	gardening	repot
+allow	gardening	mulch
+allow	gardening	seed
+allow	gardening	germinate
+allow	gardening	propagate
+allow	gardening	harvest
+allow	gardening	lawn
+allow	gardening	mow
+allow	gardening	weed
+allow	gardening	pull weeds
+allow	gardening	fertilize
+allow	gardening	tomato
+allow	gardening	herb
+allow	gardening	basil
+allow	gardening	bonsai
+allow	gardening	graft
+allow	gardening	trellis
+allow	gardening	raised bed
+allow	gardening	garden
+allow	gardening	flower
+allow	gardening	rose
+allow	gardening	orchid
+allow	gardening	succulent
+allow	gardening	cactus
+allow	gardening	tree
+allow	gardening	shrub
+allow	gardening	hedge
+allow	gardening	bulb
+allow	gardening	soil
+allow	gardening	greenhouse
+allow	gardening	bird feeder
+allow	gardening	deadhead
+# --- allow: travel
+allow	travel	pack
+allow	travel	suitcase
+allow	travel	luggage
+allow	travel	carry on bag
+allow	travel	carry on luggage
+allow	travel	carry on suitcase
+allow	travel	airport
+allow	travel	book a flight
+allow	travel	check in for a flight
+allow	travel	check in online for a flight
+allow	travel	airport check in
+allow	travel	layover
+allow	travel	jet lag
+allow	travel	hostel
+allow	travel	hotel
+allow	travel	travel
+allow	travel	trip
+allow	travel	itinerary
+allow	travel	passport
+allow	travel	boarding pass
+allow	travel	tipping
+allow	travel	metro
+allow	travel	subway
+allow	travel	bus
+allow	travel	taxi
+allow	travel	road trip
+allow	travel	camp
+allow	travel	tent
+allow	travel	hike
+allow	travel	backpack
+allow	travel	map
+allow	travel	compass
+# --- allow: school subjects
+allow	school	solve equation
+allow	school	solve an equation
+allow	school	solve for x
+allow	school	solve quadratic
+allow	school	solve linear
+allow	school	solve inequality
+allow	school	solve fractions
+allow	school	solve proportion
+allow	school	solve a system
+allow	school	solve math
+allow	school	solve a rubik
+allow	school	equation
+allow	school	fraction
+allow	school	percentage
+allow	school	percent
+allow	school	long division
+allow	school	multiply
+allow	school	divide
+allow	school	algebra
+allow	school	calculate
+allow	school	convert
+allow	school	essay
+allow	school	bibliography
+allow	school	cite
+allow	school	citation
+allow	school	mla
+allow	school	apa
+allow	school	study
+allow	school	memorize
+allow	school	read music
+allow	school	chess
+allow	school	spell
+allow	school	grammar
+allow	school	pronounce
+allow	school	learn
+allow	school	conjugate
+allow	school	periodic table
+allow	school	square root
+allow	school	average
+allow	school	mean median
+allow	school	standard deviation
+allow	school	graph
+allow	school	factor a polynomial
+allow	school	factor polynomials
+allow	school	factor a quadratic
+allow	school	factor trinomials
+allow	school	factor an expression
+allow	school	factor a number
+allow	school	prime factor
+allow	school	quadratic
+allow	school	derivative
+allow	school	integral
+allow	school	find the area
+allow	school	calculate the area
+allow	school	area of a circle
+allow	school	area of a triangle
+allow	school	area of a rectangle
+allow	school	area of a square
+allow	school	surface area
+allow	school	volume
+allow	school	perimeter
+allow	school	roman numerals
+allow	school	binary
+allow	school	write a letter
+allow	school	write a cover letter
+allow	school	resume
+allow	school	cv
+allow	school	paragraph
+allow	school	thesis
+allow	school	outline
+allow	school	speech
+allow	school	presentation
+allow	school	note taking
+allow	school	take notes
+allow	school	touch typing
+allow	school	typing speed
+allow	school	type faster
+allow	school	learn typing
+allow	school	touch type
+allow	school	time zone
+allow	school	tell time
+allow	school	count
+allow	travel	train ticket
+allow	travel	train station
+deny	chemicals	connect gas
+deny	chemicals	gas pipe
+deny	medical	stitch a wound
+deny	medical	stitch a cut
+health	health	cure a cold
+health	health	treat a cold
+health	health	get rid of a cold
+health	health	cold symptoms
+health	health	cold sore
+deny	vehicles	fly a plane
+deny	vehicles	fly an airplane
+deny	vehicles	land a plane
+deny	vehicles	sail a boat
+deny	vehicles	drive a boat
+allow	crafts	knot
+allow	household	drywall
+allow	household	patch
+allow	cooking	roux
+allow	cooking	gravy
+allow	cooking	chicken stock
+allow	cooking	beef stock
+allow	cooking	vegetable stock
+allow	cooking	fish stock
+allow	cooking	make stock
+allow	cooking	bone broth
+allow	cooking	broth
+allow	cooking	custard
+allow	cooking	caramel
+allow	cooking	frosting
+allow	cooking	icing
+allow	cooking	meringue
+allow	cooking	crepe
+allow	cooking	waffle
+allow	cooking	tortilla
+allow	cooking	hummus
+allow	cooking	guacamole
+allow	cooking	salsa
+allow	cooking	pesto
+allow	cooking	vinaigrette
+allow	cooking	risotto
+allow	cooking	sushi
+allow	cooking	ramen
+allow	cooking	curry
+allow	cooking	tofu
+allow	cooking	quinoa
+allow	cooking	lentil
+allow	cooking	beans
+allow	cooking	chili
+allow	cooking	stew
+allow	cooking	turkey
+allow	cooking	ham
+allow	cooking	lamb
+allow	cooking	pork
+allow	cooking	beef
+allow	cooking	burger
+allow	cooking	fries
+allow	cooking	mashed potatoes
+allow	cooking	gnocchi
+allow	cooking	dumpling
+allow	cooking	noodle
+allow	cooking	ice cream
+allow	cooking	pudding
+allow	cooking	cheesecake
+allow	cooking	brownie
+allow	cooking	muffin
+allow	cooking	scone
+allow	cooking	biscuit
+allow	cooking	croissant
+allow	cooking	pie
+allow	cooking	tart
+allow	cooking	sourdough
+allow	cooking	yeast
+allow	cooking	syrup
+allow	cooking	chocolate
+allow	cooking	vanilla
+allow	cooking	cinnamon
+allow	cooking	carve
+allow	cooking	season cast iron
+allow	cooking	season a pan
+allow	cooking	season a skillet
+allow	cooking	season a wok
+allow	cooking	season a steak
+allow	cooking	season chicken
+allow	cooking	season meat
+allow	cooking	season a griddle
+allow	cooking	season a grill
+allow	cooking	season food
+allow	cooking	cast iron
+deny	licensed	burglar
+deny	licensed	trespass
+deny	finance	buy stocks
+deny	finance	trade stocks
+deny	finance	stock option
+deny	finance	stock trading
+deny	finance	shares
+# --- 2026-10-13, after the first run on real page titles (demand list): gambling is finance; a keyword
+#     allow must not fire on money words the first list missed
+deny	finance	casino
+deny	finance	slot
+deny	finance	slots
+deny	finance	pokies
+deny	finance	roulette
+deny	finance	blackjack
+deny	finance	poker
+deny	finance	lottery
+deny	finance	jackpot
+deny	finance	sportsbook
+deny	finance	wager
+deny	finance	baccarat
+deny	finance	craps
+deny	finance	bingo
+deny	finance	payid
+deny	finance	neosurf
+deny	finance	credit
+deny	finance	irs
+deny	finance	free spins
+deny	finance	worthless stock
+deny	finance	gas mileage
+# --- other: OUTSIDE the seven allowed categories but not on the owner's deny list. An `other` row stops a
+#     keyword allow ("grow" your business, "measure" success, "email" list) — the verdict it gives is unknown,
+#     with the category naming why. Precedence: allow! > deny > health > other > allow.
+other	business	business
+other	business	startup
+other	business	entrepreneur
+other	business	company
+other	business	client
+other	business	customer
+other	business	sales
+other	business	revenue
+other	business	profit
+other	business	brand
+other	business	marketing
+other	business	seo
+other	business	ecommerce
+other	business	dropshipping
+other	business	freelance
+other	business	b2b
+other	business	crm
+other	business	invoice
+other	business	employee
+other	business	hire
+other	business	hired
+other	business	recruit
+other	business	career
+other	business	job
+other	business	interview
+other	business	salary
+other	business	quickbooks
+other	business	bookkeeping
+other	business	payroll
+other	business	supplier
+other	business	vendor
+other	business	franchise
+other	business	investor
+other	business	funding
+other	business	pitch
+other	business	remote team
+other	business	build a team
+other	business	manage a team
+other	business	lead a team
+other	business	team building
+other	business	real estate
+other	business	home buying
+other	business	appraised
+other	business	landlord
+other	business	tenant
+other	business	approved
+other	business	certified
+other	business	published
+other	business	paid
+other	business	rich
+other	business	deal
+other	business	quote
+other	business	refund
+other	business	tickets
+other	business	commute
+other	marketing	followers
+other	marketing	viral
+other	marketing	monetize
+other	marketing	influencer
+other	marketing	audience
+other	marketing	subscribers
+other	marketing	engagement
+other	marketing	ads
+other	marketing	advertising
+other	marketing	campaign
+other	marketing	newsletter
+other	marketing	affiliate
+other	marketing	traffic
+other	marketing	backlinks
+other	marketing	conversions
+other	marketing	google reviews
+other	marketing	more views
+other	marketing	email list
+other	marketing	email marketing
+other	marketing	email reminders
+other	marketing	grow on instagram
+other	marketing	grow instagram
+other	marketing	grow youtube
+other	marketing	grow on youtube
+other	marketing	grow tiktok
+other	marketing	grow on tiktok
+other	marketing	grow your channel
+other	marketing	grow your account
+other	marketing	go live
+other	life	success
+other	life	successful
+other	life	motivated
+other	life	motivation
+other	life	happiness
+other	life	happy
+other	life	relationship
+other	life	dating
+other	life	love
+other	life	confidence
+other	life	unstuck
+other	life	heartbreak
+other	life	bible
+other	life	god
+other	life	pray
+other	life	prayer
+other	life	church
+other	life	faith
+other	life	spiritual
+other	life	meditation
+other	life	manifest
+other	life	get ahead
+other	life	get ready
+other	life	get the look
+other	life	back on track
+other	life	best results
+other	life	get support
+other	life	get relief
+other	life	get involved
+other	life	get help
+other	life	get in touch
+other	life	get around
+other	life	get yours
+other	entertainment	train
+other	entertainment	dragon
+other	entertainment	get away with murder
+other	entertainment	win friends
+other	entertainment	lose a guy
+other	entertainment	coin master
+other	entertainment	ai companion
+other	business	payment method
+other	business	billing
+other	business	roi
+other	business	net worth
+other	marketing	rank higher

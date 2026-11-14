@@ -1,0 +1,286 @@
+# News feed list for the local news box — approved ("approved, start building the poller").
+# Personal only (indexhost). poller.py reads this file; add or remove a line and redeploy search-news.
+# URLs are the outlets' published feed addresses as known when drafted; a feed that keeps
+# failing is disabled by the poller (see its log), never retried hard.
+# lean = a rough placement for balance only (left | lean-left | center | lean-right | right | -), from widely
+# cited media-bias charts; spot-check it. poll = target minutes between conditional GETs (adaptive later).
+# section	name	lean	kind	poll	url
+# --- Wire services and CNN: no public RSS, but each publishes a Google News sitemap (XML: every article of the
+#     last ~48 h with headline and time) for search engines. kind news-sitemap = parse <url><news:news>;
+#     kind sitemap-discover = read the site's robots.txt for its news sitemap (AP's exact path is not known).
+#     robots.txt is honoured: a sitemap it disallows is skipped.
+wire	Reuters — news sitemap	center	news-sitemap	5	https://www.reuters.com/arc/outboundfeeds/news-sitemap/?outputType=xml
+wire	Associated Press — news sitemap (from robots.txt)	center	sitemap-discover	5	https://apnews.com/robots.txt
+wire	CNN — news sitemap	lean-left	news-sitemap	5	https://www.cnn.com/sitemaps/cnn/news.xml
+world	BBC News — World	center	outlet	5	https://feeds.bbci.co.uk/news/world/rss.xml
+world	BBC News — Top stories	center	outlet	5	https://feeds.bbci.co.uk/news/rss.xml
+world	BBC News — Middle East	center	outlet	10	https://feeds.bbci.co.uk/news/world/middle_east/rss.xml
+world	BBC News — US & Canada	center	outlet	10	https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml
+world	Al Jazeera English	lean-left	outlet	5	https://www.aljazeera.com/xml/rss/all.xml
+world	The Guardian — World	lean-left	outlet	10	https://www.theguardian.com/world/rss
+world	DW — World	center	outlet	15	https://rss.dw.com/rdf/rss-en-world
+world	France 24 — English	center	outlet	15	https://www.france24.com/en/rss
+world	France 24 — Middle East	center	outlet	15	https://www.france24.com/en/middle-east/rss
+world	Sky News — World	center	outlet	10	https://feeds.skynews.com/feeds/rss/world.xml
+world	CBC News — World	lean-left	outlet	15	https://www.cbc.ca/webfeed/rss/rss-world
+world	ABC News (Australia)	center	outlet	15	https://www.abc.net.au/news/feed/51120/rss.xml
+world	The Times of Israel	center	outlet	10	https://www.timesofisrael.com/feed/
+world	Middle East Eye	lean-left	outlet	15	https://www.middleeasteye.net/rss
+world	South China Morning Post — World	center	outlet	15	https://www.scmp.com/rss/91/feed
+world	The Japan Times	center	outlet	30	https://www.japantimes.co.jp/feed/
+world	The Hindu — International	center	outlet	30	https://www.thehindu.com/news/international/feeder/default.rss
+world	The Independent — World	lean-left	outlet	15	https://www.independent.co.uk/news/world/rss
+world	The Economist — Latest	center	outlet	30	https://www.economist.com/latest/rss.xml
+us	NPR — News	lean-left	outlet	5	https://feeds.npr.org/1001/rss.xml
+us	NPR — World	lean-left	outlet	10	https://feeds.npr.org/1004/rss.xml
+us	NPR — Politics	lean-left	outlet	10	https://feeds.npr.org/1014/rss.xml
+us	PBS NewsHour — Headlines	center	outlet	10	https://www.pbs.org/newshour/feeds/rss/headlines
+us	The New York Times — Home	lean-left	outlet	5	https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
+us	The New York Times — World	lean-left	outlet	10	https://rss.nytimes.com/services/xml/rss/nyt/World.xml
+us	The New York Times — Politics	lean-left	outlet	10	https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml
+us	The Washington Post — National	lean-left	outlet	10	https://feeds.washingtonpost.com/rss/national
+us	The Washington Post — World	lean-left	outlet	10	https://feeds.washingtonpost.com/rss/world
+us	The Washington Post — Politics	lean-left	outlet	10	https://feeds.washingtonpost.com/rss/politics
+us	The Wall Street Journal — World	center	outlet	10	https://feeds.a.dj.com/rss/RSSWorldNews.xml
+us	CBS News — Latest	center	outlet	5	https://www.cbsnews.com/latest/rss/main
+us	CBS News — Politics	center	outlet	10	https://www.cbsnews.com/latest/rss/politics
+us	ABC News — Top stories	lean-left	outlet	5	https://feeds.abcnews.com/abcnews/topstories
+us	NBC News — Top stories	lean-left	outlet	5	https://feeds.nbcnews.com/nbcnews/public/news
+us	Fox News — Latest	right	outlet	5	https://moxie.foxnews.com/google-publisher/latest.xml
+us	Fox News — Politics	right	outlet	10	https://moxie.foxnews.com/google-publisher/politics.xml
+us	Fox News — World	right	outlet	10	https://moxie.foxnews.com/google-publisher/world.xml
+us	New York Post	lean-right	outlet	5	https://nypost.com/feed/
+us	The Washington Times	lean-right	outlet	10	https://www.washingtontimes.com/rss/headlines/news/
+us	Washington Examiner	lean-right	outlet	10	https://www.washingtonexaminer.com/feed/
+us	Politico	lean-left	outlet	10	https://rss.politico.com/politics-news.xml
+us	The Hill	center	outlet	10	https://thehill.com/news/feed/
+us	Axios	lean-left	outlet	10	https://api.axios.com/feed/
+us	Semafor	center	outlet	15	https://www.semafor.com/rss.xml
+us	RealClearPolitics	lean-right	outlet	15	https://www.realclearpolitics.com/index.xml
+us	Newsweek	center	outlet	10	https://www.newsweek.com/rss
+us	Los Angeles Times — World & Nation	lean-left	outlet	15	https://www.latimes.com/world-nation/rss2.0.xml
+us	ProPublica	lean-left	outlet	60	https://www.propublica.org/feeds/propublica/main
+opinion	The Atlantic	lean-left	outlet	30	https://www.theatlantic.com/feed/all/
+opinion	The New Yorker — News	left	outlet	30	https://www.newyorker.com/feed/news
+opinion	Vox	left	outlet	30	https://www.vox.com/rss/index.xml
+opinion	Slate	left	outlet	30	https://slate.com/feeds/all.rss
+opinion	The Nation	left	outlet	30	https://www.thenation.com/feed/?post_type=article
+opinion	Mother Jones	left	outlet	30	https://www.motherjones.com/feed/
+opinion	The New Republic	left	outlet	30	https://newrepublic.com/rss.xml
+opinion	The Intercept	left	outlet	30	https://theintercept.com/feed/?lang=en
+opinion	Jacobin	left	outlet	60	https://jacobin.com/feed/
+opinion	MSNBC — Latest	left	outlet	15	https://www.msnbc.com/feeds/latest
+opinion	HuffPost — Front page	left	outlet	15	https://www.huffpost.com/section/front-page/feed
+opinion	The Daily Beast	left	outlet	15	https://www.thedailybeast.com/arc/outboundfeeds/rss/articles/
+opinion	Reason	lean-right	outlet	30	https://reason.com/feed/
+opinion	The Free Press	lean-right	outlet	30	https://www.thefp.com/feed
+opinion	The Dispatch	lean-right	outlet	30	https://thedispatch.com/feed/
+opinion	National Review	right	outlet	30	https://www.nationalreview.com/feed/
+opinion	The American Conservative	right	outlet	60	https://www.theamericanconservative.com/feed/
+opinion	Commentary	right	outlet	60	https://www.commentary.org/feed/
+opinion	The Federalist	right	outlet	30	https://thefederalist.com/feed/
+opinion	The Daily Wire	right	outlet	15	https://www.dailywire.com/feeds/rss.xml
+opinion	The Daily Caller	right	outlet	15	https://dailycaller.com/feed/
+opinion	Newsmax — Newsfront	right	outlet	15	https://www.newsmax.com/rss/Newsfront/16/
+opinion	Breitbart	right	outlet	15	https://feeds.feedburner.com/breitbart
+opinion	The Blaze	right	outlet	15	https://www.theblaze.com/feeds/feed.rss
+opinion	The Washington Free Beacon	right	outlet	30	https://freebeacon.com/feed/
+opinion	The Spectator World	lean-right	outlet	60	https://thespectator.com/feed/
+opinion	Hot Air	right	outlet	30	https://hotair.com/feed
+opinion	The Wall Street Journal — Opinion	lean-right	outlet	30	https://feeds.a.dj.com/rss/RSSOpinion.xml
+opinion	Tangle (both sides, by design)	center	outlet	60	https://www.readtangle.com/feed
+business	The Wall Street Journal — Markets	center	outlet	10	https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+business	Bloomberg — Markets	center	outlet	10	https://feeds.bloomberg.com/markets/news.rss
+business	Bloomberg — Politics	center	outlet	15	https://feeds.bloomberg.com/politics/news.rss
+business	CNBC — Top news	center	outlet	10	https://www.cnbc.com/id/100003114/device/rss/rss.html
+business	MarketWatch — Top stories	center	outlet	10	https://feeds.content.dowjones.io/public/rss/mw_topstories
+business	Financial Times — Home	center	outlet	15	https://www.ft.com/rss/home
+business	Yahoo Finance	center	outlet	15	https://finance.yahoo.com/news/rssindex
+business	Business Insider	lean-left	outlet	15	https://feeds.businessinsider.com/custom/all
+business	Fortune	center	outlet	30	https://fortune.com/feed/
+business	Federal Reserve — Press releases	-	official	30	https://www.federalreserve.gov/feeds/press_all.xml
+business	SEC — Press releases	-	official	60	https://www.sec.gov/news/pressreleases.rss
+tech	The Verge	-	outlet	15	https://www.theverge.com/rss/index.xml
+tech	Ars Technica	-	outlet	15	https://feeds.arstechnica.com/arstechnica/index
+tech	TechCrunch	-	outlet	15	https://techcrunch.com/feed/
+tech	Wired	-	outlet	30	https://www.wired.com/feed/rss
+tech	Engadget	-	outlet	15	https://www.engadget.com/rss.xml
+tech	404 Media	-	outlet	30	https://www.404media.co/rss/
+tech	The Register	-	outlet	15	https://www.theregister.com/headlines.atom
+tech	Hacker News — Front page	-	aggregator	10	https://hnrss.org/frontpage
+tech	Tom's Hardware	-	outlet	30	https://www.tomshardware.com/feeds/all
+tech	9to5Mac	-	outlet	30	https://9to5mac.com/feed/
+tech	9to5Google	-	outlet	30	https://9to5google.com/feed/
+tech	MacRumors	-	outlet	30	https://feeds.macrumors.com/MacRumors-All
+tech	Android Authority	-	outlet	30	https://www.androidauthority.com/feed/
+tech	BleepingComputer	-	outlet	15	https://www.bleepingcomputer.com/feed/
+tech	Krebs on Security	-	outlet	60	https://krebsonsecurity.com/feed/
+tech	LWN.net	-	outlet	60	https://lwn.net/headlines/rss
+tech	Phoronix	-	outlet	60	https://www.phoronix.com/rss.php
+science	Nature	-	outlet	60	https://www.nature.com/nature.rss
+science	Science — News	-	outlet	60	https://www.science.org/rss/news_current.xml
+science	NASA — News releases	-	official	60	https://www.nasa.gov/news-release/feed/
+science	Space.com	-	outlet	30	https://www.space.com/feeds/all
+science	New Scientist	-	outlet	30	https://www.newscientist.com/feed/home/
+science	Quanta Magazine	-	outlet	60	https://www.quantamagazine.org/feed/
+science	ScienceDaily	-	outlet	60	https://www.sciencedaily.com/rss/all.xml
+science	USGS — Significant earthquakes (week)	-	official	15	https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.atom
+health	STAT	-	outlet	30	https://www.statnews.com/feed/
+health	KFF Health News	-	outlet	60	https://kffhealthnews.org/feed/
+climate	Inside Climate News	-	outlet	60	https://insideclimatenews.org/feed/
+sports	ESPN — Top	-	outlet	5	https://www.espn.com/espn/rss/news
+sports	ESPN — NFL	-	outlet	5	https://www.espn.com/espn/rss/nfl/news
+sports	ESPN — NBA	-	outlet	5	https://www.espn.com/espn/rss/nba/news
+sports	ESPN — MLB	-	outlet	5	https://www.espn.com/espn/rss/mlb/news
+sports	ESPN — NHL	-	outlet	10	https://www.espn.com/espn/rss/nhl/news
+sports	ESPN — College football	-	outlet	10	https://www.espn.com/espn/rss/ncf/news
+sports	ESPN — College basketball	-	outlet	10	https://www.espn.com/espn/rss/ncb/news
+sports	ESPN — Soccer	-	outlet	10	https://www.espn.com/espn/rss/soccer/news
+sports	CBS Sports — Headlines	-	outlet	10	https://www.cbssports.com/rss/headlines/
+sports	CBS Sports — NFL	-	outlet	10	https://www.cbssports.com/rss/headlines/nfl/
+sports	CBS Sports — NBA	-	outlet	10	https://www.cbssports.com/rss/headlines/nba/
+sports	CBS Sports — MLB	-	outlet	10	https://www.cbssports.com/rss/headlines/mlb/
+sports	Yahoo Sports	-	outlet	10	https://sports.yahoo.com/rss/
+sports	BBC Sport	-	outlet	10	https://feeds.bbci.co.uk/sport/rss.xml
+sports	BBC Sport — Football	-	outlet	10	https://feeds.bbci.co.uk/sport/football/rss.xml
+sports	BBC Sport — Formula 1	-	outlet	15	https://feeds.bbci.co.uk/sport/formula1/rss.xml
+sports	BBC Sport — Tennis	-	outlet	30	https://feeds.bbci.co.uk/sport/tennis/rss.xml
+sports	The Guardian — Sport	-	outlet	10	https://www.theguardian.com/sport/rss
+sports	The Guardian — Football	-	outlet	10	https://www.theguardian.com/football/rss
+sports	Sky Sports — News	-	outlet	10	https://www.skysports.com/rss/12040
+sports	MLB.com — News	-	official	15	https://www.mlb.com/feeds/news/rss.xml
+sports	Motorsport.com — F1	-	outlet	15	https://www.motorsport.com/rss/f1/news/
+entertainment	Variety	-	outlet	15	https://variety.com/feed/
+entertainment	The Hollywood Reporter	-	outlet	15	https://www.hollywoodreporter.com/feed/
+entertainment	Deadline	-	outlet	15	https://deadline.com/feed/
+entertainment	Rolling Stone	-	outlet	30	https://www.rollingstone.com/feed/
+entertainment	Pitchfork — News	-	outlet	30	https://pitchfork.com/feed/feed-news/rss
+games	IGN	-	outlet	15	https://feeds.feedburner.com/ign/all
+games	Polygon	-	outlet	30	https://www.polygon.com/rss/index.xml
+games	GameSpot — News	-	outlet	30	https://www.gamespot.com/feeds/news/
+games	Eurogamer	-	outlet	30	https://www.eurogamer.net/feed
+games	Kotaku	-	outlet	30	https://kotaku.com/rss
+# --- Substack and independent newsletters (every Substack publication has /feed). Hand-picked for a
+#     left/right spread; feed URLs as known, unverified.
+substack	Letters from an American — Heather Cox Richardson	left	newsletter	60	https://heathercoxrichardson.substack.com/feed
+substack	Paul Krugman	left	newsletter	60	https://paulkrugman.substack.com/feed
+substack	Robert Reich	left	newsletter	60	https://robertreich.substack.com/feed
+substack	Thinking about… — Timothy Snyder	left	newsletter	60	https://snyder.substack.com/feed
+substack	Popular Information — Judd Legum	left	newsletter	60	https://popular.info/feed
+substack	Civil Discourse — Joyce Vance	left	newsletter	60	https://joycevance.substack.com/feed
+substack	Zeteo — Mehdi Hasan	left	newsletter	30	https://zeteo.com/feed
+substack	Chris Hedges	left	newsletter	60	https://chrishedges.substack.com/feed
+substack	Seymour Hersh	left	newsletter	60	https://seymourhersh.substack.com/feed
+substack	Slow Boring — Matthew Yglesias	lean-left	newsletter	60	https://www.slowboring.com/feed
+substack	Noahpinion — Noah Smith	lean-left	newsletter	60	https://www.noahpinion.blog/feed
+substack	Freddie deBoer	lean-left	newsletter	60	https://freddiedeboer.substack.com/feed
+substack	Silver Bulletin — Nate Silver	center	newsletter	60	https://www.natesilver.net/feed
+substack	Persuasion — Yascha Mounk	center	newsletter	60	https://www.persuasion.community/feed
+substack	After Babel — Jonathan Haidt	center	newsletter	60	https://www.afterbabel.com/feed
+substack	Glenn Greenwald	heterodox	newsletter	60	https://greenwald.substack.com/feed
+substack	Racket News — Matt Taibbi	heterodox	newsletter	60	https://www.racket.news/feed
+substack	The Bulwark	lean-right	newsletter	30	https://www.thebulwark.com/feed
+substack	The Weekly Dish — Andrew Sullivan	lean-right	newsletter	60	https://andrewsullivan.substack.com/feed
+substack	The Glenn Show — Glenn Loury	lean-right	newsletter	60	https://glennloury.substack.com/feed
+substack	Time Machine — Niall Ferguson	lean-right	newsletter	60	https://niallferguson.substack.com/feed
+substack	Restoration — Ayaan Hirsi Ali	right	newsletter	60	https://ayaanhirsiali.substack.com/feed
+substack	Richard Hanania	right	newsletter	60	https://www.richardhanania.com/feed
+substack	Christopher Rufo	right	newsletter	60	https://christopherrufo.com/feed
+substack	Rod Dreher's Diary	right	newsletter	60	https://roddreher.substack.com/feed
+substack	Platformer — Casey Newton (tech)	-	newsletter	60	https://www.platformer.news/feed
+substack	Garbage Day — Ryan Broderick (internet)	-	newsletter	60	https://www.garbageday.email/feed
+substack	Joe Blogs — Joe Posnanski (sports)	-	newsletter	60	https://joeposnanski.substack.com/feed
+sports	Defector	-	outlet	30	https://defector.com/feed
+# --- Journalists with a Bluesky or Mastodon account in Wikidata (occupation journalist/columnist/
+#     correspondent, English-language, alive), most-known first. These skew left: most right-leaning
+#     writers post on X, which has no RSS — their newsletters and outlets above cover that side.
+journalists	Rachel Maddow — American television news host and political commentator	-	bluesky	30	https://bsky.app/profile/maddow.msnbc.com/rss
+journalists	Anne Applebaum — American journalist and historian (born 1964)	-	bluesky	30	https://bsky.app/profile/anneapplebaum.bsky.social/rss
+journalists	Caitlin Moran — English author and broadcaster	-	bluesky	30	https://bsky.app/profile/mscaitlinmoran.bsky.social/rss
+journalists	Mona Eltahawy — Egyptian-American journalist	-	mastodon	30	https://mastodon.online/@monaeltahawy.rss
+journalists	Caroline Criado-Perez — British journalist and author	-	bluesky	30	https://bsky.app/profile/ccriadoperez.bsky.social/rss
+journalists	David Simon — American author, journalist, and television writer and producer	-	bluesky	30	https://bsky.app/profile/audacityofdespair.bsky.social/rss
+journalists	Ronan Farrow — American journalist	-	bluesky	30	https://bsky.app/profile/ronanfarrow.bsky.social/rss
+journalists	Owen Jones — British political pundit (1984–)	-	bluesky	30	https://bsky.app/profile/owenjones.bsky.social/rss
+journalists	Mehdi Hasan — British-American journalist (1979-)	-	bluesky	30	https://bsky.app/profile/mehdirhasan.bsky.social/rss
+journalists	Mika Brzezinski — American television host	-	bluesky	30	https://bsky.app/profile/mika-brzezinski.bsky.social/rss
+journalists	Elizabeth Kolbert — American journalist and author	-	mastodon	30	https://sciencemastodon.com/@elizkolbert.rss
+journalists	Eliot Higgins — British citizen journalist and former blogger	-	bluesky	30	https://bsky.app/profile/eliothiggins.bsky.social/rss
+journalists	Jim Acosta — American journalist	-	bluesky	30	https://bsky.app/profile/jimacosta.bsky.social/rss
+journalists	Jeffrey Goldberg — American journalist (born 1965)	-	bluesky	30	https://bsky.app/profile/jeffreygoldberg.bsky.social/rss
+journalists	Steven Levy — American journalist	-	bluesky	30	https://bsky.app/profile/stevenlevy.bsky.social/rss
+journalists	Tim Harford — British economist and journalist	-	bluesky	30	https://bsky.app/profile/timharford.bsky.social/rss
+journalists	Jeremy Scahill — American journalist	-	mastodon	30	https://journa.host/@jeremyscahill.rss
+journalists	David Frum — American political commentator	-	bluesky	30	https://bsky.app/profile/davidfrum.bsky.social/rss
+journalists	James Fallows — American journalist	-	bluesky	30	https://bsky.app/profile/jfallows.bsky.social/rss
+journalists	Susan Orlean — American journalist and author	-	bluesky	30	https://bsky.app/profile/susanorlean.bsky.social/rss
+journalists	Don Lemon — American journalist and news anchor	-	bluesky	30	https://bsky.app/profile/donlemonofficial.bsky.social/rss
+journalists	Greg Palast — American journalist	-	mastodon	30	https://mastodon.online/@GregPalast.rss
+journalists	Carole Cadwalladr — British investigative journalist	-	bluesky	30	https://bsky.app/profile/carolecadwalla.bsky.social/rss
+journalists	Luke Harding — British journalist and writer (born 1968)	-	bluesky	30	https://bsky.app/profile/lukeharding1968.bsky.social/rss
+journalists	Krystal Ball — American journalist and TV host (born 1981)	-	bluesky	30	https://bsky.app/profile/krystalball.bsky.social/rss
+journalists	Karen Hao — American journalist and data scientist	-	mastodon	30	https://mas.to/@karenhao.rss
+journalists	Sarah Jeong — American journalist	-	bluesky	30	https://bsky.app/profile/sarahjeong.bsky.social/rss
+journalists	Kara Swisher — American journalist	-	bluesky	30	https://bsky.app/profile/karaswisher.bsky.social/rss
+journalists	Chris Hayes — American journalist	-	bluesky	30	https://bsky.app/profile/chrislhayes.bsky.social/rss
+journalists	Thom Hartmann — American political commentator (born 1951)	-	mastodon	30	https://mstdn.social/@ThomHartmann.rss
+journalists	Jeff Jarvis — American journalist	-	mastodon	30	https://mastodon.social/@jeffjarvis.rss
+journalists	Kat Abughazaleh — American journalist and political candidate (born 1999)	-	bluesky	30	https://bsky.app/profile/katmabu.bsky.social/rss
+journalists	Walt Mossberg — American technology journalist	-	mastodon	30	https://mastodon.world/@waltmossberg.rss
+journalists	Kyle Kulinski — American political commentator (born 1988)	-	bluesky	30	https://bsky.app/profile/kylekulinskishow.bsky.social/rss
+journalists	Charles Seife — American author, journalist and professor	-	mastodon	30	https://sciencemastodon.com/@cgseife.rss
+journalists	Van Badham — Australian writer and social commentator	-	bluesky	30	https://bsky.app/profile/vanbadham.bsky.social/rss
+journalists	Philip Gourevitch — American journalist	-	bluesky	30	https://bsky.app/profile/pgourevitch.bsky.social/rss
+journalists	Emily Maitlis — British journalist, regularly appearing on BBC broadcasts	-	bluesky	30	https://bsky.app/profile/maitlis.bsky.social/rss
+journalists	Andrew Ross Sorkin — American journalist and author (born 1977)	-	bluesky	30	https://bsky.app/profile/andrewrsorkin.bsky.social/rss
+journalists	Jennifer Rubin — American political commentator	-	bluesky	30	https://bsky.app/profile/jenrubin.bsky.social/rss
+journalists	Taylor Lorenz — American journalist	-	mastodon	30	https://mastodon.social/@taylorlorenz.rss
+journalists	John Markoff — American journalist	-	mastodon	30	https://sfba.social/@Markoff.rss
+journalists	Glyn Moody — British writer, journalist, and blogger	-	bluesky	30	https://bsky.app/profile/glynmoody.bsky.social/rss
+journalists	Matthew Yglesias — American blogger and journalist	-	bluesky	30	https://bsky.app/profile/mattyglesias.bsky.social/rss
+journalists	Adam Rutherford — British geneticist, author, and broadcaster	-	bluesky	30	https://bsky.app/profile/adamrutherford.bsky.social/rss
+journalists	David Corn — American journalist (born 1959)	-	mastodon	30	https://mastodon.social/@DavidCorn.rss
+journalists	Julia Angwin — American investigative journalist and author	-	bluesky	30	https://bsky.app/profile/juliaangwin.com/rss
+journalists	Jillian York — American activist, journalist and travel writer	-	mastodon	30	https://mastodon.social/@jilliancyork.rss
+journalists	Michelangelo Signorile — American journalist, author, and talk radio host	-	mastodon	30	https://mstdn.social/@msignorile.rss
+journalists	Grace Blakeley — British economic & political pundit (1993-)	-	bluesky	30	https://bsky.app/profile/graceblakeley.substack.com/rss
+journalists	Michelle Goldberg — American journalist	-	bluesky	30	https://bsky.app/profile/michellegoldberg.bsky.social/rss
+journalists	Yuan Yang — British-Chinese political, journalist	-	bluesky	30	https://bsky.app/profile/yuanfenyang.bsky.social/rss
+journalists	Nina Totenberg — American journalist	-	bluesky	30	https://bsky.app/profile/ninatotenberg.bsky.social/rss
+journalists	Jennifer Gunter — Canadian-American gynecologist, columnist and author on women's reprod	-	mastodon	30	https://sfba.social/@drjengunter.rss
+journalists	James Poniewozik — American journalist	-	mastodon	30	https://mstdn.social/@poniewozik.rss
+journalists	Mina Kimes — American sports journalist and analyst	-	bluesky	30	https://bsky.app/profile/minakimes.bsky.social/rss
+journalists	Brian Krebs — American journalist specializing in cybersecurity	-	mastodon	30	https://infosec.exchange/@briankrebs.rss
+journalists	Josh Marshall — American journalist	-	mastodon	30	https://journa.host/@joshtpm.rss
+journalists	John C. Dvorak — US journalist and radio broadcaster	-	mastodon	30	https://noagendasocial.com/@Johncdvorak.rss
+journalists	Elizabeth Landau — US journalist and science communicator	-	bluesky	30	https://bsky.app/profile/lizlandau.bsky.social/rss
+journalists	Duncan Campbell — British investigative journalist (1952-)	-	mastodon	30	https://tech.lgbt/@duncaned.rss
+journalists	Joshua Topolsky — American journalist	-	mastodon	30	https://mastodon.online/@joshuatopolsky.rss
+journalists	Lisa Guerrero — American journalist and model	-	bluesky	30	https://bsky.app/profile/lisaguerrero.bsky.social/rss
+journalists	Steve Rosenberg — British journalist	-	bluesky	30	https://bsky.app/profile/bbcstever.bsky.social/rss
+journalists	Megha Rajagopalan — American political journalist	-	mastodon	30	https://mastodon.world/@megha.rss
+journalists	Jeff Yang — Taiwanese-American writer, journalist, businessman, and business/media	-	mastodon	30	https://mas.to/@originalspin.rss
+journalists	Michael Smerconish — American journalist	-	bluesky	30	https://bsky.app/profile/smerconish.bsky.social/rss
+journalists	Susan Glasser — American journalist	-	bluesky	30	https://bsky.app/profile/sbg1.bsky.social/rss
+journalists	E. J. Dionne — American journalist	-	bluesky	30	https://bsky.app/profile/ejdionne.bsky.social/rss
+journalists	Andrew Revkin — American writer and science journalist	-	mastodon	30	https://mastodon.green/@revkin.rss
+journalists	Danny O'Brien — British journalist and activist	-	mastodon	30	https://mastodon.social/@mala.rss
+journalists	Paul Conroy — British war photographer and reporter	-	bluesky	30	https://bsky.app/profile/reflextv.bsky.social/rss
+journalists	Evan Solomon — Canadian columnist, political journalist and radio host	-	bluesky	30	https://bsky.app/profile/evansolomon.bsky.social/rss
+journalists	Heidi MacDonald — American writer and editor of comic books	-	mastodon	30	https://mastodon.social/@Comixace.rss
+journalists	Aaron Bastani — British political commentator	-	bluesky	30	https://bsky.app/profile/aaronjbastani.bsky.social/rss
+journalists	Andy Greenberg — American technology journalist	-	bluesky	30	https://bsky.app/profile/agreenberg.bsky.social/rss
+journalists	Kasie Hunt — American journalist	-	bluesky	30	https://bsky.app/profile/kasie.bsky.social/rss
+journalists	Wendy M. Grossman — American journalist (1954-)	-	mastodon	30	https://mastodon.xyz/@wendyg.rss
+journalists	David Pakman — Argentinian-American political pundit (born 1984)	-	bluesky	30	https://bsky.app/profile/davidpakman.bsky.social/rss
+journalists	Zoe Williams — Welsh journalist	-	mastodon	30	https://mindly.social/@zoesqwilliams.rss
+journalists	Clive Thompson — Canadian science and technology journalist	-	mastodon	30	https://saturation.social/@clive.rss
+journalists	Charlie Savage — American journalist	-	mastodon	30	https://noc.social/@charlie_savage.rss
+journalists	Kevin Roose — American technology columnist and author	-	bluesky	30	https://bsky.app/profile/kevinroose.com/rss
+journalists	James Ball — British journalist and author	-	bluesky	30	https://bsky.app/profile/jamesrball.com/rss
+journalists	Ana Marie Cox — American writer and editor	-	mastodon	30	https://journa.host/@anamariecox.rss
+journalists	Maggie Koerth-Baker — American science journalist	-	mastodon	30	https://sciencemastodon.com/@maggiek.rss
+journalists	Melissa Gira Grant — American journalist	-	bluesky	30	https://bsky.app/profile/melissagiragrant.com/rss
+journalists	Nina Bernstein — American journalist	-	mastodon	30	https://journa.host/@NinaBernstein1.rss
+journalists	Steven L. Herman — American journalist	-	bluesky	30	https://bsky.app/profile/newsguy.bsky.social/rss
+journalists	Eugene Robinson — American journalist	-	bluesky	30	https://bsky.app/profile/eugenerobinson.bsky.social/rss

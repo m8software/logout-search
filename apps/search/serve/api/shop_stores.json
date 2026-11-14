@@ -1,0 +1,2492 @@
+{
+ "_": "Stores the buy section may link to. A plain link to the store's own search: no logo, no affiliate tag, nothing fetched. on=false until the link has been checked by a person; depts * = any department. src = where the link form came from.",
+ "stores": [
+  {
+   "id": "amazon",
+   "name": "Amazon",
+   "sub": "amazon.com",
+   "url": "https://www.amazon.com/s?k=",
+   "depts": [
+    "*"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !a",
+   "checked": "owner 2026-11-13",
+   "key": true
+  },
+  {
+   "id": "walmart",
+   "name": "Walmart",
+   "sub": "walmart.com",
+   "url": "https://www.walmart.com/search?q=",
+   "depts": [
+    "*"
+   ],
+   "on": true,
+   "src": "seen working 2026-11-12",
+   "checked": "owner 2026-11-13",
+   "key": true
+  },
+  {
+   "id": "target",
+   "name": "Target",
+   "sub": "target.com",
+   "url": "https://www.target.com/s?searchTerm=",
+   "depts": [
+    "*"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !target",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "costco",
+   "name": "Costco",
+   "sub": "costco.com",
+   "url": "https://www.costco.com/CatalogSearch?keyword=",
+   "depts": [
+    "groceries",
+    "household",
+    "kitchen",
+    "appliances"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !costco (shortened)",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "samsclub",
+   "name": "Sam's Club",
+   "sub": "samsclub.com",
+   "url": "https://www.samsclub.com/sams/search/searchResults.jsp?searchCategoryId=all&searchTerm=",
+   "depts": [
+    "groceries",
+    "household",
+    "kitchen"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !samsclub",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "kroger",
+   "name": "Kroger",
+   "sub": "kroger.com",
+   "url": "https://www.kroger.com/search?query=",
+   "depts": [
+    "groceries",
+    "household"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !kro",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "meijer",
+   "name": "Meijer",
+   "sub": "meijer.com",
+   "url": "https://www.meijer.com/shopping/search.html?text=",
+   "depts": [
+    "groceries",
+    "household"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !meijer",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "heb",
+   "name": "H-E-B",
+   "sub": "heb.com",
+   "url": "https://www.heb.com/search/?q=",
+   "depts": [
+    "groceries",
+    "household"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !heb",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "publix",
+   "name": "Publix",
+   "sub": "publix.com",
+   "url": "https://www.publix.com/search?query=",
+   "depts": [
+    "groceries"
+   ],
+   "on": false,
+   "src": "kagi bangs (MIT) !publix",
+   "checked": "owner 2026-11-13: wrong"
+  },
+  {
+   "id": "wegmans",
+   "name": "Wegmans",
+   "sub": "wegmans.com",
+   "url": "https://www.wegmans.com/search.html?searchKey=",
+   "depts": [
+    "groceries"
+   ],
+   "on": false,
+   "src": "kagi bangs (MIT) !wegmans",
+   "checked": "owner 2026-11-13: wrong"
+  },
+  {
+   "id": "thrive",
+   "name": "Thrive Market",
+   "sub": "organic groceries",
+   "url": "https://thrivemarket.com/search/results?filter[search]=",
+   "depts": [
+    "groceries",
+    "health",
+    "household"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !thrive",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "ace",
+   "name": "Ace Hardware",
+   "sub": "locally owned stores",
+   "url": "https://www.acehardware.com/search?query=",
+   "depts": [
+    "tools",
+    "garden",
+    "household"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !ace",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "harborfreight",
+   "name": "Harbor Freight",
+   "sub": "harborfreight.com",
+   "url": "https://www.harborfreight.com/search?q=",
+   "depts": [
+    "tools",
+    "auto"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !hft",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "homedepot",
+   "name": "Home Depot",
+   "sub": "homedepot.com",
+   "url": "https://www.homedepot.com/s/",
+   "depts": [
+    "tools",
+    "garden",
+    "appliances",
+    "home"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !hdx",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "lowes",
+   "name": "Lowe's",
+   "sub": "lowes.com",
+   "url": "https://www.lowes.com/search?searchTerm=",
+   "depts": [
+    "tools",
+    "garden",
+    "appliances",
+    "home"
+   ],
+   "on": true,
+   "src": "guess; kagi !lowes has an older form",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "menards",
+   "name": "Menards",
+   "sub": "menards.com",
+   "url": "https://www.menards.com/main/search.html?search=",
+   "depts": [
+    "tools",
+    "garden",
+    "appliances",
+    "home"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !menards",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "tractorsupply",
+   "name": "Tractor Supply",
+   "sub": "tractorsupply.com",
+   "url": "https://www.tractorsupply.com/tsc/search/",
+   "depts": [
+    "tools",
+    "garden",
+    "pets",
+    "outdoors"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !tsco",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "grainger",
+   "name": "Grainger",
+   "sub": "industrial supply",
+   "url": "https://www.grainger.com/search?nls=1&searchQuery=",
+   "depts": [
+    "tools"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !grainger",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "bestbuy",
+   "name": "Best Buy",
+   "sub": "bestbuy.com",
+   "url": "https://www.bestbuy.com/site/searchpage.jsp?st=",
+   "depts": [
+    "electronics",
+    "videogames",
+    "appliances"
+   ],
+   "on": true,
+   "src": "guess; kagi entries are older forms",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "bh",
+   "name": "B&H",
+   "sub": "bhphotovideo.com",
+   "url": "https://www.bhphotovideo.com/c/search?Ntt=",
+   "depts": [
+    "electronics",
+    "music"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !bh",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "newegg",
+   "name": "Newegg",
+   "sub": "newegg.com",
+   "url": "https://www.newegg.com/p/pl?d=",
+   "depts": [
+    "electronics",
+    "videogames"
+   ],
+   "on": true,
+   "src": "guess; kagi !ne has an older form",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "microcenter",
+   "name": "Micro Center",
+   "sub": "microcenter.com",
+   "url": "https://www.microcenter.com/search/search_results.phtml?Ntt=",
+   "depts": [
+    "electronics"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !microcenter",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "adorama",
+   "name": "Adorama",
+   "sub": "adorama.com",
+   "url": "https://www.adorama.com/l/?searchinfo=",
+   "depts": [
+    "electronics"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !ador",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "gamestop",
+   "name": "GameStop",
+   "sub": "gamestop.com",
+   "url": "https://www.gamestop.com/search/?q=",
+   "depts": [
+    "videogames"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !gamestop",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "gog",
+   "name": "GOG",
+   "sub": "games without DRM",
+   "url": "https://www.gog.com/games?query=",
+   "depts": [
+    "videogames"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !gog",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "thriftbooks",
+   "name": "ThriftBooks",
+   "sub": "used and new books",
+   "url": "https://www.thriftbooks.com/browse/?b.search=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !thriftb",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "bookshop",
+   "name": "Bookshop.org",
+   "sub": "independent bookshops",
+   "url": "https://bookshop.org/search?keywords=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !bookshop",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "betterworldbooks",
+   "name": "Better World Books",
+   "sub": "funds literacy",
+   "url": "https://www.betterworldbooks.com/search/results?q=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !bwbooks",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "powells",
+   "name": "Powell's",
+   "sub": "independent bookshop",
+   "url": "https://www.powells.com/searchresults?keyword=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !powells",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "abebooks",
+   "name": "AbeBooks",
+   "sub": "used and rare books",
+   "url": "https://www.abebooks.com/servlet/SearchResults?kn=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !abebooks",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "barnesandnoble",
+   "name": "Barnes & Noble",
+   "sub": "barnesandnoble.com",
+   "url": "https://www.barnesandnoble.com/search?q=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !barnesandnoble",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "zappos",
+   "name": "Zappos",
+   "sub": "shoes and clothing",
+   "url": "https://www.zappos.com/",
+   "depts": [
+    "clothing"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !zappos",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "kohls",
+   "name": "Kohl's",
+   "sub": "kohls.com",
+   "url": "https://www.kohls.com/search.jsp?search=",
+   "depts": [
+    "clothing",
+    "home",
+    "kitchen",
+    "jewelry",
+    "baby"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !kohls",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "macys",
+   "name": "Macy's",
+   "sub": "macys.com",
+   "url": "https://www.macys.com/shop/featured/",
+   "depts": [
+    "clothing",
+    "home",
+    "kitchen",
+    "jewelry",
+    "beauty"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !macys",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "llbean",
+   "name": "L.L.Bean",
+   "sub": "llbean.com",
+   "url": "https://www.llbean.com/llb/search/?init=1&freeText=",
+   "depts": [
+    "clothing",
+    "outdoors"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !llbean",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "etsy",
+   "name": "Etsy",
+   "sub": "handmade and vintage",
+   "url": "https://www.etsy.com/search?q=",
+   "depts": [
+    "jewelry",
+    "crafts",
+    "party",
+    "toys"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !etsy",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "ikea",
+   "name": "IKEA",
+   "sub": "ikea.com",
+   "url": "https://www.ikea.com/us/en/search/?query=",
+   "depts": [
+    "home",
+    "kitchen"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) (US form of !ikeaau)",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "wayfair",
+   "name": "Wayfair",
+   "sub": "wayfair.com",
+   "url": "https://www.wayfair.com/keyword.php?keyword=",
+   "depts": [
+    "home"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !wayfair",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "williamssonoma",
+   "name": "Williams-Sonoma",
+   "sub": "kitchenware",
+   "url": "https://www.williams-sonoma.com/search/results.html?words=",
+   "depts": [
+    "kitchen"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !williamssonoma",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "overstock",
+   "name": "Overstock",
+   "sub": "overstock.com",
+   "url": "https://www.overstock.com/search?keywords=",
+   "depts": [
+    "home"
+   ],
+   "on": false,
+   "src": "kagi bangs (MIT) !overstock",
+   "checked": "owner 2026-11-13: wrong"
+  },
+  {
+   "id": "chewy",
+   "name": "Chewy",
+   "sub": "chewy.com",
+   "url": "https://www.chewy.com/s?dept=all&query=",
+   "depts": [
+    "pets"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !chewy",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "petco",
+   "name": "Petco",
+   "sub": "petco.com",
+   "url": "https://www.petco.com/shop/en/petcostore/search?query=",
+   "depts": [
+    "pets"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !petco",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "petsmart",
+   "name": "PetSmart",
+   "sub": "petsmart.com",
+   "url": "https://www.petsmart.com/search/?q=",
+   "depts": [
+    "pets"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !petsmart",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "cvs",
+   "name": "CVS",
+   "sub": "cvs.com",
+   "url": "https://www.cvs.com/search/_/N-0?pt=global&searchTerm=",
+   "depts": [
+    "health",
+    "beauty",
+    "household",
+    "baby"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !cvs",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "walgreens",
+   "name": "Walgreens",
+   "sub": "walgreens.com",
+   "url": "https://www.walgreens.com/search/results.jsp?Ntt=",
+   "depts": [
+    "health",
+    "beauty",
+    "household",
+    "baby"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !wgs",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "iherb",
+   "name": "iHerb",
+   "sub": "vitamins and supplements",
+   "url": "https://www.iherb.com/search?kw=",
+   "depts": [
+    "health",
+    "beauty"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !iherb",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "sephora",
+   "name": "Sephora",
+   "sub": "sephora.com",
+   "url": "https://www.sephora.com/search?keyword=",
+   "depts": [
+    "beauty"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !sephora",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "rei",
+   "name": "REI",
+   "sub": "member co-op",
+   "url": "https://www.rei.com/search?q=",
+   "depts": [
+    "outdoors",
+    "sports"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !rei",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "autozone",
+   "name": "AutoZone",
+   "sub": "autozone.com",
+   "url": "https://www.autozone.com/searchresult?searchText=",
+   "depts": [
+    "auto"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !autozone",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "oreilly",
+   "name": "O'Reilly Auto Parts",
+   "sub": "oreillyauto.com",
+   "url": "https://www.oreillyauto.com/search/?q=",
+   "depts": [
+    "auto"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !oreillyauto",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "officedepot",
+   "name": "Office Depot",
+   "sub": "officedepot.com",
+   "url": "https://www.officedepot.com/catalog/search.do?Ntt=",
+   "depts": [
+    "office"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !officedepot",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "staples",
+   "name": "Staples",
+   "sub": "staples.com",
+   "url": "https://www.staples.com/search?query=",
+   "depts": [
+    "office",
+    "electronics"
+   ],
+   "on": false,
+   "src": "kagi bangs (MIT) !staples",
+   "checked": "owner 2026-11-13: wrong"
+  },
+  {
+   "id": "michaels",
+   "name": "Michaels",
+   "sub": "arts and crafts",
+   "url": "https://www.michaels.com/search?q=",
+   "depts": [
+    "crafts",
+    "party"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !michaels",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "joann",
+   "name": "Joann",
+   "sub": "fabric and craft",
+   "url": "https://www.joann.com/search?q=",
+   "depts": [
+    "crafts"
+   ],
+   "on": false,
+   "src": "kagi bangs (MIT) !joann",
+   "checked": "owner 2026-11-13: wrong"
+  },
+  {
+   "id": "sweetwater",
+   "name": "Sweetwater",
+   "sub": "sweetwater.com",
+   "url": "https://www.sweetwater.com/store/search.php?s=",
+   "depts": [
+    "music"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !sweetwater",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "guitarcenter",
+   "name": "Guitar Center",
+   "sub": "guitarcenter.com",
+   "url": "https://www.guitarcenter.com/search?Ntt=",
+   "depts": [
+    "music"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !gcenter (shortened)",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "musiciansfriend",
+   "name": "Musician's Friend",
+   "sub": "musiciansfriend.com",
+   "url": "https://www.musiciansfriend.com/search?Ntt=",
+   "depts": [
+    "music"
+   ],
+   "on": false,
+   "src": "the sister site Guitar Center's form; the list's form searched for the literal text 'guitar%20strings' (owner 2026-11-13)"
+  },
+  {
+   "id": "shoprite",
+   "name": "ShopRite",
+   "sub": "shoprite.com",
+   "url": "https://www.shoprite.com/sm/pickup/rsid/3000/results?q=",
+   "depts": [
+    "groceries",
+    "household"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "stopandshop",
+   "name": "Stop & Shop",
+   "sub": "stopandshop.com",
+   "url": "https://stopandshop.com/product-search/",
+   "depts": [
+    "groceries",
+    "household"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "acme",
+   "name": "ACME Markets",
+   "sub": "acmemarkets.com",
+   "url": "https://www.acmemarkets.com/shop/search-results.html?q=",
+   "depts": [
+    "groceries",
+    "household"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "safeway",
+   "name": "Safeway",
+   "sub": "safeway.com",
+   "url": "https://www.safeway.com/shop/search-results.html?q=",
+   "depts": [
+    "groceries",
+    "household"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "aldi",
+   "name": "ALDI",
+   "sub": "aldi.us",
+   "url": "https://www.aldi.us/results?q=",
+   "depts": [
+    "groceries"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "traderjoes",
+   "name": "Trader Joe's",
+   "sub": "traderjoes.com",
+   "url": "https://www.traderjoes.com/home/search?global=yes&section=products&q=",
+   "depts": [
+    "groceries"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "wholefoods",
+   "name": "Whole Foods",
+   "sub": "wholefoodsmarket.com",
+   "url": "https://www.wholefoodsmarket.com/search?text=",
+   "depts": [
+    "groceries"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "dollargeneral",
+   "name": "Dollar General",
+   "sub": "dollargeneral.com",
+   "url": "https://www.dollargeneral.com/search?q=",
+   "depts": [
+    "household",
+    "party"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "dollartree",
+   "name": "Dollar Tree",
+   "sub": "dollartree.com",
+   "url": "https://www.dollartree.com/searchresults?Ntt=",
+   "depts": [
+    "household",
+    "party",
+    "crafts"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "fivebelow",
+   "name": "Five Below",
+   "sub": "fivebelow.com",
+   "url": "https://www.fivebelow.com/search?q=",
+   "depts": [
+    "party",
+    "toys"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "partycity",
+   "name": "Party City",
+   "sub": "partycity.com",
+   "url": "https://www.partycity.com/search?q=",
+   "depts": [
+    "party"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "ulta",
+   "name": "Ulta",
+   "sub": "ulta.com",
+   "url": "https://www.ulta.com/search?search=",
+   "depts": [
+    "beauty"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "dicks",
+   "name": "Dick's Sporting Goods",
+   "sub": "dickssportinggoods.com",
+   "url": "https://www.dickssportinggoods.com/search/SearchDisplay?searchTerm=",
+   "depts": [
+    "sports",
+    "outdoors"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "academy",
+   "name": "Academy",
+   "sub": "academy.com",
+   "url": "https://www.academy.com/search?query=",
+   "depts": [
+    "sports",
+    "outdoors"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "basspro",
+   "name": "Bass Pro Shops",
+   "sub": "basspro.com",
+   "url": "https://www.basspro.com/SearchDisplay?searchTerm=",
+   "depts": [
+    "outdoors"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "advanceauto",
+   "name": "Advance Auto Parts",
+   "sub": "advanceautoparts.com",
+   "url": "https://shop.advanceautoparts.com/web/SearchResults?searchTerm=",
+   "depts": [
+    "auto"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it",
+   "site": "advanceautoparts.com"
+  },
+  {
+   "id": "napa",
+   "name": "NAPA",
+   "sub": "napaonline.com",
+   "url": "https://www.napaonline.com/search?text=",
+   "depts": [
+    "auto"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "hobbylobby",
+   "name": "Hobby Lobby",
+   "sub": "hobbylobby.com",
+   "url": "https://www.hobbylobby.com/search/?text=",
+   "depts": [
+    "crafts",
+    "party",
+    "home"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "blick",
+   "name": "Blick Art Materials",
+   "sub": "dickblick.com",
+   "url": "https://www.dickblick.com/search/?q=",
+   "depts": [
+    "crafts"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "tjmaxx",
+   "name": "TJ Maxx",
+   "sub": "tjmaxx.tjx.com",
+   "url": "https://tjmaxx.tjx.com/store/shop/?Ntt=",
+   "depts": [
+    "clothing",
+    "home",
+    "kitchen"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "marshalls",
+   "name": "Marshalls",
+   "sub": "marshalls.com",
+   "url": "https://www.marshalls.com/us/store/shop/?Ntt=",
+   "depts": [
+    "clothing",
+    "home",
+    "kitchen"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "jcpenney",
+   "name": "JCPenney",
+   "sub": "jcpenney.com",
+   "url": "https://www.jcpenney.com/s?searchTerm=",
+   "depts": [
+    "clothing",
+    "home",
+    "jewelry",
+    "baby"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "pcrichard",
+   "name": "P.C. Richard & Son",
+   "sub": "pcrichard.com",
+   "url": "https://www.pcrichard.com/search?q=",
+   "depts": [
+    "electronics",
+    "appliances"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "carters",
+   "name": "Carter's",
+   "sub": "carters.com",
+   "url": "https://www.carters.com/search?q=",
+   "depts": [
+    "baby",
+    "clothing"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "kay",
+   "name": "Kay Jewelers",
+   "sub": "kay.com",
+   "url": "https://www.kay.com/search?text=",
+   "depts": [
+    "jewelry"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "containerstore",
+   "name": "The Container Store",
+   "sub": "containerstore.com",
+   "url": "https://www.containerstore.com/s?q=",
+   "depts": [
+    "home",
+    "kitchen"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "surlatable",
+   "name": "Sur La Table",
+   "sub": "surlatable.com",
+   "url": "https://www.surlatable.com/search?q=",
+   "depts": [
+    "kitchen"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  },
+  {
+   "id": "webstaurant",
+   "name": "WebstaurantStore",
+   "sub": "restaurant supply",
+   "url": "https://www.webstaurantstore.com/search/",
+   "depts": [
+    "kitchen"
+   ],
+   "on": false,
+   "src": "a guess, not from the list: check it"
+  }
+ ],
+ "others": [
+  {
+   "id": "ebay",
+   "kind": "used",
+   "name": "eBay",
+   "sub": "used",
+   "url": "https://www.ebay.com/sch/items/?_nkw=",
+   "depts": [
+    "tools",
+    "electronics",
+    "videogames",
+    "books",
+    "clothing",
+    "jewelry",
+    "toys",
+    "sports",
+    "outdoors",
+    "auto",
+    "music",
+    "appliances",
+    "baby"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !ebay",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "mercari",
+   "kind": "used",
+   "name": "Mercari",
+   "sub": "used",
+   "url": "https://www.mercari.com/search/?keyword=",
+   "depts": [
+    "electronics",
+    "videogames",
+    "clothing",
+    "jewelry",
+    "toys",
+    "baby"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !mercari",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "reverb",
+   "kind": "used",
+   "name": "Reverb",
+   "sub": "used instruments",
+   "url": "https://reverb.com/marketplace?query=",
+   "depts": [
+    "music"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !reverb",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "worldcat",
+   "kind": "borrow",
+   "name": "Borrow",
+   "sub": "library catalogues (WorldCat)",
+   "url": "https://www.worldcat.org/search?q=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !oclc",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "openlibrary",
+   "kind": "borrow",
+   "name": "Borrow",
+   "sub": "Open Library",
+   "url": "https://openlibrary.org/search?q=",
+   "depts": [
+    "books"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !olib",
+   "checked": "owner 2026-11-13"
+  },
+  {
+   "id": "ifixit",
+   "kind": "repair",
+   "name": "Repair",
+   "sub": "iFixit guides and parts",
+   "url": "https://www.ifixit.com/search?query=",
+   "depts": [
+    "electronics",
+    "videogames",
+    "auto",
+    "appliances"
+   ],
+   "on": true,
+   "src": "kagi bangs (MIT) !ifixit (shortened)",
+   "checked": "owner 2026-11-13"
+  }
+ ],
+ "near": {
+  "groceries": "grocery stores near me",
+  "household": "supermarkets near me",
+  "health": "pharmacies near me",
+  "beauty": "pharmacies near me",
+  "baby": "department stores near me",
+  "toys": "toy stores near me",
+  "party": "dollar stores near me",
+  "clothing": "clothing stores near me",
+  "jewelry": "jewelry stores near me",
+  "home": "furniture stores near me",
+  "kitchen": "department stores near me",
+  "appliances": "hardware stores near me",
+  "tools": "hardware stores near me",
+  "garden": "hardware stores near me",
+  "electronics": "electronics stores near me",
+  "videogames": "electronics stores near me",
+  "books": "bookstores near me",
+  "sports": "sporting goods stores near me",
+  "outdoors": "sporting goods stores near me",
+  "pets": "pet stores near me"
+ },
+ "brands": [
+  {
+   "brand": "ryobi",
+   "name": "Ryobi",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "ridgid",
+   "name": "Ridgid",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "husky",
+   "name": "Husky",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "tools",
+   "depts": [
+    "tools",
+    "home",
+    "garden",
+    "auto",
+    "outdoors"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "hampton bay",
+   "name": "Hampton Bay",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "glacier bay",
+   "name": "Glacier Bay",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "behr",
+   "name": "Behr",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "everbilt",
+   "name": "Everbilt",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "hdx",
+   "name": "HDX",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "commercial electric",
+   "name": "Commercial Electric",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "lifeproof",
+   "name": "LifeProof",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "depts": [
+    "home"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "home decorators collection",
+   "name": "Home Decorators Collection",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "vigoro",
+   "name": "Vigoro",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "garden",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "stylewell",
+   "name": "StyleWell",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "defiant",
+   "name": "Defiant",
+   "aka": [],
+   "stores": [
+    "homedepot"
+   ],
+   "dept": "home",
+   "depts": [
+    "home",
+    "tools"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "kobalt",
+   "name": "Kobalt",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "craftsman",
+   "name": "Craftsman",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "allen roth",
+   "name": "allen + roth",
+   "aka": [
+    "allen and roth"
+   ],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "project source",
+   "name": "Project Source",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "utilitech",
+   "name": "Utilitech",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "style selections",
+   "name": "Style Selections",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "reliabilt",
+   "name": "ReliaBilt",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "blue hawk",
+   "name": "Blue Hawk",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "valspar",
+   "name": "Valspar",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "stainmaster",
+   "name": "STAINMASTER",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "portfolio",
+   "name": "Portfolio",
+   "aka": [],
+   "stores": [
+    "lowes"
+   ],
+   "dept": "home",
+   "depts": [
+    "home"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "pittsburgh",
+   "name": "Pittsburgh",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "tools",
+   "depts": [
+    "tools",
+    "auto"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "hercules",
+   "name": "Hercules",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "tools",
+   "depts": [
+    "tools"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "bauer",
+   "name": "Bauer",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "tools",
+   "depts": [
+    "tools"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "predator",
+   "name": "Predator",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "tools",
+   "depts": [
+    "tools",
+    "auto",
+    "outdoors"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "central machinery",
+   "name": "Central Machinery",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "chicago electric",
+   "name": "Chicago Electric",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "badland",
+   "name": "Badland",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "auto",
+   "depts": [
+    "auto",
+    "tools"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "haul master",
+   "name": "Haul-Master",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "auto",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "us general",
+   "name": "U.S. General",
+   "aka": [],
+   "stores": [
+    "harborfreight"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "great value",
+   "name": "Great Value",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "equate",
+   "name": "Equate",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "health",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "mainstays",
+   "name": "Mainstays",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "parents choice",
+   "name": "Parent's Choice",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "baby",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "ozark trail",
+   "name": "Ozark Trail",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "outdoors",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "better homes gardens",
+   "name": "Better Homes & Gardens",
+   "aka": [
+    "better homes and gardens"
+   ],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "onn",
+   "name": "onn.",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "electronics",
+   "depts": [
+    "electronics"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "hyper tough",
+   "name": "Hyper Tough",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "time and tru",
+   "name": "Time and Tru",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "athletic works",
+   "name": "Athletic Works",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "no boundaries",
+   "name": "No Boundaries",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "marketside",
+   "name": "Marketside",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "sams choice",
+   "name": "Sam's Choice",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "spring valley",
+   "name": "Spring Valley",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "health",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "pioneer woman",
+   "name": "The Pioneer Woman",
+   "aka": [
+    "the pioneer woman"
+   ],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "kitchen",
+   "depts": [
+    "kitchen",
+    "home"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "up up",
+   "name": "up & up",
+   "aka": [
+    "up and up"
+   ],
+   "stores": [
+    "target"
+   ],
+   "dept": "household",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "good gather",
+   "name": "Good & Gather",
+   "aka": [
+    "good and gather"
+   ],
+   "stores": [
+    "target"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "threshold",
+   "name": "Threshold",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "depts": [
+    "home",
+    "kitchen"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "cat jack",
+   "name": "Cat & Jack",
+   "aka": [
+    "cat and jack"
+   ],
+   "stores": [
+    "target"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "room essentials",
+   "name": "Room Essentials",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "made by design",
+   "name": "Made By Design",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "archer farms",
+   "name": "Archer Farms",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "market pantry",
+   "name": "Market Pantry",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "hearth hand",
+   "name": "Hearth & Hand",
+   "aka": [
+    "hearth and hand"
+   ],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "opalhouse",
+   "name": "Opalhouse",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "universal thread",
+   "name": "Universal Thread",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "a new day",
+   "name": "A New Day",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "clothing",
+   "depts": [
+    "clothing"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "goodfellow",
+   "name": "Goodfellow & Co",
+   "aka": [
+    "goodfellow and co"
+   ],
+   "stores": [
+    "target"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "wondershop",
+   "name": "Wondershop",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "pillowfort",
+   "name": "Pillowfort",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "project 62",
+   "name": "Project 62",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "sun squad",
+   "name": "Sun Squad",
+   "aka": [],
+   "stores": [
+    "target"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "kirkland signature",
+   "name": "Kirkland Signature",
+   "aka": [
+    "kirkland"
+   ],
+   "stores": [
+    "costco"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "members mark",
+   "name": "Member's Mark",
+   "aka": [],
+   "stores": [
+    "samsclub"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "insignia",
+   "name": "Insignia",
+   "aka": [],
+   "stores": [
+    "bestbuy"
+   ],
+   "dept": "electronics",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "dynex",
+   "name": "Dynex",
+   "aka": [],
+   "stores": [
+    "bestbuy"
+   ],
+   "dept": "electronics",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "rocketfish",
+   "name": "Rocketfish",
+   "aka": [],
+   "stores": [
+    "bestbuy"
+   ],
+   "dept": "electronics",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "simple truth",
+   "name": "Simple Truth",
+   "aka": [],
+   "stores": [
+    "kroger"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "private selection",
+   "name": "Private Selection",
+   "aka": [],
+   "stores": [
+    "kroger"
+   ],
+   "dept": "groceries",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "sonoma",
+   "name": "Sonoma",
+   "aka": [],
+   "stores": [
+    "kohls"
+   ],
+   "dept": "clothing",
+   "depts": [
+    "clothing",
+    "home"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "croft barrow",
+   "name": "Croft & Barrow",
+   "aka": [
+    "croft and barrow"
+   ],
+   "stores": [
+    "kohls"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "apt 9",
+   "name": "Apt. 9",
+   "aka": [],
+   "stores": [
+    "kohls"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "lc lauren conrad",
+   "name": "LC Lauren Conrad",
+   "aka": [],
+   "stores": [
+    "kohls"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "alfani",
+   "name": "Alfani",
+   "aka": [],
+   "stores": [
+    "macys"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "charter club",
+   "name": "Charter Club",
+   "aka": [],
+   "stores": [
+    "macys"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "club room",
+   "name": "Club Room",
+   "aka": [],
+   "stores": [
+    "macys"
+   ],
+   "dept": "clothing",
+   "depts": [
+    "clothing"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "tasso elba",
+   "name": "Tasso Elba",
+   "aka": [],
+   "stores": [
+    "macys"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "holiday lane",
+   "name": "Holiday Lane",
+   "aka": [],
+   "stores": [
+    "macys"
+   ],
+   "dept": "home",
+   "depts": [
+    "home"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "inc international concepts",
+   "name": "INC International Concepts",
+   "aka": [],
+   "stores": [
+    "macys"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "masterforce",
+   "name": "Masterforce",
+   "aka": [],
+   "stores": [
+    "menards"
+   ],
+   "dept": "tools",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "4health",
+   "name": "4health",
+   "aka": [],
+   "stores": [
+    "tractorsupply"
+   ],
+   "dept": "pets",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "producers pride",
+   "name": "Producer's Pride",
+   "aka": [],
+   "stores": [
+    "tractorsupply"
+   ],
+   "dept": "garden",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "red shed",
+   "name": "Red Shed",
+   "aka": [],
+   "stores": [
+    "tractorsupply"
+   ],
+   "dept": "garden",
+   "depts": [
+    "garden",
+    "tools",
+    "outdoors"
+   ],
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "huskee",
+   "name": "Huskee",
+   "aka": [],
+   "stores": [
+    "tractorsupply"
+   ],
+   "dept": "garden",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "realspace",
+   "name": "Realspace",
+   "aka": [],
+   "stores": [
+    "officedepot"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "ativa",
+   "name": "Ativa",
+   "aka": [],
+   "stores": [
+    "officedepot"
+   ],
+   "dept": "electronics",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "amazon basics",
+   "name": "Amazon Basics",
+   "aka": [],
+   "stores": [
+    "amazon"
+   ],
+   "dept": "household",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "amazon essentials",
+   "name": "Amazon Essentials",
+   "aka": [],
+   "stores": [
+    "amazon"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "kindle",
+   "name": "Kindle",
+   "aka": [],
+   "stores": [
+    "amazon"
+   ],
+   "dept": "electronics",
+   "on": true,
+   "src": "the retailer's own or exclusive brand (public knowledge); not yet checked by the owner",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "allmodern",
+   "name": "AllModern",
+   "aka": [],
+   "stores": [
+    "wayfair"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "Wikidata owner P127 (shop-brand-candidates.py, 2026-11-13)",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "joss and main",
+   "name": "Joss & Main",
+   "aka": [
+    "joss main"
+   ],
+   "stores": [
+    "wayfair"
+   ],
+   "dept": "home",
+   "on": true,
+   "src": "Wikidata owner P127 (shop-brand-candidates.py, 2026-11-13)",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "ring",
+   "name": "Ring",
+   "aka": [],
+   "stores": [
+    "amazon"
+   ],
+   "dept": "electronics",
+   "depts": [
+    "electronics",
+    "home"
+   ],
+   "on": true,
+   "src": "Wikidata owner P127 (shop-brand-candidates.py, 2026-11-13)",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "garanimals",
+   "name": "Garanimals",
+   "aka": [],
+   "stores": [
+    "walmart"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "Wikipedia opening says it is sold exclusively at the store (shop-brand-candidates.py, 2026-11-13)",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "jennifer lopez collection",
+   "name": "Jennifer Lopez Collection",
+   "aka": [],
+   "stores": [
+    "kohls"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "Wikipedia opening says it is sold exclusively at the store (shop-brand-candidates.py, 2026-11-13)",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "marc anthony collection",
+   "name": "Marc Anthony Collection",
+   "aka": [],
+   "stores": [
+    "kohls"
+   ],
+   "dept": "clothing",
+   "on": true,
+   "src": "Wikipedia opening says it is sold exclusively at the store (shop-brand-candidates.py, 2026-11-13)",
+   "checked": "claude draft 2026-11-13, owner to review"
+  },
+  {
+   "brand": "mudd",
+   "name": "Mudd",
+   "aka": [],
+   "stores": [
+    "kohls"
+   ],
+   "dept": "clothing",
+   "depts": [
+    "clothing"
+   ],
+   "on": true,
+   "src": "Wikipedia opening says it is sold exclusively at the store (shop-brand-candidates.py, 2026-11-13)",
+   "checked": "claude draft 2026-11-13, owner to review"
+  }
+ ],
+ "_brands": "Brands a store sells as its own or exclusively (owner 2026-11-13: 'ryobi': Home Depot never in the upper stores). A search that contains the brand (whole words) gets that store first among the buttons, small line 'sells <brand>', and its nearest shop first in Near you. dept = the department used when the sorter has not labelled the name; depts = only inside these departments (an ambiguous word such as 'predator'); stores = at most two, and each must be on in 'stores'. on=false switches an entry off. Mined candidates are never added here by a program: apps/search/tools/shop-brand-candidates.py writes a file for a person to read."
+}

@@ -1,0 +1,61 @@
+# Bake-off topics, FROZEN 2026-10-13: 50 across the allowed categories; every candidate model writes each one with the same prompt.
+# topic<TAB>category<TAB>source - the grounding source id in bakeoff/sources.jsonl (sources_fetch.py reads it from the
+# public Wikibooks / Wikivoyage / Stack Exchange APIs; all CC BY-SA); "-" = no open source that covers the task was found,
+# so the topic is written UNGROUNDED, permitted only in cooking / crafts / household / software (categories.UNGROUNDED_OK)
+# and marked as such in the output. Source ids: wikibooks:<Title>[#<Section>], wikivoyage:<Title>[#<Section>],
+# stackexchange:<host>/questions/<id> (the accepted answer, else the top-voted one).
+# Every id was resolved and its text read on 2026-10-13: 30 grounded, 20 ungrounded. Three gardening topics of the
+# prepared list had no source that covers them (tomatoes from seed, repot an orchid, propagate a succulent) and
+# gardening may not be written ungrounded, so they were swapped for three with a Stack Exchange answer.
+# None of the 50 is in apps/search/tools/evalsets/open/exclude.tsv (feat/sq-484-foundation bbd057c1: 0 matches as query or norm key).
+# Do not edit after the first model has run: every candidate must see the same 50.
+how to make whipped cream	cooking	wikibooks:Cookbook:Whipped Cream
+how to boil eggs	cooking	wikibooks:Cookbook:Hard Cooked Eggs
+how to cook rice	cooking	wikibooks:Cookbook:Steamed Rice
+how to make pancakes	cooking	-
+how to bake bread	cooking	wikibooks:Cookbook:White Bread
+how to freeze bananas	cooking	stackexchange:cooking.stackexchange.com/questions/122173
+how to make cold brew coffee	cooking	-
+how to caramelize onions	cooking	-
+how to make a roux	cooking	wikibooks:Cookbook:Roux
+how to tie a tie	crafts	wikibooks:How To Tie A Tie/Tying the Knots
+how to tie a bow tie	crafts	-
+how to fold a paper airplane	crafts	wikibooks:How to Make a Paper Airplane
+how to sew a button	crafts	stackexchange:crafts.stackexchange.com/questions/4121
+how to knit a scarf	crafts	-
+how to crochet a chain stitch	crafts	wikibooks:Introduction to Crochet/Stitches
+how to make an origami crane	crafts	-
+how to braid hair	crafts	-
+how to tie a bowline knot	crafts	wikibooks:Knots/Loop knots/Bowline
+how to remove a red wine stain	household	-
+how to unclog a drain with a plunger	household	-
+how to fix a running toilet	household	stackexchange:diy.stackexchange.com/questions/265537
+how to fold a fitted sheet	household	stackexchange:lifehacks.stackexchange.com/questions/341
+how to get rid of fruit flies	household	-
+how to hang a picture on drywall	household	-
+how to sharpen a kitchen knife	household	wikibooks:Cookbook:Knife Sharpener
+how to clean a cast iron pan	household	wikibooks:Backpack Camping and Woodland Survival/Skills/Cooking/Cast Iron#Maintenance
+how to patch a small hole in drywall	household	-
+how to jump start a car	household	wikibooks:Automobile Repair/Jump start#Step-by-Step Guide
+how to take a screenshot on windows	software	-
+how to take a screenshot on a mac	software	stackexchange:apple.stackexchange.com/questions/3822
+how to clear the browser cache in chrome	software	-
+how to set up a new wifi router	software	-
+how to factory reset an android phone	software	-
+how to make a pdf smaller	software	-
+how to unzip a file on windows	software	-
+how to back up an iphone	software	-
+how to find the ip address of a computer	software	-
+how to prune tomato plants	gardening	stackexchange:gardening.stackexchange.com/questions/331
+how to grow grass from seed	gardening	stackexchange:gardening.stackexchange.com/questions/13
+how to remove dandelions from a lawn	gardening	stackexchange:gardening.stackexchange.com/questions/1941
+how to start a compost pile	gardening	wikibooks:Horticulture/Hot Composting
+how to prune a rose bush	gardening	stackexchange:gardening.stackexchange.com/questions/43
+how to pack a suitcase	travel	wikivoyage:Packing list#Baggage
+how to get over jet lag	travel	wikivoyage:Jet lag
+how to get from narita airport to tokyo	travel	wikivoyage:Narita International Airport#Ground transportation
+how to use the paris metro	travel	wikivoyage:Paris#By Métro
+how to do long division	school	wikibooks:Prealgebra for Two-Year Colleges/Appendix (procedures)/Dividing whole numbers by long division#Long Division
+how to calculate a percentage	school	wikibooks:Primary Mathematics/Percentages
+how to write a bibliography in mla format	school	wikibooks:Rhetoric and Composition/Citation#MLA Works Cited
+how to find the area of a circle	school	wikibooks:Geometry/Area#Area of Circles

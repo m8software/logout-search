@@ -1,0 +1,473 @@
+model	topic	judge	detailed
+gpt-oss-20b MXFP4 reasoning-low detail	how to make whipped cream	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to boil eggs	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to cook rice	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make pancakes	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to bake bread	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to freeze bananas	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make cold brew coffee	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to caramelize onions	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a roux	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a tie	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bow tie	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a paper airplane	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to knit a scarf	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to crochet a chain stitch	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make an origami crane	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to braid hair	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bowline knot	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove a red wine stain	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to unclog a drain with a plunger	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to fix a running toilet	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a fitted sheet	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to get rid of fruit flies	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to hang a picture on drywall	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to sharpen a kitchen knife	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to clean a cast iron pan	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to patch a small hole in drywall	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to jump start a car	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on windows	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on a mac	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to clear the browser cache in chrome	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to set up a new wifi router	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to factory reset an android phone	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a pdf smaller	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to unzip a file on windows	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to back up an iphone	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the ip address of a computer	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune tomato plants	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to grow grass from seed	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove dandelions from a lawn	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to start a compost pile	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune a rose bush	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to pack a suitcase	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to get over jet lag	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to get from narita airport to tokyo	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to use the paris metro	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to calculate a percentage	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to write a bibliography in mla format	local	True
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the area of a circle	local	True
+Qwen3-14B Q4_K_M detail	how to make whipped cream	local	True
+Qwen3-14B Q4_K_M detail	how to boil eggs	local	True
+Qwen3-14B Q4_K_M detail	how to cook rice	local	True
+Qwen3-14B Q4_K_M detail	how to make pancakes	local	True
+Qwen3-14B Q4_K_M detail	how to bake bread	local	True
+Qwen3-14B Q4_K_M detail	how to freeze bananas	local	True
+Qwen3-14B Q4_K_M detail	how to make cold brew coffee	local	True
+Qwen3-14B Q4_K_M detail	how to caramelize onions	local	True
+Qwen3-14B Q4_K_M detail	how to make a roux	local	True
+Qwen3-14B Q4_K_M detail	how to tie a tie	local	True
+Qwen3-14B Q4_K_M detail	how to tie a bow tie	local	True
+Qwen3-14B Q4_K_M detail	how to fold a paper airplane	local	True
+Qwen3-14B Q4_K_M detail	how to knit a scarf	local	True
+Qwen3-14B Q4_K_M detail	how to crochet a chain stitch	local	True
+Qwen3-14B Q4_K_M detail	how to make an origami crane	local	True
+Qwen3-14B Q4_K_M detail	how to braid hair	local	True
+Qwen3-14B Q4_K_M detail	how to tie a bowline knot	local	True
+Qwen3-14B Q4_K_M detail	how to remove a red wine stain	local	True
+Qwen3-14B Q4_K_M detail	how to unclog a drain with a plunger	local	True
+Qwen3-14B Q4_K_M detail	how to fix a running toilet	local	False
+Qwen3-14B Q4_K_M detail	how to fold a fitted sheet	local	True
+Qwen3-14B Q4_K_M detail	how to get rid of fruit flies	local	True
+Qwen3-14B Q4_K_M detail	how to hang a picture on drywall	local	True
+Qwen3-14B Q4_K_M detail	how to sharpen a kitchen knife	local	True
+Qwen3-14B Q4_K_M detail	how to clean a cast iron pan	local	True
+Qwen3-14B Q4_K_M detail	how to patch a small hole in drywall	local	True
+Qwen3-14B Q4_K_M detail	how to jump start a car	local	True
+Qwen3-14B Q4_K_M detail	how to take a screenshot on windows	local	True
+Qwen3-14B Q4_K_M detail	how to take a screenshot on a mac	local	True
+Qwen3-14B Q4_K_M detail	how to clear the browser cache in chrome	local	True
+Qwen3-14B Q4_K_M detail	how to set up a new wifi router	local	True
+Qwen3-14B Q4_K_M detail	how to factory reset an android phone	local	True
+Qwen3-14B Q4_K_M detail	how to make a pdf smaller	local	True
+Qwen3-14B Q4_K_M detail	how to unzip a file on windows	local	True
+Qwen3-14B Q4_K_M detail	how to back up an iphone	local	True
+Qwen3-14B Q4_K_M detail	how to find the ip address of a computer	local	True
+Qwen3-14B Q4_K_M detail	how to prune tomato plants	local	True
+Qwen3-14B Q4_K_M detail	how to grow grass from seed	local	True
+Qwen3-14B Q4_K_M detail	how to remove dandelions from a lawn	local	True
+Qwen3-14B Q4_K_M detail	how to start a compost pile	local	True
+Qwen3-14B Q4_K_M detail	how to prune a rose bush	local	True
+Qwen3-14B Q4_K_M detail	how to pack a suitcase	local	True
+Qwen3-14B Q4_K_M detail	how to get over jet lag	local	True
+Qwen3-14B Q4_K_M detail	how to get from narita airport to tokyo	local	True
+Qwen3-14B Q4_K_M detail	how to use the paris metro	local	True
+Qwen3-14B Q4_K_M detail	how to do long division	local	True
+Qwen3-14B Q4_K_M detail	how to calculate a percentage	local	True
+Qwen3-14B Q4_K_M detail	how to write a bibliography in mla format	local	True
+Qwen3-14B Q4_K_M detail	how to find the area of a circle	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to make whipped cream	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to boil eggs	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to cook rice	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to make pancakes	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to bake bread	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to freeze bananas	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to make cold brew coffee	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to caramelize onions	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to make a roux	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to tie a tie	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to tie a bow tie	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to fold a paper airplane	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to sew a button	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to knit a scarf	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to crochet a chain stitch	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to make an origami crane	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to braid hair	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to remove a red wine stain	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to unclog a drain with a plunger	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to fix a running toilet	local	False
+gpt-oss-120b MXFP4 reasoning-low	how to fold a fitted sheet	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to get rid of fruit flies	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to hang a picture on drywall	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to sharpen a kitchen knife	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to clean a cast iron pan	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to patch a small hole in drywall	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to jump start a car	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to take a screenshot on windows	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to take a screenshot on a mac	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to clear the browser cache in chrome	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to set up a new wifi router	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to factory reset an android phone	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to make a pdf smaller	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to unzip a file on windows	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to back up an iphone	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to find the ip address of a computer	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to prune tomato plants	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to grow grass from seed	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to remove dandelions from a lawn	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to start a compost pile	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to prune a rose bush	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to pack a suitcase	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to get over jet lag	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to get from narita airport to tokyo	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to write a bibliography in mla format	local	True
+gpt-oss-120b MXFP4 reasoning-low	how to find the area of a circle	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to make whipped cream	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to boil eggs	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to cook rice	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to make pancakes	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to bake bread	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to freeze bananas	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to make cold brew coffee	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to caramelize onions	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to make a roux	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to tie a tie	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to tie a bow tie	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to fold a paper airplane	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to sew a button	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to knit a scarf	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to crochet a chain stitch	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to braid hair	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to tie a bowline knot	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to remove a red wine stain	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to unclog a drain with a plunger	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to fix a running toilet	local	False
+gpt-oss-20b MXFP4 reasoning-low	how to fold a fitted sheet	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to get rid of fruit flies	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to hang a picture on drywall	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to sharpen a kitchen knife	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to clean a cast iron pan	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to patch a small hole in drywall	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to jump start a car	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to take a screenshot on windows	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to take a screenshot on a mac	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to clear the browser cache in chrome	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to set up a new wifi router	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to factory reset an android phone	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to make a pdf smaller	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to unzip a file on windows	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to back up an iphone	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to find the ip address of a computer	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to prune tomato plants	local	False
+gpt-oss-20b MXFP4 reasoning-low	how to grow grass from seed	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to remove dandelions from a lawn	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to start a compost pile	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to prune a rose bush	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to pack a suitcase	local	False
+gpt-oss-20b MXFP4 reasoning-low	how to get from narita airport to tokyo	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to use the paris metro	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to do long division	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to calculate a percentage	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to write a bibliography in mla format	local	True
+gpt-oss-20b MXFP4 reasoning-low	how to find the area of a circle	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to make whipped cream	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to boil eggs	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to cook rice	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to make pancakes	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to bake bread	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to freeze bananas	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to make cold brew coffee	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to caramelize onions	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to tie a bow tie	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to fold a paper airplane	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to knit a scarf	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to crochet a chain stitch	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to make an origami crane	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to braid hair	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to tie a bowline knot	local	False
+gpt-oss-20b MXFP4 reasoning-medium	how to remove a red wine stain	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to unclog a drain with a plunger	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to fix a running toilet	local	False
+gpt-oss-20b MXFP4 reasoning-medium	how to fold a fitted sheet	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to get rid of fruit flies	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to hang a picture on drywall	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to sharpen a kitchen knife	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to clean a cast iron pan	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to patch a small hole in drywall	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to jump start a car	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to take a screenshot on windows	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to take a screenshot on a mac	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to clear the browser cache in chrome	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to set up a new wifi router	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to factory reset an android phone	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to unzip a file on windows	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to find the ip address of a computer	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to prune tomato plants	local	False
+gpt-oss-20b MXFP4 reasoning-medium	how to grow grass from seed	local	False
+gpt-oss-20b MXFP4 reasoning-medium	how to remove dandelions from a lawn	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to pack a suitcase	local	False
+gpt-oss-20b MXFP4 reasoning-medium	how to get from narita airport to tokyo	local	True
+gpt-oss-20b MXFP4 reasoning-medium	how to find the area of a circle	local	True
+Mistral-Small-3.2-24B Q8_0	how to make whipped cream	local	True
+Mistral-Small-3.2-24B Q8_0	how to boil eggs	local	True
+Mistral-Small-3.2-24B Q8_0	how to cook rice	local	True
+Mistral-Small-3.2-24B Q8_0	how to make pancakes	local	True
+Mistral-Small-3.2-24B Q8_0	how to bake bread	local	True
+Mistral-Small-3.2-24B Q8_0	how to freeze bananas	local	True
+Mistral-Small-3.2-24B Q8_0	how to make cold brew coffee	local	True
+Mistral-Small-3.2-24B Q8_0	how to caramelize onions	local	True
+Mistral-Small-3.2-24B Q8_0	how to make a roux	local	True
+Mistral-Small-3.2-24B Q8_0	how to tie a bow tie	local	True
+Mistral-Small-3.2-24B Q8_0	how to fold a paper airplane	local	True
+Mistral-Small-3.2-24B Q8_0	how to sew a button	local	True
+Mistral-Small-3.2-24B Q8_0	how to knit a scarf	local	True
+Mistral-Small-3.2-24B Q8_0	how to crochet a chain stitch	local	True
+Mistral-Small-3.2-24B Q8_0	how to make an origami crane	local	True
+Mistral-Small-3.2-24B Q8_0	how to braid hair	local	True
+Mistral-Small-3.2-24B Q8_0	how to tie a bowline knot	local	True
+Mistral-Small-3.2-24B Q8_0	how to remove a red wine stain	local	True
+Mistral-Small-3.2-24B Q8_0	how to unclog a drain with a plunger	local	True
+Mistral-Small-3.2-24B Q8_0	how to fold a fitted sheet	local	True
+Mistral-Small-3.2-24B Q8_0	how to get rid of fruit flies	local	True
+Mistral-Small-3.2-24B Q8_0	how to hang a picture on drywall	local	True
+Mistral-Small-3.2-24B Q8_0	how to sharpen a kitchen knife	local	True
+Mistral-Small-3.2-24B Q8_0	how to clean a cast iron pan	local	True
+Mistral-Small-3.2-24B Q8_0	how to patch a small hole in drywall	local	True
+Mistral-Small-3.2-24B Q8_0	how to jump start a car	local	True
+Mistral-Small-3.2-24B Q8_0	how to take a screenshot on windows	local	True
+Mistral-Small-3.2-24B Q8_0	how to take a screenshot on a mac	local	True
+Mistral-Small-3.2-24B Q8_0	how to clear the browser cache in chrome	local	True
+Mistral-Small-3.2-24B Q8_0	how to set up a new wifi router	local	True
+Mistral-Small-3.2-24B Q8_0	how to factory reset an android phone	local	True
+Mistral-Small-3.2-24B Q8_0	how to make a pdf smaller	local	True
+Mistral-Small-3.2-24B Q8_0	how to unzip a file on windows	local	True
+Mistral-Small-3.2-24B Q8_0	how to back up an iphone	local	True
+Mistral-Small-3.2-24B Q8_0	how to find the ip address of a computer	local	True
+Mistral-Small-3.2-24B Q8_0	how to prune tomato plants	local	True
+Mistral-Small-3.2-24B Q8_0	how to grow grass from seed	local	True
+Mistral-Small-3.2-24B Q8_0	how to remove dandelions from a lawn	local	True
+Mistral-Small-3.2-24B Q8_0	how to start a compost pile	local	True
+Mistral-Small-3.2-24B Q8_0	how to prune a rose bush	local	True
+Mistral-Small-3.2-24B Q8_0	how to pack a suitcase	local	True
+Mistral-Small-3.2-24B Q8_0	how to get from narita airport to tokyo	local	True
+Mistral-Small-3.2-24B Q8_0	how to use the paris metro	local	True
+Mistral-Small-3.2-24B Q8_0	how to do long division	local	True
+Mistral-Small-3.2-24B Q8_0	how to write a bibliography in mla format	local	True
+Mistral-Small-3.2-24B Q8_0	how to find the area of a circle	local	True
+Qwen3-14B Q4_K_M	how to make whipped cream	local	True
+Qwen3-14B Q4_K_M	how to boil eggs	local	True
+Qwen3-14B Q4_K_M	how to cook rice	local	True
+Qwen3-14B Q4_K_M	how to make pancakes	local	True
+Qwen3-14B Q4_K_M	how to bake bread	local	True
+Qwen3-14B Q4_K_M	how to freeze bananas	local	True
+Qwen3-14B Q4_K_M	how to make cold brew coffee	local	True
+Qwen3-14B Q4_K_M	how to caramelize onions	local	True
+Qwen3-14B Q4_K_M	how to make a roux	local	True
+Qwen3-14B Q4_K_M	how to tie a tie	local	True
+Qwen3-14B Q4_K_M	how to tie a bow tie	local	True
+Qwen3-14B Q4_K_M	how to fold a paper airplane	local	True
+Qwen3-14B Q4_K_M	how to sew a button	local	True
+Qwen3-14B Q4_K_M	how to knit a scarf	local	True
+Qwen3-14B Q4_K_M	how to crochet a chain stitch	local	True
+Qwen3-14B Q4_K_M	how to make an origami crane	local	False
+Qwen3-14B Q4_K_M	how to braid hair	local	True
+Qwen3-14B Q4_K_M	how to tie a bowline knot	local	True
+Qwen3-14B Q4_K_M	how to remove a red wine stain	local	True
+Qwen3-14B Q4_K_M	how to unclog a drain with a plunger	local	True
+Qwen3-14B Q4_K_M	how to fix a running toilet	local	False
+Qwen3-14B Q4_K_M	how to fold a fitted sheet	local	True
+Qwen3-14B Q4_K_M	how to get rid of fruit flies	local	True
+Qwen3-14B Q4_K_M	how to hang a picture on drywall	local	False
+Qwen3-14B Q4_K_M	how to sharpen a kitchen knife	local	True
+Qwen3-14B Q4_K_M	how to clean a cast iron pan	local	True
+Qwen3-14B Q4_K_M	how to patch a small hole in drywall	local	True
+Qwen3-14B Q4_K_M	how to jump start a car	local	True
+Qwen3-14B Q4_K_M	how to take a screenshot on windows	local	True
+Qwen3-14B Q4_K_M	how to take a screenshot on a mac	local	True
+Qwen3-14B Q4_K_M	how to clear the browser cache in chrome	local	True
+Qwen3-14B Q4_K_M	how to set up a new wifi router	local	True
+Qwen3-14B Q4_K_M	how to factory reset an android phone	local	True
+Qwen3-14B Q4_K_M	how to make a pdf smaller	local	False
+Qwen3-14B Q4_K_M	how to unzip a file on windows	local	True
+Qwen3-14B Q4_K_M	how to back up an iphone	local	False
+Qwen3-14B Q4_K_M	how to find the ip address of a computer	local	True
+Qwen3-14B Q4_K_M	how to prune tomato plants	local	True
+Qwen3-14B Q4_K_M	how to grow grass from seed	local	True
+Qwen3-14B Q4_K_M	how to remove dandelions from a lawn	local	True
+Qwen3-14B Q4_K_M	how to start a compost pile	local	True
+Qwen3-14B Q4_K_M	how to prune a rose bush	local	True
+Qwen3-14B Q4_K_M	how to pack a suitcase	local	True
+Qwen3-14B Q4_K_M	how to get over jet lag	local	True
+Qwen3-14B Q4_K_M	how to get from narita airport to tokyo	local	True
+Qwen3-14B Q4_K_M	how to use the paris metro	local	True
+Qwen3-14B Q4_K_M	how to do long division	local	True
+Qwen3-14B Q4_K_M	how to calculate a percentage	local	True
+Qwen3-14B Q4_K_M	how to write a bibliography in mla format	local	True
+Qwen3-14B Q4_K_M	how to find the area of a circle	local	True
+Qwen3-30B-A3B Q8_0	how to make whipped cream	local	True
+Qwen3-30B-A3B Q8_0	how to boil eggs	local	True
+Qwen3-30B-A3B Q8_0	how to cook rice	local	True
+Qwen3-30B-A3B Q8_0	how to make pancakes	local	True
+Qwen3-30B-A3B Q8_0	how to bake bread	local	True
+Qwen3-30B-A3B Q8_0	how to freeze bananas	local	True
+Qwen3-30B-A3B Q8_0	how to make cold brew coffee	local	True
+Qwen3-30B-A3B Q8_0	how to caramelize onions	local	True
+Qwen3-30B-A3B Q8_0	how to make a roux	local	True
+Qwen3-30B-A3B Q8_0	how to tie a tie	local	True
+Qwen3-30B-A3B Q8_0	how to tie a bow tie	local	True
+Qwen3-30B-A3B Q8_0	how to fold a paper airplane	local	True
+Qwen3-30B-A3B Q8_0	how to sew a button	local	True
+Qwen3-30B-A3B Q8_0	how to knit a scarf	local	True
+Qwen3-30B-A3B Q8_0	how to crochet a chain stitch	local	True
+Qwen3-30B-A3B Q8_0	how to make an origami crane	local	True
+Qwen3-30B-A3B Q8_0	how to braid hair	local	True
+Qwen3-30B-A3B Q8_0	how to tie a bowline knot	local	True
+Qwen3-30B-A3B Q8_0	how to remove a red wine stain	local	True
+Qwen3-30B-A3B Q8_0	how to unclog a drain with a plunger	local	True
+Qwen3-30B-A3B Q8_0	how to fix a running toilet	local	False
+Qwen3-30B-A3B Q8_0	how to fold a fitted sheet	local	True
+Qwen3-30B-A3B Q8_0	how to get rid of fruit flies	local	True
+Qwen3-30B-A3B Q8_0	how to hang a picture on drywall	local	True
+Qwen3-30B-A3B Q8_0	how to sharpen a kitchen knife	local	True
+Qwen3-30B-A3B Q8_0	how to clean a cast iron pan	local	True
+Qwen3-30B-A3B Q8_0	how to patch a small hole in drywall	local	True
+Qwen3-30B-A3B Q8_0	how to jump start a car	local	True
+Qwen3-30B-A3B Q8_0	how to take a screenshot on windows	local	True
+Qwen3-30B-A3B Q8_0	how to take a screenshot on a mac	local	True
+Qwen3-30B-A3B Q8_0	how to clear the browser cache in chrome	local	True
+Qwen3-30B-A3B Q8_0	how to set up a new wifi router	local	True
+Qwen3-30B-A3B Q8_0	how to factory reset an android phone	local	True
+Qwen3-30B-A3B Q8_0	how to make a pdf smaller	local	False
+Qwen3-30B-A3B Q8_0	how to unzip a file on windows	local	True
+Qwen3-30B-A3B Q8_0	how to back up an iphone	local	True
+Qwen3-30B-A3B Q8_0	how to find the ip address of a computer	local	True
+Qwen3-30B-A3B Q8_0	how to prune tomato plants	local	True
+Qwen3-30B-A3B Q8_0	how to grow grass from seed	local	True
+Qwen3-30B-A3B Q8_0	how to remove dandelions from a lawn	local	True
+Qwen3-30B-A3B Q8_0	how to start a compost pile	local	True
+Qwen3-30B-A3B Q8_0	how to prune a rose bush	local	True
+Qwen3-30B-A3B Q8_0	how to pack a suitcase	local	True
+Qwen3-30B-A3B Q8_0	how to get over jet lag	local	True
+Qwen3-30B-A3B Q8_0	how to get from narita airport to tokyo	local	True
+Qwen3-30B-A3B Q8_0	how to do long division	local	True
+Qwen3-30B-A3B Q8_0	how to calculate a percentage	local	True
+Qwen3-30B-A3B Q8_0	how to write a bibliography in mla format	local	False
+Qwen3-30B-A3B Q8_0	how to find the area of a circle	local	True
+Qwen3-32B Q8_0	how to make whipped cream	local	True
+Qwen3-32B Q8_0	how to boil eggs	local	True
+Qwen3-32B Q8_0	how to cook rice	local	True
+Qwen3-32B Q8_0	how to make pancakes	local	True
+Qwen3-32B Q8_0	how to bake bread	local	True
+Qwen3-32B Q8_0	how to freeze bananas	local	True
+Qwen3-32B Q8_0	how to make cold brew coffee	local	True
+Qwen3-32B Q8_0	how to caramelize onions	local	True
+Qwen3-32B Q8_0	how to make a roux	local	True
+Qwen3-32B Q8_0	how to tie a tie	local	True
+Qwen3-32B Q8_0	how to tie a bow tie	local	True
+Qwen3-32B Q8_0	how to fold a paper airplane	local	True
+Qwen3-32B Q8_0	how to sew a button	local	True
+Qwen3-32B Q8_0	how to knit a scarf	local	True
+Qwen3-32B Q8_0	how to crochet a chain stitch	local	True
+Qwen3-32B Q8_0	how to make an origami crane	local	True
+Qwen3-32B Q8_0	how to braid hair	local	True
+Qwen3-32B Q8_0	how to tie a bowline knot	local	True
+Qwen3-32B Q8_0	how to remove a red wine stain	local	True
+Qwen3-32B Q8_0	how to unclog a drain with a plunger	local	True
+Qwen3-32B Q8_0	how to fix a running toilet	local	False
+Qwen3-32B Q8_0	how to fold a fitted sheet	local	True
+Qwen3-32B Q8_0	how to get rid of fruit flies	local	True
+Qwen3-32B Q8_0	how to hang a picture on drywall	local	False
+Qwen3-32B Q8_0	how to sharpen a kitchen knife	local	True
+Qwen3-32B Q8_0	how to clean a cast iron pan	local	True
+Qwen3-32B Q8_0	how to patch a small hole in drywall	local	True
+Qwen3-32B Q8_0	how to jump start a car	local	True
+Qwen3-32B Q8_0	how to take a screenshot on windows	local	True
+Qwen3-32B Q8_0	how to take a screenshot on a mac	local	True
+Qwen3-32B Q8_0	how to clear the browser cache in chrome	local	True
+Qwen3-32B Q8_0	how to set up a new wifi router	local	True
+Qwen3-32B Q8_0	how to factory reset an android phone	local	True
+Qwen3-32B Q8_0	how to make a pdf smaller	local	True
+Qwen3-32B Q8_0	how to unzip a file on windows	local	True
+Qwen3-32B Q8_0	how to back up an iphone	local	True
+Qwen3-32B Q8_0	how to find the ip address of a computer	local	True
+Qwen3-32B Q8_0	how to prune tomato plants	local	True
+Qwen3-32B Q8_0	how to grow grass from seed	local	True
+Qwen3-32B Q8_0	how to remove dandelions from a lawn	local	True
+Qwen3-32B Q8_0	how to start a compost pile	local	True
+Qwen3-32B Q8_0	how to prune a rose bush	local	True
+Qwen3-32B Q8_0	how to pack a suitcase	local	True
+Qwen3-32B Q8_0	how to get over jet lag	local	True
+Qwen3-32B Q8_0	how to get from narita airport to tokyo	local	True
+Qwen3-32B Q8_0	how to use the paris metro	local	True
+Qwen3-32B Q8_0	how to do long division	local	True
+Qwen3-32B Q8_0	how to calculate a percentage	local	True
+Qwen3-32B Q8_0	how to write a bibliography in mla format	local	True
+Qwen3-32B Q8_0	how to find the area of a circle	local	True
+Qwen3.5-27B Q8_0	how to make whipped cream	local	True
+Qwen3.5-27B Q8_0	how to boil eggs	local	True
+Qwen3.5-27B Q8_0	how to cook rice	local	True
+Qwen3.5-27B Q8_0	how to make pancakes	local	True
+Qwen3.5-27B Q8_0	how to bake bread	local	True
+Qwen3.5-27B Q8_0	how to freeze bananas	local	True
+Qwen3.5-27B Q8_0	how to make cold brew coffee	local	True
+Qwen3.5-27B Q8_0	how to caramelize onions	local	True
+Qwen3.5-27B Q8_0	how to make a roux	local	True
+Qwen3.5-27B Q8_0	how to tie a tie	local	True
+Qwen3.5-27B Q8_0	how to tie a bow tie	local	True
+Qwen3.5-27B Q8_0	how to fold a paper airplane	local	True
+Qwen3.5-27B Q8_0	how to sew a button	local	True
+Qwen3.5-27B Q8_0	how to knit a scarf	local	True
+Qwen3.5-27B Q8_0	how to crochet a chain stitch	local	True
+Qwen3.5-27B Q8_0	how to make an origami crane	local	True
+Qwen3.5-27B Q8_0	how to braid hair	local	True
+Qwen3.5-27B Q8_0	how to tie a bowline knot	local	True
+Qwen3.5-27B Q8_0	how to remove a red wine stain	local	True
+Qwen3.5-27B Q8_0	how to unclog a drain with a plunger	local	True
+Qwen3.5-27B Q8_0	how to fold a fitted sheet	local	True
+Qwen3.5-27B Q8_0	how to get rid of fruit flies	local	True
+Qwen3.5-27B Q8_0	how to hang a picture on drywall	local	True
+Qwen3.5-27B Q8_0	how to sharpen a kitchen knife	local	True
+Qwen3.5-27B Q8_0	how to clean a cast iron pan	local	True
+Qwen3.5-27B Q8_0	how to patch a small hole in drywall	local	True
+Qwen3.5-27B Q8_0	how to jump start a car	local	True
+Qwen3.5-27B Q8_0	how to take a screenshot on windows	local	False
+Qwen3.5-27B Q8_0	how to take a screenshot on a mac	local	True
+Qwen3.5-27B Q8_0	how to clear the browser cache in chrome	local	True
+Qwen3.5-27B Q8_0	how to set up a new wifi router	local	True
+Qwen3.5-27B Q8_0	how to factory reset an android phone	local	True
+Qwen3.5-27B Q8_0	how to make a pdf smaller	local	True
+Qwen3.5-27B Q8_0	how to unzip a file on windows	local	True
+Qwen3.5-27B Q8_0	how to back up an iphone	local	True
+Qwen3.5-27B Q8_0	how to find the ip address of a computer	local	True
+Qwen3.5-27B Q8_0	how to prune tomato plants	local	True
+Qwen3.5-27B Q8_0	how to grow grass from seed	local	False
+Qwen3.5-27B Q8_0	how to remove dandelions from a lawn	local	True
+Qwen3.5-27B Q8_0	how to start a compost pile	local	True
+Qwen3.5-27B Q8_0	how to prune a rose bush	local	True
+Qwen3.5-27B Q8_0	how to pack a suitcase	local	True
+Qwen3.5-27B Q8_0	how to get from narita airport to tokyo	local	True
+Qwen3.5-27B Q8_0	how to use the paris metro	local	True
+Qwen3.5-27B Q8_0	how to do long division	local	True
+Qwen3.5-27B Q8_0	how to calculate a percentage	local	True
+Qwen3.5-27B Q8_0	how to write a bibliography in mla format	local	True
+Qwen3.5-27B Q8_0	how to find the area of a circle	local	False

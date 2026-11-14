@@ -1,0 +1,79 @@
+# Runs on every push and pull request, and is called by release.yml before a release is made.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  # The installer is standard-library Python and has to start on all three systems.
+  installer:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Every Python file compiles
+        run: python -m compileall -q apps/search/installer apps/search/release apps/search/serve/api
+      - name: The installer starts
+        run: python apps/search/installer/install.py --help
+      - name: The installer reads an empty install folder
+        run: python apps/search/installer/install.py status --dest empty-install
+      - name: The `current` pointer works on this system (a junction on Windows without Developer Mode)
+        shell: python
+        run: |
+          import os, sys, tempfile
+          sys.path.insert(0, os.path.join("apps", "search", "release"))
+          import release_ptr
+          base = tempfile.mkdtemp()
+          for rid in ("r1", "r2"):
+              os.makedirs(os.path.join(base, "releases", rid))
+              open(os.path.join(base, "releases", rid, "manifest.json"), "w").write("{}")
+          release_ptr.set_pointer(base, "current", "r1")
+          release_ptr.set_pointer(base, "previous", "r1")
+          release_ptr.set_pointer(base, "current", "r2")          # the swap over an existing pointer
+          assert release_ptr.current_id(base) == "r2", release_ptr.current_id(base)
+          assert release_ptr.current_id(base, "previous") == "r1"
+          assert os.path.isfile(os.path.join(base, "current", "manifest.json"))
+          assert os.path.basename(os.path.realpath(os.path.join(base, "current"))) == "r2"
+          print("pointer ok:", "symlink" if os.path.islink(os.path.join(base, "current")) else "junction")
+      - name: The launcher's dry runs on this system
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          python apps/search/installer/logout_search.py version
+          python apps/search/installer/logout_search.py engine --check-imports || true
+          python apps/search/installer/logout_search.py autostart on --dest empty-install --print
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Every shell script parses
+        run: |
+          set -euo pipefail
+          git ls-files '*.sh' | while IFS= read -r f; do bash -n "$f"; done
+      - name: Install what the tests import
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          pip install -r ci/requirements-test.txt
+      - name: Unit tests
+        run: bash ci/run-unit-tests.sh

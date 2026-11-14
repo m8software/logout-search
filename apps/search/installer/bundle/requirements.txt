@@ -1,0 +1,8 @@
+# What build.py needs: PyInstaller, and the libraries the engine imports at the versions the engine image pins
+# (apps/search/serve/api/Dockerfile). psycopg is imported at the top of search_api.py even with SEARCH_POSTGRES=off.
+pyinstaller==6.22.3
+numpy==2.5.3
+tantivy==0.26.2
+onnxruntime==1.30.0
+tokenizers==0.23.2
+psycopg[binary]==3.3.6

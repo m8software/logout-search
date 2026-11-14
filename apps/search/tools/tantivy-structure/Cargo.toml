@@ -1,0 +1,18 @@
+[package]
+name = "tantivy-structure"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Release-format Tantivy builder and bench: store-nothing schema, popularity order, hot/cold split, reproducible segments"
+
+[dependencies]
+# Pinned to the crate tantivy-py 0.26.2 (the engine's binding) is built on, so every index this
+# tool writes opens in search_api unchanged.
+tantivy = "=0.26.2"
+libc = "0.2"
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "thin"

@@ -1,0 +1,19 @@
+{
+  "_comment": "Copy to refresh.json beside the refresh compose file to change it. Everything is OFF by default. AWS / Common Crawl / Commons jobs also need \"approved\"; the Jev-fed sources are retired (ADR-065) and can never run.",
+  "enabled": false,
+  "night": [1, 6],
+  "jobs": {
+    "blocklists": false,
+    "wiki_pop": false,
+    "clickstream": false,
+    "entities": false,
+    "facts": false,
+    "wiki_links": false,
+    "youtube": false,
+    "query_list": false,
+    "places": false,
+    "suggest": false
+  },
+  "_suggest": "suggest = deploy.sh serve-refresh (rebuilds the suggest tables and swaps the LIVE serve database); runs only when serve is behind the build data. Needs deploy.sh refresh-stage first.",
+  "approved": {}
+}

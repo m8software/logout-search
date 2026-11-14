@@ -1,0 +1,122 @@
+# logout search — local engine (Linux v0). No ports at all: the browser reaches it only
+# through the native host (docker exec -i ... native_host.py), started by the browser.
+name: logout-search-local
+
+services:
+  pg:
+    build: ../postgres
+    image: logout/search-postgres:18.6-pgts1.4.0
+    container_name: logout-search-local-pg
+    restart: unless-stopped
+    command: ["postgres", "-c", "shared_preload_libraries=pg_textsearch,pg_stat_statements,pg_prewarm",
+              "-c", "shared_buffers=512MB", "-c", "log_min_error_statement=panic"]
+    environment:
+      POSTGRES_DB: search
+      POSTGRES_USER: search
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - ${DATA:?}/pg:/var/lib/postgresql
+    # loopback only, for the WebRTC peer below (host network); password-protected
+    ports: ["127.0.0.1:55432:5432"]
+    shm_size: 512m
+    networks: [engine]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U search -d search -h 127.0.0.1"]
+      interval: 10s
+      retries: 12
+
+  api:
+    build: ../serve/api
+    image: logout/search-api:local
+    container_name: logout-search-local-api
+    restart: unless-stopped
+    depends_on:
+      pg: {condition: service_healthy}
+    # idle: no HTTP server — native_host.py is exec'd per browser connection
+    command: ["python", "-c", "import time; time.sleep(10**9)"]
+    # settings (⚙ on search.logout.cloud) live here, shared with the rtc peer below
+    volumes:
+      - ${DATA:?}/rtc:/state
+    environment:
+      PGHOST: logout-search-local-pg
+      PGUSER: search
+      PGDATABASE: search
+      PGPASSWORD: ${POSTGRES_PASSWORD:?}
+      SEARCH_HOME: ""
+      SEARCH_NEWS_BACKEND: sqlite          # ADR-063: the user's feeds + sources from the pollers' file
+      SEARCH_NEWS_SQLITE: /state/news.sqlite
+      LOGOUT_ENGINE_NAME: ${LOGOUT_ENGINE_NAME:-}
+      LOGOUT_ENGINE_IP: ${LOGOUT_ENGINE_IP:-}
+    networks: [engine]
+
+  # other devices on this network (and pages without the extension) reach the engine over
+  # WebRTC: outbound WebSocket to search.logout.cloud's rendezvous + ICE, no listening
+  # port. Host network, so this machine's LAN and VPN addresses are its ICE candidates.
+  rtc:
+    build:
+      context: ../serve/api
+      dockerfile: Dockerfile.rtc
+      args: {BASE: "logout/search-api:local"}
+    image: logout/search-rtc:local
+    container_name: logout-search-local-rtc
+    restart: unless-stopped
+    network_mode: host
+    # room id + paired devices' secrets (0600); pair / list / revoke:
+    #   docker exec logout-search-local-rtc python /app/rtc_peer.py --pair "Phone" | --devices | --revoke ID
+    volumes:
+      - ${DATA:?}/rtc:/state
+    depends_on:
+      pg: {condition: service_healthy}
+      api: {condition: service_started}
+    environment:
+      PGHOST: 127.0.0.1
+      PGPORT: "55432"
+      PGUSER: search
+      PGDATABASE: search
+      PGPASSWORD: ${POSTGRES_PASSWORD:?}
+      SEARCH_HOME: ""
+      SEARCH_NEWS_BACKEND: sqlite          # ADR-063: the user's feeds + sources from the pollers' file
+      SEARCH_NEWS_SQLITE: /state/news.sqlite
+      LOGOUT_ENGINE_NAME: ${LOGOUT_ENGINE_NAME:-}
+      LOGOUT_ENGINE_IP: ${LOGOUT_ENGINE_IP:-}
+
+  # the user's own news feeds and personal sources (⚙ on search.logout.cloud), polled on a
+  # schedule — never while searching. The approved feeds.tsv and the built-in MLB/NHL
+  # sources stay off here (personal-server data, licensing review pending).
+  news:
+    build: ../news
+    image: logout/search-news:local
+    container_name: logout-search-local-news
+    restart: unless-stopped
+    depends_on:
+      pg: {condition: service_healthy}
+    environment: &pollers
+      PGHOST: logout-search-local-pg
+      PGUSER: search
+      PGDATABASE: news
+      PGPASSWORD: ${POSTGRES_PASSWORD:?}
+      NEWS_SQLITE: /state/news.sqlite      # ADR-063: the news file beside the settings, not a database
+      NEWS_FEEDS: ""
+      NEWS_SETTINGS: /state/settings.json
+      SPORTS_BUILTIN: "0"
+      SPORTS_SETTINGS: /state/settings.json
+      SPORTS_STATUS: /state/sports-status.json
+    volumes:
+      - ${DATA:?}/rtc:/state
+    networks: [engine, out]
+
+  sports:
+    image: logout/search-news:local
+    container_name: logout-search-local-sports
+    restart: unless-stopped
+    depends_on:
+      news: {condition: service_started}
+    command: ["python", "/app/sports.py"]
+    environment: *pollers
+    volumes:
+      - ${DATA:?}/rtc:/state
+    networks: [engine, out]
+
+networks:
+  engine: {internal: true}
+  out: {}                  # the pollers' way to the internet (feeds, the user's sources)

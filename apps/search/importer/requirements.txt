@@ -1,0 +1,9 @@
+psycopg[binary]==3.3.6
+tldextract==5.3.2
+duckdb==1.5.5
+mwparserfromhell==0.7.2
+boto3==1.43.101
+osmium==4.3.1
+numpy==2.5.3
+pgvector==0.5.0
+pillow==12.3.0

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# sq-testbox/podman — what sq-sweep.py asks podman (`ps -a --filter name=^sq- --format {{.Names}}`), answered for testbox:
+# the sweep's "no sq-* container left" checks then look at testbox. Nothing else is supported.
+set -euo pipefail
+[[ "${1:-}" == ps ]] || { echo "sq-testbox/podman: only 'ps' is supported" >&2; exit 2; }
+exec timeout 60 ssh -o BatchMode=yes -o ConnectTimeout=10 "${SQ_TST_HOST:-deploy}" "docker ps -a --filter name=^sq- --format '{{.Names}}'"

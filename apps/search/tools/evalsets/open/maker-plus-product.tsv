@@ -1,0 +1,224 @@
+query	category	expected	set	stratum	split	entity
+toyota hilux	site	global.toyota	maker-plus-product	cat:cars,kind:named	test	toyotahilux
+toyota corolla	site	global.toyota	maker-plus-product	cat:cars,kind:named	test	toyotacorolla
+honda civic	site	global.honda	maker-plus-product	cat:cars,kind:named	dev	hondacivic
+toyota rav4	site	global.toyota	maker-plus-product	cat:cars,kind:named	test	toyotarav4
+honda accord	site	global.honda	maker-plus-product	cat:cars,kind:named	test	hondaaccord
+porsche 911	site	porsche.com	maker-plus-product	cat:cars,kind:named	test	porsche911
+volkswagen beetle	site	volkswagen.com	maker-plus-product	cat:cars,kind:named	test	volkswagenbeetle
+bmw m3	site	bmw.com	maker-plus-product	cat:cars,kind:named	dev	bmwm3
+toyota crown	site	global.toyota	maker-plus-product	cat:cars,kind:named	dev	toyotacrown
+mercedes-benz g-class	site	mercedes-benz.com	maker-plus-product	cat:cars,kind:named	dev	mercedesbenzgclass
+bmw 3 series	site	bmw.com	maker-plus-product	cat:cars,kind:named	test	bmw3series
+honda cr-v	site	global.honda	maker-plus-product	cat:cars,kind:named	test	hondacrv
+mazda rx-7	site	mazda.com	maker-plus-product	cat:cars,kind:named	dev	mazdarx7
+nissan skyline gt-r	site	nissan-global.com	maker-plus-product	cat:cars,kind:named	test	nissanskylinegtr
+mazda mx-5	site	mazda.com	maker-plus-product	cat:cars,kind:named	dev	mazdamx5
+nissan skyline	site	nissan-global.com	maker-plus-product	cat:cars,kind:named	test	nissanskyline
+mercedes-benz e-class	site	mercedes-benz.com	maker-plus-product	cat:cars,kind:named	dev	mercedesbenzeclass
+porsche cayenne	site	porsche.com	maker-plus-product	cat:cars,kind:named	test	porschecayenne
+bmw 5 series	site	bmw.com	maker-plus-product	cat:cars,kind:named	dev	bmw5series
+land rover range rover	site	landrover.com	maker-plus-product	cat:cars,kind:named	dev	rangerover
+tesla cybercab	site	tesla.com	maker-plus-product	cat:cars,kind:named	test	teslacybercab
+mazda mazda3	site	mazda.com	maker-plus-product	cat:cars,kind:named	dev	mazda3
+bmw b58	site	bmw.com	maker-plus-product	cat:cars,kind:named	dev	bmwb58
+nissan gt-r	site	nissan-global.com	maker-plus-product	cat:cars,kind:named	test	nissangtr
+volkswagen golf	site	volkswagen.com	maker-plus-product	cat:cars,kind:named	dev	volkswagengolf
+tesla cybertruck	site	tesla.com	maker-plus-product	cat:cars,kind:named	dev	teslacybertruck
+honda fit	site	global.honda	maker-plus-product	cat:cars,kind:named	test	hondafit
+audi a4	site	audi.com	maker-plus-product	cat:cars,kind:named	dev	audia4
+mercedes-benz c-class	site	mercedes-benz.com	maker-plus-product	cat:cars,kind:named	test	mercedesbenzcclass
+mercedes-benz s-class	site	mercedes-benz.com	maker-plus-product	cat:cars,kind:named	dev	mercedesbenzsclass
+subaru impreza	site	subaru-global.com	maker-plus-product	cat:cars,kind:named	dev	subaruimpreza
+subaru toyota 86	site	subaru-global.com	maker-plus-product	cat:cars,kind:named	dev	toyota86
+audi a3	site	audi.com	maker-plus-product	cat:cars,kind:named	dev	audia3
+audi a6	site	audi.com	maker-plus-product	cat:cars,kind:named	dev	audia6
+tesla model y	site	tesla.com	maker-plus-product	cat:cars,kind:named	test	teslamodely
+subaru forester	site	subaru-global.com	maker-plus-product	cat:cars,kind:named	test	subaruforester
+land rover defender	site	landrover.com	maker-plus-product	cat:cars,kind:named	dev	landroverdefender
+lamborghini countach	site	lamborghini.com	maker-plus-product	cat:cars,kind:named	dev	lamborghinicountach
+mazda cx-5	site	mazda.com	maker-plus-product	cat:cars,kind:named	dev	mazdacx5
+volkswagen passat	site	volkswagen.com	maker-plus-product	cat:cars,kind:named	dev	volkswagenpassat
+nissan patrol	site	nissan-global.com	maker-plus-product	cat:cars,kind:named	test	nissanpatrol
+mercedes-benz gle	site	mercedes-benz.com	maker-plus-product	cat:cars,kind:named	dev	mercedesbenzgle
+tesla model 3	site	tesla.com	maker-plus-product	cat:cars,kind:named	test	teslamodel3
+lamborghini aventador	site	lamborghini.com	maker-plus-product	cat:cars,kind:named	dev	lamborghiniaventador
+general electric m61 vulcan	site	ge.com	maker-plus-product	cat:cars,kind:named	test	m61vulcan
+ferrari testarossa	site	ferrari.com	maker-plus-product	cat:cars,kind:named	dev	ferraritestarossa
+dodge ram pickup	site	dodge.com	maker-plus-product	cat:cars,kind:named	test	rampickup
+lamborghini huracán	site	lamborghini.com	maker-plus-product	cat:cars,kind:named	dev	lamborghinihuracn
+ferrari luce	site	ferrari.com	maker-plus-product	cat:cars,kind:named	test	ferrariluce
+chrysler mitsubishi lancer	site	chrysler.com	maker-plus-product	cat:cars,kind:named	dev	mitsubishilancer
+yamaha vocaloid	site	global.yamaha-motor.com	maker-plus-product	cat:cars,kind:named	test	vocaloid
+audi a5	site	audi.com	maker-plus-product	cat:cars,kind:named	dev	audia5
+subaru outback	site	subaru-global.com	maker-plus-product	cat:cars,kind:named	test	subaruoutback
+volkswagen tiguan	site	volkswagen.com	maker-plus-product	cat:cars,kind:named	test	volkswagentiguan
+ferrari 296	site	ferrari.com	maker-plus-product	cat:cars,kind:named	dev	ferrari296
+koenigsegg jesko	site	koenigsegg.com	maker-plus-product	cat:cars,kind:named	test	koenigseggjesko
+porsche panamera	site	porsche.com	maker-plus-product	cat:cars,kind:named	dev	porschepanamera
+volvo cars volvo xc90	site	volvocars.com	maker-plus-product	cat:cars,kind:named	dev	volvoxc90
+opel astra	site	opel.com	maker-plus-product	cat:cars,kind:named	test	opelastra
+lamborghini revuelto	site	lamborghini.com	maker-plus-product	cat:cars,kind:named	test	lamborghinirevuelto
+ferrari f40	site	ferrari.com	maker-plus-product	cat:cars,kind:named	test	ferrarif40
+willys mb	site	willys.se	maker-plus-product	cat:cars,kind:named	test	willysmb
+renault clio	site	renaultgroup.com	maker-plus-product	cat:cars,kind:named	dev	renaultclio
+porsche 911 gt3	site	porsche.com	maker-plus-product	cat:cars,kind:named	dev	porsche911gt3
+mercedes-benz w123	site	mercedes-benz.com	maker-plus-product	cat:cars,kind:named	test	mercedesbenzw123
+opel corsa	site	opel.com	maker-plus-product	cat:cars,kind:named	test	opelcorsa
+fisker ocean	site	fiskerinc.com	maker-plus-product	cat:cars,kind:named	dev	fiskerocean
+general electric gau-8 avenger	site	ge.com	maker-plus-product	cat:cars,kind:named	dev	gau8avenger
+fiat panda	site	fiat.com	maker-plus-product	cat:cars,kind:named	test	fiatpanda
+plymouth barracuda	site	plymouth.gov.uk	maker-plus-product	cat:cars,kind:named	dev	plymouthbarracuda
+apple iphone	site	apple.com	maker-plus-product	cat:phones,kind:named	test	iphone
+apple iphone 17 pro	site	apple.com	maker-plus-product	cat:phones,kind:named	test	iphone17pro
+apple iphone 17	site	apple.com	maker-plus-product	cat:phones,kind:named	dev	iphone17
+google pixel 2	site	about.google|google.com	maker-plus-product	cat:phones,kind:named	dev	pixel2
+google pixel	site	about.google|google.com	maker-plus-product	cat:phones,kind:named	dev	googlepixel
+apple iphone 13	site	apple.com	maker-plus-product	cat:phones,kind:named	test	iphone13
+google pixel 11	site	about.google|google.com	maker-plus-product	cat:phones,kind:named	test	pixel11
+google pixel 10	site	about.google|google.com	maker-plus-product	cat:phones,kind:named	dev	pixel10
+nokia lumia	site	nokia.com	maker-plus-product	cat:phones,kind:named	dev	nokialumia
+nokia lumia 1020	site	nokia.com	maker-plus-product	cat:phones,kind:named	dev	nokialumia1020
+nokia lumia 800	site	nokia.com	maker-plus-product	cat:phones,kind:named	dev	nokialumia800
+nokia lumia 920	site	nokia.com	maker-plus-product	cat:phones,kind:named	test	nokialumia920
+oppo oneplus open	site	oppo.com	maker-plus-product	cat:phones,kind:named	dev	oneplusopen
+oppo find x	site	oppo.com	maker-plus-product	cat:phones,kind:named	dev	oppofindx
+google chrome	site	about.google|google.com	maker-plus-product	cat:software,kind:named	dev	googlechrome
+google gmail	site	about.google|google.com	maker-plus-product	cat:software,kind:named	test	gmail
+microsoft minecraft	site	microsoft.com	maker-plus-product	cat:software,kind:named	test	minecraft
+google translate	site	about.google|google.com	maker-plus-product	cat:software,kind:named	dev	googletranslate
+google maps	site	about.google|google.com	maker-plus-product	cat:software,kind:named	dev	googlemaps
+microsoft windows	site	microsoft.com	maker-plus-product	cat:software,kind:named	dev	microsoftwindows
+microsoft word	site	microsoft.com	maker-plus-product	cat:software,kind:named	test	microsoftword
+microsoft windows 11	site	microsoft.com	maker-plus-product	cat:software,kind:named	dev	windows11
+adobe pdf	site	adobe.com	maker-plus-product	cat:software,kind:named	dev	pdf
+tencent league of legends	site	tencent.com	maker-plus-product	cat:software,kind:named	dev	leagueoflegends
+riot games league of legends	site	riotgames.com	maker-plus-product	cat:software,kind:named	dev	leagueoflegends
+oracle java	site	oracle.com	maker-plus-product	cat:software,kind:named	test	java
+ibm m1 carbine	site	ibm.com	maker-plus-product	cat:software,kind:named	test	m1carbine
+hp usb	site	hp.com	maker-plus-product	cat:software,kind:named	dev	usb
+ibm usb	site	ibm.com	maker-plus-product	cat:software,kind:named	dev	usb
+vng pubg mobile	site	vng.de	maker-plus-product	cat:software,kind:named	dev	pubgmobile
+amazon web services	site	amazon.com	maker-plus-product	cat:software,kind:named	dev	amazonwebservices
+riot games 2xko	site	riotgames.com	maker-plus-product	cat:software,kind:named	test	2xko
+ibm floppy disk	site	ibm.com	maker-plus-product	cat:software,kind:named	test	floppydisk
+dell pci express	site	dell.com	maker-plus-product	cat:software,kind:named	test	pciexpress
+hp pci express	site	hp.com	maker-plus-product	cat:software,kind:named	test	pciexpress
+ibm pci express	site	ibm.com	maker-plus-product	cat:software,kind:named	test	pciexpress
+proton mail	site	proton.com	maker-plus-product	cat:software,kind:named	dev	protonmail
+amazon kindle	site	amazon.com	maker-plus-product	cat:software,kind:named	dev	amazonkindle
+tencent valorant	site	tencent.com	maker-plus-product	cat:software,kind:named	test	valorant
+riot games valorant	site	riotgames.com	maker-plus-product	cat:software,kind:named	test	valorant
+red hat fedora linux	site	redhat.com	maker-plus-product	cat:software,kind:named	dev	fedoralinux
+thales samp/t	site	thalesgroup.com	maker-plus-product	cat:software,kind:named	dev	sampt
+adobe flash	site	adobe.com	maker-plus-product	cat:software,kind:named	dev	adobeflash
+amazon alexa	site	amazon.com	maker-plus-product	cat:software,kind:named	dev	amazonalexa
+oracle virtualbox	site	oracle.com	maker-plus-product	cat:software,kind:named	dev	virtualbox
+supercell brawl stars	site	supercell.com	maker-plus-product	cat:software,kind:named	dev	brawlstars
+thales hms queen elizabeth	site	thalesgroup.com	maker-plus-product	cat:software,kind:named	dev	hmsqueenelizabeth
+tencent qq	site	tencent.com	maker-plus-product	cat:software,kind:named	dev	tencentqq
+tencent honor of kings	site	tencent.com	maker-plus-product	cat:software,kind:named	test	honorofkings
+amazon fire tv	site	amazon.com	maker-plus-product	cat:software,kind:named	dev	amazonfiretv
+atlassian jira	site	atlassian.com	maker-plus-product	cat:software,kind:named	test	jira
+hp usb4	site	hp.com	maker-plus-product	cat:software,kind:named	dev	usb4
+red hat enterprise linux	site	redhat.com	maker-plus-product	cat:software,kind:named	dev	redhatenterpriselinux
+opera mini	site	opera.com	maker-plus-product	cat:software,kind:named	test	operamini
+autodesk autocad	site	autodesk.com	maker-plus-product	cat:software,kind:named	test	autocad
+supercell clash of clans	site	supercell.com	maker-plus-product	cat:software,kind:named	dev	clashofclans
+dell latitude	site	dell.com	maker-plus-product	cat:software,kind:named	dev	delllatitude
+jetbrains kotlin	site	jetbrains.com	maker-plus-product	cat:software,kind:named	dev	kotlin
+oracle btrfs	site	oracle.com	maker-plus-product	cat:software,kind:named	dev	btrfs
+red hat btrfs	site	redhat.com	maker-plus-product	cat:software,kind:named	dev	btrfs
+oracle zfs	site	oracle.com	maker-plus-product	cat:software,kind:named	dev	zfs
+yandex clickhouse	site	yandex.com	maker-plus-product	cat:software,kind:named	dev	clickhouse
+bilibili wuchang: fallen feathers	site	bilibili.com	maker-plus-product	cat:software,kind:named	test	wuchangfallenfeathers
+adobe acrobat	site	adobe.com	maker-plus-product	cat:software,kind:named	test	adobeacrobat
+thales crotale	site	thalesgroup.com	maker-plus-product	cat:software,kind:named	dev	crotale
+blackberry qnx	site	blackberry.com	maker-plus-product	cat:software,kind:named	dev	qnx
+adobe illustrator	site	adobe.com	maker-plus-product	cat:software,kind:named	dev	adobeillustrator
+cloudflare 1.1.1.1	site	cloudflare.com	maker-plus-product	cat:software,kind:named	test	1111
+blackberry storm	site	blackberry.com	maker-plus-product	cat:software,kind:named	dev	blackberrystorm
+aol aim	site	aol.com	maker-plus-product	cat:software,kind:named	test	aim
+red hat ansible	site	redhat.com	maker-plus-product	cat:software,kind:named	test	ansible
+garmin forerunner	site	garmin.com	maker-plus-product	cat:software,kind:named	dev	garminforerunner
+intuit quickbooks	site	intuit.com	maker-plus-product	cat:software,kind:named	test	quickbooks
+thales goalkeeper ciws	site	thalesgroup.com	maker-plus-product	cat:software,kind:named	dev	goalkeeperciws
+proton lumo	site	proton.com	maker-plus-product	cat:software,kind:named	dev	lumo
+autodesk maya	site	autodesk.com	maker-plus-product	cat:software,kind:named	dev	autodeskmaya
+riot games teamfight tactics	site	riotgames.com	maker-plus-product	cat:software,kind:named	dev	teamfighttactics
+supercell clash royale	site	supercell.com	maker-plus-product	cat:software,kind:named	dev	clashroyale
+dell precision	site	dell.com	maker-plus-product	cat:software,kind:named	test	dellprecision
+atlassian confluence	site	atlassian.com	maker-plus-product	cat:software,kind:named	test	confluence
+dell tell no one	site	dell.com	maker-plus-product	cat:software,kind:named	dev	tellnoone
+bilibili princess connect! re:dive	site	bilibili.com	maker-plus-product	cat:software,kind:named	test	princessconnectredive
+next computer	site	next.co.uk	maker-plus-product	cat:software,kind:named	dev	nextcomputer
+yandex browser	site	yandex.com	maker-plus-product	cat:software,kind:named	test	yandexbrowser
+hitachi magic wand	site	hitachi.com	maker-plus-product	cat:appliances,kind:named	test	hitachimagicwand
+hitachi zilog z80	site	hitachi.com	maker-plus-product	cat:appliances,kind:named	test	zilogz80
+hitachi n700s series shinkansen	site	hitachi.com	maker-plus-product	cat:appliances,kind:named	dev	n700sseriesshinkansen
+hitachi n700 series shinkansen	site	hitachi.com	maker-plus-product	cat:appliances,kind:named	test	n700seriesshinkansen
+oppo coloros	site	oppo.com	maker-plus-product	cat:appliances,kind:named	test	coloros
+pioneer laseractive	site	pioneer.ca	maker-plus-product	cat:appliances,kind:named	test	laseractive
+oppo find x9	site	oppo.com	maker-plus-product	cat:appliances,kind:named	dev	oppofindx9
+roku os	site	roku.com	maker-plus-product	cat:appliances,kind:named	dev	rokuos
+vestel karayel	site	vestel.com.tr	maker-plus-product	cat:appliances,kind:named	test	vestelkarayel
+oppo find x8	site	oppo.com	maker-plus-product	cat:appliances,kind:named	dev	oppofindx8
+oppo reno	site	oppo.com	maker-plus-product	cat:appliances,kind:named	test	opporeno
+dyson airblade	site	dyson.com	maker-plus-product	cat:appliances,kind:named	test	dysonairblade
+jbl paragon	site	jbl.com	maker-plus-product	cat:appliances,kind:named	test	jblparagon
+sonos play:1	site	sonos.com	maker-plus-product	cat:appliances,kind:named	test	play1
+irobot robot vacuum	site	irobot.com	maker-plus-product	cat:appliances,kind:typed	test	irobotrobotvacuum
+bosch dishwasher	site	bosch.com	maker-plus-product	cat:appliances,kind:typed	test	boschdishwasher
+siemens refrigerator	site	siemens.com	maker-plus-product	cat:appliances,kind:typed	dev	siemensrefrigerator
+miele dishwasher	site	miele.com	maker-plus-product	cat:appliances,kind:typed	test	mieledishwasher
+dyson vacuum cleaner	site	dyson.com	maker-plus-product	cat:appliances,kind:typed	test	dysonvacuumcleaner
+kitchenaid stand mixer	site	kitchenaid.com	maker-plus-product	cat:appliances,kind:typed	dev	kitchenaidstandmixer
+beko washing machine	site	bekocorporate.com	maker-plus-product	cat:appliances,kind:typed	dev	bekowashingmachine
+keurig coffee maker	site	keurig.com	maker-plus-product	cat:appliances,kind:typed	dev	keurigcoffeemaker
+nespresso coffee machine	site	nespresso.com	maker-plus-product	cat:appliances,kind:typed	test	nespressocoffeemachine
+tefal frying pan	site	tefal.fr	maker-plus-product	cat:appliances,kind:typed	test	tefalfryingpan
+hilti rotary hammer	site	hilti.ch	maker-plus-product	cat:tools,kind:typed	dev	hiltirotaryhammer
+dremel rotary tool	site	dremel.com	maker-plus-product	cat:tools,kind:typed	test	dremelrotarytool
+dewalt cordless drill	site	dewalt.com	maker-plus-product	cat:tools,kind:typed	test	dewaltcordlessdrill
+husqvarna chainsaw	site	husqvarnagroup.com	maker-plus-product	cat:tools,kind:typed	test	husqvarnachainsaw
+stihl chainsaw	site	stihl.com	maker-plus-product	cat:tools,kind:typed	dev	stihlchainsaw
+knipex pliers	site	knipex.com	maker-plus-product	cat:tools,kind:typed	test	knipexpliers
+klein tools wire stripper	site	kleintools.com	maker-plus-product	cat:tools,kind:typed	test	kleintoolswirestripper
+coca-cola soda	site	coca-cola.com	maker-plus-product	cat:food,kind:typed	dev	cocacolasoda
+oreo cookies	site	oreo.com	maker-plus-product	cat:food,kind:typed	dev	oreocookies
+lindt chocolate	site	lindt-spruengli.com	maker-plus-product	cat:food,kind:typed	dev	lindtchocolate
+pringles chips	site	pringles.com	maker-plus-product	cat:food,kind:typed	dev	pringleschips
+doritos chips	site	doritos.com	maker-plus-product	cat:food,kind:typed	dev	doritoschips
+nutella spread	site	nutella.com	maker-plus-product	cat:food,kind:typed	dev	nutellaspread
+starbucks coffee beans	site	starbucks.com	maker-plus-product	cat:food,kind:typed	test	starbuckscoffeebeans
+quaker oats	site	quaker.org	maker-plus-product	cat:food,kind:typed	test	quakeroats
+lego building sets	site	lego.com	maker-plus-product	cat:toys,kind:typed	test	legobuildingsets
+funko pop figures	site	funko.com	maker-plus-product	cat:toys,kind:typed	dev	funkopopfigures
+vtech learning toys	site	vtech.com	maker-plus-product	cat:toys,kind:typed	test	vtechlearningtoys
+little tikes playhouse	site	littletikes.com	maker-plus-product	cat:toys,kind:typed	test	littletikesplayhouse
+patagonia fleece	site	eu.patagonia.com	maker-plus-product	cat:clothing,kind:typed	dev	patagoniafleece
+calvin klein underwear	site	calvinklein.com	maker-plus-product	cat:clothing,kind:typed	dev	calvinkleinunderwear
+ralph lauren polo shirts	site	ralphlauren.com	maker-plus-product	cat:clothing,kind:typed	dev	ralphlaurenpoloshirts
+nike running shoes	site	nike.com	maker-plus-product	cat:clothing,kind:typed	dev	nikerunningshoes
+tommy hilfiger jackets	site	usa.tommy.com	maker-plus-product	cat:clothing,kind:typed	dev	tommyhilfigerjackets
+columbia jackets	site	columbia.com	maker-plus-product	cat:clothing,kind:typed	test	columbiajackets
+hanes t-shirts	site	hanes.com	maker-plus-product	cat:clothing,kind:typed	test	hanestshirts
+adidas sneakers	site	adidas.com	maker-plus-product	cat:clothing,kind:typed	test	adidassneakers
+zara dresses	site	zara.com	maker-plus-product	cat:clothing,kind:typed	test	zaradresses
+converse sneakers	site	converse.com	maker-plus-product	cat:clothing,kind:typed	test	conversesneakers
+fila sneakers	site	fila.com	maker-plus-product	cat:clothing,kind:typed	test	filasneakers
+skechers sneakers	site	skechers.com	maker-plus-product	cat:clothing,kind:typed	test	skecherssneakers
+levi's jeans	site	levi.com	maker-plus-product	cat:clothing,kind:typed	dev	levisjeans
+h&m dresses	site	hm.com	maker-plus-product	cat:clothing,kind:typed	dev	hmdresses
+uniqlo jackets	site	uniqlo.com	maker-plus-product	cat:clothing,kind:typed	dev	uniqlojackets
+under armour shirts	site	underarmour.com	maker-plus-product	cat:clothing,kind:typed	dev	underarmourshirts
+reebok sneakers	site	reebok.com	maker-plus-product	cat:clothing,kind:typed	test	reeboksneakers
+new balance running shoes	site	newbalance.com	maker-plus-product	cat:clothing,kind:typed	test	newbalancerunningshoes
+vans shoes	site	vans.com	maker-plus-product	cat:clothing,kind:typed	test	vansshoes
+timberland boots	site	timberland.com	maker-plus-product	cat:clothing,kind:typed	test	timberlandboots
+the north face jackets	site	thenorthface.com	maker-plus-product	cat:clothing,kind:typed	dev	thenorthfacejackets
+lacoste polo shirts	site	lacoste.com	maker-plus-product	cat:clothing,kind:typed	dev	lacostepoloshirts
+carhartt work jackets	site	carhartt.com	maker-plus-product	cat:clothing,kind:typed	dev	carharttworkjackets
+asics running shoes	site	asics.com	maker-plus-product	cat:clothing,kind:typed	dev	asicsrunningshoes
+dr. martens boots	site	drmartens.com	maker-plus-product	cat:clothing,kind:typed	dev	drmartensboots
+crocs clogs	site	crocs.com	maker-plus-product	cat:clothing,kind:typed	dev	crocsclogs

@@ -1,0 +1,87 @@
+# Local search — SERVING half. Runs on the box that serves searches
+# (testbox now; the personal server next; customer boxes later). It never builds an
+# index: `deploy.sh restore <snapshot>` loads one built elsewhere (indexhost today,
+# the VPS / build machine later — see).
+#
+# No host ports. search-api is reachable only from the SearXNG containers on
+# searxng_searxng-net; Postgres only from search-api.
+name: search-serve
+
+services:
+  search-serve-postgres:
+    build: ../postgres
+    image: logout/search-postgres:18.6-pgts1.4.0
+    container_name: search-serve-postgres
+    restart: unless-stopped
+    # pg_stat_statements: which queries the time goes to (`deploy.sh stats`); it stores
+    # statements with $1 placeholders, never a search's text — and so no auto_explain or
+    # log_min_duration_statement here, which would log searches (logs ship to VictoriaLogs).
+    # pg_prewarm: its autoprewarm worker reloads shared_buffers after a restart.
+    command: ["postgres", "-c", "shared_preload_libraries=pg_textsearch,pg_stat_statements,pg_prewarm",
+              "-c", "shared_buffers=512MB", "-c", "maintenance_work_mem=512MB",
+              "-c", "autovacuum_work_mem=64MB",
+              "-c", "pg_stat_statements.track=top"]
+    # autovacuum_work_mem (2026-09-27): it defaults to maintenance_work_mem; three autovacuum
+    # workers at 512MB each have no business sharing a 2g box with a restore. (The OOM on testbox's
+    # restore itself was the BM25 build's final merge — see RESTORE_MEM in deploy.sh.)
+    environment:
+      POSTGRES_DB: search
+      POSTGRES_USER: search
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+    volumes:
+      - ./data/pg:/var/lib/postgresql
+      - ./data/snapshots:/snapshots:ro
+    shm_size: 512m
+    mem_limit: 2g
+    networks: [search-serve-net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U search -d search -h 127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "2"}
+
+  search-api:
+    build: ./api
+    image: logout/search-api:1
+    container_name: search-api
+    restart: unless-stopped
+    depends_on:
+      search-serve-postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: search-serve-postgres
+      PGUSER: search
+      PGDATABASE: search
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+      SEARCH_CE_DEVICE: ${SEARCH_CE_DEVICE:-auto}
+    # Intel iGPU for the reranker (OpenVINO). deploy.sh sets SEARCH_DRI/RENDER_GID when the
+    # host has /dev/dri/renderD128; the /dev/null + nogroup defaults mean "no iGPU" and
+    # search-api reranks on the CPU after its startup check fails over.
+    devices:
+      - "${SEARCH_DRI:-/dev/null}:/dev/dri/renderD128"
+    group_add:
+      - "${RENDER_GID:-65534}"
+    # Measured 2026-09-27 (testbox, jina-turbo-jev): reranker alone 240 MiB on the CPU; 514 MiB
+    # steady / 711 MiB peak on the iGPU (OpenVINO compile). 256m no longer fits either path;
+    # deploy.sh sets 1g when the host has an iGPU, 512m otherwise.
+    mem_limit: ${SEARCH_API_MEM:-512m}
+    networks: [search-serve-net, searxng_searxng-net]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8090/readyz', timeout=10).status == 200 else 1)"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "2"}
+
+networks:
+  search-serve-net:
+    driver: bridge
+  # SearXNG's own network (apps/searxng, compose project "searxng").
+  searxng_searxng-net:
+    external: true

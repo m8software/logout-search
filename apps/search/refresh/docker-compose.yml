@@ -1,0 +1,78 @@
+# Search data freshness — its OWN compose project, so nothing here can recreate the
+# search stack (search-postgres, search-api, the pollers). Lives at /mnt/nas/logout/search/refresh
+# on indexhost; started by `deploy.sh health-up`, which only ever names search-health.
+#
+#   search-health   read-only checker: status JSON in ./state/status.json, ntfy via lib/notify.sh.
+#                   Pushes only with ALERTS=1 in ./notify.conf (beside NTFY_URL/TOPIC/TOKEN);
+#                   without that file it logs what it would have pushed.
+#                   Stop it: docker rm -f search-health
+#   search-refresh  the scheduler — profile "scheduler", started by `deploy.sh refresh-up`; every
+#                   job is off until ./refresh.json turns it on (refresh.json.example).
+#                   Pause everything: docker stop search-refresh
+name: search-refresh
+
+services:
+  search-health:
+    build: .
+    image: logout/search-health:1
+    container_name: search-health
+    restart: unless-stopped
+    environment:
+      PGHOST: search-postgres
+      PGUSER: search
+      PGPASSWORD: ${POSTGRES_PASSWORD:?run with --env-file ../.env}
+      CHECK_EVERY_S: "900"
+      STATE_DIR: /state
+      STACK_DIR: /stack
+      NEWS_SQLITE: /stack/news-store/news.sqlite   # ADR-063: the pollers' news file (read-only through /stack)
+    env_file:
+      - path: ./notify.conf      # ALERTS=1, NTFY_URL / NTFY_TOPIC / NTFY_TOKEN (0600, not in git)
+        required: false
+    volumes:
+      - ./state:/state
+      # Read-only: only for the free-space check (shutil.disk_usage).
+      - ..:/stack:ro
+    networks: [search_default]
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "2m"
+        max-file: "2"
+
+  search-refresh:
+    image: logout/search-health:1
+    container_name: search-refresh
+    profiles: ["scheduler"]
+    restart: unless-stopped
+    command: ["python", "/app/scheduler.py"]
+    # root: it drives docker through the socket (group 999 on indexhost), which is root-equivalent
+    # anyway. approved. Pause everything: docker stop search-refresh.
+    user: "0:0"
+    environment:
+      PGHOST: search-postgres
+      PGUSER: search
+      PGPASSWORD: ${POSTGRES_PASSWORD:?run with --env-file ../.env}
+      STATE_DIR: /state
+      STACK_DIR: /mnt/nas/logout/search
+      REFRESH_CONFIG: /config/refresh.json
+    volumes:
+      - ./state:/state
+      - ./refresh.json:/config/refresh.json:ro
+      # Same path as on the host: compose and `docker run -v` resolve paths on the host.
+      - /mnt/nas/logout/search:/mnt/nas/logout/search:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      # indexhost's own docker CLI + compose plugin (built for Debian bookworm glibc; the image is glibc too).
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins:ro
+    networks: [search_default]
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "2m"
+        max-file: "2"
+
+networks:
+  search_default:
+    external: true

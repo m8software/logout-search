@@ -1,0 +1,750 @@
+model	topic	category	judge	grounded	correct	complete	dangerous	pass	detailed	attempts	completion_tokens	seconds
+gpt-oss-120b MXFP4 reasoning-low	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	455	8.28
+gpt-oss-120b MXFP4 reasoning-low	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	560	7.38
+gpt-oss-120b MXFP4 reasoning-low	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	352	4.72
+gpt-oss-120b MXFP4 reasoning-low	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	249	3.37
+gpt-oss-120b MXFP4 reasoning-low	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	645	8.55
+gpt-oss-120b MXFP4 reasoning-low	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	False	1	426	5.68
+gpt-oss-120b MXFP4 reasoning-low	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	539	7.05
+gpt-oss-120b MXFP4 reasoning-low	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	464	5.94
+gpt-oss-120b MXFP4 reasoning-low	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	True	1	661	8.42
+gpt-oss-120b MXFP4 reasoning-low	how to tie a tie	crafts	oss	True	1.0	1.0	0.0	True	True	1	612	7.87
+gpt-oss-120b MXFP4 reasoning-low	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	True	1	931	12.29
+gpt-oss-120b MXFP4 reasoning-low	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	876	11.73
+gpt-oss-120b MXFP4 reasoning-low	how to sew a button	crafts	oss	True	0.0	0.0	0.0	False	False	1	600	8.56
+gpt-oss-120b MXFP4 reasoning-low	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	False	1	917	12.56
+gpt-oss-120b MXFP4 reasoning-low	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	True	1	591	7.75
+gpt-oss-120b MXFP4 reasoning-low	how to make an origami crane	crafts	oss	False	1.0	1.0	0.0	True	False	1	550	7.43
+gpt-oss-120b MXFP4 reasoning-low	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	681	9.06
+gpt-oss-120b MXFP4 reasoning-low	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	True	1	403	5.58
+gpt-oss-120b MXFP4 reasoning-low	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	654	9.09
+gpt-oss-120b MXFP4 reasoning-low	how to fix a running toilet	household	oss	True	0.0	1.0	0.0	False	False	1	646	8.39
+gpt-oss-120b MXFP4 reasoning-low	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	688	8.9
+gpt-oss-120b MXFP4 reasoning-low	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	367	4.84
+gpt-oss-120b MXFP4 reasoning-low	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	False	1	479	6.01
+gpt-oss-120b MXFP4 reasoning-low	how to sharpen a kitchen knife	household	oss	True	1.0	1.0	0.0	True	True	1	575	7.06
+gpt-oss-120b MXFP4 reasoning-low	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	495	6.06
+gpt-oss-120b MXFP4 reasoning-low	how to patch a small hole in drywall	household	oss	False	0.0	1.0	0.0	False	False	1	758	9.22
+gpt-oss-120b MXFP4 reasoning-low	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	798	9.87
+gpt-oss-120b MXFP4 reasoning-low	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	435	5.61
+gpt-oss-120b MXFP4 reasoning-low	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	581	7.59
+gpt-oss-120b MXFP4 reasoning-low	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	492	6.63
+gpt-oss-120b MXFP4 reasoning-low	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	733	9.31
+gpt-oss-120b MXFP4 reasoning-low	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	297	3.93
+gpt-oss-120b MXFP4 reasoning-low	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	False	1	579	7.34
+gpt-oss-120b MXFP4 reasoning-low	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	288	3.9
+gpt-oss-120b MXFP4 reasoning-low	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	436	6.02
+gpt-oss-120b MXFP4 reasoning-low	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	320	4.28
+gpt-oss-120b MXFP4 reasoning-low	how to prune tomato plants	gardening	oss	True	0.0	0.0	1.0	False	False	1	596	7.44
+gpt-oss-120b MXFP4 reasoning-low	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	722	8.87
+gpt-oss-120b MXFP4 reasoning-low	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	715	8.79
+gpt-oss-120b MXFP4 reasoning-low	how to start a compost pile	household	oss	True	1.0	1.0	0.0	True	True	1	735	9.2
+gpt-oss-120b MXFP4 reasoning-low	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	711	9.02
+gpt-oss-120b MXFP4 reasoning-low	how to pack a suitcase	travel	oss	True	1.0	1.0	0.0	True	False	1	680	8.32
+gpt-oss-120b MXFP4 reasoning-low	how to get over jet lag	travel	oss	True	1.0	1.0	0.0	True	False	1	301	3.75
+gpt-oss-120b MXFP4 reasoning-low	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	495	6.45
+gpt-oss-120b MXFP4 reasoning-low	how to write a bibliography in mla format	software	oss	True	1.0	0.0	0.0	False	False	1	1359	17.03
+gpt-oss-120b MXFP4 reasoning-low	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	948	11.87
+gpt-oss-20b MXFP4 reasoning-low	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	315	3.92
+gpt-oss-20b MXFP4 reasoning-low	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	341	4.24
+gpt-oss-20b MXFP4 reasoning-low	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	478	5.83
+gpt-oss-20b MXFP4 reasoning-low	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	True	1	268	3.41
+gpt-oss-20b MXFP4 reasoning-low	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	1042	12.47
+gpt-oss-20b MXFP4 reasoning-low	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	416	5.04
+gpt-oss-20b MXFP4 reasoning-low	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	360	4.45
+gpt-oss-20b MXFP4 reasoning-low	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	443	5.33
+gpt-oss-20b MXFP4 reasoning-low	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	True	1	593	7.58
+gpt-oss-20b MXFP4 reasoning-low	how to tie a tie	crafts	oss	True	UNJUDGED	UNJUDGED	UNJUDGED	UNJUDGED	UNJUDGED	2	6000	73.43
+gpt-oss-20b MXFP4 reasoning-low	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	False	1	1069	12.74
+gpt-oss-20b MXFP4 reasoning-low	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	375	4.65
+gpt-oss-20b MXFP4 reasoning-low	how to sew a button	crafts	oss	True	1.0	1.0	0.0	True	True	1	562	6.77
+gpt-oss-20b MXFP4 reasoning-low	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	True	1	526	6.38
+gpt-oss-20b MXFP4 reasoning-low	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	True	1	503	6.05
+gpt-oss-20b MXFP4 reasoning-low	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	False	1	440	5.57
+gpt-oss-20b MXFP4 reasoning-low	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	True	1	498	6.24
+gpt-oss-20b MXFP4 reasoning-low	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	True	1	567	6.96
+gpt-oss-20b MXFP4 reasoning-low	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	448	5.52
+gpt-oss-20b MXFP4 reasoning-low	how to fix a running toilet	household	oss	True	0.0	0.0	1.0	False	False	1	238	3.01
+gpt-oss-20b MXFP4 reasoning-low	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	642	7.84
+gpt-oss-20b MXFP4 reasoning-low	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	374	4.63
+gpt-oss-20b MXFP4 reasoning-low	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	False	1	629	9.59
+gpt-oss-20b MXFP4 reasoning-low	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	True	1	662	8.51
+gpt-oss-20b MXFP4 reasoning-low	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	624	7.78
+gpt-oss-20b MXFP4 reasoning-low	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	662	8.27
+gpt-oss-20b MXFP4 reasoning-low	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	507	6.47
+gpt-oss-20b MXFP4 reasoning-low	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	300	3.74
+gpt-oss-20b MXFP4 reasoning-low	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	600	7.47
+gpt-oss-20b MXFP4 reasoning-low	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	250	3.11
+gpt-oss-20b MXFP4 reasoning-low	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	False	1	511	6.27
+gpt-oss-20b MXFP4 reasoning-low	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	457	5.57
+gpt-oss-20b MXFP4 reasoning-low	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	False	1	347	4.53
+gpt-oss-20b MXFP4 reasoning-low	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	325	4.22
+gpt-oss-20b MXFP4 reasoning-low	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	376	4.77
+gpt-oss-20b MXFP4 reasoning-low	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	243	3.22
+gpt-oss-20b MXFP4 reasoning-low	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	610	7.57
+gpt-oss-20b MXFP4 reasoning-low	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	525	6.64
+gpt-oss-20b MXFP4 reasoning-low	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	996	12.3
+gpt-oss-20b MXFP4 reasoning-low	how to start a compost pile	household	oss	True	1.0	1.0	0.0	True	False	1	380	4.82
+gpt-oss-20b MXFP4 reasoning-low	how to prune a rose bush	gardening	oss	True	0.0	1.0	0.0	False	False	1	755	9.26
+gpt-oss-20b MXFP4 reasoning-low	how to pack a suitcase	travel	oss	True	0.0	0.0	0.0	False	False	1	416	5.18
+gpt-oss-20b MXFP4 reasoning-low	how to get from narita airport to tokyo	travel	oss	True	0.0	1.0	0.0	False	False	1	577	7.15
+gpt-oss-20b MXFP4 reasoning-low	how to use the paris metro	travel	oss	True	0.0	0.0	0.0	False	False	1	545	6.81
+gpt-oss-20b MXFP4 reasoning-low	how to do long division	school	oss	True	1.0	1.0	0.0	True	False	1	521	6.69
+gpt-oss-20b MXFP4 reasoning-low	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	416	5.12
+gpt-oss-20b MXFP4 reasoning-low	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	730	9.54
+gpt-oss-20b MXFP4 reasoning-low	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	392	5.01
+gpt-oss-20b MXFP4 reasoning-medium	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	403	5.09
+gpt-oss-20b MXFP4 reasoning-medium	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	676	8.44
+gpt-oss-20b MXFP4 reasoning-medium	how to cook rice	cooking	oss	True	0.0	0.0	0.0	False	False	1	275	3.53
+gpt-oss-20b MXFP4 reasoning-medium	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	479	6.09
+gpt-oss-20b MXFP4 reasoning-medium	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	530	6.68
+gpt-oss-20b MXFP4 reasoning-medium	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	False	1	723	9.34
+gpt-oss-20b MXFP4 reasoning-medium	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	False	1	351	4.48
+gpt-oss-20b MXFP4 reasoning-medium	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	442	5.63
+gpt-oss-20b MXFP4 reasoning-medium	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	True	1	749	9.49
+gpt-oss-20b MXFP4 reasoning-medium	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	344	4.51
+gpt-oss-20b MXFP4 reasoning-medium	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	False	1	535	6.55
+gpt-oss-20b MXFP4 reasoning-medium	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	False	1	831	9.93
+gpt-oss-20b MXFP4 reasoning-medium	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	228	2.91
+gpt-oss-20b MXFP4 reasoning-medium	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	402	4.91
+gpt-oss-20b MXFP4 reasoning-medium	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	398	4.87
+gpt-oss-20b MXFP4 reasoning-medium	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	530	6.4
+gpt-oss-20b MXFP4 reasoning-medium	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	609	7.35
+gpt-oss-20b MXFP4 reasoning-medium	how to fix a running toilet	household	oss	True	0.0	0.0	0.0	False	False	1	182	2.31
+gpt-oss-20b MXFP4 reasoning-medium	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	811	9.84
+gpt-oss-20b MXFP4 reasoning-medium	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	488	5.96
+gpt-oss-20b MXFP4 reasoning-medium	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	False	1	579	7.03
+gpt-oss-20b MXFP4 reasoning-medium	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	False	1	405	4.95
+gpt-oss-20b MXFP4 reasoning-medium	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	698	8.37
+gpt-oss-20b MXFP4 reasoning-medium	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	715	8.57
+gpt-oss-20b MXFP4 reasoning-medium	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	False	1	822	9.83
+gpt-oss-20b MXFP4 reasoning-medium	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	344	4.24
+gpt-oss-20b MXFP4 reasoning-medium	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	602	7.24
+gpt-oss-20b MXFP4 reasoning-medium	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	206	2.61
+gpt-oss-20b MXFP4 reasoning-medium	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	451	5.51
+gpt-oss-20b MXFP4 reasoning-medium	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	354	4.35
+gpt-oss-20b MXFP4 reasoning-medium	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	228	2.85
+gpt-oss-20b MXFP4 reasoning-medium	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	371	4.57
+gpt-oss-20b MXFP4 reasoning-medium	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	705	8.45
+gpt-oss-20b MXFP4 reasoning-medium	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	281	3.5
+gpt-oss-20b MXFP4 reasoning-medium	how to remove dandelions from a lawn	gardening	oss	True	1.0	0.0	0.0	False	False	1	338	4.14
+gpt-oss-20b MXFP4 reasoning-medium	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	344	4.22
+gpt-oss-20b MXFP4 reasoning-medium	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	729	8.76
+gpt-oss-20b MXFP4 reasoning-medium	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	384	4.68
+Mistral-Small-3.2-24B Q8_0	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	324	4.02
+Mistral-Small-3.2-24B Q8_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	607	7.27
+Mistral-Small-3.2-24B Q8_0	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	562	6.72
+Mistral-Small-3.2-24B Q8_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	True	1	1200	14.31
+Mistral-Small-3.2-24B Q8_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	590	7.15
+Mistral-Small-3.2-24B Q8_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	576	6.97
+Mistral-Small-3.2-24B Q8_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	294	3.66
+Mistral-Small-3.2-24B Q8_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	356	4.35
+Mistral-Small-3.2-24B Q8_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	308	3.84
+Mistral-Small-3.2-24B Q8_0	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	467	5.67
+Mistral-Small-3.2-24B Q8_0	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	323	3.99
+Mistral-Small-3.2-24B Q8_0	how to sew a button	crafts	oss	True	0.0	0.0	1.0	False	False	1	693	8.32
+Mistral-Small-3.2-24B Q8_0	how to knit a scarf	crafts	oss	False	0.0	1.0	0.0	False	False	1	646	7.84
+Mistral-Small-3.2-24B Q8_0	how to crochet a chain stitch	crafts	oss	True	0.0	0.0	0.0	False	False	1	451	5.5
+Mistral-Small-3.2-24B Q8_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	293	3.69
+Mistral-Small-3.2-24B Q8_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	743	8.87
+Mistral-Small-3.2-24B Q8_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	True	1	401	4.86
+Mistral-Small-3.2-24B Q8_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	441	5.39
+Mistral-Small-3.2-24B Q8_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	False	1	267	3.37
+Mistral-Small-3.2-24B Q8_0	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	840	10.03
+Mistral-Small-3.2-24B Q8_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	509	6.16
+Mistral-Small-3.2-24B Q8_0	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	True	1	572	7.06
+Mistral-Small-3.2-24B Q8_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	1.0	False	False	1	449	5.48
+Mistral-Small-3.2-24B Q8_0	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	431	5.21
+Mistral-Small-3.2-24B Q8_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	459	5.56
+Mistral-Small-3.2-24B Q8_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	624	7.47
+Mistral-Small-3.2-24B Q8_0	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	402	4.91
+Mistral-Small-3.2-24B Q8_0	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	309	3.78
+Mistral-Small-3.2-24B Q8_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	278	3.44
+Mistral-Small-3.2-24B Q8_0	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	1016	12.24
+Mistral-Small-3.2-24B Q8_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	405	4.92
+Mistral-Small-3.2-24B Q8_0	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	True	1	304	4.09
+Mistral-Small-3.2-24B Q8_0	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	366	4.5
+Mistral-Small-3.2-24B Q8_0	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	427	5.64
+Mistral-Small-3.2-24B Q8_0	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	336	4.42
+Mistral-Small-3.2-24B Q8_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	1205	15.01
+Mistral-Small-3.2-24B Q8_0	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	382	4.71
+Mistral-Small-3.2-24B Q8_0	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	471	5.93
+Mistral-Small-3.2-24B Q8_0	how to start a compost pile	household	oss	True	0.0	1.0	0.0	False	False	1	722	8.99
+Mistral-Small-3.2-24B Q8_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	0.0	False	False	1	883	11.44
+Mistral-Small-3.2-24B Q8_0	how to pack a suitcase	travel	oss	True	0.0	0.0	0.0	False	False	1	492	6.48
+Mistral-Small-3.2-24B Q8_0	how to get from narita airport to tokyo	travel	oss	True	1.0	0.0	0.0	False	False	1	335	4.43
+Mistral-Small-3.2-24B Q8_0	how to use the paris metro	travel	oss	True	1.0	0.0	0.0	False	False	1	439	6.36
+Mistral-Small-3.2-24B Q8_0	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	302	3.82
+Mistral-Small-3.2-24B Q8_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	899	11.68
+Mistral-Small-3.2-24B Q8_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	True	1	296	3.81
+Qwen3-14B Q4_K_M	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	433	5.37
+Qwen3-14B Q4_K_M	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	573	6.99
+Qwen3-14B Q4_K_M	how to cook rice	cooking	oss	True	1.0	0.0	0.0	False	False	1	445	5.51
+Qwen3-14B Q4_K_M	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	341	4.25
+Qwen3-14B Q4_K_M	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	696	8.49
+Qwen3-14B Q4_K_M	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	False	1	362	4.49
+Qwen3-14B Q4_K_M	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	False	1	338	4.16
+Qwen3-14B Q4_K_M	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	390	4.79
+Qwen3-14B Q4_K_M	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	True	1	452	5.6
+Qwen3-14B Q4_K_M	how to tie a tie	crafts	oss	True	1.0	1.0	0.0	True	False	1	1137	13.87
+Qwen3-14B Q4_K_M	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	545	6.65
+Qwen3-14B Q4_K_M	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	409	5.1
+Qwen3-14B Q4_K_M	how to sew a button	crafts	oss	True	0.0	0.0	1.0	False	False	1	583	7.13
+Qwen3-14B Q4_K_M	how to knit a scarf	crafts	oss	False	0.0	0.0	0.0	False	False	1	446	5.46
+Qwen3-14B Q4_K_M	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	False	1	521	6.38
+Qwen3-14B Q4_K_M	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	334	4.2
+Qwen3-14B Q4_K_M	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	315	3.93
+Qwen3-14B Q4_K_M	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	True	1	410	5.0
+Qwen3-14B Q4_K_M	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	806	9.99
+Qwen3-14B Q4_K_M	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	False	1	432	5.5
+Qwen3-14B Q4_K_M	how to fix a running toilet	household	oss	True	0.0	0.0	1.0	False	False	1	418	5.14
+Qwen3-14B Q4_K_M	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	False	1	568	6.98
+Qwen3-14B Q4_K_M	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	421	5.21
+Qwen3-14B Q4_K_M	how to hang a picture on drywall	household	oss	False	1.0	0.0	0.0	False	True	1	527	6.37
+Qwen3-14B Q4_K_M	how to sharpen a kitchen knife	household	oss	True	1.0	1.0	0.0	True	False	1	465	5.76
+Qwen3-14B Q4_K_M	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	953	11.56
+Qwen3-14B Q4_K_M	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	404	5.0
+Qwen3-14B Q4_K_M	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	532	6.47
+Qwen3-14B Q4_K_M	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	False	1	559	6.84
+Qwen3-14B Q4_K_M	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	424	5.24
+Qwen3-14B Q4_K_M	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	417	5.14
+Qwen3-14B Q4_K_M	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	542	6.67
+Qwen3-14B Q4_K_M	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	2	2399	28.93
+Qwen3-14B Q4_K_M	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	False	1	314	3.89
+Qwen3-14B Q4_K_M	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	271	3.44
+Qwen3-14B Q4_K_M	how to back up an iphone	software	oss	False	0.0	0.0	0.0	False	False	1	913	11.08
+Qwen3-14B Q4_K_M	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	261	3.3
+Qwen3-14B Q4_K_M	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	1172	14.13
+Qwen3-14B Q4_K_M	how to grow grass from seed	gardening	oss	True	1.0	1.0	0.0	True	False	1	772	9.4
+Qwen3-14B Q4_K_M	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	1.0	False	False	1	1091	13.21
+Qwen3-14B Q4_K_M	how to start a compost pile	household	oss	True	0.0	1.0	0.0	False	False	1	807	9.97
+Qwen3-14B Q4_K_M	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	628	7.76
+Qwen3-14B Q4_K_M	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	441	5.48
+Qwen3-14B Q4_K_M	how to get over jet lag	travel	oss	True	1.0	1.0	0.0	True	False	1	452	5.74
+Qwen3-14B Q4_K_M	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	592	7.23
+Qwen3-14B Q4_K_M	how to use the paris metro	travel	oss	True	0.0	0.0	1.0	False	False	1	543	6.6
+Qwen3-14B Q4_K_M	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	621	7.63
+Qwen3-14B Q4_K_M	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	506	6.23
+Qwen3-14B Q4_K_M	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	2	2620	31.72
+Qwen3-14B Q4_K_M	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	True	1	372	4.6
+Qwen3-30B-A3B Q8_0	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	307	3.81
+Qwen3-30B-A3B Q8_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	600	7.31
+Qwen3-30B-A3B Q8_0	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	556	6.76
+Qwen3-30B-A3B Q8_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	322	3.97
+Qwen3-30B-A3B Q8_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	805	9.72
+Qwen3-30B-A3B Q8_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	False	1	340	4.21
+Qwen3-30B-A3B Q8_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	False	1	330	4.17
+Qwen3-30B-A3B Q8_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	664	8.06
+Qwen3-30B-A3B Q8_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	524	6.42
+Qwen3-30B-A3B Q8_0	how to tie a tie	crafts	oss	True	0.0	0.0	0.0	False	False	1	728	8.83
+Qwen3-30B-A3B Q8_0	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	357	4.41
+Qwen3-30B-A3B Q8_0	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	526	6.47
+Qwen3-30B-A3B Q8_0	how to sew a button	crafts	oss	True	1.0	1.0	0.0	True	True	1	596	7.2
+Qwen3-30B-A3B Q8_0	how to knit a scarf	crafts	oss	False	0.0	0.0	0.0	False	False	1	680	8.21
+Qwen3-30B-A3B Q8_0	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	False	1	474	5.81
+Qwen3-30B-A3B Q8_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	246	3.1
+Qwen3-30B-A3B Q8_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	368	4.6
+Qwen3-30B-A3B Q8_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	436	5.52
+Qwen3-30B-A3B Q8_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	558	6.94
+Qwen3-30B-A3B Q8_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	False	1	894	11.08
+Qwen3-30B-A3B Q8_0	how to fix a running toilet	household	oss	True	0.0	0.0	0.0	False	False	1	306	3.92
+Qwen3-30B-A3B Q8_0	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	896	10.89
+Qwen3-30B-A3B Q8_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	285	3.6
+Qwen3-30B-A3B Q8_0	how to hang a picture on drywall	household	oss	False	1.0	0.0	0.0	False	False	1	402	4.95
+Qwen3-30B-A3B Q8_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	True	1	523	6.29
+Qwen3-30B-A3B Q8_0	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	607	7.35
+Qwen3-30B-A3B Q8_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	515	6.22
+Qwen3-30B-A3B Q8_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	2	2585	32.81
+Qwen3-30B-A3B Q8_0	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	307	4.01
+Qwen3-30B-A3B Q8_0	how to take a screenshot on a mac	software	oss	True	0.0	1.0	0.0	False	False	1	769	9.63
+Qwen3-30B-A3B Q8_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	314	3.97
+Qwen3-30B-A3B Q8_0	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	False	1	586	7.39
+Qwen3-30B-A3B Q8_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	563	7.06
+Qwen3-30B-A3B Q8_0	how to make a pdf smaller	software	oss	False	0.0	0.0	0.0	False	False	1	369	4.76
+Qwen3-30B-A3B Q8_0	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	342	4.43
+Qwen3-30B-A3B Q8_0	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	351	4.41
+Qwen3-30B-A3B Q8_0	how to find the ip address of a computer	software	oss	False	1.0	0.0	0.0	False	False	1	655	7.98
+Qwen3-30B-A3B Q8_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	1.0	False	False	1	494	6.39
+Qwen3-30B-A3B Q8_0	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	604	7.74
+Qwen3-30B-A3B Q8_0	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	605	7.76
+Qwen3-30B-A3B Q8_0	how to start a compost pile	household	oss	True	0.0	0.0	0.0	False	False	1	486	6.15
+Qwen3-30B-A3B Q8_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	483	6.09
+Qwen3-30B-A3B Q8_0	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	346	4.38
+Qwen3-30B-A3B Q8_0	how to get over jet lag	travel	oss	True	1.0	1.0	0.0	True	False	1	346	4.4
+Qwen3-30B-A3B Q8_0	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	390	4.93
+Qwen3-30B-A3B Q8_0	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	472	5.96
+Qwen3-30B-A3B Q8_0	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	522	6.51
+Qwen3-30B-A3B Q8_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	611	7.59
+Qwen3-30B-A3B Q8_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	484	6.09
+Qwen3-32B Q8_0	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	273	3.53
+Qwen3-32B Q8_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	617	7.7
+Qwen3-32B Q8_0	how to cook rice	cooking	oss	True	0.0	0.0	0.0	False	False	1	428	5.39
+Qwen3-32B Q8_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	365	4.57
+Qwen3-32B Q8_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	511	6.46
+Qwen3-32B Q8_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	False	1	394	4.95
+Qwen3-32B Q8_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	410	5.27
+Qwen3-32B Q8_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	614	7.75
+Qwen3-32B Q8_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	386	5.02
+Qwen3-32B Q8_0	how to tie a tie	crafts	oss	True	1.0	1.0	0.0	True	True	2	2711	41.12
+Qwen3-32B Q8_0	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	553	8.3
+Qwen3-32B Q8_0	how to fold a paper airplane	crafts	oss	True	1.0	1.0	0.0	True	True	1	532	8.32
+Qwen3-32B Q8_0	how to sew a button	crafts	oss	True	0.0	0.0	0.0	False	False	1	574	8.66
+Qwen3-32B Q8_0	how to knit a scarf	crafts	oss	False	1.0	0.0	0.0	False	False	1	897	13.83
+Qwen3-32B Q8_0	how to crochet a chain stitch	crafts	oss	True	0.0	0.0	0.0	False	False	1	514	7.71
+Qwen3-32B Q8_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	495	7.5
+Qwen3-32B Q8_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	497	7.65
+Qwen3-32B Q8_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	466	7.35
+Qwen3-32B Q8_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	441	6.59
+Qwen3-32B Q8_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	726	10.76
+Qwen3-32B Q8_0	how to fix a running toilet	household	oss	True	0.0	0.0	0.0	False	False	1	379	5.61
+Qwen3-32B Q8_0	how to fold a fitted sheet	household	oss	True	0.0	0.0	0.0	False	False	1	790	11.6
+Qwen3-32B Q8_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	427	6.4
+Qwen3-32B Q8_0	how to hang a picture on drywall	household	oss	False	0.0	0.0	0.0	False	False	1	617	9.13
+Qwen3-32B Q8_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	1.0	False	True	1	519	7.76
+Qwen3-32B Q8_0	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	1491	21.93
+Qwen3-32B Q8_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	641	9.43
+Qwen3-32B Q8_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	1140	16.74
+Qwen3-32B Q8_0	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	254	3.83
+Qwen3-32B Q8_0	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	506	7.52
+Qwen3-32B Q8_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	457	6.78
+Qwen3-32B Q8_0	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	824	12.16
+Qwen3-32B Q8_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	684	10.16
+Qwen3-32B Q8_0	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	True	1	447	6.77
+Qwen3-32B Q8_0	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	279	4.17
+Qwen3-32B Q8_0	how to back up an iphone	software	oss	False	0.0	0.0	0.0	False	False	1	617	9.17
+Qwen3-32B Q8_0	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	438	6.49
+Qwen3-32B Q8_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	747	10.96
+Qwen3-32B Q8_0	how to grow grass from seed	gardening	oss	True	0.0	1.0	0.0	False	False	1	1002	14.74
+Qwen3-32B Q8_0	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	1.0	False	False	1	844	12.5
+Qwen3-32B Q8_0	how to start a compost pile	household	oss	True	1.0	1.0	0.0	True	False	1	514	7.57
+Qwen3-32B Q8_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	463	7.19
+Qwen3-32B Q8_0	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	624	9.27
+Qwen3-32B Q8_0	how to get over jet lag	travel	oss	True	1.0	0.0	0.0	False	False	1	425	6.34
+Qwen3-32B Q8_0	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	432	6.42
+Qwen3-32B Q8_0	how to use the paris metro	travel	oss	True	0.0	1.0	0.0	False	False	1	557	8.32
+Qwen3-32B Q8_0	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	292	4.44
+Qwen3-32B Q8_0	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	399	5.96
+Qwen3-32B Q8_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	588	8.88
+Qwen3-32B Q8_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	317	4.89
+Qwen3.5-27B Q8_0	how to make whipped cream	cooking	oss	True	0.0	1.0	0.0	False	False	1	715	10.57
+Qwen3.5-27B Q8_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	680	10.08
+Qwen3.5-27B Q8_0	how to cook rice	cooking	oss	True	0.0	1.0	0.0	False	False	1	644	9.53
+Qwen3.5-27B Q8_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	285	4.45
+Qwen3.5-27B Q8_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	523	7.71
+Qwen3.5-27B Q8_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	366	5.4
+Qwen3.5-27B Q8_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	514	7.58
+Qwen3.5-27B Q8_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	507	7.58
+Qwen3.5-27B Q8_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	388	5.85
+Qwen3.5-27B Q8_0	how to tie a tie	crafts	oss	True	1.0	1.0	0.0	True	True	1	716	10.63
+Qwen3.5-27B Q8_0	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	True	1	1372	20.01
+Qwen3.5-27B Q8_0	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	328	4.95
+Qwen3.5-27B Q8_0	how to sew a button	crafts	oss	True	0.0	0.0	0.0	False	False	1	608	8.95
+Qwen3.5-27B Q8_0	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	False	1	1192	17.44
+Qwen3.5-27B Q8_0	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	False	1	973	14.27
+Qwen3.5-27B Q8_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	356	5.27
+Qwen3.5-27B Q8_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	435	6.5
+Qwen3.5-27B Q8_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	553	8.15
+Qwen3.5-27B Q8_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	458	6.78
+Qwen3.5-27B Q8_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	587	8.72
+Qwen3.5-27B Q8_0	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	449	6.65
+Qwen3.5-27B Q8_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	363	5.48
+Qwen3.5-27B Q8_0	how to hang a picture on drywall	household	oss	False	0.0	0.0	0.0	False	False	1	490	7.25
+Qwen3.5-27B Q8_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	True	1	319	4.79
+Qwen3.5-27B Q8_0	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	657	9.54
+Qwen3.5-27B Q8_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	576	8.57
+Qwen3.5-27B Q8_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	False	1	329	4.93
+Qwen3.5-27B Q8_0	how to take a screenshot on windows	household	oss	False	0.0	0.0	0.0	False	False	1	112	1.81
+Qwen3.5-27B Q8_0	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	574	8.5
+Qwen3.5-27B Q8_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	378	5.68
+Qwen3.5-27B Q8_0	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	666	9.93
+Qwen3.5-27B Q8_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	490	7.38
+Qwen3.5-27B Q8_0	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	True	1	475	7.08
+Qwen3.5-27B Q8_0	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	285	4.29
+Qwen3.5-27B Q8_0	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	574	8.53
+Qwen3.5-27B Q8_0	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	2	2455	35.55
+Qwen3.5-27B Q8_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	1.0	False	False	1	399	5.3
+Qwen3.5-27B Q8_0	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	511	6.17
+Qwen3.5-27B Q8_0	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	1.0	False	False	1	617	7.44
+Qwen3.5-27B Q8_0	how to start a compost pile	household	oss	True	1.0	1.0	0.0	True	False	1	713	8.56
+Qwen3.5-27B Q8_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	567	6.92
+Qwen3.5-27B Q8_0	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	403	4.95
+Qwen3.5-27B Q8_0	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	653	7.92
+Qwen3.5-27B Q8_0	how to use the paris metro	travel	oss	True	1.0	0.0	0.0	False	False	1	680	8.21
+Qwen3.5-27B Q8_0	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	891	10.69
+Qwen3.5-27B Q8_0	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	721	8.71
+Qwen3.5-27B Q8_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	721	8.69
+Qwen3.5-27B Q8_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	380	4.66
+gpt-oss-20b MXFP4 reasoning-low detail	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	314	5.15
+gpt-oss-20b MXFP4 reasoning-low detail	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	589	7.3
+gpt-oss-20b MXFP4 reasoning-low detail	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	528	6.55
+gpt-oss-20b MXFP4 reasoning-low detail	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	True	1	411	5.13
+gpt-oss-20b MXFP4 reasoning-low detail	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	559	6.93
+gpt-oss-20b MXFP4 reasoning-low detail	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	438	5.42
+gpt-oss-20b MXFP4 reasoning-low detail	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	382	4.78
+gpt-oss-20b MXFP4 reasoning-low detail	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	541	6.71
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	True	1	813	9.84
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a tie	crafts	oss	True	1.0	1.0	0.0	True	True	1	573	7.02
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	True	1	733	8.91
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	646	7.91
+gpt-oss-20b MXFP4 reasoning-low detail	how to knit a scarf	crafts	oss	False	0.0	0.0	0.0	False	False	2	2739	33.02
+gpt-oss-20b MXFP4 reasoning-low detail	how to crochet a chain stitch	crafts	oss	True	0.0	0.0	0.0	False	False	1	499	6.15
+gpt-oss-20b MXFP4 reasoning-low detail	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	378	4.83
+gpt-oss-20b MXFP4 reasoning-low detail	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	442	5.54
+gpt-oss-20b MXFP4 reasoning-low detail	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	True	1	314	4.02
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	True	1	342	4.37
+gpt-oss-20b MXFP4 reasoning-low detail	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	741	9.21
+gpt-oss-20b MXFP4 reasoning-low detail	how to fix a running toilet	household	oss	True	0.0	0.0	1.0	False	False	1	405	5.23
+gpt-oss-20b MXFP4 reasoning-low detail	how to fold a fitted sheet	household	oss	True	0.0	1.0	0.0	False	False	1	835	10.22
+gpt-oss-20b MXFP4 reasoning-low detail	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	340	4.37
+gpt-oss-20b MXFP4 reasoning-low detail	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	False	1	890	10.94
+gpt-oss-20b MXFP4 reasoning-low detail	how to sharpen a kitchen knife	household	oss	True	1.0	1.0	0.0	True	True	1	735	8.97
+gpt-oss-20b MXFP4 reasoning-low detail	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	612	7.48
+gpt-oss-20b MXFP4 reasoning-low detail	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	True	1	1286	15.54
+gpt-oss-20b MXFP4 reasoning-low detail	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	False	1	444	5.46
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	406	5.05
+gpt-oss-20b MXFP4 reasoning-low detail	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	454	5.55
+gpt-oss-20b MXFP4 reasoning-low detail	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	300	3.79
+gpt-oss-20b MXFP4 reasoning-low detail	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	811	9.9
+gpt-oss-20b MXFP4 reasoning-low detail	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	388	4.76
+gpt-oss-20b MXFP4 reasoning-low detail	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	True	1	657	7.99
+gpt-oss-20b MXFP4 reasoning-low detail	how to unzip a file on windows	household	oss	False	1.0	1.0	1.0	False	True	1	489	6.02
+gpt-oss-20b MXFP4 reasoning-low detail	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	489	5.96
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	235	2.99
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune tomato plants	gardening	oss	True	1.0	0.0	0.0	False	False	1	713	8.69
+gpt-oss-20b MXFP4 reasoning-low detail	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	873	10.56
+gpt-oss-20b MXFP4 reasoning-low detail	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	906	11.28
+gpt-oss-20b MXFP4 reasoning-low detail	how to start a compost pile	household	oss	True	0.0	1.0	0.0	False	False	1	1005	12.38
+gpt-oss-20b MXFP4 reasoning-low detail	how to prune a rose bush	gardening	oss	True	0.0	0.0	0.0	False	False	1	669	8.29
+gpt-oss-20b MXFP4 reasoning-low detail	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	501	6.41
+gpt-oss-20b MXFP4 reasoning-low detail	how to get over jet lag	travel	oss	True	1.0	0.0	0.0	False	False	1	784	9.72
+gpt-oss-20b MXFP4 reasoning-low detail	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	1004	12.42
+gpt-oss-20b MXFP4 reasoning-low detail	how to use the paris metro	travel	oss	True	0.0	0.0	0.0	False	False	1	582	7.35
+gpt-oss-20b MXFP4 reasoning-low detail	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	419	5.16
+gpt-oss-20b MXFP4 reasoning-low detail	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	610	7.51
+gpt-oss-20b MXFP4 reasoning-low detail	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	True	1	303	3.77
+Qwen3-14B Q4_K_M detail	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	333	4.16
+Qwen3-14B Q4_K_M detail	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	False	1	482	5.88
+Qwen3-14B Q4_K_M detail	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	328	4.09
+Qwen3-14B Q4_K_M detail	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	True	1	360	4.45
+Qwen3-14B Q4_K_M detail	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	True	1	902	10.9
+Qwen3-14B Q4_K_M detail	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	372	4.62
+Qwen3-14B Q4_K_M detail	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	693	8.37
+Qwen3-14B Q4_K_M detail	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	560	6.82
+Qwen3-14B Q4_K_M detail	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	True	1	463	5.65
+Qwen3-14B Q4_K_M detail	how to tie a tie	crafts	oss	True	0.0	0.0	0.0	False	False	1	249	3.13
+Qwen3-14B Q4_K_M detail	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	False	1	1004	12.12
+Qwen3-14B Q4_K_M detail	how to fold a paper airplane	crafts	oss	True	1.0	1.0	0.0	True	True	1	606	7.39
+Qwen3-14B Q4_K_M detail	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	True	1	540	6.63
+Qwen3-14B Q4_K_M detail	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	True	1	369	4.63
+Qwen3-14B Q4_K_M detail	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	327	4.09
+Qwen3-14B Q4_K_M detail	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	325	4.05
+Qwen3-14B Q4_K_M detail	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	451	5.52
+Qwen3-14B Q4_K_M detail	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	642	7.85
+Qwen3-14B Q4_K_M detail	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	573	7.0
+Qwen3-14B Q4_K_M detail	how to fix a running toilet	household	oss	True	0.0	0.0	0.0	False	False	1	169	2.21
+Qwen3-14B Q4_K_M detail	how to fold a fitted sheet	household	oss	True	0.0	0.0	0.0	False	False	1	825	9.95
+Qwen3-14B Q4_K_M detail	how to get rid of fruit flies	household	oss	False	1.0	0.0	0.0	False	False	1	689	8.37
+Qwen3-14B Q4_K_M detail	how to hang a picture on drywall	household	oss	False	1.0	0.0	0.0	False	False	1	962	11.57
+Qwen3-14B Q4_K_M detail	how to sharpen a kitchen knife	household	oss	True	1.0	1.0	0.0	True	True	1	499	6.13
+Qwen3-14B Q4_K_M detail	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	454	5.56
+Qwen3-14B Q4_K_M detail	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	711	8.65
+Qwen3-14B Q4_K_M detail	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	821	9.94
+Qwen3-14B Q4_K_M detail	how to take a screenshot on windows	household	oss	False	0.0	0.0	0.0	False	False	1	386	4.8
+Qwen3-14B Q4_K_M detail	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	485	5.91
+Qwen3-14B Q4_K_M detail	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	313	3.92
+Qwen3-14B Q4_K_M detail	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	840	10.2
+Qwen3-14B Q4_K_M detail	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	602	7.31
+Qwen3-14B Q4_K_M detail	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	False	1	373	4.59
+Qwen3-14B Q4_K_M detail	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	296	3.66
+Qwen3-14B Q4_K_M detail	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	331	4.05
+Qwen3-14B Q4_K_M detail	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	263	3.27
+Qwen3-14B Q4_K_M detail	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	663	8.11
+Qwen3-14B Q4_K_M detail	how to grow grass from seed	gardening	oss	True	1.0	0.0	0.0	False	False	1	516	7.79
+Qwen3-14B Q4_K_M detail	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	655	8.95
+Qwen3-14B Q4_K_M detail	how to start a compost pile	household	oss	True	1.0	1.0	0.0	True	True	1	605	8.07
+Qwen3-14B Q4_K_M detail	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	392	5.75
+Qwen3-14B Q4_K_M detail	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	377	5.46
+Qwen3-14B Q4_K_M detail	how to get over jet lag	travel	oss	True	1.0	1.0	0.0	True	False	1	443	6.36
+Qwen3-14B Q4_K_M detail	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	878	12.38
+Qwen3-14B Q4_K_M detail	how to use the paris metro	travel	oss	True	1.0	0.0	0.0	False	False	1	564	8.09
+Qwen3-14B Q4_K_M detail	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	817	11.59
+Qwen3-14B Q4_K_M detail	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	435	6.28
+Qwen3-14B Q4_K_M detail	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	332	4.84
+Qwen3-14B Q4_K_M detail	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	True	1	736	10.45
+Gemma-4-12B QAT Q4_0 detail	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	347	5.99
+Gemma-4-12B QAT Q4_0 detail	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	480	6.9
+Gemma-4-12B QAT Q4_0 detail	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	331	4.8
+Gemma-4-12B QAT Q4_0 detail	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	True	1	397	5.75
+Gemma-4-12B QAT Q4_0 detail	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	469	6.75
+Gemma-4-12B QAT Q4_0 detail	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	1020	14.51
+Gemma-4-12B QAT Q4_0 detail	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	401	5.86
+Gemma-4-12B QAT Q4_0 detail	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	535	7.68
+Gemma-4-12B QAT Q4_0 detail	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	443	6.37
+Gemma-4-12B QAT Q4_0 detail	how to tie a tie	crafts	oss	True	0.0	0.0	0.0	False	False	1	1310	18.49
+Gemma-4-12B QAT Q4_0 detail	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	332	4.84
+Gemma-4-12B QAT Q4_0 detail	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	422	6.13
+Gemma-4-12B QAT Q4_0 detail	how to knit a scarf	crafts	oss	False	0.0	0.0	0.0	False	False	1	841	11.91
+Gemma-4-12B QAT Q4_0 detail	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	True	1	583	8.29
+Gemma-4-12B QAT Q4_0 detail	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	231	3.44
+Gemma-4-12B QAT Q4_0 detail	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	False	1	655	9.21
+Gemma-4-12B QAT Q4_0 detail	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	True	1	828	10.44
+Gemma-4-12B QAT Q4_0 detail	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	1056	13.44
+Gemma-4-12B QAT Q4_0 detail	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	495	6.57
+Gemma-4-12B QAT Q4_0 detail	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	876	10.72
+Gemma-4-12B QAT Q4_0 detail	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	455	5.78
+Gemma-4-12B QAT Q4_0 detail	how to hang a picture on drywall	household	oss	False	0.0	0.0	0.0	False	False	1	605	8.17
+Gemma-4-12B QAT Q4_0 detail	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	True	1	525	7.91
+Gemma-4-12B QAT Q4_0 detail	how to clean a cast iron pan	household	oss	True	1.0	1.0	0.0	True	False	1	745	11.09
+Gemma-4-12B QAT Q4_0 detail	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	961	12.02
+Gemma-4-12B QAT Q4_0 detail	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	615	8.79
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	394	5.8
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	530	7.7
+Gemma-4-12B QAT Q4_0 detail	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	330	4.93
+Gemma-4-12B QAT Q4_0 detail	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	False	1	501	7.53
+Gemma-4-12B QAT Q4_0 detail	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	689	10.13
+Gemma-4-12B QAT Q4_0 detail	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	True	1	562	8.23
+Gemma-4-12B QAT Q4_0 detail	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	249	3.7
+Gemma-4-12B QAT Q4_0 detail	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	467	6.94
+Gemma-4-12B QAT Q4_0 detail	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	242	3.64
+Gemma-4-12B QAT Q4_0 detail	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	True	1	974	14.13
+Gemma-4-12B QAT Q4_0 detail	how to grow grass from seed	gardening	oss	True	1.0	0.0	0.0	False	False	1	1075	15.67
+Gemma-4-12B QAT Q4_0 detail	how to remove dandelions from a lawn	gardening	oss	True	1.0	0.0	1.0	False	False	1	1021	15.1
+Gemma-4-12B QAT Q4_0 detail	how to start a compost pile	household	oss	True	0.0	0.0	0.0	False	False	1	637	9.43
+Gemma-4-12B QAT Q4_0 detail	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	546	8.01
+Gemma-4-12B QAT Q4_0 detail	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	523	7.69
+Gemma-4-12B QAT Q4_0 detail	how to get over jet lag	travel	oss	True	1.0	0.0	0.0	False	False	1	517	7.61
+Gemma-4-12B QAT Q4_0 detail	how to get from narita airport to tokyo	travel	oss	True	0.0	0.0	0.0	False	False	1	454	6.72
+Gemma-4-12B QAT Q4_0 detail	how to use the paris metro	travel	oss	True	0.0	0.0	1.0	False	False	1	780	11.51
+Gemma-4-12B QAT Q4_0 detail	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	736	10.91
+Gemma-4-12B QAT Q4_0 detail	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	453	6.74
+Gemma-4-12B QAT Q4_0 detail	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	594	8.9
+Gemma-4-12B QAT Q4_0	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	411	6.1
+Gemma-4-12B QAT Q4_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	510	7.29
+Gemma-4-12B QAT Q4_0	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	False	1	509	6.49
+Gemma-4-12B QAT Q4_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	411	5.31
+Gemma-4-12B QAT Q4_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	661	8.39
+Gemma-4-12B QAT Q4_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	False	1	595	7.62
+Gemma-4-12B QAT Q4_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	False	1	345	4.33
+Gemma-4-12B QAT Q4_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	479	5.98
+Gemma-4-12B QAT Q4_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	351	4.39
+Gemma-4-12B QAT Q4_0	how to tie a tie	crafts	oss	True	0.0	0.0	0.0	False	True	2	3128	38.09
+Gemma-4-12B QAT Q4_0	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	692	8.46
+Gemma-4-12B QAT Q4_0	how to fold a paper airplane	crafts	oss	True	0.0	0.0	0.0	False	False	1	279	3.48
+Gemma-4-12B QAT Q4_0	how to sew a button	crafts	oss	True	1.0	1.0	0.0	True	False	1	527	6.51
+Gemma-4-12B QAT Q4_0	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	False	1	427	5.3
+Gemma-4-12B QAT Q4_0	how to crochet a chain stitch	crafts	oss	True	0.0	0.0	0.0	False	False	1	447	5.7
+Gemma-4-12B QAT Q4_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	368	4.59
+Gemma-4-12B QAT Q4_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	517	6.39
+Gemma-4-12B QAT Q4_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	651	8.05
+Gemma-4-12B QAT Q4_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	592	8.21
+Gemma-4-12B QAT Q4_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	529	8.1
+Gemma-4-12B QAT Q4_0	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	942	14.16
+Gemma-4-12B QAT Q4_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	419	6.34
+Gemma-4-12B QAT Q4_0	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	False	2	2516	37.47
+Gemma-4-12B QAT Q4_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	False	1	378	5.71
+Gemma-4-12B QAT Q4_0	how to clean a cast iron pan	household	oss	True	0.0	0.0	0.0	False	False	1	673	10.06
+Gemma-4-12B QAT Q4_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	563	8.38
+Gemma-4-12B QAT Q4_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	889	13.32
+Gemma-4-12B QAT Q4_0	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	712	10.65
+Gemma-4-12B QAT Q4_0	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	447	6.76
+Gemma-4-12B QAT Q4_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	262	3.94
+Gemma-4-12B QAT Q4_0	how to set up a new wifi router	software	oss	False	1.0	0.0	0.0	False	False	1	703	10.49
+Gemma-4-12B QAT Q4_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	274	4.3
+Gemma-4-12B QAT Q4_0	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	False	1	308	4.61
+Gemma-4-12B QAT Q4_0	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	305	4.68
+Gemma-4-12B QAT Q4_0	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	710	10.67
+Gemma-4-12B QAT Q4_0	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	243	3.73
+Gemma-4-12B QAT Q4_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	554	8.43
+Gemma-4-12B QAT Q4_0	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	473	7.18
+Gemma-4-12B QAT Q4_0	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	769	11.51
+Gemma-4-12B QAT Q4_0	how to start a compost pile	household	oss	True	0.0	0.0	0.0	False	False	1	693	10.72
+Gemma-4-12B QAT Q4_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	524	7.89
+Gemma-4-12B QAT Q4_0	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	300	4.59
+Gemma-4-12B QAT Q4_0	how to get over jet lag	travel	oss	True	0.0	0.0	0.0	False	False	1	321	4.82
+Gemma-4-12B QAT Q4_0	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	468	7.09
+Gemma-4-12B QAT Q4_0	how to use the paris metro	travel	oss	True	0.0	0.0	0.0	False	False	1	467	6.97
+Gemma-4-12B QAT Q4_0	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	325	5.12
+Gemma-4-12B QAT Q4_0	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	False	1	627	9.36
+Gemma-4-12B QAT Q4_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	528	8.07
+Gemma-4-12B QAT Q4_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	414	6.24
+Gemma-4-31B Q8_0 detail	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	292	4.58
+Gemma-4-31B Q8_0 detail	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	539	8.14
+Gemma-4-31B Q8_0 detail	how to cook rice	cooking	oss	True	0.0	0.0	0.0	False	False	1	466	7.11
+Gemma-4-31B Q8_0 detail	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	True	1	468	7.12
+Gemma-4-31B Q8_0 detail	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	625	9.39
+Gemma-4-31B Q8_0 detail	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	534	8.01
+Gemma-4-31B Q8_0 detail	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	295	4.54
+Gemma-4-31B Q8_0 detail	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	398	6.02
+Gemma-4-31B Q8_0 detail	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	436	6.6
+Gemma-4-31B Q8_0 detail	how to tie a tie	crafts	oss	True	0.0	0.0	0.0	False	False	1	541	8.24
+Gemma-4-31B Q8_0 detail	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	True	1	1126	16.77
+Gemma-4-31B Q8_0 detail	how to fold a paper airplane	crafts	oss	True	1.0	1.0	0.0	True	True	1	633	9.45
+Gemma-4-31B Q8_0 detail	how to sew a button	crafts	oss	True	0.0	0.0	0.0	False	False	1	906	13.74
+Gemma-4-31B Q8_0 detail	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	False	1	1195	17.92
+Gemma-4-31B Q8_0 detail	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	True	1	607	9.21
+Gemma-4-31B Q8_0 detail	how to make an origami crane	crafts	oss	False	0.0	0.0	1.0	False	False	1	357	5.57
+Gemma-4-31B Q8_0 detail	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	296	4.61
+Gemma-4-31B Q8_0 detail	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	True	1	672	10.14
+Gemma-4-31B Q8_0 detail	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	637	9.59
+Gemma-4-31B Q8_0 detail	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	False	1	496	7.59
+Gemma-4-31B Q8_0 detail	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	583	8.91
+Gemma-4-31B Q8_0 detail	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	False	1	860	12.93
+Gemma-4-31B Q8_0 detail	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	False	1	194	3.06
+Gemma-4-31B Q8_0 detail	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	762	11.46
+Gemma-4-31B Q8_0 detail	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	596	9.07
+Gemma-4-31B Q8_0 detail	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	643	9.7
+Gemma-4-31B Q8_0 detail	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	411	6.35
+Gemma-4-31B Q8_0 detail	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	492	7.5
+Gemma-4-31B Q8_0 detail	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	359	5.5
+Gemma-4-31B Q8_0 detail	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	585	8.83
+Gemma-4-31B Q8_0 detail	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	2	2455	37.05
+Gemma-4-31B Q8_0 detail	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	True	1	387	5.87
+Gemma-4-31B Q8_0 detail	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	392	6.02
+Gemma-4-31B Q8_0 detail	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	299	4.89
+Gemma-4-31B Q8_0 detail	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	243	3.76
+Gemma-4-31B Q8_0 detail	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	677	10.09
+Gemma-4-31B Q8_0 detail	how to grow grass from seed	gardening	oss	True	1.0	0.0	0.0	False	False	1	609	9.14
+Gemma-4-31B Q8_0 detail	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	788	11.9
+Gemma-4-31B Q8_0 detail	how to start a compost pile	household	oss	True	0.0	0.0	0.0	False	False	1	973	14.7
+Gemma-4-31B Q8_0 detail	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	338	4.99
+Gemma-4-31B Q8_0 detail	how to pack a suitcase	travel	oss	True	1.0	1.0	0.0	True	False	1	946	13.75
+Gemma-4-31B Q8_0 detail	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	596	7.37
+Gemma-4-31B Q8_0 detail	how to use the paris metro	travel	oss	True	0.0	0.0	1.0	False	False	1	581	7.06
+Gemma-4-31B Q8_0 detail	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	507	6.52
+Gemma-4-31B Q8_0 detail	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	False	1	678	8.47
+Gemma-4-31B Q8_0 detail	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	686	8.82
+Gemma-4-31B Q8_0 detail	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	444	5.55
+Gemma-4-31B Q8_0	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	307	3.82
+Gemma-4-31B Q8_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	633	7.72
+Gemma-4-31B Q8_0	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	458	5.57
+Gemma-4-31B Q8_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	346	4.27
+Gemma-4-31B Q8_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	638	7.76
+Gemma-4-31B Q8_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	428	5.23
+Gemma-4-31B Q8_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	False	1	331	4.09
+Gemma-4-31B Q8_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	526	6.4
+Gemma-4-31B Q8_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	461	5.62
+Gemma-4-31B Q8_0	how to tie a tie	crafts	oss	True	0.0	1.0	0.0	False	True	1	1023	12.31
+Gemma-4-31B Q8_0	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	False	1	602	7.3
+Gemma-4-31B Q8_0	how to fold a paper airplane	crafts	oss	True	0.0	1.0	0.0	False	False	1	822	9.92
+Gemma-4-31B Q8_0	how to sew a button	crafts	oss	True	1.0	1.0	0.0	True	False	1	617	7.53
+Gemma-4-31B Q8_0	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	False	1	529	6.46
+Gemma-4-31B Q8_0	how to crochet a chain stitch	crafts	oss	True	0.0	0.0	0.0	False	False	1	397	4.89
+Gemma-4-31B Q8_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	448	5.51
+Gemma-4-31B Q8_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	325	4.03
+Gemma-4-31B Q8_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	472	5.71
+Gemma-4-31B Q8_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	470	5.71
+Gemma-4-31B Q8_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	False	1	585	7.11
+Gemma-4-31B Q8_0	how to fix a running toilet	household	oss	True	0.0	0.0	0.0	False	False	1	154	1.99
+Gemma-4-31B Q8_0	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	580	7.05
+Gemma-4-31B Q8_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	448	5.47
+Gemma-4-31B Q8_0	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	True	1	852	10.29
+Gemma-4-31B Q8_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	True	1	773	9.33
+Gemma-4-31B Q8_0	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	744	9.01
+Gemma-4-31B Q8_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	True	1	462	5.66
+Gemma-4-31B Q8_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	343	4.21
+Gemma-4-31B Q8_0	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	287	3.59
+Gemma-4-31B Q8_0	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	483	5.87
+Gemma-4-31B Q8_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	317	3.96
+Gemma-4-31B Q8_0	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	False	1	462	6.06
+Gemma-4-31B Q8_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	584	7.17
+Gemma-4-31B Q8_0	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	False	1	341	4.31
+Gemma-4-31B Q8_0	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	326	4.06
+Gemma-4-31B Q8_0	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	358	4.7
+Gemma-4-31B Q8_0	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	230	2.89
+Gemma-4-31B Q8_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	641	7.92
+Gemma-4-31B Q8_0	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	411	5.08
+Gemma-4-31B Q8_0	how to remove dandelions from a lawn	gardening	oss	True	0.0	0.0	1.0	False	False	1	697	8.6
+Gemma-4-31B Q8_0	how to start a compost pile	household	oss	True	0.0	0.0	0.0	False	False	1	680	8.61
+Gemma-4-31B Q8_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	508	7.37
+Gemma-4-31B Q8_0	how to pack a suitcase	travel	oss	True	0.0	0.0	0.0	False	False	1	851	12.11
+Gemma-4-31B Q8_0	how to get over jet lag	travel	oss	True	0.0	0.0	0.0	False	False	1	429	6.16
+Gemma-4-31B Q8_0	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	775	10.95
+Gemma-4-31B Q8_0	how to use the paris metro	travel	oss	True	1.0	0.0	0.0	False	False	1	541	7.78
+Gemma-4-31B Q8_0	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	480	6.88
+Gemma-4-31B Q8_0	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	424	6.26
+Gemma-4-31B Q8_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	1.0	False	False	1	650	9.24
+Gemma-4-31B Q8_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	372	5.36
+Qwen3.8-27B Q8_0 detail	how to make whipped cream	cooking	oss	True	0.0	1.0	0.0	False	False	1	488	7.06
+Qwen3.8-27B Q8_0 detail	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	632	9.12
+Qwen3.8-27B Q8_0 detail	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	True	1	480	6.92
+Qwen3.8-27B Q8_0 detail	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	742	10.62
+Qwen3.8-27B Q8_0 detail	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	345	5.06
+Qwen3.8-27B Q8_0 detail	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	524	7.5
+Qwen3.8-27B Q8_0 detail	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	True	1	585	8.46
+Qwen3.8-27B Q8_0 detail	how to make a roux	cooking	oss	True	0.0	1.0	0.0	False	True	1	1339	18.93
+Qwen3.8-27B Q8_0 detail	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	324	4.74
+Qwen3.8-27B Q8_0 detail	how to fold a paper airplane	crafts	oss	True	1.0	1.0	0.0	True	False	1	1028	14.53
+Qwen3.8-27B Q8_0 detail	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	True	1	752	10.75
+Qwen3.8-27B Q8_0 detail	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	True	1	486	6.97
+Qwen3.8-27B Q8_0 detail	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	333	4.89
+Qwen3.8-27B Q8_0 detail	how to fix a running toilet	household	oss	True	0.0	0.0	0.0	False	False	1	340	4.94
+Qwen3.8-27B Q8_0 detail	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	1024	14.54
+Qwen3.8-27B Q8_0 detail	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	True	1	395	5.76
+Qwen3.8-27B Q8_0 detail	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	False	1	447	6.48
+Qwen3.8-27B Q8_0 detail	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	488	7.03
+Qwen3.8-27B Q8_0 detail	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	774	11.03
+Qwen3.8-27B Q8_0 detail	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	641	9.26
+Qwen3.8-27B Q8_0 detail	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	996	14.11
+Qwen3.8-27B Q8_0 detail	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	449	6.52
+Qwen3.8-27B Q8_0 detail	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	False	1	986	14.02
+Qwen3.8-27B Q8_0 detail	how to unzip a file on windows	household	oss	False	0.0	0.0	0.0	False	True	1	455	6.63
+Qwen3.8-27B Q8_0 detail	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	607	8.69
+Qwen3.8-27B Q8_0 detail	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	468	6.0
+Qwen3.8-27B Q8_0 detail	how to prune tomato plants	gardening	oss	True	0.0	0.0	1.0	False	False	1	687	8.63
+Qwen3.8-27B Q8_0 detail	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	794	9.67
+Qwen3.8-27B Q8_0 detail	how to remove dandelions from a lawn	gardening	oss	True	1.0	0.0	0.0	False	False	1	1146	14.03
+Qwen3.8-27B Q8_0 detail	how to start a compost pile	household	oss	True	0.0	0.0	0.0	False	False	1	811	10.22
+Qwen3.8-27B Q8_0 detail	how to prune a rose bush	gardening	oss	True	0.0	0.0	0.0	False	False	1	551	6.89
+Qwen3.8-27B Q8_0 detail	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	493	6.29
+Qwen3.8-27B Q8_0 detail	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	False	1	516	6.65
+Qwen3.8-27B Q8_0 detail	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	596	7.56
+Qwen3.8-27B Q8_0 detail	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	440	5.41
+Qwen3.8-27B Q8_0	how to make whipped cream	cooking	oss	True	0.0	1.0	0.0	False	False	1	451	5.71
+Qwen3.8-27B Q8_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	692	8.67
+Qwen3.8-27B Q8_0	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	False	1	564	6.82
+Qwen3.8-27B Q8_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	547	6.72
+Qwen3.8-27B Q8_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	884	10.72
+Qwen3.8-27B Q8_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	True	1	465	5.71
+Qwen3.8-27B Q8_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	False	1	421	5.13
+Qwen3.8-27B Q8_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	328	4.11
+Qwen3.8-27B Q8_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	523	6.33
+Qwen3.8-27B Q8_0	how to tie a tie	crafts	oss	True	0.0	0.0	0.0	False	False	1	1070	12.97
+Qwen3.8-27B Q8_0	how to tie a bow tie	crafts	oss	False	1.0	1.0	0.0	True	True	1	1227	14.72
+Qwen3.8-27B Q8_0	how to fold a paper airplane	crafts	oss	True	1.0	1.0	0.0	True	False	1	607	7.42
+Qwen3.8-27B Q8_0	how to sew a button	crafts	oss	True	0.0	1.0	0.0	False	True	1	873	10.58
+Qwen3.8-27B Q8_0	how to knit a scarf	crafts	oss	False	0.0	1.0	0.0	False	False	1	921	11.16
+Qwen3.8-27B Q8_0	how to crochet a chain stitch	crafts	oss	True	0.0	1.0	0.0	False	False	1	882	10.64
+Qwen3.8-27B Q8_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	729	8.87
+Qwen3.8-27B Q8_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	False	1	531	6.51
+Qwen3.8-27B Q8_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	510	6.17
+Qwen3.8-27B Q8_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	True	1	490	6.0
+Qwen3.8-27B Q8_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	900	10.86
+Qwen3.8-27B Q8_0	how to fix a running toilet	household	oss	True	0.0	0.0	1.0	False	False	1	176	2.25
+Qwen3.8-27B Q8_0	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	True	1	1019	12.27
+Qwen3.8-27B Q8_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	737	8.96
+Qwen3.8-27B Q8_0	how to hang a picture on drywall	household	oss	False	1.0	1.0	0.0	True	False	1	975	11.93
+Qwen3.8-27B Q8_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	False	1	240	3.29
+Qwen3.8-27B Q8_0	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	733	9.08
+Qwen3.8-27B Q8_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	1082	13.44
+Qwen3.8-27B Q8_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	488	8.75
+Qwen3.8-27B Q8_0	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	542	7.07
+Qwen3.8-27B Q8_0	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	1	468	5.9
+Qwen3.8-27B Q8_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	315	4.0
+Qwen3.8-27B Q8_0	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	594	7.3
+Qwen3.8-27B Q8_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	570	7.03
+Qwen3.8-27B Q8_0	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	False	1	400	4.92
+Qwen3.8-27B Q8_0	how to unzip a file on windows	household	oss	False	0.0	0.0	0.0	False	True	1	395	4.97
+Qwen3.8-27B Q8_0	how to back up an iphone	software	oss	False	1.0	1.0	0.0	True	True	1	419	5.2
+Qwen3.8-27B Q8_0	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	242	3.02
+Qwen3.8-27B Q8_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	0.0	False	False	1	1375	16.55
+Qwen3.8-27B Q8_0	how to grow grass from seed	gardening	oss	True	0.0	0.0	0.0	False	False	1	818	9.92
+Qwen3.8-27B Q8_0	how to remove dandelions from a lawn	gardening	oss	True	1.0	0.0	0.0	False	False	1	1119	13.49
+Qwen3.8-27B Q8_0	how to start a compost pile	household	oss	True	0.0	0.0	0.0	False	False	1	616	7.56
+Qwen3.8-27B Q8_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	734	8.96
+Qwen3.8-27B Q8_0	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	479	5.92
+Qwen3.8-27B Q8_0	how to get over jet lag	travel	oss	True	1.0	0.0	0.0	False	False	1	356	4.49
+Qwen3.8-27B Q8_0	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	917	11.09
+Qwen3.8-27B Q8_0	how to do long division	school	oss	True	1.0	1.0	0.0	True	True	2	2816	34.27
+Qwen3.8-27B Q8_0	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	499	6.3
+Qwen3.8-27B Q8_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	573	7.33
+Qwen3.8-27B Q8_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	False	1	382	4.98

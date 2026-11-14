@@ -1,0 +1,401 @@
+query	category	expected	set	stratum	split	entity
+chrome	site	google.com	maker-product	views-rank:1-100,site:other	dev	googlechrome
+world service	site	bbcworldservice.com	maker-product	views-rank:1-100,site:other	test	bbcworldservice
+maps	site	google.com	maker-product	views-rank:1-100,site:other	dev	googlemaps
+switch 2	site	nintendo.com	maker-product	views-rank:1-100,site:other	dev	nintendoswitch2
+drive	site	drive.google.com|google.com	maker-product	views-rank:1-100,site:subdomain	test	googledrive
+translate	site	translate.google.com	maker-product	views-rank:1-100,site:subdomain	dev	googletranslate
+gemini	site	gemini.google.com	maker-product	views-rank:1-100,site:subdomain	test	googlegemini
+switch	site	nintendo.co.jp|nintendo.com	maker-product	views-rank:1-100,site:other	dev	nintendoswitch
+hot 100	site	billboard.com	maker-product	views-rank:1-100,site:other	test	billboardhot100
+windows	site	windows.com	maker-product	views-rank:1-100,site:other	dev	microsoftwindows
+an-225 mriya	site	antonov.com	maker-product	views-rank:1-100,site:other	test	antonovan225mriya
+play	site	play.google.com	maker-product	views-rank:1-100,site:subdomain	dev	googleplay
+starship	site	spacex.com	maker-product	views-rank:1-100,site:other	dev	spacexstarship
+737 max	site	boeing.com	maker-product	views-rank:1-100,site:other	test	boeing737max
+c-17 globemaster iii	site	boeing.com	maker-product	views-rank:1-100,site:other	dev	boeingc17globemasteriii
+canal	site	suezcanal.gov.eg	maker-product	views-rank:1-100,site:other	test	suezcanal
+earth	site	earth.google.com	maker-product	views-rank:1-100,site:subdomain	test	googleearth
+prime video	site	primevideo.com	maker-product	views-rank:1-100,site:other	dev	amazonprimevideo
+hilux	site	toyota.jp	maker-product	views-rank:1-100,site:other	test	toyotahilux
+ch-47 chinook	site	boeing.com	maker-product	views-rank:1-100,site:other	dev	boeingch47chinook
+news	site	foxnews.com	maker-product	views-rank:1-100,site:other	test	foxnews
+rav4	site	toyota.com	maker-product	views-rank:1-100,site:other	test	toyotarav4
+777x	site	boeing.com	maker-product	views-rank:1-100,site:other	dev	boeing777x
+hk416	site	heckler-koch.com	maker-product	views-rank:1-100,site:other	test	hecklerkochhk416
+word	site	word.cloud.microsoft	maker-product	views-rank:1-100,site:subdomain	test	microsoftword
+mp5	site	heckler-koch.com	maker-product	views-rank:1-100,site:other	test	hecklerkochmp5
+su-35	site	sukhoi.org	maker-product	views-rank:1-100,site:other	test	sukhoisu35
+teams	site	teams.microsoft.com	maker-product	views-rank:1-100,site:subdomain	test	microsoftteams
+scholar	site	scholar.google.com	maker-product	views-rank:1-100,site:subdomain	dev	googlescholar
+watch	site	apple.com	maker-product	views-rank:1-100,site:other	test	applewatch
+racing	site	redbullracing.com	maker-product	views-rank:1-100,site:other	test	redbullracing
+deepmind	site	deepmind.google	maker-product	views-rank:1-100,site:other	dev	googledeepmind
+spitfire	site	raf.mod.uk	maker-product	views-rank:1-100,site:other	dev	supermarinespitfire
+security council	site	un.org	maker-product	views-rank:1-100,site:other	test	unitednationssecuritycouncil
+copilot	site	copilot.com	maker-product	views-rank:1-100,site:other	test	microsoftcopilot
+camry	site	toyota-global.com|toyota.ua	maker-product	views-rank:1-100,site:other	test	toyotacamry
+docs	site	google.com	maker-product	views-rank:1-100,site:other	test	googledocs
+supra	site	toyota.co.uk|toyota.jp	maker-product	views-rank:1-100,site:other	test	toyotasupra
+office	site	office.com	maker-product	views-rank:1-100,site:other	dev	microsoftoffice
+excel	site	products.office.com	maker-product	views-rank:1-100,site:other	dev	microsoftexcel
+cayenne	site	porsche.com	maker-product	views-rank:1-100,site:other	test	porschecayenne
+an-124 ruslan	site	antonov.com	maker-product	views-rank:1-100,site:other	test	antonovan124ruslan
+champions cup	site	concacaf.com	maker-product	views-rank:1-100,site:other	test	concacafchampionscup
+airways	site	qatarairways.com	maker-product	views-rank:1-100,site:other	test	qatarairways
+bing	site	bing.com	maker-product	views-rank:1-100,site:other	test	microsoftbing
+maps	site	maps.apple.com	maker-product	views-rank:1-100,site:subdomain	dev	applemaps
+cybertruck	site	tesla.com	maker-product	views-rank:1-100,site:other	dev	teslacybertruck
+atlantic	site	virginatlantic.com	maker-product	views-rank:1-100,site:other	test	virginatlantic
+pictures	site	sonypictures.net	maker-product	views-rank:1-100,site:other	dev	sonypictures
+model y	site	tesla.com	maker-product	views-rank:1-100,site:other	test	teslamodely
+kids	site	pbskids.org	maker-product	views-rank:1-100,site:other	dev	pbskids
+outlook	site	outlook.office.com	maker-product	views-rank:1-100,site:subdomain	test	microsoftoutlook
+photos	site	photos.google.com	maker-product	views-rank:1-100,site:subdomain	dev	googlephotos
+yaris	site	toyota.fr	maker-product	views-rank:1-100,site:other	test	toyotayaris
+g36	site	heckler-koch.com	maker-product	views-rank:1-100,site:other	dev	hecklerkochg36
+mail	site	proton.me	maker-product	views-rank:1-100,site:other	dev	protonmail
+century	site	toyota.jp	maker-product	views-rank:1-100,site:other	test	toyotacentury
+roadster	site	tesla.com	maker-product	views-rank:1-100,site:other	dev	teslaroadstersecondgeneration
+3 series	site	bmw.com	maker-product	views-rank:1-100,site:other	dev	bmw3seriesf30
+pictures animation	site	sonypicturesanimation.com	maker-product	views-rank:1-100,site:other	test	sonypicturesanimation
+c919	site	comac.cc	maker-product	views-rank:1-100,site:other	dev	comacc919
+snapdragon	site	qualcomm.com	maker-product	views-rank:1-100,site:other	test	qualcommsnapdragon
+mail	site	mail.yahoo.com	maker-product	views-rank:1-100,site:subdomain	dev	yahoomail
+global 500	site	fortune.com	maker-product	views-rank:1-100,site:other	dev	fortuneglobal500
+jimny	site	globalsuzuki.com	maker-product	views-rank:1-100,site:other	dev	suzukijimny
+countach	site	lamborghini.com	maker-product	views-rank:1-100,site:other	dev	lamborghinicountach
+forester	site	subaru.com	maker-product	views-rank:1-100,site:other	test	subaruforester
+swift	site	globalsuzuki.com	maker-product	views-rank:1-100,site:other	test	suzukiswift
+motors	site	mitsubishi-motors.com	maker-product	views-rank:1-100,site:other	dev	mitsubishimotors
+ea-18g growler	site	boeing.com	maker-product	views-rank:1-100,site:other	test	boeingea18ggrowler
+classroom	site	classroom.google.com	maker-product	views-rank:1-100,site:subdomain	test	googleclassroom
+model 3	site	tesla.com	maker-product	views-rank:1-100,site:other	test	teslamodel3
+highlander	site	toyota.com	maker-product	views-rank:1-100,site:other	test	toyotahighlander
+cx-5	site	mazdausa.com	maker-product	views-rank:1-100,site:other	dev	mazdacx5
+animation	site	warnerbrospicturesanimation.com	maker-product	views-rank:1-100,site:other	dev	warnerbrospicturesanimation
+passat	site	vw.com	maker-product	views-rank:1-100,site:other	dev	volkswagenpassat
+news	site	bbc.co.uk|bbc.com	maker-product	views-rank:1-100,site:other	dev	bbcnews
+hynix	site	skhynix.com	maker-product	views-rank:1-100,site:other	dev	skhynix
+aventador	site	lamborghini.com	maker-product	views-rank:1-100,site:other	dev	lamborghiniaventador
+fortuner	site	toyota.com.ph	maker-product	views-rank:1-100,site:other	test	toyotafortuner
+corolla cross	site	toyota.com|toyota.jp	maker-product	views-rank:1-100,site:other	test	toyotacorollacross
+urus	site	lamborghini.com	maker-product	views-rank:1-100,site:other	dev	lamborghiniurus
+tundra	site	toyota.com	maker-product	views-rank:1-100,site:other	test	toyotatundra
+galaxy fold	site	samsung.com	maker-product	views-rank:1-100,site:other	dev	samsunggalaxyfold
+world	site	lotteworld.com	maker-product	views-rank:1-100,site:other	dev	lotteworld
+city	site	honda.co.th	maker-product	views-rank:1-100,site:other	dev	hondacity
+panamera	site	porsche.com	maker-product	views-rank:1-100,site:other	dev	porschepanamera
+sorento	site	kia.com	maker-product	views-rank:1-100,site:other	dev	kiasorento
+powerpoint	site	powerpoint.cloud.microsoft	maker-product	views-rank:1-100,site:subdomain	test	microsoftpowerpoint
+sportage	site	kia.com	maker-product	views-rank:1-100,site:other	dev	kiasportage
+alphard	site	toyota.jp	maker-product	views-rank:1-100,site:other	test	toyotaalphard
+vitara	site	globalsuzuki.com	maker-product	views-rank:1-100,site:other	dev	suzukivitara
+sprinter	site	mbvans.com	maker-product	views-rank:1-100,site:other	test	mercedesbenzsprinter
+model s	site	tesla.com	maker-product	views-rank:1-100,site:other	dev	teslamodels
+touareg	site	web.archive.org	maker-product	views-rank:1-100,site:other	test	volkswagentouareg
+continental gt	site	continentalgt.com	maker-product	views-rank:1-100,site:other	dev	bentleycontinentalgt
+express	site	airindiaexpress.in	maker-product	views-rank:1-100,site:other	test	airindiaexpress
+sienna	site	toyota.com	maker-product	views-rank:1-100,site:other	test	toyotasienna
+corsa	site	opel.it	maker-product	views-rank:1-100,site:other	test	opelcorsa
+street view	site	google.com	maker-product	views-rank:1-100,site:other	dev	googlestreetview
+sl-class	site	www5.mercedes-benz.com	maker-product	views-rank:101+,site:other	test	mercedesbenzslclass
+leaf	site	leaf.nissan.fr|nissanusa.com	maker-product	views-rank:101+,site:subdomain	dev	nissanleaf
+flash	site	adobe.com	maker-product	views-rank:101+,site:other	dev	adobeflash
+bloomington	site	bloomington.iu.edu	maker-product	views-rank:101+,site:subdomain	test	indianauniversitybloomington
+alto	site	suzuki.co.jp	maker-product	views-rank:101+,site:other	test	suzukialto
+altima	site	nissan-global.com	maker-product	views-rank:101+,site:other	dev	nissanaltima
+revuelto	site	lamborghini.com	maker-product	views-rank:101+,site:other	test	lamborghinirevuelto
+qashqai	site	nissan.com.au	maker-product	views-rank:101+,site:other	dev	nissanqashqai
+air	site	iranair.com	maker-product	views-rank:101+,site:other	test	iranair
+macan	site	porsche.com	maker-product	views-rank:101+,site:other	dev	porschemacan
+azure	site	azure.microsoft.com	maker-product	views-rank:101+,site:subdomain	dev	microsoftazure
+panda	site	fiat.com	maker-product	views-rank:101+,site:other	test	fiatpanda
+fj cruiser	site	toyota-global.com	maker-product	views-rank:101+,site:other	dev	toyotafjcruiser
+alexa	site	alexa.amazon.com	maker-product	views-rank:101+,site:subdomain	dev	amazonalexa
+lens	site	lens.google.com	maker-product	views-rank:101+,site:subdomain	test	googlelens
+movies	site	nickelodeonmovies.com	maker-product	views-rank:101+,site:other	dev	nickelodeonmovies
+semi	site	tesla.com	maker-product	views-rank:101+,site:other	dev	teslasemi
+hk417	site	heckler-koch.com	maker-product	views-rank:101+,site:other	dev	hecklerkochhk417
+c-hr	site	toyota.com|toyota.jp	maker-product	views-rank:101+,site:other	dev	toyotachr
+carnival	site	kia.com	maker-product	views-rank:101+,site:other	test	kiacarnival
+auto	site	bajajauto.com	maker-product	views-rank:101+,site:other	dev	bajajauto
+stratocaster	site	fender.com	maker-product	views-rank:101+,site:other	test	fenderstratocaster
+aviation	site	dassault-aviation.com	maker-product	views-rank:101+,site:other	test	dassaultaviation
+compass	site	jeep.com	maker-product	views-rank:101+,site:other	dev	jeepcompass
+glass	site	x.company	maker-product	views-rank:101+,site:other	dev	googleglass
+su-33	site	sukhoi.org	maker-product	views-rank:101+,site:other	test	sukhoisu33
+avalon	site	toyota.com	maker-product	views-rank:101+,site:other	dev	toyotaavalon
+flight simulator	site	flightsimulator.com	maker-product	views-rank:101+,site:other	test	microsoftflightsimulator
+pay	site	pay.google.com	maker-product	views-rank:101+,site:subdomain	test	googlepaypaymentmethod
+stadia	site	stadia.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlestadia
+cfm56	site	cfmaeroengines.com	maker-product	views-rank:101+,site:other	test	cfminternationalcfm56
+intertoto cup	site	en.archive.uefa.com	maker-product	views-rank:101+,site:other	dev	uefaintertotocup
+power bi	site	powerbi.microsoft.com	maker-product	views-rank:101+,site:subdomain	test	microsoftpowerbi
+model x	site	tesla.com	maker-product	views-rank:101+,site:other	test	teslamodelx
+les paul	site	gibson.com	maker-product	views-rank:101+,site:other	test	gibsonlespaul
+maxima	site	nissanusa.com	maker-product	views-rank:101+,site:other	dev	nissanmaxima
+bar	site	marsbar.co.uk	maker-product	views-rank:101+,site:other	dev	marsbar
+taycan	site	porsche.com	maker-product	views-rank:101+,site:other	test	porschetaycan
+vanquish	site	astonmartin.com	maker-product	views-rank:101+,site:other	dev	astonmartinvanquish
+sls amg	site	mercedes-benz.com	maker-product	views-rank:101+,site:other	dev	mercedesbenzslsamg
+bayraktar tb2	site	baykartech.com	maker-product	views-rank:101+,site:other	dev	baykarbayraktartb2
+ibiza	site	seat.com	maker-product	views-rank:101+,site:other	test	seatibiza
+bz4x	site	gac-toyota.com.cn|toyota.com|toyota.de	maker-product	views-rank:101+,site:other	test	toyotabz4x
+forms	site	forms.google.com	maker-product	views-rank:101+,site:subdomain	dev	googleforms
+sf90 stradale	site	ferrari.com	maker-product	views-rank:101+,site:other	test	ferrarisf90stradale
+legacy	site	subaru.com	maker-product	views-rank:101+,site:other	dev	subarulegacy
+workspace	site	workspace.google.com	maker-product	views-rank:101+,site:subdomain	test	googleworkspace
+phaeton	site	web.archive.org	maker-product	views-rank:101+,site:other	dev	volkswagenphaeton
+unplugged	site	mtv.com	maker-product	views-rank:101+,site:other	test	mtvunplugged
+news	site	news.sky.com	maker-product	views-rank:101+,site:subdomain	dev	skynews
+music	site	apple.com|applemusic.apple|music.apple.com	maker-product	views-rank:101+,site:subdomain	test	applemusic
+t-roc	site	volkswagen.cz	maker-product	views-rank:101+,site:other	test	volkswagentroc
+sheets	site	google.com	maker-product	views-rank:101+,site:other	test	googlesheets
+surface	site	microsoft.com	maker-product	views-rank:101+,site:other	test	microsoftsurface
+access	site	microsoft.com	maker-product	views-rank:101+,site:other	test	microsoftaccess
+steel	site	tatasteel.com	maker-product	views-rank:101+,site:other	test	tatasteel
+powertrains	site	redbullpowertrains.com	maker-product	views-rank:101+,site:other	test	redbullpowertrains
+galactic	site	virgingalactic.com	maker-product	views-rank:101+,site:other	dev	virgingalactic
+meet	site	meet.google.com	maker-product	views-rank:101+,site:subdomain	test	googlemeet
+adsense	site	adsense.google.com	maker-product	views-rank:101+,site:subdomain	test	googleadsense
+juke	site	nissan-global.com	maker-product	views-rank:101+,site:other	dev	nissanjuke
+assistant	site	assistant.google.com	maker-product	views-rank:101+,site:subdomain	dev	googleassistant
+television	site	sonypicturestelevision.com	maker-product	views-rank:101+,site:other	dev	sonypicturestelevision
+radio 4	site	bbc.co.uk	maker-product	views-rank:101+,site:other	dev	bbcradio4
+mobility	site	kg-mobility.com	maker-product	views-rank:101+,site:other	dev	kgmobility
+ads	site	ads.google.com	maker-product	views-rank:101+,site:subdomain	dev	googleads
+rio	site	kia.com	maker-product	views-rank:101+,site:other	test	kiario
+starlet	site	toyota.co.za	maker-product	views-rank:101+,site:other	test	toyotastarlet
+mini	site	opera.com	maker-product	views-rank:101+,site:other	test	operamini
+database	site	oracle.com	maker-product	views-rank:101+,site:other	dev	oracledatabase
+telecaster	site	fender.com	maker-product	views-rank:101+,site:other	dev	fendertelecaster
+paint	site	microsoft.com	maker-product	views-rank:101+,site:other	test	microsoftpaint
+bentayga	site	bentayga.bentleymotors.com	maker-product	views-rank:101+,site:subdomain	test	bentleybentayga
+agera	site	web.archive.org	maker-product	views-rank:101+,site:other	dev	koenigseggagera
+twizy	site	renault.fr	maker-product	views-rank:101+,site:other	test	renaulttwizy
+global 2000	site	forbes.com	maker-product	views-rank:101+,site:other	test	forbesglobal2000
+cx-30	site	changan-mazda.com.cn|mazdausa.com	maker-product	views-rank:101+,site:other	dev	mazdacx30
+metro	site	tokyometro.jp	maker-product	views-rank:101+,site:other	test	tokyometro
+sports	site	skysports.com	maker-product	views-rank:101+,site:other	test	skysports
+punto	site	fiat.it	maker-product	views-rank:101+,site:other	dev	fiatpunto
+solaris	site	oracle.com	maker-product	views-rank:101+,site:other	dev	oraclesolaris
+giulia	site	alfaromeo.it	maker-product	views-rank:101+,site:other	test	alfaromeogiulia2015
+radio 1	site	bbc.co.uk	maker-product	views-rank:101+,site:other	test	bbcradio1
+eats	site	ubereats.com	maker-product	views-rank:101+,site:other	dev	ubereats
+publisher	site	microsoft.com|products.office.com	maker-product	views-rank:101+,site:other	dev	microsoftpublisher
+news	site	news.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlenews
+search console	site	search.google.com	maker-product	views-rank:101+,site:other	test	googlesearchconsole
+luna	site	amazon.com	maker-product	views-rank:101+,site:other	test	amazonluna
+calendar	site	calendar.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlecalendar
+analytics	site	marketingplatform.google.com	maker-product	views-rank:101+,site:other	dev	googleanalytics
+iplayer	site	bbc.co.uk	maker-product	views-rank:101+,site:other	dev	bbciplayer
+sport	site	bbc.co.uk|bbc.com	maker-product	views-rank:101+,site:other	dev	bbcsport
+mirai	site	toyota.com|toyota.jp	maker-product	views-rank:101+,site:other	test	toyotamirai
+murano	site	nissan-global.com	maker-product	views-rank:101+,site:other	dev	nissanmurano
+world university rankings	site	timeshighereducation.com	maker-product	views-rank:101+,site:other	dev	timeshighereducationworlduniversityrankings
+after effects	site	adobe.com	maker-product	views-rank:101+,site:other	test	adobeaftereffects
+aygo	site	toyota.it|web.archive.org	maker-product	views-rank:101+,site:other	test	toyotaaygo
+games	site	lucasfilm.com	maker-product	views-rank:101+,site:other	dev	lucasfilmgames
+mb-339	site	aermacchi.it	maker-product	views-rank:101+,site:other	test	aermacchimb339
+helicopters	site	airbus.com	maker-product	views-rank:101+,site:other	dev	airbushelicopters
+radio 2	site	bbc.co.uk	maker-product	views-rank:101+,site:other	dev	bbcradio2
+titan	site	nissan-global.com	maker-product	views-rank:101+,site:other	dev	nissantitan
+ignis	site	globalsuzuki.com	maker-product	views-rank:101+,site:other	test	suzukiignis
+live	site	ableton.com	maker-product	views-rank:101+,site:other	test	abletonlive
+ratings	site	spglobal.com	maker-product	views-rank:101+,site:other	test	spglobalratings
+sql server	site	microsoft.com	maker-product	views-rank:101+,site:other	test	microsoftsqlserver
+fc 24	site	ea.com	maker-product	views-rank:101+,site:other	test	easportsfc24
+mobile	site	sonymobile.com	maker-product	views-rank:101+,site:other	dev	sonymobile
+db11	site	db11.astonmartin.com	maker-product	views-rank:101+,site:subdomain	dev	astonmartindb11
+bragantino	site	redbullbragantino.com.br	maker-product	views-rank:101+,site:other	test	redbullbragantino
+dbx	site	astonmartin.com	maker-product	views-rank:101+,site:other	test	astonmartindbx
+bayraktar akinci	site	baykartech.com	maker-product	views-rank:101+,site:other	dev	baykarbayraktarakinci
+trends	site	trends.google.com	maker-product	views-rank:101+,site:subdomain	dev	googletrends
+books	site	books.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlebooks
+project	site	products.office.com	maker-product	views-rank:101+,site:other	dev	microsoftproject
+maya	site	autodesk.com	maker-product	views-rank:101+,site:other	dev	autodeskmaya
+r-class	site	www5.mercedes-benz.com	maker-product	views-rank:101+,site:other	test	mercedesbenzrclass
+chat	site	chat.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlechat
+cityhopper	site	klmcityhopper.nl	maker-product	views-rank:101+,site:other	dev	klmcityhopper
+vive	site	vive.com	maker-product	views-rank:101+,site:other	test	htcvive
+ev6	site	kia.com	maker-product	views-rank:101+,site:other	dev	kiaev6
+nexus	site	google.com	maker-product	views-rank:101+,site:other	test	googlenexus
+airlines	site	antonov-airlines.com	maker-product	views-rank:101+,site:other	test	antonovairlines
+wallet	site	apple.com	maker-product	views-rank:101+,site:other	dev	applewallet
+glk-class	site	www5.mercedes-benz.com	maker-product	views-rank:101+,site:other	test	mercedesbenzglkclass
+sites	site	sites.google.com	maker-product	views-rank:101+,site:subdomain	test	googlesites
+stelvio	site	alfaromeo.it	maker-product	views-rank:101+,site:other	test	alfaromeostelvio
+mx-30	site	mazda.com	maker-product	views-rank:101+,site:other	dev	mazdamx30
+airport	site	hamburg-airport.de	maker-product	views-rank:101+,site:other	dev	hamburgairport
+levante	site	maserati.com|maseratiusa.com	maker-product	views-rank:101+,site:other	test	maseratilevante
+trucks	site	volvotrucks.com|volvotrucks.kr	maker-product	views-rank:101+,site:other	dev	volvotrucks
+aix	site	ibm.com	maker-product	views-rank:101+,site:other	test	ibmaix
+tonale	site	alfaromeo.it	maker-product	views-rank:101+,site:other	dev	alfaromeotonale
+voice	site	google.com	maker-product	views-rank:101+,site:other	test	googlevoice
+e-tron gt	site	audi.de	maker-product	views-rank:101+,site:other	dev	audietrongt
+sports	site	foxsports.com	maker-product	views-rank:101+,site:other	dev	foxsportsunitedstates
+indesign	site	adobe.com	maker-product	views-rank:101+,site:other	test	adobeindesign
+montreal	site	montreal.ubisoft.com	maker-product	views-rank:101+,site:subdomain	dev	ubisoftmontreal
+news	site	bbc.com	maker-product	views-rank:101+,site:other	test	bbcnewsinternationaltvchannel
+network	site	network.wwe.com	maker-product	views-rank:101+,site:subdomain	test	wwenetwork
+visio	site	microsoft.com|office.microsoft.com	maker-product	views-rank:101+,site:other	test	microsoftvisio
+q4 e-tron	site	audi.de	maker-product	views-rank:101+,site:other	dev	audiq4etron
+sesto elemento	site	lamborghini.com	maker-product	views-rank:101+,site:other	test	lamborghinisestoelemento
+eqs	site	mercedes-benz.com	maker-product	views-rank:101+,site:other	dev	mercedesbenzeqs
+motorrad	site	bmw-motorrad.com|bmw-motorrad.de|bmw-motorrad.es|bmw-motorrad.it	maker-product	views-rank:101+,site:other	test	bmwmotorrad
+bora	site	web.archive.org	maker-product	views-rank:101+,site:other	test	volkswagenbora
+power	site	nintendopower.com	maker-product	views-rank:101+,site:other	dev	nintendopower
+metro	site	metro.waw.pl	maker-product	views-rank:101+,site:subdomain	test	warsawmetro
+hangouts	site	hangouts.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlehangouts
+secretariat	site	un.org	maker-product	views-rank:101+,site:other	dev	unitednationssecretariat
+browser	site	browser.yandex.com	maker-product	views-rank:101+,site:subdomain	test	yandexbrowser
+sharan	site	web.archive.org	maker-product	views-rank:101+,site:other	dev	volkswagensharan
+electric	site	klima.mitsubishielectric.com.tr|mitsubishielectric.co.jp|mitsubishielectric.com	maker-product	views-rank:101+,site:other	dev	mitsubishielectric
+one-77	site	astonmartin.com	maker-product	views-rank:101+,site:other	dev	astonmartinone77
+zoe	site	zoe.renault.fr	maker-product	views-rank:101+,site:subdomain	test	renaultzoe
+america	site	virginamerica.com	maker-product	views-rank:101+,site:other	test	virginamerica
+galaxy note 10	site	samsung.com	maker-product	views-rank:101+,site:other	test	samsunggalaxynote10
+railroad	site	alaskarailroad.com	maker-product	views-rank:101+,site:other	dev	alaskarailroad
+linux	site	oracle.com	maker-product	views-rank:101+,site:other	dev	oraclelinux
+onenote	site	products.office.com	maker-product	views-rank:101+,site:other	test	microsoftonenote
+contacts	site	contacts.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlecontacts
+plaza	site	bankofamericaplaza.com	maker-product	views-rank:101+,site:other	dev	bankofamericaplazaatlanta
+store	site	store.epicgames.com	maker-product	views-rank:101+,site:subdomain	dev	epicgamesstore
+browser	site	browser.samsung.com	maker-product	views-rank:101+,site:subdomain	dev	samsungbrowser
+eee pc	site	eeepc.asus.com	maker-product	views-rank:101+,site:subdomain	test	asuseeepc
+cars	site	caterhamcars.com	maker-product	views-rank:101+,site:other	test	caterhamcars
+radio	site	bbc.co.uk	maker-product	views-rank:101+,site:other	dev	bbcradio
+keep	site	keep.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlekeep
+wallet	site	wallet.google	maker-product	views-rank:101+,site:other	test	googlewallet
+350 gt	site	lamborghini.com	maker-product	views-rank:101+,site:other	dev	lamborghini350gt
+forfour	site	smart.com	maker-product	views-rank:101+,site:other	dev	smartforfour
+lupo	site	web.archive.org	maker-product	views-rank:101+,site:other	test	volkswagenlupo
+flight simulator x	site	microsoft.com	maker-product	views-rank:101+,site:other	test	microsoftflightsimulatorx
+video	site	video.google.com	maker-product	views-rank:101+,site:subdomain	test	googlevideo
+an-178	site	antonov.com	maker-product	views-rank:101+,site:other	dev	antonovan178
+airport	site	innsbruck-airport.com	maker-product	views-rank:101+,site:other	test	innsbruckairport
+silverlight	site	microsoft.com	maker-product	views-rank:101+,site:other	dev	microsoftsilverlight
+revit	site	autodesk.com	maker-product	views-rank:101+,site:other	dev	autodeskrevit
+news	site	bbcnews.com	maker-product	views-rank:101+,site:other	test	bbcnewsbritishtvchannel
+public dns	site	developers.google.com	maker-product	views-rank:101+,site:other	test	googlepublicdns
+messages	site	messages.google.com	maker-product	views-rank:101+,site:subdomain	test	googlemessages
+telecom	site	sktelecom.com	maker-product	views-rank:101+,site:other	dev	sktelecom
+500x	site	fiat.it|fiatusa.com	maker-product	views-rank:101+,site:other	test	fiat500x
+wave	site	wave.google.com	maker-product	views-rank:101+,site:subdomain	test	googlewave
+mito	site	alfaromeo.it	maker-product	views-rank:101+,site:other	dev	alfaromeomito
+galaxy note 8	site	samsung.com	maker-product	views-rank:101+,site:other	dev	samsunggalaxynote8
+amsterdam	site	live.euronext.com	maker-product	views-rank:101+,site:other	dev	euronextamsterdam
+music	site	music.amazon.com	maker-product	views-rank:101+,site:subdomain	dev	amazonmusic
+galaxy note 9	site	samsung.com	maker-product	views-rank:101+,site:other	dev	samsunggalaxynote9
+giulietta	site	web.archive.org	maker-product	views-rank:101+,site:other	test	alfaromeogiulietta2010
+groups	site	groups.google.com	maker-product	views-rank:101+,site:subdomain	test	googlegroups
+airlines	site	thomascookairlines.com	maker-product	views-rank:101+,site:other	dev	thomascookairlines
+500l	site	fiat.it	maker-product	views-rank:101+,site:other	dev	fiat500l
+kings	site	bashundharakings.com	maker-product	views-rank:101+,site:other	dev	bashundharakings
+radio 3	site	bbc.co.uk	maker-product	views-rank:101+,site:other	test	bbcradio3
+office 2010	site	products.office.com	maker-product	views-rank:101+,site:other	dev	microsoftoffice2010
+ccr	site	koenigsegg.com	maker-product	views-rank:101+,site:other	test	koenigseggccr
+mobile	site	microsoft.com	maker-product	views-rank:101+,site:other	dev	microsoftmobile
+cityline	site	lufthansacityline.com	maker-product	views-rank:101+,site:other	test	lufthansacityline
+duo	site	duo.google.com	maker-product	views-rank:101+,site:subdomain	dev	googleduo
+one	site	plosone.org	maker-product	views-rank:101+,site:other	dev	plosone
+stadium	site	en.cfmontreal.com	maker-product	views-rank:101+,site:other	test	saputostadium
+metro	site	metro.kyiv.ua	maker-product	views-rank:101+,site:subdomain	dev	kyivmetro
+seicento	site	fiatseicento.com	maker-product	views-rank:101+,site:other	dev	fiatseicento
+hololens	site	learn.microsoft.com	maker-product	views-rank:101+,site:other	dev	microsofthololens
+antara	site	media.gm.com	maker-product	views-rank:101+,site:other	dev	opelantara
+land	site	nintendoland.nintendo.com	maker-product	views-rank:101+,site:other	dev	nintendoland
+finance	site	google.com	maker-product	views-rank:101+,site:other	test	googlefinance
+labs	site	labs.google|labs.google.fr	maker-product	views-rank:101+,site:subdomain	dev	googlelabs
+dome	site	sapporo-dome.co.jp	maker-product	views-rank:101+,site:other	dev	sapporodome
+trusteeship council	site	un.org	maker-product	views-rank:101+,site:other	dev	unitednationstrusteeshipcouncil
+cargo	site	lufthansa-cargo.com	maker-product	views-rank:101+,site:other	dev	lufthansacargo
+alenia space	site	thalesaleniaspace.com	maker-product	views-rank:101+,site:other	dev	thalesaleniaspace
+hop	site	hop.fr	maker-product	views-rank:101+,site:other	dev	airfrancehop
+eos 60d	site	canon.es	maker-product	views-rank:101+,site:other	test	canoneos60d
+arena	site	astanaarena.kz	maker-product	views-rank:101+,site:other	dev	astanaarena
+alba	site	bbc.co.uk	maker-product	views-rank:101+,site:other	test	bbcalba
+news	site	news.yahoo.com	maker-product	views-rank:101+,site:subdomain	test	yahoonews
+mahanakhon	site	kingpowermahanakhon.co.th	maker-product	views-rank:101+,site:other	dev	kingpowermahanakhon
+paris	site	live.euronext.com	maker-product	views-rank:101+,site:other	test	euronextparis
+eos 600d	site	canon.es	maker-product	views-rank:101+,site:other	dev	canoneos600d
+reader	site	google.com	maker-product	views-rank:101+,site:other	dev	googlereader
+worldwide	site	bbcworldwide.com	maker-product	views-rank:101+,site:other	test	bbcworldwide
+now	site	google.com	maker-product	views-rank:101+,site:other	dev	googlenow
+galaxy note	site	samsung.com	maker-product	views-rank:101+,site:other	dev	samsunggalaxynote1stgeneration
+networks	site	nokia.com	maker-product	views-rank:101+,site:other	test	nokianetworks
+works	site	microsoft.com	maker-product	views-rank:101+,site:other	dev	microsoftworks
+fonts	site	fonts.google.com	maker-product	views-rank:101+,site:subdomain	dev	googlefonts
+stilo	site	fiatstilo.com	maker-product	views-rank:101+,site:other	dev	fiatstilo
+research	site	research.microsoft.com	maker-product	views-rank:101+,site:subdomain	test	microsoftresearch
+chem	site	lgchem.com	maker-product	views-rank:101+,site:other	dev	lgchem
+one	site	oneplus.net	maker-product	views-rank:101+,site:other	test	oneplusone
+galaxy note 5	site	samsung.com	maker-product	views-rank:101+,site:other	dev	samsunggalaxynote5
+lumia 1020	site	microsoft.com	maker-product	views-rank:101+,site:other	dev	nokialumia1020
+400 gt	site	lamborghini.com	maker-product	views-rank:101+,site:other	dev	lamborghini400gt
+neft	site	gazprom-neft.com|gazprom-neft.ru	maker-product	views-rank:101+,site:other	dev	gazpromneft
+baike	site	baike.baidu.com	maker-product	views-rank:101+,site:subdomain	dev	baidubaike
+bravo	site	web.archive.org	maker-product	views-rank:101+,site:other	dev	fiatbravo2007
+central stadium	site	centralstadium.kz	maker-product	views-rank:101+,site:other	test	almatycentralstadium
+galaxy note 4	site	samsung.com	maker-product	views-rank:101+,site:other	test	samsunggalaxynote4
+talk	site	web.archive.org	maker-product	views-rank:101+,site:other	test	googletalk
+cascada	site	buick.com|web.archive.org	maker-product	views-rank:101+,site:other	test	opelcascada
+welt	site	bmw-welt.com	maker-product	views-rank:101+,site:other	dev	bmwwelt
+neon	site	neon.kde.org	maker-product	views-rank:101+,site:subdomain	dev	kdeneon
+inventor	site	autodesk.com	maker-product	views-rank:101+,site:other	dev	autodeskinventor
+express	site	iberiaexpress.com	maker-product	views-rank:101+,site:other	dev	iberiaexpress
+city guide	site	foursquare.com	maker-product	views-rank:101+,site:other	dev	foursquarecityguide
+stadium	site	yokohama-stadium.co.jp	maker-product	views-rank:101+,site:other	test	yokohamastadium
+goggles	site	google.com	maker-product	views-rank:101+,site:other	dev	googlegoggles
+eos 550d	site	canon.es	maker-product	views-rank:101+,site:other	test	canoneos550d
+lumia 800	site	nokia.com	maker-product	views-rank:101+,site:other	dev	nokialumia800
+shopping	site	google.com	maker-product	views-rank:101+,site:other	test	googleshopping
+connect	site	connect.ubisoft.com	maker-product	views-rank:101+,site:subdomain	test	ubisoftconnect
+bear brand	site	bearbrand.com.ph	maker-product	views-rank:101+,site:subdomain	test	nestlbearbrand
+altea	site	seat.co.uk	maker-product	views-rank:101+,site:other	test	seataltea
+airways	site	cyprusairways.com	maker-product	views-rank:101+,site:other	test	cyprusairways19472015
+lumia 920	site	nokia.com	maker-product	views-rank:101+,site:other	test	nokialumia920
+maps	site	yandex.com	maker-product	views-rank:101+,site:other	dev	yandexmaps
+translate	site	translate.yandex.ru	maker-product	views-rank:101+,site:subdomain	test	yandextranslate
+buzz	site	google.com	maker-product	views-rank:101+,site:other	dev	googlebuzz
+lybra	site	lancialybra.it	maker-product	views-rank:101+,site:other	test	lancialybra
+press	site	press.uchicago.edu	maker-product	views-rank:101+,site:subdomain	test	universityofchicagopress
+translator	site	translator.microsoft.com	maker-product	views-rank:101+,site:subdomain	dev	microsofttranslator
+edge	site	microsoft.com	maker-product	views-rank:101+,site:other	test	microsoftedgeseriesofwebbrowsers
+fireworks	site	adobe.com	maker-product	views-rank:101+,site:other	test	adobefireworks
+museum	site	bmw-welt.com	maker-product	views-rank:101+,site:other	dev	bmwmuseum
+estoque	site	lamborghini.com	maker-product	views-rank:101+,site:other	test	lamborghiniestoque
+desktop	site	desktop.google.com	maker-product	views-rank:101+,site:subdomain	dev	googledesktop
+allo	site	allo.google.com	maker-product	views-rank:101+,site:subdomain	dev	googleallo
+lumia 1520	site	microsoft.com	maker-product	views-rank:101+,site:other	dev	nokialumia1520
+fit	site	google.com	maker-product	views-rank:101+,site:other	test	googlefit
+metro	site	metro.kharkov.ua	maker-product	views-rank:101+,site:subdomain	dev	kharkivmetro
+mobile	site	opera.com	maker-product	views-rank:101+,site:other	dev	operamobile
+idea	site	fiatidea.it	maker-product	views-rank:101+,site:other	test	fiatidea
+venga	site	kia.com	maker-product	views-rank:101+,site:other	dev	kiavenga
+lumia 900	site	nokia.com	maker-product	views-rank:101+,site:other	test	nokialumia900
+alerts	site	google.com	maker-product	views-rank:101+,site:other	dev	googlealerts
+crossfire	site	amd.com	maker-product	views-rank:101+,site:other	test	amdcrossfire
+app engine	site	cloud.google.com	maker-product	views-rank:101+,site:other	test	googleappengine
+pixelsense	site	pixelsense.com	maker-product	views-rank:101+,site:other	dev	microsoftpixelsense
+infopath	site	office.microsoft.com	maker-product	views-rank:101+,site:other	dev	microsoftinfopath
+commercial aircraft	site	airbus.com	maker-product	views-rank:101+,site:other	test	airbuscommercialaircraft
+press	site	press.jhu.edu	maker-product	views-rank:101+,site:subdomain	dev	johnshopkinsuniversitypress
+lumia 520	site	microsoft.com	maker-product	views-rank:101+,site:other	dev	nokialumia520
+f8 tributo	site	ferrari.com	maker-product	views-rank:101+,site:other	test	ferrarif8tributo
+developers	site	developers.google.com	maker-product	views-rank:101+,site:subdomain	test	googledevelopers
+notebook	site	google.com	maker-product	views-rank:101+,site:other	dev	googlenotebook
+freehand	site	adobe.com	maker-product	views-rank:101+,site:other	dev	macromediafreehand
+lumia 710	site	nokia.com	maker-product	views-rank:101+,site:other	test	nokialumia710
+toolbar	site	toolbar.google.com	maker-product	views-rank:101+,site:subdomain	test	googletoolbar
+map maker	site	google.com	maker-product	views-rank:101+,site:other	dev	googlemapmaker
+museum	site	porsche.com	maker-product	views-rank:101+,site:other	test	porschemuseum
+athens	site	athens.euronext.com	maker-product	views-rank:101+,site:subdomain	test	euronextathens
+lumia 720	site	nokia.com	maker-product	views-rank:101+,site:other	dev	nokialumia720
+lumia 820	site	nokia.com	maker-product	views-rank:101+,site:other	test	nokialumia820
+canadian albums	site	billboard.com	maker-product	views-rank:101+,site:other	dev	billboardcanadianalbums
+lumia 620	site	nokia.com	maker-product	views-rank:101+,site:other	dev	nokialumia620
+kylix	site	borland.com	maker-product	views-rank:101+,site:other	dev	borlandkylix
+dynamics	site	dynamics.microsoft.com	maker-product	views-rank:101+,site:subdomain	test	microsoftdynamics
+express	site	express.egyptair.com	maker-product	views-rank:101+,site:subdomain	dev	egyptairexpress

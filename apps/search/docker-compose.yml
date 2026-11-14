@@ -1,0 +1,308 @@
+# Local search engine. Personal-server only: runs on indexhost
+# (/mnt/nas/logout/search), NOT deployed by master-deploy.sh.
+# Own compose project so nothing here can recreate the music stack.
+name: search
+
+services:
+  search-postgres:
+    build: ./postgres
+    image: logout/search-postgres:18.6-pgts1.4.0
+    container_name: search-postgres
+    restart: unless-stopped
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_textsearch
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - maintenance_work_mem=1GB
+      - -c
+      - max_parallel_maintenance_workers=4
+    environment:
+      POSTGRES_DB: search
+      POSTGRES_USER: search
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+    volumes:
+      # PG18 images keep PGDATA under /var/lib/postgresql/18/docker — mount the parent.
+      - ./pgdata:/var/lib/postgresql
+    ports:
+      - "127.0.0.1:5433:5432"
+    # 12g: the parallel HNSW build over 6.79M Wikipedia vectors needs a dynamic
+    # shared-memory segment the size of maintenance_work_mem (10GB, vectors.py) ("could not resize shared memory segment", 2026-09-24).
+    shm_size: 12g
+    # 4g OOM-killed the BM25 build over 6.79M Wikipedia articles (2026-09-23: 2.9 GB
+    # anon + 1.1 GB shared). indexhost has ~46 GB; applied live with `docker update`.
+    mem_limit: 20g
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U search -d search -h 127.0.0.1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # One-shot loader: `docker compose run --rm search-importer <cmd>`
+  search-importer:
+    build: ./importer
+    image: logout/search-importer:1
+    profiles: ["tools"]
+    depends_on:
+      search-postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: search-postgres
+      PGUSER: search
+      PGDATABASE: search
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+      # Map regions for `places`: Geofabrik paths, comma-separated. No default; set in .env.
+      OSM_EXTRACT: ${OSM_EXTRACT:-}
+    volumes:
+      - ./import:/import:ro
+      - ./card-images:/card          # card_images.py's working file (ADR-063: no Postgres table)
+      - ./wikipedia:/wikipedia:ro
+      # Stack Exchange archives (stackexchange.py downloads them here, ~9 GB).
+      - ./stackexchange:/stackexchange
+      # OpenStreetMap extract (osmplaces.py downloads $OSM_EXTRACT here; ~0.5 GB for a US state).
+      - ./osm:/osm
+      # Kept Common Crawl catalogue: one parquet copy per index file, reused by
+      # every rescan so nothing is downloaded twice. ~57 GB per crawl (warc subset).
+      - ./cc-archive:/archive
+
+  # Serving on indexhost (2026-09-24): the personal server had no RAM left for the
+  # Wikipedia BM25 index, so search-api runs here against the `serve` database
+  # (a restored snapshot — `deploy.sh serve-restore`), and SearXNG on the personal
+  # server calls it over the LAN. Bound to one LAN address and answering only the
+  # SearXNG host (both from .env); the query never leaves the LAN.
+  search-api:
+    build: ./serve/api
+    image: logout/search-api:1
+    container_name: search-api
+    labels:
+      - "autoheal=true"
+    profiles: ["serve"]
+    restart: unless-stopped
+    # Release rc5, no database (owner 2026-10-08: "indexhost to match production"). The engine answers from
+    # ./release-data/rc5 only: the settings below are `installer/install.py start --print-env` for that folder, the same
+    # the acceptance run used. It no longer depends on search-postgres (the BUILD database stays up for the importer
+    # and the refresh jobs; nothing here reads it, so no Tranco rank and no Jev verdict can reach a result).
+    # Back to the Postgres engine: docker-compose.yml.pre-rc5 and the image tagged logout/search-api:pre-rc5.
+    # rc6 (2026-10-08) = rc5 rebuilt after the homepage-language repair (thunderbird.net answered with its Turkish page):
+    # same builder code, same settings. Back to rc5: the two rc6 lines below (./release-data/rc5 is kept).
+    # rc8 (2026-10-10) = rc6 under the description policy (rc7) on the places release 2026-10-10-us: chain hours and
+    # 176,473 chain branches from All the Places. Back to rc6: the two rc8 lines below (./release-data/rc6 is kept; rc8
+    # hard-links the files that did not change).
+    # rc9 (2026-10-21) = rc8 + Gutenberg accounts, the Stack Exchange / Wikibooks / Wikivoyage / MedlinePlus pages,
+    # YouTube follower counts, the full-crawl anchor phrases and facts.sqlite; engine master 1874a2e1. Back to rc8: the
+    # two rc9 lines below and the image tagged logout/search-api:1-pre-rc9-20261021 (./release-data/rc8 is kept; rc9
+    # hard-links the 44 files that did not change).
+    # rc10 and rc11 were built and tested, never served. rc12 (2026-11-01) = the link crawl's pages, 1.9M, with their
+    # meaning search (vectors/pages-ivf) and the searcher's state; engine master. Installed by installer/install.py from the signed
+    # publish tree (./release-data/rc12 -> rc12-base/current). Back to rc9: SEARCH_RELEASE_ID, SEARCH_CE_DIR (rerank-turbo-jevfree), the volume,
+    # and the image tagged logout/search-api:1-pre-rc12-20261101 (./release-data/rc9 is kept).
+    # rc13 (2026-11-02) = rc12 + New Jersey's own sites read directly, 50,069 pages, with their meaning codes. Back to rc12: SEARCH_RELEASE_ID,
+    # the volume and the image tagged logout/search-api:1-pre-rc13-20261102 (./release-data/rc12 is kept).
+    environment:
+      SEARCH_POSTGRES: "off"
+      SEARCH_LOOKUP_BACKEND: release
+      SEARCH_RELEASE_DIR: /rel
+      SEARCH_RELEASE_ID: proto-20261104-rc14
+      SEARCH_WIKI_BACKEND: tantivy-release
+      SEARCH_WEB_BACKEND: tantivy-release
+      SEARCH_SEM_BACKEND: ivf
+      SEARCH_SEM_IVF: /rel/vectors/ivf
+      SEARCH_NOMIC_DIR: /rel/models/nomic-embed-text-v1.5
+      # 2026-11-06 (owner: "yeah"): st1 = the shipped turbo fine-tuned on the labels Clef and clef-flash agreed on
+      # (check-set AUC 0.825 -> 0.883, engine eval passed); same size and speed. Back: SEARCH_CE_DIR /rel/models/rerank-turbo.
+      # The same day it was re-quantized per channel (Fable found the first int8 file kept 0.73 correlation with
+      # st1 itself): check-set AUC 0.883 -> 0.995, faster. The first file stays as ce-st1 / rerank-st1 for rollback.
+      # 2026-11-08: government tasks reranked by the release's turbo (help@1 45.5 -> 57.0); others by st1.
+      SEARCH_CE_DIR: /ce
+      # st3 (our fine-tune of jina-reranker-v1-turbo-en; the model rc15 ships) for the list and the government
+      # tasks alike: what both machines run (read from the live files 2026-11-11). Back: the st1-pc folder and SEARCH_CE_GOV_DIR /rel/models/rerank-turbo.
+      SEARCH_CE_GOV_DIR: /ce
+      SEARCH_CE_DEVICE: cpu
+      SEARCH_REQUIRE_RERANKER: "1"
+      SEARCH_MODEL_DIR: /rel/models/bge-small-en-v1.5
+      SEARCH_REQUIRE_KINDS_MODEL: "1"
+      SEARCH_RANKER: /rel/ranker.json
+      # Defaults are loopback-only and harmless; `deploy.sh serve-up` refuses to start
+      # without real values in .env. Not `:?` — compose interpolates every service,
+      # so a required variable here broke the AWS build jobs (2026-09-24).
+      SEARCH_API_ALLOW_FROM: ${SEARCH_API_ALLOW_FROM:-127.0.0.1/32}
+      # Town-level "lat,lon" for place results; unset = no place results.
+      SEARCH_HOME: ${SEARCH_HOME:-}
+      SEARCH_NEWS_BACKEND: sqlite              # ADR-063: headlines, weather, scoreboard from the news file
+      SEARCH_NEWS_SQLITE: /news/news.sqlite
+      # Precomputed results on disk (2026-11-04, owner: "you can turn the stores on on indexhost"): only search-warm's
+      # warm=1 requests write; a row is served only under this engine's fingerprint (result_store.py).
+      SEARCH_STORE: /store/results.sqlite
+      SEARCH_SITENAV: /sitenav/sitenav.jsonl    # the card's site tree (tools/site-nav.py, 2026-11-05)
+      SEARCH_CARDLINKS: /cardlinks/cardlinks.sqlite   # Wikidata's links per topic for the card (tools/card-links.py, 2026-11-06)
+      SEARCH_CURATED: "1"                     # curated lists for the warmed names, from the inbox (tools/curated-build.py, 2026-11-06)
+      SEARCH_BREADTH: JDLWC                   # whole-list cleanup under the card (J junk, D one/site, L Wikidata links; 2026-11-08); W, C: the card article's own links and citations (Clef mix-300 3.21 -> 3.34, live on indexhost 2026-11-10)
+      SEARCH_WIKILINKS: /wikilinks/wikilinks.sqlite   # importer/wikiext.py (2026-11-10)
+      SEARCH_SE_INDEX: /se/se-howto.sqlite    # Stack Exchange how-to index: answer excerpts for how-to searches (tools/se-howto.py, ADR-081; Clef how-to 1.68 -> 3.20, 2026-11-11)
+    volumes:
+      - ./news-store:/news
+      - ./release-data/rc14:/rel:ro
+      - ./result-store:/store
+      - /mnt/nas/logout/search/sitenav:/sitenav:ro
+      - /mnt/nas/logout/search/cardlinks:/cardlinks:ro
+      - /mnt/nas/logout/search/wikilinks:/wikilinks:ro
+      - /mnt/nas/logout/search/se:/se:ro
+      - /mnt/nas/logout/search/ce-st3:/ce:ro
+    ports:
+      - "${SEARCH_API_BIND:-127.0.0.1}:8090:8090"
+    mem_limit: 4g     # rc5 acceptance 2026-10-08: 2.6 GB of its own under a 4 GB limit, the rest file cache. Before (Postgres engine): 1g, 2026-09-26: 512m OOM-killed it twice under 4 concurrent Jev collectors (~500 MiB); 332 MiB steady with the cross-encoder (204 before it pool + workers)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8090/readyz', timeout=10).status == 200 else 1)"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Keeps the popular searches stored (2026-11-04; was a Postgres prewarm, and the engine has not read Postgres since
+  # rc5): the warm list (sports, headlines, weather, trending, the most-asked names) is asked with warm=1, rebuilt flat
+  # out after a deploy (a new fingerprint), else spread over WARM_HEAD_CYCLE_S, only while no visitor search is in
+  # flight. Back to the prewarm: docker-compose.yml.pre-store-20261104.
+  search-warm:
+    image: logout/search-api:1
+    container_name: search-warm
+    profiles: ["serve"]
+    restart: unless-stopped
+    environment:
+      WARM_HEAD: "2000"
+      WARM_HEAD_CYCLE_S: "5400"
+      WARM_API: http://search-api:8090
+      WARM_REL: /rel
+      WARM_NEWS_DB: /news/news.sqlite
+      WARM_TREND: "1"
+    volumes:
+      - ./release-data/rc14:/rel:ro
+      - ./news-store:/news
+    command: ["python", "/app/warm.py"]
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+        max-file: "2"
+
+  # The local news box (2026-09-25): polls the approved feeds (news/feeds.tsv) on their own
+  # schedules and keeps 7 days of headlines in the `news` database for search-api.
+  search-news:
+    build: ./news
+    image: logout/search-news:1
+    container_name: search-news
+    profiles: ["serve"]
+    restart: unless-stopped
+    depends_on:
+      search-postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: search-postgres
+      PGUSER: search
+      PGDATABASE: news
+      PGOPTIONS: "-c synchronous_commit=off"   # headlines re-poll; never wait on fsync (2026-09-26)
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+      NEWS_SQLITE: /news/news.sqlite     # ADR-063: the news file (news-store/), not the `news` database
+    volumes:
+      - ./news-store:/news
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # The scoreboard (2026-09-25, PERSONAL BOX ONLY — league data licences, see sports.py):
+  # MLB, NHL, NFL and NBA games from yesterday to a week ahead, live ones every minute.
+  search-sports:
+    image: logout/search-news:1
+    container_name: search-sports
+    profiles: ["serve"]
+    restart: unless-stopped
+    depends_on:
+      search-postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: search-postgres
+      PGUSER: search
+      PGDATABASE: news
+      PGOPTIONS: "-c synchronous_commit=off"   # headlines re-poll; never wait on fsync (2026-09-26)
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+      NEWS_SQLITE: /news/news.sqlite     # ADR-063: the news file (news-store/), not the `news` database
+    volumes:
+      - ./news-store:/news
+    command: ["python", "/app/sports.py"]
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "2m"
+        max-file: "2"
+
+  # Home weather (2026-09-25): NWS, MET Norway fallback, polled on a schedule into
+  # news.weather — a search reads the row and never calls out. SEARCH_HOME = "lat,lon" (town level).
+  search-weather:
+    image: logout/search-news:1
+    container_name: search-weather
+    profiles: ["serve"]
+    restart: unless-stopped
+    depends_on:
+      search-postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: search-postgres
+      PGUSER: search
+      PGDATABASE: news
+      PGOPTIONS: "-c synchronous_commit=off"   # headlines re-poll; never wait on fsync (2026-09-26)
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+      NEWS_SQLITE: /news/news.sqlite     # ADR-063: the news file (news-store/), not the `news` database
+      SEARCH_HOME: ${SEARCH_HOME:-}
+    volumes:
+      - ./news-store:/news
+    command: ["python", "/app/weather.py"]
+    mem_limit: 96m
+    logging:
+      driver: json-file
+      options:
+        max-size: "2m"
+        max-file: "2"
+
+  # Weather for any US town (2026-09-25): NOAA's whole-country bulletins (NBM station
+  # forecasts every 3/6 h, METARs every 10 min, alerts every 5) and Census towns (weekly)
+  # into news.wx_*; a search reads them and never calls out. ~300 MB/day from NOAA.
+  search-wxall:
+    image: logout/search-news:1
+    container_name: search-wxall
+    profiles: ["serve"]
+    restart: unless-stopped
+    depends_on:
+      search-postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: search-postgres
+      PGUSER: search
+      PGDATABASE: news
+      PGOPTIONS: "-c synchronous_commit=off"   # headlines re-poll; never wait on fsync (2026-09-26)
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set in .env by deploy.sh}
+      NEWS_SQLITE: /news/news.sqlite     # ADR-063: the news file (news-store/), not the `news` database
+    volumes:
+      - ./news-store:/news
+    command: ["python", "/app/wxall.py"]
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "2m"
+        max-file: "2"

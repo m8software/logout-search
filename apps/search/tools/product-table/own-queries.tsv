@@ -1,0 +1,65 @@
+query	category	maker	product	host
+cheerios	food	general mills	cheerios	generalmills
+tylenol extra strength	drugs	johnson|kenvue|mcneil	tylenol	tylenol|kenvue
+kraft mac and cheese	food	kraft	macaroni|mac	kraft
+oreo cookies	food	nabisco|mondelez	oreo	oreo|mondelez
+heinz ketchup	food	heinz	ketchup	heinz
+doritos nacho cheese	food	frito	doritos	fritolay|doritos
+coca cola classic	food	coca	coca-cola|coca cola	coca-cola|coke
+nutella	food	ferrero	nutella	nutella|ferrero
+quaker oats old fashioned	food	quaker|pepsico	oats	quakeroats|quaker
+campbells chicken noodle soup	food	campbell	chicken noodle	campbells
+advil ibuprofen	drugs	pfizer|haleon|glaxo|gsk|wyeth	advil	advil|pfizer
+benadryl allergy	drugs	johnson|kenvue|mcneil	benadryl	benadryl|kenvue
+zyrtec	drugs	johnson|kenvue|mcneil	zyrtec	zyrtec|kenvue
+claritin	drugs	bayer	claritin	claritin|bayer
+pepto bismol	drugs	procter|p&g	pepto	pepto|pg
+lipitor atorvastatin	drugs	pfizer|viatris|greenstone	lipitor	lipitor|pfizer
+nexium	drugs	pfizer|haleon|astra	nexium	nexium|astrazeneca|pfizer
+robitussin	drugs	pfizer|haleon|glaxo|gsk	robitussin	robitussin
+bosch dishwasher 500 series	appliances	bosch	500	bosch-home|bosch
+whirlpool washing machine	appliances	whirlpool	wash	whirlpool
+ge profile refrigerator	appliances	ge|general electric|haier	profile	geappliances|ge
+lg oled tv	appliances	lg	oled	lg
+samsung refrigerator french door	appliances	samsung	refriger	samsung
+kitchenaid stand mixer	appliances	kitchenaid|whirlpool	mixer	kitchenaid
+dyson v15	appliances	dyson	v15	dyson
+frigidaire dehumidifier	appliances	frigidaire|electrolux	dehumid	frigidaire
+carrier heat pump	appliances	carrier	heat pump	carrier
+dewalt cordless drill	tools	dewalt|stanley	drill	dewalt
+makita impact driver	tools	makita	impact	makita
+milwaukee m18 fuel	tools	milwaukee|techtronic	m18	milwaukeetool
+stanley tape measure	tools	stanley	tape	stanleytools|stanley
+craftsman socket set	tools	craftsman|stanley	socket	craftsman
+husqvarna chainsaw	tools	husqvarna	chainsaw	husqvarna
+ryobi leaf blower	tools	ryobi|techtronic	blower	ryobitools|ryobi
+lego 10305	toys	lego	10305|lion knights	lego
+lego millennium falcon	toys	lego	millennium falcon	lego
+barbie dreamhouse	toys	mattel	dreamhouse	barbie|mattel
+hot wheels	toys	mattel	hot wheels	hotwheels|mattel
+nerf blaster	toys	hasbro	nerf	nerf|hasbro
+fisher price little people	toys	fisher|mattel	little people	fisher-price|mattel
+play-doh	toys	hasbro	play-doh|play doh	playdoh|hasbro
+monopoly board game	toys	hasbro|parker	monopoly	hasbro
+nike air force 1	clothing	nike	air force	nike
+adidas ultraboost	clothing	adidas	ultraboost	adidas
+levis 501 jeans	clothing	levi	501	levi
+patagonia better sweater	clothing	patagonia	sweater	patagonia
+north face jacket	clothing	north face|vf	jacket	thenorthface
+carhartt work jacket	clothing	carhartt	jacket	carhartt
+hanes tshirt	clothing	hanesbrands|hanes	t-shirt|tshirt	hanes
+crocs classic clog	clothing	crocs	clog	crocs
+iphone 15	electronics	apple	iphone 15	apple
+galaxy s24	electronics	samsung	s24	samsung
+playstation 5	electronics	sony	playstation 5	playstation|sony
+nintendo switch	electronics	nintendo	switch	nintendo
+sony wh-1000xm5	electronics	sony	xm5	sony
+bose quietcomfort	electronics	bose	quietcomfort	bose
+gopro hero 12	electronics	gopro	hero	gopro
+canon eos r5	electronics	canon	r5	canon
+kindle paperwhite	electronics	amazon	paperwhite	amazon
+airpods pro	electronics	apple	airpods	apple
+toyota camry	cars	toyota	camry	toyota
+ford f-150	cars	ford	f-150	ford
+tesla model 3	cars	tesla	model 3	tesla
+honda cr-v	cars	honda	cr-v	honda

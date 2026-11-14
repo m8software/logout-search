@@ -1,0 +1,71 @@
+2026-10-14 01:13:17 card 1597 MiB
+2026-10-14 01:13:24 gemma: ready after 7 s, card 10724 MiB
+2026-10-14 01:14:48 generated Gemma-4-12B QAT Q4_0 arm B: 84.5 s wall at 4 stream(s)
+2026-10-14 01:17:47 generated Gemma-4-12B QAT Q4_0 arm C: 178.6 s wall at 4 stream(s)
+2026-10-14 01:24:04 generated Gemma-4-12B QAT Q4_0 arm D: 377.3 s wall at 4 stream(s)
+2026-10-14 01:24:08 gemma: server stopped, card 1528 MiB
+2026-10-14 01:24:18 qwen: ready after 10 s, card 11649 MiB
+2026-10-14 01:25:53 generated Qwen3-14B Q4_K_M arm B: 95.1 s wall at 3 stream(s)
+2026-10-14 01:29:17 generated Qwen3-14B Q4_K_M arm C: 204.3 s wall at 3 stream(s)
+2026-10-14 01:36:01 generated Qwen3-14B Q4_K_M arm D: 403.5 s wall at 3 stream(s)
+2026-10-14 01:36:06 qwen: server stopped, card 689 MiB
+2026-10-14 01:36:24 oss: ready after 19 s, card 10851 MiB
+2026-10-14 01:39:01 generated gpt-oss-20b MXFP4 reasoning-low arm B: 156.9 s wall at 1 stream(s)
+2026-10-14 01:45:01 generated gpt-oss-20b MXFP4 reasoning-low arm C: 360.2 s wall at 1 stream(s)
+2026-10-14 01:57:59 generated gpt-oss-20b MXFP4 reasoning-low arm D: 778.0 s wall at 1 stream(s)
+2026-10-14 01:58:04 oss: server stopped, card 689 MiB
+2026-10-14 01:58:14 qwen: ready after 10 s, card 11687 MiB
+2026-10-14 02:01:49 qwen judged 450 variant answers
+2026-10-14 02:01:54 qwen: server stopped, card 646 MiB
+2026-10-14 02:02:54 clef-flash: ready after 60 s, card 8929 MiB
+2026-10-14 02:27:38 clef-flash judged 564 answers (arm A and the variants)
+2026-10-14 02:27:42 clef-flash: server stopped, card 651 MiB
+2026-10-14 02:27:57 oss: ready after 16 s, card 10814 MiB
+2026-10-14 02:27:57 dq dq1: 564 answers, 564 to judge
+2026-10-14 02:30:27 dq dq1: 25/564, 6.0 s each
+2026-10-14 02:34:23 dq dq1: 50/564, 7.7 s each
+2026-10-14 02:37:35 dq dq1: 75/564, 7.7 s each
+2026-10-14 02:41:37 dq dq1: 100/564, 8.2 s each
+2026-10-14 02:44:34 dq dq1: 125/564, 8.0 s each
+2026-10-14 02:49:00 dq dq1: 150/564, 8.4 s each
+2026-10-14 02:52:31 dq dq1: 175/564, 8.4 s each
+2026-10-14 02:56:19 dq dq1: 200/564, 8.5 s each
+2026-10-14 02:59:25 dq dq1: 225/564, 8.4 s each
+2026-10-14 03:02:34 dq dq1: 250/564, 8.3 s each
+2026-10-14 03:06:11 dq dq1: 275/564, 8.3 s each
+2026-10-14 03:09:20 dq dq1: 300/564, 8.3 s each
+2026-10-14 03:12:00 dq dq1: 325/564, 8.1 s each
+2026-10-14 03:16:50 dq dq1: 350/564, 8.4 s each
+2026-10-14 03:20:57 dq dq1: 375/564, 8.5 s each
+2026-10-14 03:24:29 dq dq1: 400/564, 8.5 s each
+2026-10-14 03:27:23 dq dq1: 425/564, 8.4 s each
+2026-10-14 03:30:37 dq dq1: 450/564, 8.4 s each
+2026-10-14 03:34:14 dq dq1: 475/564, 8.4 s each
+2026-10-14 03:37:10 dq dq1: 500/564, 8.3 s each
+2026-10-14 03:40:35 dq dq1: 525/564, 8.3 s each
+2026-10-14 03:43:16 dq dq1: 550/564, 8.2 s each
+2026-10-14 03:46:02 dq dq2: 564 answers, 564 to judge
+2026-10-14 03:48:47 dq dq2: 25/564, 6.6 s each
+2026-10-14 03:52:24 dq dq2: 50/564, 7.6 s each
+2026-10-14 03:55:19 dq dq2: 75/564, 7.4 s each
+2026-10-14 03:58:32 dq dq2: 100/564, 7.5 s each
+2026-10-14 04:01:55 dq dq2: 125/564, 7.6 s each
+2026-10-14 04:05:03 dq dq2: 150/564, 7.6 s each
+2026-10-14 04:07:54 dq dq2: 175/564, 7.5 s each
+2026-10-14 04:11:04 dq dq2: 200/564, 7.5 s each
+2026-10-14 04:14:14 dq dq2: 225/564, 7.5 s each
+2026-10-14 04:17:22 dq dq2: 250/564, 7.5 s each
+2026-10-14 04:20:15 dq dq2: 275/564, 7.5 s each
+2026-10-14 04:23:23 dq dq2: 300/564, 7.5 s each
+2026-10-14 04:25:44 dq dq2: 325/564, 7.3 s each
+2026-10-14 04:29:20 dq dq2: 350/564, 7.4 s each
+2026-10-14 04:32:59 dq dq2: 375/564, 7.5 s each
+2026-10-14 04:36:33 dq dq2: 400/564, 7.6 s each
+2026-10-14 04:40:22 dq dq2: 425/564, 7.7 s each
+2026-10-14 04:44:42 dq dq2: 450/564, 7.8 s each
+2026-10-14 04:47:41 dq dq2: 475/564, 7.8 s each
+2026-10-14 04:51:05 dq dq2: 500/564, 7.8 s each
+2026-10-14 04:53:46 dq dq2: 525/564, 7.7 s each
+2026-10-14 04:56:41 dq dq2: 550/564, 7.7 s each
+2026-10-14 04:58:33 oss: server stopped, card 663 MiB
+2026-10-14 04:58:33 card 663 MiB

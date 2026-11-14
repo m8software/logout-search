@@ -1,0 +1,1036 @@
+query	category	expected	set	stratum	split	entity
+50 cent reservations	account	50cent.com/booking	site-slot	slot:reservations,template:name-first,from:own-title	dev	50cent
+50 cent sign up	account	50cent.com/signup	site-slot	slot:signup,template:name-first,from:own-title	dev	50cent
+aam aadmi party donations	account	donations.aamaadmiparty.org	site-slot	slot:donate,template:name-first,from:head-brand	dev	aamaadmiparty
+aam aadmi party leadership	account	aamaadmiparty.org/aap-leadership	site-slot	slot:team,template:name-first,from:head-brand	dev	aamaadmiparty
+about kurt vonnegut	account	vonnegut.com/about	site-slot	slot:about,template:slot-first,from:own-title	dev	kurtvonnegut
+about us anna netrebko	account	annanetrebko.com/about	site-slot	slot:about,template:slot-first,from:own-title	dev	annanetrebko
+about us celine dion	account	celinedion.com/about	site-slot	slot:about,template:slot-first,from:own-title	dev	celinedion
+about us the smiths	account	officialsmiths.co.uk/about	site-slot	slot:about,template:slot-first,from:own-title	dev	thesmiths
+about wework	account	wework.com/about-us	site-slot	slot:about,template:slot-first,from:head-brand	dev	wework
+accessibility manchester united f.c.	account	manutd.com/en/help/accessibility	site-slot	slot:accessibility,template:slot-first,from:own-title	dev	manchesterunitedfc
+afc ajax legal	account	ajax.nl/meer/disclaimer	site-slot	slot:legal,template:name-first,from:own-title	dev	afcajax
+afc ajax tickets	account	tickets.ajax.nl/content	site-slot	slot:tickets,template:name-first,from:own-title	dev	afcajax
+affiliates glencore	account	glencore.com/suppliers	site-slot	slot:partners,template:slot-first,from:head-brand	dev	glencore
+alabama contact info	account	inform.alabama.gov/agencies	site-slot	slot:contact,template:name-first,from:own-title	dev	alabama
+alice in chains online store	account	shop.aliceinchains.com	site-slot	slot:shop,template:name-first,from:own-title	dev	aliceinchains
+amazon newsroom	account	amazon.com/pr	site-slot	slot:press,template:name-first,from:head-brand	dev	amazoncompany
+amsterdam accessibility statement	account	amsterdam.nl/digitale-toegankelijkheid/toegankelijkheid	site-slot	slot:accessibility,template:name-first,from:own-title	dev	amsterdam
+amsterdam privacy policy	account	amsterdam.nl/privacy	site-slot	slot:privacy,template:name-first,from:own-title	dev	amsterdam
+amtrak deals	account	amtrak.com/guestrewards/account-overview/my-coupons	site-slot	slot:deals,template:name-first,from:head-brand	dev	amtrak
+amtrak manage account	account	amtrak.com/guestrewards/account-overview	site-slot	slot:account,template:name-first,from:head-brand	dev	amtrak
+angela merkel impressum	account	buero-bundeskanzlerin-ad.de/impressum	site-slot	slot:legal,template:name-first,from:own-title	dev	angelamerkel
+angela merkel reservations	account	buero-bundeskanzlerin-ad.de/termine	site-slot	slot:reservations,template:name-first,from:own-title	dev	angelamerkel
+anna netrebko game schedule	account	annanetrebko.com/schedule	site-slot	slot:schedule,template:name-first,from:own-title	dev	annanetrebko
+anne frank buy tickets	account	annefrank.org/en/museum/tickets	site-slot	slot:tickets,template:name-first,from:own-title	dev	annefrank
+anne frank give	account	annefrank.org/en/support-us	site-slot	slot:donate,template:name-first,from:own-title	dev	annefrank
+arctic monkeys delivery	account	arcticmonkeys.com/policies/shipping-policy	site-slot	slot:shipping,template:name-first,from:own-title	dev	arcticmonkeys
+arctic monkeys return policy	account	arcticmonkeys.com/pages/returns-exchanges	site-slot	slot:returns,template:name-first,from:own-title	dev	arcticmonkeys
+argentina terms and conditions	account	argentina.gob.ar/terminos-y-condiciones	site-slot	slot:terms,template:name-first,from:own-title	dev	argentina
+arnold schwarzenegger privacy notice	account	schwarzenegger.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	dev	arnoldschwarzenegger
+arsenal f.c. game schedule	account	arsenal.com/fixtures/men/fixtures	site-slot	slot:schedule,template:name-first,from:own-title	dev	arsenalfc
+arsenal f.c. loyalty	account	arsenal.com/membership	site-slot	slot:rewards,template:name-first,from:own-title	dev	arsenalfc
+arthur conan doyle privacy notice	account	conandoyleestate.com/privacy	site-slot	slot:privacy,template:name-first,from:own-title	dev	arthurconandoyle
+arthur conan doyle terms and conditions	account	conandoyleestate.com/terms	site-slot	slot:terms,template:name-first,from:own-title	dev	arthurconandoyle
+ashok leyland affiliates	account	ashokleyland.com/in/partners	site-slot	slot:partners,template:name-first,from:head-brand	dev	ashokleyland
+ashok leyland investor relations	account	ashokleyland.com/in/investor	site-slot	slot:investors,template:name-first,from:head-brand	dev	ashokleyland
+aston villa f.c. loyalty	account	rewards.avfc.co.uk/login	site-slot	slot:rewards,template:name-first,from:own-title	dev	astonvillafc
+aston villa f.c. ticket	account	tickets.avfc.co.uk	site-slot	slot:tickets,template:name-first,from:own-title	dev	astonvillafc
+astrid lindgren frequently asked questions	account	astridlindgren.com/se/sv-faq	site-slot	slot:faq,template:name-first,from:own-title	dev	astridlindgren
+astrid lindgren imprint	account	astridlindgren.com/se/impressum	site-slot	slot:legal,template:name-first,from:own-title	dev	astridlindgren
+asus corporate responsibility	account	asus.com/content/sustainability-environment	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	asus
+asus plan your visit	account	press.asus.com	site-slot	slot:directions,template:name-first,from:head-brand	dev	asus
+atlanta falcons app	account	atlantafalcons.com/mobile-apps	site-slot	slot:app,template:name-first,from:head-brand	dev	atlantafalcons
+atlanta falcons loyalty	account	atlantafalcons.com/tickets/season-ticket-members/members	site-slot	slot:rewards,template:name-first,from:head-brand	dev	atlantafalcons
+audi investors	account	audi.com/en/investor-relations-17156	site-slot	slot:investors,template:name-first,from:head-brand	dev	audi
+audi log in	account	audi.com/en/sign-in	site-slot	slot:login,template:name-first,from:head-brand	dev	audi
+ayn rand our story	account	aynrand.org/about	site-slot	slot:about,template:name-first,from:own-title	dev	aynrand
+backstreet boys calendar	account	backstreetboys.com/events	site-slot	slot:events,template:name-first,from:own-title	dev	backstreetboys
+backstreet boys press releases	account	backstreetboys.com/media	site-slot	slot:press,template:name-first,from:own-title	dev	backstreetboys
+bajaj auto ir	account	bajajauto.com/investors/investor-services	site-slot	slot:investors,template:name-first,from:head-brand	dev	bajajauto
+baltimore ravens game schedule	account	baltimoreravens.com/schedule	site-slot	slot:schedule,template:name-first,from:head-brand	dev	baltimoreravens
+baltimore ravens management	account	baltimoreravens.com/team/players-roster	site-slot	slot:team,template:name-first,from:head-brand	dev	baltimoreravens
+barack obama about us	account	barackobama.com/about	site-slot	slot:about,template:name-first,from:own-title	dev	barackobama
+barack obama press	account	barackobama.com/press	site-slot	slot:press,template:name-first,from:own-title	dev	barackobama
+barcelona event calendar	account	guia.barcelona.cat/ca	site-slot	slot:events,template:name-first,from:own-title	dev	barcelona
+basf blog	account	basf.com/us/en/media/our-stories	site-slot	slot:blog,template:name-first,from:head-brand	dev	basf
+baskin-robbins rewards	account	baskinrobbins.com/en/rewards	site-slot	slot:rewards,template:name-first,from:head-brand	dev	baskinrobbins
+baskin-robbins signup	account	baskinrobbins.com/en/sign-up/email	site-slot	slot:signup,template:name-first,from:head-brand	dev	baskinrobbins
+bavaria accessibility	account	bayern.de/erklaerung-zur-barrierefreiheit	site-slot	slot:accessibility,template:name-first,from:own-title	dev	bavaria
+bavaria impressum	account	bayern.de/impressum	site-slot	slot:legal,template:name-first,from:own-title	dev	bavaria
+bbc careers	account	bbc.co.uk/careers	site-slot	slot:careers,template:name-first,from:head-brand	dev	bbc
+bbc legal	account	bbc.co.uk/aboutthebbc/documents/bbcmsa2026.pdf	site-slot	slot:legal,template:name-first,from:head-brand	dev	bbc
+beastie boys privacy policy	account	beastieboys.com/wp-content/uploads/2020/04/beastie_boys_privacy_policy.pdf	site-slot	slot:privacy,template:name-first,from:own-title	dev	beastieboys
+beastie boys reservations	account	beastieboys.com/book	site-slot	slot:reservations,template:name-first,from:own-title	dev	beastieboys
+become a partner inter milan	account	inter.it/it/notizie/categoria/partner	site-slot	slot:partners,template:slot-first,from:own-title	dev	intermilan
+become a partner stephen hawking	account	hawking.org.uk/licensing	site-slot	slot:partners,template:slot-first,from:own-title	dev	stephenhawking
+benin faqs	account	gouv.bj/coronavirus/faq	site-slot	slot:faq,template:name-first,from:own-title	dev	benin
+bing crosby careers	account	bingcrosby.com/career	site-slot	slot:careers,template:name-first,from:own-title	dev	bingcrosby
+bing crosby online store	account	store.bingcrosby.com	site-slot	slot:shop,template:name-first,from:own-title	dev	bingcrosby
+bioware online store	account	gear.bioware.com	site-slot	slot:shop,template:name-first,from:head-brand	dev	bioware
+blackrock jobs	account	careers.blackrock.com	site-slot	slot:careers,template:name-first,from:head-brand	dev	blackrock
+blackrock support	account	blackrock.com/us/individual/resources/customer-service	site-slot	slot:support,template:name-first,from:head-brand	dev	blackrock
+blog bioware	account	bioware.com/news	site-slot	slot:blog,template:slot-first,from:head-brand	dev	bioware
+blog chris pine	account	chris-pine.org/category/news/articles	site-slot	slot:blog,template:slot-first,from:own-title	dev	chrispine
+blog dag hammarskjöld	account	daghammarskjold.se/category/blog	site-slot	slot:blog,template:slot-first,from:own-title	dev	daghammarskjld
+blog eritrea	account	shabait.com/category/articles	site-slot	slot:blog,template:slot-first,from:own-title	dev	eritrea
+bob marley press	account	bobmarley.com	site-slot	slot:press,template:name-first,from:own-title	dev	bobmarley
+bob marley shop	account	bobmarley.com/bob-marley-web-store	site-slot	slot:shop,template:name-first,from:own-title	dev	bobmarley
+bobby fischer complaints	account	bobbyfischer.net/feedback	site-slot	slot:feedback,template:name-first,from:own-title	dev	bobbyfischer
+bobby fischer fixtures	account	bobbyfischer.net/results	site-slot	slot:schedule,template:name-first,from:own-title	dev	bobbyfischer
+boeing esg	account	boeing.com/innovation/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	boeing
+boeing security	account	boeing.com/safety	site-slot	slot:security,template:name-first,from:head-brand	dev	boeing
+borussia dortmund volunteer opportunities	account	bvb.de/de/de/signal-iduna-park/stadionbesuch/volunteers.html	site-slot	slot:volunteer,template:name-first,from:own-title	dev	borussiadortmund
+bosch esg	account	bosch.com/sustainability/environment	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	boschcompany
+bosch investor relations	account	bosch.com/company/annual-report	site-slot	slot:investors,template:name-first,from:head-brand	dev	boschcompany
+boston accessibility statement	account	boston.gov/departments/language-and-communications-access/notice-accommodations	site-slot	slot:accessibility,template:name-first,from:own-title	dev	boston
+brave documentation	account	api-dashboard.search.brave.com/documentation/services/llm-context	site-slot	slot:docs,template:name-first,from:head-brand	dev	bravewebbrowser
+brave sign up	account	api-dashboard.search.brave.com/register	site-slot	slot:signup,template:name-first,from:head-brand	dev	bravewebbrowser
+brigitte bardot privacy policy	account	brigitte-bardot.fr/politique-de-confidentialite	site-slot	slot:privacy,template:name-first,from:own-title	dev	brigittebardot
+britney spears online store	account	store.britneyspears.com	site-slot	slot:shop,template:name-first,from:own-title	dev	britneyspears
+bundestag jobs	account	bundestag.de/services/karriere	site-slot	slot:careers,template:name-first,from:head-brand	dev	bundestag
+bundestag press releases	account	bundestag.de/presse/pressemitteilungen	site-slot	slot:press,template:name-first,from:head-brand	dev	bundestag
+bundeswehr corporate responsibility	account	bundeswehr.de/de/selbstverstaendnis/nachhaltigkeit	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	bundeswehr
+bundeswehr legal	account	bundeswehr.de/de/impressum	site-slot	slot:legal,template:name-first,from:head-brand	dev	bundeswehr
+burundi contact us	account	presidence.gov.bi/contact	site-slot	slot:contact,template:name-first,from:own-title	dev	burundi
+burundi newsroom	account	presidence.gov.bi/media	site-slot	slot:press,template:name-first,from:own-title	dev	burundi
+calendar alexander lukashenko	account	president.gov.by/en/events	site-slot	slot:events,template:slot-first,from:own-title	dev	alexanderlukashenko
+calendar boston	account	boston.gov/events	site-slot	slot:events,template:slot-first,from:own-title	dev	boston
+capcom sustainability	account	capcom.co.jp/ir/english/csr.html	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	capcom
+capital one app	account	capitalone.com/digital/tools/mobile	site-slot	slot:app,template:name-first,from:head-brand	dev	capitalone
+capital one security	account	capitalone.com/digital/identity-protection	site-slot	slot:security,template:name-first,from:head-brand	dev	capitalone
+cardiff city f.c. buy tickets	account	tickets.cardiffcityfc.co.uk	site-slot	slot:tickets,template:name-first,from:head-brand	dev	cardiffcityfc
+cardiff city f.c. hours	account	cardiffcityfc.co.uk/tickets/ticket-office-opening-hours	site-slot	slot:hours,template:name-first,from:head-brand	dev	cardiffcityfc
+career maruti suzuki	account	marutisuzuki.com/corporate/careers	site-slot	slot:careers,template:slot-first,from:head-brand	dev	marutisuzuki
+celine dion merch	account	celinedion.com/boutique	site-slot	slot:shop,template:name-first,from:own-title	dev	celinedion
+central intelligence agency executives	account	cia.gov/about/director-of-cia	site-slot	slot:team,template:name-first,from:own-title	dev	centralintelligenceagency
+central intelligence agency sitemap	account	cia.gov/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	dev	centralintelligenceagency
+cern event calendar	account	home.cern/events	site-slot	slot:events,template:name-first,from:own-title	dev	cern
+cern partners	account	home.cern/partnerships	site-slot	slot:partners,template:name-first,from:own-title	dev	cern
+charlie chaplin blog	account	charliechaplin.com/en/infos	site-slot	slot:blog,template:name-first,from:own-title	dev	charliechaplin
+charlie chaplin shop	account	charliechaplin.com/en/products	site-slot	slot:shop,template:name-first,from:own-title	dev	charliechaplin
+chelsea f.c. faq	account	chelseafc.com/en/faqs	site-slot	slot:faq,template:name-first,from:head-brand	dev	chelseafc
+chelsea f.c. reservation	account	chelseafc.com/en/book-now	site-slot	slot:reservations,template:name-first,from:head-brand	dev	chelseafc
+chicago bears tickets	account	chicagobears.com/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	dev	chicagobears
+chris pine career	account	chris-pine.org/career	site-slot	slot:careers,template:name-first,from:own-title	dev	chrispine
+church of satan donations	account	churchofsatan.com/support-the-organization	site-slot	slot:donate,template:name-first,from:head-brand	dev	churchofsatan
+church of satan download	account	churchofsatan.com/downloads	site-slot	slot:download,template:name-first,from:head-brand	dev	churchofsatan
+cirque du soleil faqs	account	cirquedusoleil.com/faq	site-slot	slot:faq,template:name-first,from:head-brand	dev	cirquedusoleil
+cirque du soleil merch	account	cirquedusoleil.com/shop	site-slot	slot:shop,template:name-first,from:head-brand	dev	cirquedusoleil
+claude sign in	account	claude.ai/login	site-slot	slot:login,template:name-first,from:head-brand	dev	claudeai
+cnn menu	account	cnn.com/travel/food-and-drink	site-slot	slot:menu,template:name-first,from:own-title	dev	cnn
+cnn sale	account	cnn.com/cnn-underscored/deals	site-slot	slot:deals,template:name-first,from:own-title	dev	cnn
+coldplay downloads	account	coldplay.com/app	site-slot	slot:download,template:name-first,from:own-title	dev	coldplay
+contact info ayn rand	account	aynrand.org/contact-us	site-slot	slot:contact,template:slot-first,from:own-title	dev	aynrand
+contact info knut hamsun	account	hamsunsenteret.no/kontakt	site-slot	slot:contact,template:slot-first,from:own-title	dev	knuthamsun
+contact info pakistan	account	pakistan.gov.pk/contact-us	site-slot	slot:contact,template:slot-first,from:own-title	dev	pakistan
+contact info satyajit ray	account	satyajitray.org/contact	site-slot	slot:contact,template:slot-first,from:own-title	dev	satyajitray
+contact us john travolta	account	travolta.com/contact	site-slot	slot:contact,template:slot-first,from:own-title	dev	johntravolta
+contact us john wayne	account	johnwayne.com/contact-us	site-slot	slot:contact,template:slot-first,from:own-title	dev	johnwayne
+cookie policy czech republic	account	czechia.eu/cookie-policy	site-slot	slot:cookies,template:slot-first,from:own-title	dev	czechrepublic
+costa rica contact	account	presidencia.go.cr/contactenos	site-slot	slot:contact,template:name-first,from:own-title	dev	costarica
+craigslist account	account	accounts.craigslist.org/login/home	site-slot	slot:account,template:name-first,from:head-brand	dev	craigslist
+craigslist service status	account	craigslist.org/about/help/system-status	site-slot	slot:status,template:name-first,from:head-brand	dev	craigslist
+crossfit blog	account	crossfit.com/essentials	site-slot	slot:blog,template:name-first,from:head-brand	dev	crossfit
+cupra accessibility statement	account	cupra.com/en/accessibility	site-slot	slot:accessibility,template:name-first,from:head-brand	dev	cupramarque
+cupra cookies	account	cupra.com/en/legal-note/cookie-policy	site-slot	slot:cookies,template:name-first,from:head-brand	dev	cupramarque
+dag hammarskjöld cookie policy	account	daghammarskjold.se/cookie-notice	site-slot	slot:cookies,template:name-first,from:own-title	dev	daghammarskjld
+dairy queen find a store	account	dairyqueen.com/en-us/locations	site-slot	slot:locations,template:name-first,from:head-brand	dev	dairyqueen
+dallas cowboys offers	account	shop.dallascowboys.com/sale	site-slot	slot:deals,template:name-first,from:head-brand	dev	dallascowboys
+decathlon order status	account	decathlon.com/account	site-slot	slot:tracking,template:name-first,from:head-brand	dev	decathlonretailer
+decathlon shipping policy	account	decathlon.com/policies/shipping-policy	site-slot	slot:shipping,template:name-first,from:head-brand	dev	decathlonretailer
+delaware accessibility	account	accessibility.dti.delaware.gov/dti-digital-accessibility-statement	site-slot	slot:accessibility,template:name-first,from:own-title	dev	delaware
+delaware docs	account	delaware.gov/guides	site-slot	slot:docs,template:name-first,from:own-title	dev	delaware
+dell account	account	dell.com/myaccount/en-us	site-slot	slot:account,template:name-first,from:head-brand	dev	dell
+dell blog	account	dell.com/en-us/blog	site-slot	slot:blog,template:name-first,from:head-brand	dev	dell
+denmark cookies	account	denmark.dk/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	dev	denmark
+destiny's child privacy notice	account	destinyschild.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	dev	destinyschild
+destiny's child terms	account	destinyschild.com/terms-conditions	site-slot	slot:terms,template:name-first,from:own-title	dev	destinyschild
+detroit lions executives	account	detroitlions.com/team/players-roster/index	site-slot	slot:team,template:name-first,from:head-brand	dev	detroitlions
+detroit lions mobile app	account	detroitlions.com/fans/mobile-app	site-slot	slot:app,template:name-first,from:head-brand	dev	detroitlions
+deviantart login	account	deviantart.com/users/login	site-slot	slot:login,template:name-first,from:head-brand	dev	deviantart
+deviantart signup	account	deviantart.com/join	site-slot	slot:signup,template:name-first,from:head-brand	dev	deviantart
+directions unesco	account	house.unesco.org/en	site-slot	slot:directions,template:slot-first,from:head-brand	dev	unesco
+directions university of edinburgh	account	ed.ac.uk/visit	site-slot	slot:directions,template:slot-first,from:own-title	dev	universityofedinburgh
+discord docs	account	discord.com/developers	site-slot	slot:docs,template:name-first,from:head-brand	dev	discord
+discord downloads	account	discord.com/download	site-slot	slot:download,template:name-first,from:head-brand	dev	discord
+disney experiences executives	account	disneyexperiences.com/about/leadership	site-slot	slot:team,template:name-first,from:head-brand	dev	disneyexperiences
+dji log in	account	www-api.dji.com/redirect/member/login	site-slot	slot:login,template:name-first,from:head-brand	dev	dji
+docs the hindu	account	thehindu.com/food/guides	site-slot	slot:docs,template:slot-first,from:head-brand	dev	thehindu
+dominica imprint	account	dominica.gov.dm/disclaimer	site-slot	slot:legal,template:name-first,from:own-title	dev	dominica
+dominica jobs	account	dominica.gov.dm/vacancies	site-slot	slot:careers,template:name-first,from:own-title	dev	dominica
+domino's donations	account	biz.dominos.com/services	site-slot	slot:donate,template:name-first,from:head-brand	dev	dominos
+domino's loyalty program	account	dominos.com/my-deals-and-rewards	site-slot	slot:rewards,template:name-first,from:head-brand	dev	dominos
+donald trump privacy	account	donaldjtrump.com/privacy-policy.html	site-slot	slot:privacy,template:name-first,from:own-title	dev	donaldtrump
+donald trump terms of use	account	donaldjtrump.com/terms-of-service.html	site-slot	slot:terms,template:name-first,from:own-title	dev	donaldtrump
+donations library of congress	account	loc.gov/programs/support-the-library-of-congress	site-slot	slot:donate,template:slot-first,from:own-title	dev	libraryofcongress
+downloads benin	account	sgg.gouv.bj/cm/2026-10-07/download	site-slot	slot:download,template:slot-first,from:own-title	dev	benin
+downloads roche	account	roche.com/investors/downloads	site-slot	slot:download,template:slot-first,from:head-brand	dev	roche
+dropbox support	account	help.dropbox.com	site-slot	slot:support,template:name-first,from:head-brand	dev	dropbox
+ecuador documentation	account	gob.ec/api	site-slot	slot:docs,template:name-first,from:own-title	dev	ecuador
+elton john blog	account	eltonjohn.com/stories	site-slot	slot:blog,template:name-first,from:own-title	dev	eltonjohn
+elton john merch	account	store.eltonjohn.com	site-slot	slot:shop,template:name-first,from:own-title	dev	eltonjohn
+emily dickinson contact info	account	emilydickinson.org/contact	site-slot	slot:contact,template:name-first,from:own-title	dev	emilydickinson
+emily dickinson our story	account	emilydickinson.org/about	site-slot	slot:about,template:name-first,from:own-title	dev	emilydickinson
+eminem merch	account	shop.eminem.com	site-slot	slot:shop,template:name-first,from:own-title	dev	eminem
+eritrea press releases	account	shabait.com/category/press-release	site-slot	slot:press,template:name-first,from:own-title	dev	eritrea
+esso sitemap	account	esso.com/en/sitemap	site-slot	slot:sitemap,template:name-first,from:head-brand	dev	esso
+event calendar nasa	account	nasa.gov/events	site-slot	slot:events,template:slot-first,from:head-brand	dev	nasa
+events malawi	account	malawi.gov.mw/index.php/resources/news-and-media/events	site-slot	slot:events,template:slot-first,from:own-title	dev	malawi
+events pixar	account	pixar.com/events	site-slot	slot:events,template:slot-first,from:head-brand	dev	pixar
+everton f.c. game schedule	account	evertonfc.com/matches	site-slot	slot:schedule,template:name-first,from:head-brand	dev	evertonfc
+everton f.c. tickets	account	evertonfc.com/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	dev	evertonfc
+executives michelle obama	account	obama.org/about/leadership	site-slot	slot:team,template:slot-first,from:own-title	dev	michelleobama
+executives university of edinburgh	account	ed.ac.uk/staff	site-slot	slot:team,template:slot-first,from:own-title	dev	universityofedinburgh
+faq denmark	account	denmark.dk/faq	site-slot	slot:faq,template:slot-first,from:own-title	dev	denmark
+federico fellini contact info	account	federicofellini.it/contatti	site-slot	slot:contact,template:name-first,from:own-title	dev	federicofellini
+federico fellini newsroom	account	federicofellini.it/media	site-slot	slot:press,template:name-first,from:own-title	dev	federicofellini
+felix mendelssohn contact us	account	mendelssohn-stiftung.de/en/kontakt	site-slot	slot:contact,template:name-first,from:own-title	dev	felixmendelssohn
+felix mendelssohn legal	account	mendelssohn-stiftung.de/en/impressum	site-slot	slot:legal,template:name-first,from:own-title	dev	felixmendelssohn
+figma downloads	account	figma.com/downloads	site-slot	slot:download,template:name-first,from:head-brand	dev	figma
+figma service status	account	status.figma.com	site-slot	slot:status,template:name-first,from:head-brand	dev	figma
+finland accessibility statement	account	finland.fi/accessibility-statement	site-slot	slot:accessibility,template:name-first,from:own-title	dev	finland
+finland corporate responsibility	account	finland.fi/tag/environment	site-slot	slot:sustainability,template:name-first,from:own-title	dev	finland
+five guys franchise	account	fiveguys.com/support-hub/franchise	site-slot	slot:franchise,template:name-first,from:head-brand	dev	fiveguys
+five guys order online	account	order.fiveguys.com	site-slot	slot:order,template:name-first,from:head-brand	dev	fiveguys
+food menu canva	account	canva.com/id_id/menu	site-slot	slot:menu,template:slot-first,from:head-brand	dev	canva
+food menu dairy queen	account	dairyqueen.com/en-us/menu	site-slot	slot:menu,template:slot-first,from:head-brand	dev	dairyqueen
+fox broadcasting company accessibility statement	account	fox.com/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	dev	foxbroadcastingcompany
+fox broadcasting company support	account	help.fox.com	site-slot	slot:support,template:name-first,from:own-title	dev	foxbroadcastingcompany
+frank sinatra press	account	sinatra.com/galleries	site-slot	slot:press,template:name-first,from:own-title	dev	franksinatra
+g. k. chesterton login	account	chesterton.org/store/my-account	site-slot	slot:login,template:name-first,from:own-title	dev	gkchesterton
+garmin docs	account	developer.garmin.com	site-slot	slot:docs,template:name-first,from:head-brand	dev	garmin
+garry kasparov contact info	account	kasparov.com/contact	site-slot	slot:contact,template:name-first,from:own-title	dev	garrykasparov
+garry kasparov event calendar	account	kasparov.com/calendar	site-slot	slot:events,template:name-first,from:own-title	dev	garrykasparov
+george harrison merch	account	georgeharrison.com/store	site-slot	slot:shop,template:name-first,from:own-title	dev	georgeharrison
+gerhard schröder contact us	account	gerhard-schroeder.de/kontakt	site-slot	slot:contact,template:name-first,from:own-title	dev	gerhardschrder
+gift cards greggs	account	greggs.com/gift-cards	site-slot	slot:giftcards,template:slot-first,from:head-brand	dev	greggs
+giftcard borussia dortmund	account	bvb.de/de/de/der-bvb/besttravel/adrenalin-trips/gutscheine.html	site-slot	slot:giftcards,template:slot-first,from:own-title	dev	borussiadortmund
+giorgia meloni contact us	account	giorgiameloni.it/scrivici	site-slot	slot:contact,template:name-first,from:own-title	dev	giorgiameloni
+glencore leadership	account	glencore.com/who-we-are/governance	site-slot	slot:team,template:name-first,from:head-brand	dev	glencore
+grateful dead leave feedback	account	dead.net/feedback	site-slot	slot:feedback,template:name-first,from:own-title	dev	gratefuldead
+grateful dead online ordering	account	store.dead.net/products/daves-picks-60	site-slot	slot:order,template:name-first,from:own-title	dev	gratefuldead
+greggs cookie settings	account	greggs.com/legals/cookie-policy	site-slot	slot:cookies,template:name-first,from:head-brand	dev	greggs
+gustav mahler donations	account	gustav-mahler.org/mitgliedschaft/spenden	site-slot	slot:donate,template:name-first,from:own-title	dev	gustavmahler
+gustav mahler returns	account	gustav-mahler.org/allgemeines/widerrufsrecht	site-slot	slot:returns,template:name-first,from:own-title	dev	gustavmahler
+guyana press releases	account	parliament.gov.gy/media-centre/press-releases	site-slot	slot:press,template:name-first,from:own-title	dev	guyana
+guyana track my order	account	parliament.gov.gy/publications/subsidiary-legislation/orders	site-slot	slot:tracking,template:name-first,from:own-title	dev	guyana
+hbo help	account	hbo.com/about/faqs	site-slot	slot:support,template:name-first,from:head-brand	dev	hbo
+hbo schedule	account	hbo.com/schedule	site-slot	slot:schedule,template:name-first,from:head-brand	dev	hbo
+helmut kohl privacy policy	account	helmut-kohl.de/impressum.html	site-slot	slot:privacy,template:name-first,from:own-title	dev	helmutkohl
+help center utah	account	utah.gov/support	site-slot	slot:support,template:slot-first,from:own-title	dev	utah
+hitachi blog	account	hitachi.com/en/insights	site-slot	slot:blog,template:name-first,from:head-brand	dev	hitachi
+hitachi investor relations	account	hitachi.com/en/ir	site-slot	slot:investors,template:name-first,from:head-brand	dev	hitachi
+home depot gift card	account	homedepot.com/c/gift-cards	site-slot	slot:giftcards,template:name-first,from:head-brand	dev	homedepot
+home depot partners	account	homedepot.com/c/sf_ms_the_home_depot_affiliate_program	site-slot	slot:partners,template:name-first,from:head-brand	dev	homedepot
+huawei trust	account	huawei.com/en/trust-center	site-slot	slot:security,template:name-first,from:head-brand	dev	huawei
+hugging face plans	account	huggingface.co/pricing	site-slot	slot:pricing,template:name-first,from:head-brand	dev	huggingface
+hugging face service status	account	status.huggingface.co	site-slot	slot:status,template:name-first,from:head-brand	dev	huggingface
+huhot mongolian grill enrollment	account	huhot.com/jobs	site-slot	slot:admissions,template:name-first,from:site-nav	dev	huhotmongoliangrill
+huhot mongolian grill franchise	account	huhot.com/contact/general-inquiry	site-slot	slot:franchise,template:name-first,from:site-nav	dev	huhotmongoliangrill
+icloud contact	account	icloud.com/ar-sa/contacts	site-slot	slot:contact,template:name-first,from:head-brand	dev	icloud
+icloud event calendar	account	icloud.com/ar-sa/calendar	site-slot	slot:events,template:name-first,from:head-brand	dev	icloud
+ikea blog	account	ikea.com/global/en/stories	site-slot	slot:blog,template:name-first,from:head-brand	dev	ikea
+impressum brigitte bardot	account	brigitte-bardot.fr/mentions-legales	site-slot	slot:legal,template:slot-first,from:own-title	dev	brigittebardot
+impressum crossfit	account	crossfit.com/disclaimer	site-slot	slot:legal,template:slot-first,from:head-brand	dev	crossfit
+impressum helmut kohl	account	helmut-kohl.de/impressum.html	site-slot	slot:legal,template:slot-first,from:own-title	dev	helmutkohl
+imprint louvre	account	louvre.fr/mentions-legales	site-slot	slot:legal,template:slot-first,from:head-brand	dev	louvre
+indian super league press releases	account	indiansuperleague.com/press-releases	site-slot	slot:press,template:name-first,from:head-brand	dev	indiansuperleague
+indian super league schedule	account	indiansuperleague.com/schedule-fixtures	site-slot	slot:schedule,template:name-first,from:head-brand	dev	indiansuperleague
+ineos investor relations	account	ineos.com/investors-companies	site-slot	slot:investors,template:name-first,from:head-brand	dev	ineos
+ineos leadership	account	ineos.com/about/our-leadership	site-slot	slot:team,template:name-first,from:head-brand	dev	ineos
+international criminal court visit	account	icc-cpi.int/visit	site-slot	slot:directions,template:name-first,from:own-title	dev	internationalcriminalcourt
+international criminal court volunteer opportunities	account	icc-cpi.int/get-involved	site-slot	slot:volunteer,template:name-first,from:own-title	dev	internationalcriminalcourt
+investors capcom	account	capcom.co.jp/ir/english	site-slot	slot:investors,template:slot-first,from:head-brand	dev	capcom
+investors huawei	account	huawei.com/en/annual-report	site-slot	slot:investors,template:slot-first,from:head-brand	dev	huawei
+investors lucid motors	account	ir.lucidmotors.com	site-slot	slot:investors,template:slot-first,from:head-brand	dev	lucidmotors
+investors polestar	account	investors.polestar.com	site-slot	slot:investors,template:slot-first,from:head-brand	dev	polestar
+ir amazon	account	amazon.com/ir	site-slot	slot:investors,template:slot-first,from:head-brand	dev	amazoncompany
+ir inter milan	account	inter.it/it/club/investor-relations	site-slot	slot:investors,template:slot-first,from:own-title	dev	intermilan
+ir roche	account	roche.com/investors	site-slot	slot:investors,template:slot-first,from:head-brand	dev	roche
+iveco store locator	account	dealerlocator.iveco.com/en-gb/find-a-dealer	site-slot	slot:locations,template:name-first,from:head-brand	dev	iveco
+jamiroquai about us	account	jamiroquai.com/about	site-slot	slot:about,template:name-first,from:own-title	dev	jamiroquai
+jamiroquai merch	account	store.jamiroquai.com	site-slot	slot:shop,template:name-first,from:own-title	dev	jamiroquai
+jehovah's witnesses give	account	donate.jw.org/en	site-slot	slot:donate,template:name-first,from:own-title	dev	jehovahswitnesses
+jehovah's witnesses sign in	account	hub.jw.org/home/en	site-slot	slot:login,template:name-first,from:own-title	dev	jehovahswitnesses
+jimi hendrix press releases	account	jimihendrix.com/media	site-slot	slot:press,template:name-first,from:own-title	dev	jimihendrix
+jio book a table	account	jio.com/jiohome	site-slot	slot:reservations,template:name-first,from:head-brand	dev	jio
+jio mobile app	account	jio.com/mobile	site-slot	slot:app,template:name-first,from:head-brand	dev	jio
+jobs judy garland	account	judygarland.com/index.php/career	site-slot	slot:careers,template:slot-first,from:own-title	dev	judygarland
+jobs revolut	account	revolut.com/careers	site-slot	slot:careers,template:slot-first,from:head-brand	dev	revolut
+john lennon cookie policy	account	johnlennon.com/cookies	site-slot	slot:cookies,template:name-first,from:own-title	dev	johnlennon
+john lennon merch	account	store.johnlennon.com	site-slot	slot:shop,template:name-first,from:own-title	dev	johnlennon
+john wayne about us	account	johnwayne.com/about	site-slot	slot:about,template:name-first,from:own-title	dev	johnwayne
+johnny cash shop	account	store.johnnycash.com	site-slot	slot:shop,template:name-first,from:own-title	dev	johnnycash
+jollibee accessibility	account	jollibee.com.ph/accessibility	site-slot	slot:accessibility,template:name-first,from:head-brand	dev	jollibee
+jollibee giftcard	account	jollibee.com.ph/gift-cards	site-slot	slot:giftcards,template:name-first,from:head-brand	dev	jollibee
+jonas brothers merch	account	shop.jonasbrothers.com	site-slot	slot:shop,template:name-first,from:own-title	dev	jonasbrothers
+jonas brothers tickets	account	jonasbrothers.com/tour/tickets	site-slot	slot:tickets,template:name-first,from:own-title	dev	jonasbrothers
+judy garland about	account	judygarland.com/index.php/about-2	site-slot	slot:about,template:name-first,from:own-title	dev	judygarland
+kennedy center account	account	kennedy-center.org/account	site-slot	slot:account,template:name-first,from:head-brand	dev	kennedycenter
+kennedy center contact	account	kennedy-center.org/contact	site-slot	slot:contact,template:name-first,from:head-brand	dev	kennedycenter
+konami investor relations	account	konami.com/ir/en	site-slot	slot:investors,template:name-first,from:head-brand	dev	konami
+konami loyalty	account	konami.com/sportsclub/riyo	site-slot	slot:rewards,template:name-first,from:head-brand	dev	konami
+krispy kreme loyalty	account	krispykreme.com/rewards	site-slot	slot:rewards,template:name-first,from:head-brand	dev	krispykreme
+lamborghini investors	account	lamborghini.com/en-en/financials	site-slot	slot:investors,template:name-first,from:head-brand	dev	lamborghini
+lamborghini sitemap	account	lamborghini.com/en-en/sitemap	site-slot	slot:sitemap,template:name-first,from:head-brand	dev	lamborghini
+lask online store	account	shop.lask.at	site-slot	slot:shop,template:name-first,from:head-brand	dev	lask
+leadership chicago bears	account	chicagobears.com/team/players-roster	site-slot	slot:team,template:slot-first,from:head-brand	dev	chicagobears
+lebron james privacy notice	account	lebronjames.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	dev	lebronjames
+legal stephen hawking	account	hawking.org.uk/legal/disclaimer	site-slot	slot:legal,template:slot-first,from:own-title	dev	stephenhawking
+lewis hamilton privacy	account	lewishamilton.com/privacypolicy	site-slot	slot:privacy,template:name-first,from:own-title	dev	lewishamilton
+lewis hamilton terms and conditions	account	lewishamilton.com/terms	site-slot	slot:terms,template:name-first,from:own-title	dev	lewishamilton
+library of congress directions	account	loc.gov/visit	site-slot	slot:directions,template:name-first,from:own-title	dev	libraryofcongress
+linkin park cookies	account	linkinpark.com/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	dev	linkinpark
+linkin park online store	account	store.linkinpark.com	site-slot	slot:shop,template:name-first,from:own-title	dev	linkinpark
+login palo alto networks	account	support.paloaltonetworks.com/supportaccount/myaccount	site-slot	slot:login,template:slot-first,from:head-brand	dev	paloaltonetworks
+london calendar	account	london.gov.uk/events	site-slot	slot:events,template:name-first,from:own-title	dev	london
+london volunteer opportunities	account	london.gov.uk/programmes-strategies/volunteering	site-slot	slot:volunteer,template:name-first,from:own-title	dev	london
+lordi contact us	account	lordi.fi/cont	site-slot	slot:contact,template:name-first,from:own-title	dev	lordi
+lotus cars career	account	careers.lotuscars.com	site-slot	slot:careers,template:name-first,from:head-brand	dev	lotuscars
+lotus cars press releases	account	lotuscars.com/en/press	site-slot	slot:press,template:name-first,from:head-brand	dev	lotuscars
+louisa may alcott give	account	louisamayalcott.org/donate	site-slot	slot:donate,template:name-first,from:own-title	dev	louisamayalcott
+louisa may alcott plan your visit	account	louisamayalcott.org/visit	site-slot	slot:directions,template:name-first,from:own-title	dev	louisamayalcott
+louvre accessibility statement	account	louvre.fr/visiter/accessibilite	site-slot	slot:accessibility,template:name-first,from:head-brand	dev	louvre
+lucid motors management	account	lucidmotors.com/company/board	site-slot	slot:team,template:name-first,from:head-brand	dev	lucidmotors
+mahathir mohamad privacy policy	account	thechedet.com/privacy	site-slot	slot:privacy,template:name-first,from:own-title	dev	mahathirmohamad
+mahathir mohamad terms of use	account	thechedet.com/terms	site-slot	slot:terms,template:name-first,from:own-title	dev	mahathirmohamad
+manage account selena	account	q-productions.com/account/login	site-slot	slot:account,template:slot-first,from:own-title	dev	selena
+manage account snapchat	account	accounts.snapchat.com	site-slot	slot:account,template:slot-first,from:head-brand	dev	snapchat
+manchester united f.c. rewards	account	manutd.com/en/become-a-member-in-2026-27	site-slot	slot:rewards,template:name-first,from:own-title	dev	manchesterunitedfc
+mauritius apps	account	govmu.org/en/pages/mobileapps.aspx	site-slot	slot:app,template:name-first,from:own-title	dev	mauritius
+mauritius directions	account	govmu.org/en/pages/mapfooter.aspx	site-slot	slot:directions,template:name-first,from:own-title	dev	mauritius
+maya angelou blog	account	mayaangelou.com/blog	site-slot	slot:blog,template:name-first,from:own-title	dev	mayaangelou
+maya angelou online store	account	mayaangelou.com/merchandise	site-slot	slot:shop,template:name-first,from:own-title	dev	mayaangelou
+mazda esg	account	mazda.com/en/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	mazda
+mazda management	account	mazda.com/en/sustainability/governance	site-slot	slot:team,template:name-first,from:head-brand	dev	mazda
+mecca events	account	hmm.gov.sa/events	site-slot	slot:events,template:name-first,from:own-title	dev	mecca
+mecca locations	account	hmm.gov.sa/locations	site-slot	slot:locations,template:name-first,from:own-title	dev	mecca
+mediatek corporate responsibility	account	mediatek.com/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	mediatek
+mediatek executives	account	mediatek.com/investor-relations/corporate-governance	site-slot	slot:team,template:name-first,from:head-brand	dev	mediatek
+mediawiki get the app	account	mediawiki.org/wiki/special:mylanguage/download	site-slot	slot:download,template:name-first,from:head-brand	dev	mediawiki
+mediawiki volunteer	account	mediawiki.org/wiki/special:mylanguage/how_to_contribute	site-slot	slot:volunteer,template:name-first,from:head-brand	dev	mediawiki
+melania trump frequently asked questions	account	melaniatrump.com/pages/faq	site-slot	slot:faq,template:name-first,from:own-title	dev	melaniatrump
+melania trump order online	account	melaniatrump.com/collections/publishing	site-slot	slot:order,template:name-first,from:own-title	dev	melaniatrump
+merch roger federer	account	rogerfederer.com/shop	site-slot	slot:shop,template:slot-first,from:own-title	dev	rogerfederer
+merch walgreens	account	photo.walgreens.com/store/all-products	site-slot	slot:shop,template:slot-first,from:head-brand	dev	walgreens
+meta platforms help	account	meta.com/help	site-slot	slot:support,template:name-first,from:own-title	dev	metaplatforms
+michelle obama investor relations	account	obama.org/about/financials	site-slot	slot:investors,template:name-first,from:own-title	dev	michelleobama
+miramax privacy notice	account	miramax.com/termsofuse	site-slot	slot:privacy,template:name-first,from:head-brand	dev	miramax
+miramax terms	account	miramax.com/termsofuse	site-slot	slot:terms,template:name-first,from:head-brand	dev	miramax
+mobile app garmin	account	garmin.com/en-us/c/apps	site-slot	slot:app,template:slot-first,from:head-brand	dev	garmin
+monaco privacy policy	account	gouv.mc/donnees-personnelles	site-slot	slot:privacy,template:name-first,from:own-title	dev	monaco
+monaco sitemap	account	gouv.mc/plan-du-site	site-slot	slot:sitemap,template:name-first,from:own-title	dev	monaco
+montana contact info	account	directory.mt.gov/contact-us	site-slot	slot:contact,template:name-first,from:own-title	dev	montana
+montana jobs	account	statecareers.mt.gov	site-slot	slot:careers,template:name-first,from:own-title	dev	montana
+mother teresa give	account	motherteresa.org/mtc/notifications	site-slot	slot:donate,template:name-first,from:own-title	dev	motherteresa
+mother teresa volunteer	account	motherteresa.org/mc-family/our-associates	site-slot	slot:volunteer,template:name-first,from:own-title	dev	motherteresa
+motörhead about	account	imotorhead.com/tour	site-slot	slot:about,template:name-first,from:own-title	dev	motrhead
+msn jobs	account	msn.com/careers	site-slot	slot:careers,template:name-first,from:head-brand	dev	msn
+mtv imprint	account	mtv.com/legal/xuqfse/copyright-compliance	site-slot	slot:legal,template:name-first,from:own-title	dev	mtv
+mtv terms of use	account	mtv.com/legal/o3ccr8/terms-of-use	site-slot	slot:terms,template:name-first,from:own-title	dev	mtv
+mubi careers	account	mubi.com/en/jobs	site-slot	slot:careers,template:name-first,from:head-brand	dev	mubistreamingservice
+mubi terms of use	account	mubi.com/en/terms_of_service	site-slot	slot:terms,template:name-first,from:head-brand	dev	mubistreamingservice
+my account g. k. chesterton	account	chesterton.org/store/my-account	site-slot	slot:account,template:slot-first,from:own-title	dev	gkchesterton
+myspace log in	account	myspace.com/signin	site-slot	slot:login,template:name-first,from:head-brand	dev	myspace
+national basketball association schedule	account	nba.com/schedule	site-slot	slot:schedule,template:name-first,from:own-title	dev	nationalbasketballassociation
+nato blog	account	nato.int/en/news-and-events/articles	site-slot	slot:blog,template:name-first,from:head-brand	dev	nato
+nato enroll	account	nato.int/en/work-with-us/careers/how-to-apply	site-slot	slot:admissions,template:name-first,from:head-brand	dev	nato
+nbc accessibility	account	nbc.com/general/pages/accessibility	site-slot	slot:accessibility,template:name-first,from:head-brand	dev	nbc
+nbc sign in	account	nbc.com/sign-in	site-slot	slot:login,template:name-first,from:head-brand	dev	nbc
+new delhi account	account	ndmc.gov.in/departments/accounts.aspx	site-slot	slot:account,template:name-first,from:own-title	dev	newdelhi
+new delhi loyalty program	account	ndmc.gov.in/council_members.aspx	site-slot	slot:rewards,template:name-first,from:own-title	dev	newdelhi
+newcastle united f.c. esg	account	newcastleunited.com/en/sustainability	site-slot	slot:sustainability,template:name-first,from:own-title	dev	newcastleunitedfc
+newcastle united f.c. ticket	account	book.newcastleunited.com/default.aspx	site-slot	slot:tickets,template:name-first,from:own-title	dev	newcastleunitedfc
+newsroom malawi	account	malawi.gov.mw/index.php/resources/news-and-media/press-releases	site-slot	slot:press,template:slot-first,from:own-title	dev	malawi
+newsroom true jesus church	account	tjc.org/all-media	site-slot	slot:press,template:slot-first,from:own-title	dev	truejesuschurch
+nicki minaj register	account	nickiminajofficial.com/sign-up	site-slot	slot:signup,template:name-first,from:own-title	dev	nickiminaj
+nicki minaj shop	account	shop.nickiminajofficial.com	site-slot	slot:shop,template:name-first,from:own-title	dev	nickiminaj
+nike, inc. shipping	account	nike.com/help/a/shipping-delivery	site-slot	slot:shipping,template:name-first,from:own-title	dev	nikeinc
+noam chomsky about us	account	chomsky.info/about	site-slot	slot:about,template:name-first,from:own-title	dev	noamchomsky
+noam chomsky blog	account	chomsky.info/articles	site-slot	slot:blog,template:name-first,from:own-title	dev	noamchomsky
+north carolina accessibility statement	account	nc.gov/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	dev	northcarolina
+north dakota accessibility statement	account	nd.gov/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	dev	northdakota
+novak djokovic terms and conditions	account	novakdjokovic.com/en/terms-conditions	site-slot	slot:terms,template:name-first,from:own-title	dev	novakdjokovic
+nsync gift cards	account	nsync.com/products/gift-card	site-slot	slot:giftcards,template:name-first,from:own-title	dev	nsync
+nsync help center	account	nsync.com/pages/help	site-slot	slot:support,template:name-first,from:own-title	dev	nsync
+online ordering krispy kreme	account	krispykreme.com/more-smiles/online-ordering	site-slot	slot:order,template:slot-first,from:head-brand	dev	krispykreme
+openai career	account	openai.com/careers	site-slot	slot:careers,template:name-first,from:head-brand	dev	openai
+openai our story	account	openai.com/about	site-slot	slot:about,template:name-first,from:head-brand	dev	openai
+openstreetmap become a partner	account	hardware.openstreetmap.org/thanks	site-slot	slot:partners,template:name-first,from:own-title	dev	openstreetmap
+openstreetmap donations	account	supporting.openstreetmap.org/donate	site-slot	slot:donate,template:name-first,from:own-title	dev	openstreetmap
+order now shake shack	account	shakeshack.com/home	site-slot	slot:order,template:slot-first,from:head-brand	dev	shakeshack
+order online madonna	account	shop.madonna.com/products/confessions-ii-neon-tee-16-track-cd	site-slot	slot:order,template:slot-first,from:own-title	dev	madonna
+our story alexander lukashenko	account	president.gov.by/en/about	site-slot	slot:about,template:slot-first,from:own-title	dev	alexanderlukashenko
+our story johnny cash	account	johnnycash.com/about	site-slot	slot:about,template:slot-first,from:own-title	dev	johnnycash
+our story robert burns	account	robertburns.org/about_us	site-slot	slot:about,template:slot-first,from:own-title	dev	robertburns
+palantir site map	account	palantir.com/sitemap.xml	site-slot	slot:sitemap,template:name-first,from:head-brand	dev	palantir
+palau about	account	palaugov.pw/who-we-are	site-slot	slot:about,template:name-first,from:own-title	dev	palau
+palo alto networks safety	account	paloaltonetworks.com/legal-notices/trust-center	site-slot	slot:security,template:name-first,from:head-brand	dev	paloaltonetworks
+papua new guinea blog	account	papuanewguinea.travel/stories	site-slot	slot:blog,template:name-first,from:own-title	dev	papuanewguinea
+paris saint-germain fc manage account	account	myaccount.psg.fr	site-slot	slot:account,template:name-first,from:own-title	dev	parissaintgermainfc
+paris saint-germain fc ticket	account	billetterie.psg.fr/en	site-slot	slot:tickets,template:name-first,from:own-title	dev	parissaintgermainfc
+partners papua new guinea	account	papuanewguinea.travel/our-partners	site-slot	slot:partners,template:slot-first,from:own-title	dev	papuanewguinea
+pbs newsroom	account	pbs.org/about/about-pbs/blogs/news	site-slot	slot:press,template:name-first,from:head-brand	dev	pbs
+pbs online store	account	shop.pbs.org	site-slot	slot:shop,template:name-first,from:head-brand	dev	pbs
+pink floyd merch	account	shop.uk.pinkfloyd.com	site-slot	slot:shop,template:name-first,from:own-title	dev	pinkfloyd
+pixar faqs	account	pixar.com/company-faqs	site-slot	slot:faq,template:name-first,from:head-brand	dev	pixar
+plan your visit utah	account	utah.gov/visit	site-slot	slot:directions,template:slot-first,from:own-title	dev	utah
+polestar sale	account	polestar.com/us/offers/new	site-slot	slot:deals,template:name-first,from:head-brand	dev	polestar
+press nasa	account	nasa.gov/2026-news-releases	site-slot	slot:press,template:slot-first,from:head-brand	dev	nasa
+press releases dropbox	account	dropbox.com/business/solutions/media	site-slot	slot:press,template:slot-first,from:head-brand	dev	dropbox
+prices unity	account	unity.com/products	site-slot	slot:pricing,template:slot-first,from:head-brand	dev	unitygameengine
+pricing canva	account	canva.com/ar/pricing	site-slot	slot:pricing,template:slot-first,from:head-brand	dev	canva
+privacy giorgia meloni	account	giorgiameloni.it/privacy	site-slot	slot:privacy,template:slot-first,from:own-title	dev	giorgiameloni
+privacy notice stephen king	account	stephenking.com/privacy	site-slot	slot:privacy,template:slot-first,from:own-title	dev	stephenking
+privacy notice svetlana alexievich	account	alexievich.info/privacy.html	site-slot	slot:privacy,template:slot-first,from:own-title	dev	svetlanaalexievich
+privacy policy john mccain	account	johnmccain.com/privacy	site-slot	slot:privacy,template:slot-first,from:site-nav	dev	johnmccain
+r.e.m. online store	account	store.remhq.com	site-slot	slot:shop,template:name-first,from:own-title	dev	rem
+r.e.m. our story	account	remhq.com/history	site-slot	slot:about,template:name-first,from:own-title	dev	rem
+rachel carson contact info	account	rachelcarson.org/contact-us	site-slot	slot:contact,template:name-first,from:own-title	dev	rachelcarson
+rachel carson impressum	account	rachelcarson.org/copyright	site-slot	slot:legal,template:name-first,from:own-title	dev	rachelcarson
+reebok account	account	reebok.com/account	site-slot	slot:account,template:name-first,from:head-brand	dev	reebok
+reebok gift card	account	reebok.com/collections/gift-cards	site-slot	slot:giftcards,template:name-first,from:head-brand	dev	reebok
+refund policy sanrio	account	sanrio.com/a/returns	site-slot	slot:returns,template:slot-first,from:head-brand	dev	sanrio
+rewards xbox	account	xbox.com/en-us/rewards	site-slot	slot:rewards,template:slot-first,from:head-brand	dev	xboxdivision
+rhode island blog	account	ri.gov/blogs	site-slot	slot:blog,template:name-first,from:own-title	dev	rhodeisland
+rhode island site map	account	ri.gov/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	dev	rhodeisland
+richard dawkins contact	account	richarddawkins.com/contact	site-slot	slot:contact,template:name-first,from:own-title	dev	richarddawkins
+richard dawkins events	account	richarddawkins.com/events	site-slot	slot:events,template:name-first,from:own-title	dev	richarddawkins
+rio tinto become a partner	account	riotinto.com/en/about/suppliers	site-slot	slot:partners,template:name-first,from:head-brand	dev	riotintocorporation
+rio tinto game schedule	account	riotinto.com/en/invest/financial-news-performance/results	site-slot	slot:schedule,template:name-first,from:head-brand	dev	riotintocorporation
+robert burns terms and conditions	account	robertburns.org/terms_conditions	site-slot	slot:terms,template:name-first,from:own-title	dev	robertburns
+roger federer event calendar	account	rogerfederer.com/events	site-slot	slot:events,template:name-first,from:own-title	dev	rogerfederer
+safety disney experiences	account	disneyexperiences.com/about/safety	site-slot	slot:security,template:slot-first,from:head-brand	dev	disneyexperiences
+safety unity	account	unity.com/security	site-slot	slot:security,template:slot-first,from:head-brand	dev	unitygameengine
+sale sanrio	account	sanrio.com/collections/sale-1	site-slot	slot:deals,template:slot-first,from:head-brand	dev	sanrio
+samsung return policy	account	order-help.us.samsung.com/articles/returns-refunds/what-is-samsungs-return-policy/669e3173cd7d5a05a5318406	site-slot	slot:returns,template:name-first,from:head-brand	dev	samsung
+samsung track my order	account	shop.samsung.com/us/mypage/orders	site-slot	slot:tracking,template:name-first,from:head-brand	dev	samsung
+san francisco leave feedback	account	sf.gov/topics--problems-and-complaints	site-slot	slot:feedback,template:name-first,from:own-title	dev	sanfrancisco
+san francisco volunteer	account	sf.gov/topics--volunteering	site-slot	slot:volunteer,template:name-first,from:own-title	dev	sanfrancisco
+satyajit ray privacy	account	satyajitray.org/privacy	site-slot	slot:privacy,template:name-first,from:own-title	dev	satyajitray
+schedule lask	account	lask.at/en/m/teams/matches	site-slot	slot:schedule,template:slot-first,from:head-brand	dev	lask
+schedule wrexham a.f.c.	account	wrexhamafc.co.uk/matches	site-slot	slot:schedule,template:slot-first,from:head-brand	dev	wrexhamafc
+sean connery privacy	account	seanconnery.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	dev	seanconnery
+security north dakota	account	nd.gov/living-nd/safety	site-slot	slot:security,template:slot-first,from:own-title	dev	northdakota
+selena privacy	account	q-productions.com/pages/data-sharing-opt-out	site-slot	slot:privacy,template:name-first,from:own-title	dev	selena
+shake shack giftcard	account	shakeshack.com/gift-card	site-slot	slot:giftcards,template:name-first,from:head-brand	dev	shakeshack
+shop frank sinatra	account	sinatra.com/shop	site-slot	slot:shop,template:slot-first,from:own-title	dev	franksinatra
+shop frank zappa	account	store.zappa.com	site-slot	slot:shop,template:slot-first,from:own-title	dev	frankzappa
+shopify corporate responsibility	account	shopify.com/climate	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	shopify
+shopify docs	account	shopify.com/blog/topics/guides	site-slot	slot:docs,template:name-first,from:head-brand	dev	shopify
+sierra leone calendar	account	statehouse.gov.sl/events-2	site-slot	slot:events,template:name-first,from:own-title	dev	sierraleone
+sierra leone press releases	account	statehouse.gov.sl/press-releases	site-slot	slot:press,template:name-first,from:own-title	dev	sierraleone
+sign in madonna	account	madonna.com/account/login	site-slot	slot:login,template:slot-first,from:own-title	dev	madonna
+sign up coldplay	account	coldplay.com/sign-up	site-slot	slot:signup,template:slot-first,from:own-title	dev	coldplay
+sign up ted	account	giving.ted.com/page/tedmember	site-slot	slot:signup,template:slot-first,from:head-brand	dev	tedconference
+signup taylor swift	account	taylorswift.com/sign-up	site-slot	slot:signup,template:slot-first,from:own-title	dev	taylorswift
+singapore about	account	gov.sg/about-us	site-slot	slot:about,template:name-first,from:own-title	dev	singapore
+singapore terms	account	gov.sg/terms-of-use	site-slot	slot:terms,template:name-first,from:own-title	dev	singapore
+site map bajaj auto	account	bajajauto.com/sitemap	site-slot	slot:sitemap,template:slot-first,from:head-brand	dev	bajajauto
+site map ikea	account	ikea.com/global/en/sitemap	site-slot	slot:sitemap,template:slot-first,from:head-brand	dev	ikea
+slack log in	account	slack.com/signin	site-slot	slot:login,template:name-first,from:head-brand	dev	slacksoftware
+slack pricing	account	slack.com/pricing	site-slot	slot:pricing,template:name-first,from:head-brand	dev	slacksoftware
+snapchat downloads	account	snapchat.com/download	site-slot	slot:download,template:name-first,from:head-brand	dev	snapchat
+status wix	account	status.wix.com	site-slot	slot:status,template:slot-first,from:head-brand	dev	wixcom
+stephen king faqs	account	stephenking.com/faq	site-slot	slot:faq,template:name-first,from:own-title	dev	stephenking
+supertramp about	account	supertramp.com/about	site-slot	slot:about,template:name-first,from:own-title	dev	supertramp
+supertramp newsroom	account	supertramp.com/media	site-slot	slot:press,template:name-first,from:own-title	dev	supertramp
+support rivian	account	rivian.com/experience/service	site-slot	slot:support,template:slot-first,from:head-brand	dev	rivian
+suriname cookie policy	account	gov.sr/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	dev	suriname
+suriname download	account	gov.sr/wp-content/uploads/2026/10/bekendmaking-szf-aanvullende-informatie.pdf	site-slot	slot:download,template:name-first,from:own-title	dev	suriname
+sustainability basf	account	basf.com/us/en/who-we-are/sustainability	site-slot	slot:sustainability,template:slot-first,from:head-brand	dev	basf
+switzerland imprint	account	admin.ch/en/impressum-en	site-slot	slot:legal,template:name-first,from:own-title	dev	switzerland
+switzerland newsroom	account	admin.ch/en/information-for-media	site-slot	slot:press,template:name-first,from:own-title	dev	switzerland
+taliban about us	account	alemarahenglish.af/about-us	site-slot	slot:about,template:name-first,from:own-title	dev	taliban
+taliban contact us	account	alemarahenglish.af/contact-us	site-slot	slot:contact,template:name-first,from:own-title	dev	taliban
+talking heads privacy	account	talkingheadsofficial.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	dev	talkingheads
+tata motors faq	account	tatamotors.com/careers/faqs	site-slot	slot:faq,template:name-first,from:head-brand	dev	tatamotors
+tata motors management	account	tatamotors.com/corporate-responsibility/governance	site-slot	slot:team,template:name-first,from:head-brand	dev	tatamotors
+taylor swift accessibility statement	account	taylorswift.com/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	dev	taylorswift
+ted help	account	support.ted.com	site-slot	slot:support,template:name-first,from:head-brand	dev	tedconference
+temu shipping policy	account	temu.com/shipping-info.html	site-slot	slot:shipping,template:name-first,from:head-brand	dev	temu
+temu site map	account	temu.com/promotion/sitemap.html	site-slot	slot:sitemap,template:name-first,from:head-brand	dev	temu
+terms canada	account	canada.ca/en/transparency/terms.html	site-slot	slot:terms,template:slot-first,from:own-title	dev	canada
+texas help	account	texas.gov/help-support	site-slot	slot:support,template:name-first,from:own-title	dev	texas
+texas sitemap	account	texas.gov/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	dev	texas
+the cranberries cookie policy	account	cranberries.com/cookies	site-slot	slot:cookies,template:name-first,from:own-title	dev	thecranberries
+the cranberries shop	account	shopus.cranberries.com	site-slot	slot:shop,template:name-first,from:own-title	dev	thecranberries
+the doors online store	account	store.thedoors.com	site-slot	slot:shop,template:name-first,from:own-title	dev	thedoors
+the doors terms	account	thedoors.com/terms-and-conditions	site-slot	slot:terms,template:name-first,from:own-title	dev	thedoors
+the guardian cookie policy	account	theguardian.com/info/cookies	site-slot	slot:cookies,template:name-first,from:head-brand	dev	theguardian
+the guardian esg	account	theguardian.com/us/environment	site-slot	slot:sustainability,template:name-first,from:head-brand	dev	theguardian
+the hindu deals	account	thehindu.com/specials	site-slot	slot:deals,template:name-first,from:head-brand	dev	thehindu
+the smashing pumpkins shop	account	store.smashingpumpkins.com	site-slot	slot:shop,template:name-first,from:own-title	dev	thesmashingpumpkins
+ticket dallas cowboys	account	dallascowboys.com/tickets	site-slot	slot:tickets,template:slot-first,from:head-brand	dev	dallascowboys
+time legal	account	time.com/modern-slavery-statement	site-slot	slot:legal,template:name-first,from:head-brand	dev	timemagazine
+time site map	account	time.com/sitemap.xml	site-slot	slot:sitemap,template:name-first,from:head-brand	dev	timemagazine
+tottenham hotspur f.c. loyalty program	account	tottenhamhotspur.com/membership	site-slot	slot:rewards,template:name-first,from:own-title	dev	tottenhamhotspurfc
+tottenham hotspur f.c. partners	account	tottenhamhotspur.com/the-club/partners	site-slot	slot:partners,template:name-first,from:own-title	dev	tottenhamhotspurfc
+track my order nike, inc.	account	nike.com/orders/details	site-slot	slot:tracking,template:slot-first,from:own-title	dev	nikeinc
+true jesus church blog	account	tjc.org/our-stories	site-slot	slot:blog,template:name-first,from:own-title	dev	truejesuschurch
+tupac shakur blog	account	2pac.com/stories	site-slot	slot:blog,template:name-first,from:own-title	dev	tupacshakur
+tupac shakur reservations	account	2pac.com/book	site-slot	slot:reservations,template:name-first,from:own-title	dev	tupacshakur
+u.s. steel leadership	account	ussteel.com/about-us/people	site-slot	slot:team,template:name-first,from:head-brand	dev	ussteel
+u.s. steel merch	account	ussteel.com/about-us/bigriversteel/products	site-slot	slot:shop,template:name-first,from:head-brand	dev	ussteel
+ubs blog	account	ubs.com/us/en/assetmanagement/insights.html	site-slot	slot:blog,template:name-first,from:head-brand	dev	ubs
+ubs investors	account	ubs.com/global/en/investor-relations.html	site-slot	slot:investors,template:name-first,from:head-brand	dev	ubs
+uganda careers	account	statehouse.go.ug/career	site-slot	slot:careers,template:name-first,from:own-title	dev	uganda
+uganda press releases	account	statehouse.go.ug/ppu	site-slot	slot:press,template:name-first,from:own-title	dev	uganda
+under armour manage account	account	underarmour.com/en-us/my-account	site-slot	slot:account,template:name-first,from:head-brand	dev	underarmour
+under armour shipping policy	account	underarmour.com/en-us/t/shipping.html	site-slot	slot:shipping,template:name-first,from:head-brand	dev	underarmour
+unesco partners	account	unesco.org/en/partnerships	site-slot	slot:partners,template:name-first,from:head-brand	dev	unesco
+variety api	account	variety.com/t/documentaries-to-watch	site-slot	slot:docs,template:name-first,from:head-brand	dev	varietymagazine
+variety help	account	variety.com/magazine-faq	site-slot	slot:support,template:name-first,from:head-brand	dev	varietymagazine
+vermont accessibility	account	vermont.gov/policies/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	dev	vermont
+vermont help	account	vermont.gov/help	site-slot	slot:support,template:name-first,from:own-title	dev	vermont
+viber get the app	account	viber.com/en/download	site-slot	slot:download,template:name-first,from:head-brand	dev	viber
+viber security	account	viber.com/en/security	site-slot	slot:security,template:name-first,from:head-brand	dev	viber
+victoria's secret order status	account	victoriassecret.com/us/account/order-status	site-slot	slot:tracking,template:name-first,from:head-brand	dev	victoriassecret
+victoria's secret shipping policy	account	customercare.victoriassecret.com/s/topic/0to3h0000004cxmgay/ordering-shipping	site-slot	slot:shipping,template:name-first,from:head-brand	dev	victoriassecret
+volunteer north carolina	account	nc.gov/your-government/get-involved	site-slot	slot:volunteer,template:slot-first,from:own-title	dev	northcarolina
+volunteer ymca	account	ymca.int/get-involved	site-slot	slot:volunteer,template:slot-first,from:head-brand	dev	ymca
+walgreens giftcard	account	walgreens.com/promotion/walgreens-gift-cards	site-slot	slot:giftcards,template:name-first,from:head-brand	dev	walgreens
+wattpad get the app	account	wattpad.com/getmobile	site-slot	slot:download,template:name-first,from:head-brand	dev	wattpad
+wattpad newsroom	account	company.wattpad.com/press	site-slot	slot:press,template:name-first,from:head-brand	dev	wattpad
+wells fargo reservation	account	appointments.wellsfargo.com/maa/appointment	site-slot	slot:reservations,template:name-first,from:head-brand	dev	wellsfargo
+wells fargo security	account	wellsfargo.com/privacy-security/fraud	site-slot	slot:security,template:name-first,from:head-brand	dev	wellsfargo
+west virginia about	account	wv.gov/about-us	site-slot	slot:about,template:name-first,from:own-title	dev	westvirginia
+west virginia faqs	account	wv.gov/faq	site-slot	slot:faq,template:name-first,from:own-title	dev	westvirginia
+westlife merch	account	shop.westlife.com	site-slot	slot:shop,template:name-first,from:own-title	dev	westlife
+wikimedia foundation donate	account	wikimediafoundation.org/give	site-slot	slot:donate,template:name-first,from:head-brand	dev	wikimediafoundation
+wikimedia foundation volunteer	account	wikimediafoundation.org/participate	site-slot	slot:volunteer,template:name-first,from:head-brand	dev	wikimediafoundation
+wikisource support	account	wikisource.org/wiki/wikisource:help	site-slot	slot:support,template:name-first,from:own-title	dev	wikisource
+wix prices	account	wix.com/plans	site-slot	slot:pricing,template:name-first,from:head-brand	dev	wixcom
+world health organization become a partner	account	who.int/mega-menu/emergencies/who-in-emergencies/partners	site-slot	slot:partners,template:name-first,from:own-title	dev	worldhealthorganization
+world health organization events	account	who.int/mega-menu/news/all-news/events	site-slot	slot:events,template:name-first,from:own-title	dev	worldhealthorganization
+wrexham a.f.c. tickets	account	wrexhamafc.co.uk/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	dev	wrexhamafc
+xerox investor relations	account	investors.xerox.com	site-slot	slot:investors,template:name-first,from:head-brand	dev	xerox
+xerox security	account	security.business.xerox.com/en-us	site-slot	slot:security,template:name-first,from:head-brand	dev	xerox
+yale university admissions	account	yale.edu/admissions	site-slot	slot:admissions,template:name-first,from:own-title	dev	yaleuniversity
+yale university donate	account	forhumanity.yale.edu	site-slot	slot:donate,template:name-first,from:own-title	dev	yaleuniversity
+ymca site map	account	ymca.int/sitemap_index.xml	site-slot	slot:sitemap,template:name-first,from:head-brand	dev	ymca
+york university donations	account	yorku.ca/alumniandfriends/give	site-slot	slot:donate,template:name-first,from:own-title	dev	yorkuniversity
+york university enroll	account	futurestudents.yorku.ca/requirements	site-slot	slot:admissions,template:name-first,from:own-title	dev	yorkuniversity
+14th dalai lama contact us	account	eldalailama.com/office/contact	site-slot	slot:contact,template:name-first,from:own-title	test	14thdalailama
+14th dalai lama game schedule	account	eldalailama.com/schedule	site-slot	slot:schedule,template:name-first,from:own-title	test	14thdalailama
+a&w restaurants food menu	account	awrestaurants.com/menu	site-slot	slot:menu,template:name-first,from:head-brand	test	awrestaurants
+a&w restaurants order now	account	awrestaurants.com/order	site-slot	slot:order,template:name-first,from:head-brand	test	awrestaurants
+abba blog	account	abbasite.com/articles	site-slot	slot:blog,template:name-first,from:own-title	test	abba
+abdullah ii newsroom	account	kingabdullah.jo/en/news	site-slot	slot:press,template:name-first,from:own-title	test	abdullahii
+about justin bieber	account	justinbiebermusic.com/about	site-slot	slot:about,template:slot-first,from:own-title	test	justinbieber
+about spice girls	account	thespicegirls.com/about	site-slot	slot:about,template:slot-first,from:own-title	test	spicegirls
+about william golding	account	william-golding.co.uk/about	site-slot	slot:about,template:slot-first,from:own-title	test	williamgolding
+ac milan management	account	acmilan.com/en/club/management	site-slot	slot:team,template:name-first,from:head-brand	test	acmilan
+accenture ir	account	investor.accenture.com	site-slot	slot:investors,template:name-first,from:head-brand	test	accenture
+accessibility liechtenstein	account	liechtenstein.li/barrierefreiheit	site-slot	slot:accessibility,template:slot-first,from:own-title	test	liechtenstein
+accessibility missouri	account	mo.gov/accessibility	site-slot	slot:accessibility,template:slot-first,from:own-title	test	missouri
+accessibility statement church of england	account	churchofengland.org/help/accessibility-statement	site-slot	slot:accessibility,template:slot-first,from:head-brand	test	churchofengland
+accessibility statement louisiana	account	louisiana.gov/accessibility-statement	site-slot	slot:accessibility,template:slot-first,from:own-title	test	louisiana
+accessibility statement spain	account	administracion.gob.es/accesibilidad	site-slot	slot:accessibility,template:slot-first,from:own-title	test	spain
+accessibility sweden	account	sweden.se/about/accessibility-statement	site-slot	slot:accessibility,template:slot-first,from:own-title	test	sweden
+account hero motocorp	account	heromotocorp.com/en-in/my-account.html	site-slot	slot:account,template:slot-first,from:head-brand	test	heromotocorp
+account nickelback	account	nickelback.com/account/addresses	site-slot	slot:account,template:slot-first,from:own-title	test	nickelback
+admissions stanford university	account	admission.stanford.edu	site-slot	slot:admissions,template:slot-first,from:own-title	test	stanforduniversity
+aerosmith privacy policy	account	aerosmith.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	aerosmith
+affiliates atlassian	account	atlassian.com/partners	site-slot	slot:partners,template:slot-first,from:head-brand	test	atlassian
+afghanistan about us	account	alemarahenglish.af/about-us	site-slot	slot:about,template:name-first,from:own-title	test	afghanistan
+afghanistan contact us	account	alemarahenglish.af/contact-us	site-slot	slot:contact,template:name-first,from:own-title	test	afghanistan
+agatha christie cookie settings	account	agathachristie.com/cookies	site-slot	slot:cookies,template:name-first,from:own-title	test	agathachristie
+airbnb giftcard	account	airbnb.com/giftcards	site-slot	slot:giftcards,template:name-first,from:head-brand	test	airbnb
+airbnb help center	account	airbnb.com/help	site-slot	slot:support,template:name-first,from:head-brand	test	airbnb
+airbus management	account	airbus.com/en/about-us/our-governance	site-slot	slot:team,template:name-first,from:head-brand	test	airbus
+airbus trust	account	airbus.com/en/safety	site-slot	slot:security,template:name-first,from:head-brand	test	airbus
+al gore contact us	account	algore.com/contact	site-slot	slot:contact,template:name-first,from:own-title	test	algore
+albania faqs	account	kryeministria.al/faq	site-slot	slot:faq,template:name-first,from:own-title	test	albania
+albert einstein cookies	account	alberteinstein.com/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	test	alberteinstein
+albert einstein privacy	account	alberteinstein.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	alberteinstein
+alfred adler management	account	adler-iaip.net/iaip-board	site-slot	slot:team,template:name-first,from:own-title	test	alfredadler
+alfred adler rewards	account	adler-iaip.net/members	site-slot	slot:rewards,template:name-first,from:own-title	test	alfredadler
+alstom api	account	alstom.com/alstom-sustainability-resource-centre	site-slot	slot:docs,template:name-first,from:head-brand	test	alstom
+alstom investor relations	account	alstom.com/finance/information-alstom-shareholders	site-slot	slot:investors,template:name-first,from:head-brand	test	alstom
+andy warhol accessibility	account	warhol.org/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	test	andywarhol
+andy warhol calendar	account	warhol.org/calendar	site-slot	slot:events,template:name-first,from:own-title	test	andywarhol
+anker shipping	account	anker.com/policies/shipping-policy	site-slot	slot:shipping,template:name-first,from:head-brand	test	anker
+antigua and barbuda contact	account	ab.gov.ag/contact.php	site-slot	slot:contact,template:name-first,from:own-title	test	antiguaandbarbuda
+antonín dvořák contact	account	antonin-dvorak.cz/kontakt	site-slot	slot:contact,template:name-first,from:own-title	test	antonndvok
+aol help center	account	help.aol.com/products/aol	site-slot	slot:support,template:name-first,from:head-brand	test	aol
+aol sitemap	account	aol.com/htmlsitemap	site-slot	slot:sitemap,template:name-first,from:head-brand	test	aol
+api yahoo	account	tech.yahoo.com/guides	site-slot	slot:docs,template:slot-first,from:head-brand	test	yahoo
+apple inc. giftcard	account	apple.com/us/shop/goto/giftcards	site-slot	slot:giftcards,template:name-first,from:own-title	test	appleinc
+apple inc. track my order	account	apple.com/us/shop/goto/order/list	site-slot	slot:tracking,template:name-first,from:own-title	test	appleinc
+arc'teryx downloads	account	arcteryx.com/us/en/arcteryx-app	site-slot	slot:download,template:name-first,from:head-brand	test	arcteryx
+arc'teryx esg	account	arcteryx.com/us/en/explore/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	test	arcteryx
+armani order status	account	armani.com/en-us/track/orders	site-slot	slot:tracking,template:name-first,from:head-brand	test	armani
+armani shipping	account	armani.com/en-us/help/shipping	site-slot	slot:shipping,template:name-first,from:head-brand	test	armani
+as roma account	account	asroma.com/en/teams/men/wesley	site-slot	slot:account,template:name-first,from:head-brand	test	asroma
+as roma gift cards	account	asroma.com/en/tickets/gift-card	site-slot	slot:giftcards,template:name-first,from:head-brand	test	asroma
+asml corporate responsibility	account	asml.com/en/company/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	test	asml
+asml investors	account	investor.asml.com	site-slot	slot:investors,template:name-first,from:head-brand	test	asml
+at&t locations	account	att.com/stores	site-slot	slot:locations,template:name-first,from:head-brand	test	att
+at&t merch	account	att.com/buy/phones	site-slot	slot:shop,template:name-first,from:head-brand	test	att
+atlassian docs	account	confluence.atlassian.com/display/alldoc/atlassian+documentation	site-slot	slot:docs,template:name-first,from:head-brand	test	atlassian
+balenciaga cookies	account	balenciaga.com/en-us/legal/cookie-policy/cookie-policy.html	site-slot	slot:cookies,template:name-first,from:head-brand	test	balenciaga
+bank of america signup	account	promo.bankofamerica.com/hp-oaa2	site-slot	slot:signup,template:name-first,from:head-brand	test	bankofamerica
+barbados site map	account	gov.bb/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	test	barbados
+bee gees merch	account	shop.beegees.com	site-slot	slot:shop,template:name-first,from:own-title	test	beegees
+berkshire hathaway corporate responsibility	account	berkshirehathaway.com/sustainability/sustainabilityintro.html	site-slot	slot:sustainability,template:name-first,from:head-brand	test	berkshirehathaway
+berkshire hathaway management	account	berkshirehathaway.com/govern/govern.html	site-slot	slot:team,template:name-first,from:head-brand	test	berkshirehathaway
+berlin impressum	account	berlin.de/wir-ueber-uns/impressum	site-slot	slot:legal,template:name-first,from:own-title	test	berlin
+berlin newsroom	account	berlin.de/presse	site-slot	slot:press,template:name-first,from:own-title	test	berlin
+best buy corporate responsibility	account	corporate.bestbuy.com/our-goals	site-slot	slot:sustainability,template:name-first,from:head-brand	test	bestbuy
+billie eilish help	account	store.billieeilish.com/pages/help	site-slot	slot:support,template:name-first,from:own-title	test	billieeilish
+billie eilish sustainability	account	store.billieeilish.com/pages/sustainability	site-slot	slot:sustainability,template:name-first,from:own-title	test	billieeilish
+black sabbath about	account	blacksabbath.com/history.html	site-slot	slot:about,template:name-first,from:own-title	test	blacksabbath
+black sabbath calendar	account	blacksabbath.com/events.html	site-slot	slot:events,template:name-first,from:own-title	test	blacksabbath
+blink-182 shop	account	blink182.com/collections/25-years	site-slot	slot:shop,template:name-first,from:own-title	test	blink182
+blink-182 support	account	blink182.com/pages/help	site-slot	slot:support,template:name-first,from:own-title	test	blink182
+blog agatha christie	account	agathachristie.com/stories	site-slot	slot:blog,template:slot-first,from:own-title	test	agathachristie
+blog benazir bhutto	account	benazirbhutto.com/articles	site-slot	slot:blog,template:slot-first,from:own-title	test	benazirbhutto
+blog binance	account	binance.com/id/blog	site-slot	slot:blog,template:slot-first,from:head-brand	test	binance
+blog harpercollins	account	harpercollins.com/blogs/next-chapter	site-slot	slot:blog,template:slot-first,from:head-brand	test	harpercollins
+blog kerala blasters fc	account	keralablastersfc.in/category/articles	site-slot	slot:blog,template:slot-first,from:head-brand	test	keralablastersfc
+bon jovi merch	account	shop.bonjovi.com	site-slot	slot:shop,template:name-first,from:own-title	test	bonjovi
+bon jovi privacy notice	account	bonjovi.com/privacy_policy.php	site-slot	slot:privacy,template:name-first,from:own-title	test	bonjovi
+bose returns	account	bose.com/returns	site-slot	slot:returns,template:name-first,from:head-brand	test	bosebrand
+brewdog deals	account	brewdog.com/collections/clearance	site-slot	slot:deals,template:name-first,from:head-brand	test	brewdog
+brewdog franchise	account	brewdog.com/pages/franchising	site-slot	slot:franchise,template:name-first,from:head-brand	test	brewdog
+bridgestone account	account	bridgestone.com/corporate/profile/index.html	site-slot	slot:account,template:name-first,from:head-brand	test	bridgestone
+bridgestone sitemap	account	bridgestone.com/sitemap/index.html	site-slot	slot:sitemap,template:name-first,from:head-brand	test	bridgestone
+bts buy tickets	account	bts-official.jp/ticket	site-slot	slot:tickets,template:name-first,from:own-title	test	bts
+bts manage account	account	bts-official.jp/profile	site-slot	slot:account,template:name-first,from:own-title	test	bts
+buffalo bills game schedule	account	buffalobills.com/schedule/index	site-slot	slot:schedule,template:name-first,from:head-brand	test	buffalobills
+buffalo bills visit	account	buffalobills.com/stadium/parking	site-slot	slot:directions,template:name-first,from:head-brand	test	buffalobills
+burger king food menu	account	bk.com/menu	site-slot	slot:menu,template:name-first,from:own-title	test	burgerking
+burger king sale	account	bk.com/offers	site-slot	slot:deals,template:name-first,from:own-title	test	burgerking
+buy tickets ac milan	account	booking.acmilan.com/en/serie-a/milan-parma	site-slot	slot:tickets,template:slot-first,from:head-brand	test	acmilan
+california accessibility statement	account	ca.gov/legal/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	test	california
+california site map	account	ca.gov/about/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	test	california
+cameroon press	account	prc.cm/fr/multimedia	site-slot	slot:press,template:name-first,from:own-title	test	cameroon
+capcut downloads	account	capcut.com/activity/download_pc	site-slot	slot:download,template:name-first,from:head-brand	test	capcut
+capcut plans	account	capcut.com/pricing	site-slot	slot:pricing,template:name-first,from:head-brand	test	capcut
+cape town help	account	capetown.gov.za/general/help	site-slot	slot:support,template:name-first,from:own-title	test	capetown
+cape town sitemap	account	capetown.gov.za/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	test	capetown
+carabinieri calendar	account	carabinieri.it/in-vostro-aiuto/informazioni/eventi	site-slot	slot:events,template:name-first,from:head-brand	test	carabinieri
+cbs login	account	cbs.com/account/signin	site-slot	slot:login,template:name-first,from:head-brand	test	cbs
+celtic f.c. tickets	account	celticfc.com/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	test	celticfc
+charlize theron give	account	charlizeafricaoutreach.org/get-involved	site-slot	slot:donate,template:name-first,from:own-title	test	charlizetheron
+charlize theron volunteering	account	charlizeafricaoutreach.org/get-involved	site-slot	slot:volunteer,template:name-first,from:own-title	test	charlizetheron
+chery corporate responsibility	account	chery.cn/brandshow/esg	site-slot	slot:sustainability,template:name-first,from:head-brand	test	chery
+chess api	account	chess.com/club/chess-com-developer-community	site-slot	slot:docs,template:name-first,from:head-brand	test	chesscom
+chess become a partner	account	chess.com/partners	site-slot	slot:partners,template:name-first,from:head-brand	test	chesscom
+chick-fil-a franchise	account	chick-fil-a.com/franchising	site-slot	slot:franchise,template:name-first,from:head-brand	test	chickfila
+chick-fil-a loyalty	account	chick-fil-a.com/one	site-slot	slot:rewards,template:name-first,from:head-brand	test	chickfila
+chuck e. cheese cancel subscription	account	membership.chuckecheese.com/membership	site-slot	slot:cancel,template:name-first,from:head-brand	test	chuckecheese
+chuck e. cheese menu	account	chuckecheese.com/food/menu	site-slot	slot:menu,template:name-first,from:head-brand	test	chuckecheese
+church of england cookies	account	churchofengland.org/help/cookies	site-slot	slot:cookies,template:name-first,from:head-brand	test	churchofengland
+circle k store locator	account	circlek.com/store-locator	site-slot	slot:locations,template:name-first,from:head-brand	test	circlek
+cisco downloads	account	software.cisco.com/download/home	site-slot	slot:download,template:name-first,from:head-brand	test	cisco
+city of brussels event calendar	account	brussel.be/agenda	site-slot	slot:events,template:name-first,from:own-title	test	cityofbrussels
+city of brussels site map	account	brussel.be/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	test	cityofbrussels
+cleveland browns buy tickets	account	clevelandbrowns.com/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	test	clevelandbrowns
+cloudflare blog	account	blog.cloudflare.com	site-slot	slot:blog,template:name-first,from:head-brand	test	cloudflare
+cloudflare log in	account	dash.cloudflare.com/login	site-slot	slot:login,template:name-first,from:head-brand	test	cloudflare
+cnbc app	account	cnbc.com/mobile	site-slot	slot:app,template:name-first,from:head-brand	test	cnbc
+cnbc press	account	cnbc.com/media	site-slot	slot:press,template:name-first,from:head-brand	test	cnbc
+commonwealth of nations cookie settings	account	thecommonwealth.org/search	site-slot	slot:cookies,template:name-first,from:own-title	test	commonwealthofnations
+contact carl sagan	account	carlsagan.com/contact-us	site-slot	slot:contact,template:slot-first,from:own-title	test	carlsagan
+contact george w. bush	account	georgewbush.com/contact-us	site-slot	slot:contact,template:slot-first,from:own-title	test	georgewbush
+contact info cameroon	account	prc.cm/fr/contact	site-slot	slot:contact,template:slot-first,from:own-title	test	cameroon
+contact info pet shop boys	account	petshopboys.co.uk/contacts	site-slot	slot:contact,template:slot-first,from:own-title	test	petshopboys
+contact us benazir bhutto	account	benazirbhutto.com/contact-us	site-slot	slot:contact,template:slot-first,from:own-title	test	benazirbhutto
+contact us dominican republic	account	dominicanrepublic.com/contact-us	site-slot	slot:contact,template:slot-first,from:own-title	test	dominicanrepublic
+contact us marlon brando	account	marlonbrando.com/contact	site-slot	slot:contact,template:slot-first,from:own-title	test	marlonbrando
+cookie policy lionel messi	account	messi.com/politica-privacidad	site-slot	slot:cookies,template:slot-first,from:own-title	test	lionelmessi
+cookie policy sweden	account	sweden.se/about/cookie-policy	site-slot	slot:cookies,template:slot-first,from:own-title	test	sweden
+cookie policy ukraine	account	ukraine.ua/cookie-policy	site-slot	slot:cookies,template:slot-first,from:own-title	test	ukraine
+cookies barbados	account	gov.bb/cookie-policy	site-slot	slot:cookies,template:slot-first,from:own-title	test	barbados
+cookies iron maiden	account	ironmaiden.com/cookie-policy	site-slot	slot:cookies,template:slot-first,from:own-title	test	ironmaiden
+cornell university enrollment	account	admissions.cornell.edu	site-slot	slot:admissions,template:name-first,from:own-title	test	cornelluniversity
+cornell university visit	account	cornell.edu/visit	site-slot	slot:directions,template:name-first,from:own-title	test	cornelluniversity
+creative commons blog	account	creativecommons.org/blog	site-slot	slot:blog,template:name-first,from:head-brand	test	creativecommons
+dan brown privacy notice	account	danbrown.com/privacypolicy	site-slot	slot:privacy,template:name-first,from:own-title	test	danbrown
+dan brown terms of use	account	danbrown.com/termsofuse	site-slot	slot:terms,template:name-first,from:own-title	test	danbrown
+daniel radcliffe press releases	account	danieljradcliffe.com/media	site-slot	slot:press,template:name-first,from:own-title	test	danielradcliffe
+david beckham blog	account	davidbeckham.com/stories	site-slot	slot:blog,template:name-first,from:own-title	test	davidbeckham
+david beckham cookie policy	account	davidbeckham.com/legal/cookies-policy	site-slot	slot:cookies,template:name-first,from:own-title	test	davidbeckham
+david bowie our story	account	davidbowie.com/about	site-slot	slot:about,template:name-first,from:own-title	test	davidbowie
+deepseek documentation	account	platform.deepseek.com	site-slot	slot:docs,template:name-first,from:head-brand	test	deepseek
+demi lovato online store	account	shop.demilovato.com	site-slot	slot:shop,template:name-first,from:own-title	test	demilovato
+demi lovato sign up	account	demilovato.com/subscribe	site-slot	slot:signup,template:name-first,from:own-title	test	demilovato
+die linke imprint	account	die-linke.de/seitenfuss/impressum	site-slot	slot:legal,template:name-first,from:head-brand	test	dielinke
+die linke sign up	account	die-linke.de/mitmachen/mitglied-werden	site-slot	slot:signup,template:name-first,from:head-brand	test	dielinke
+directions washington, d.c.	account	octo.dc.gov/page/online-maps-listing	site-slot	slot:directions,template:slot-first,from:own-title	test	washingtondc
+dolly parton merch	account	shop.dollyparton.com	site-slot	slot:shop,template:name-first,from:own-title	test	dollyparton
+dolly parton terms and conditions	account	dollyparton.com/terms-conditions	site-slot	slot:terms,template:name-first,from:own-title	test	dollyparton
+donate graham greene	account	grahamgreenebt.org/donations	site-slot	slot:donate,template:slot-first,from:own-title	test	grahamgreene
+dr. martens gift cards	account	drmartens.com/us/en/gift-cards	site-slot	slot:giftcards,template:name-first,from:head-brand	test	drmartens
+dr. martens sitemap	account	drmartens.com/us/en/sitemap	site-slot	slot:sitemap,template:name-first,from:head-brand	test	drmartens
+dubai site map	account	dm.gov.ae/site-map	site-slot	slot:sitemap,template:name-first,from:own-title	test	dubai
+dublin events	account	dublincity.ie/events	site-slot	slot:events,template:name-first,from:own-title	test	dublin
+duckduckgo career	account	duckduckgo.com/hiring	site-slot	slot:careers,template:name-first,from:head-brand	test	duckduckgo
+dyson order status	account	dyson.com/order-status	site-slot	slot:tracking,template:name-first,from:head-brand	test	dysoncompany
+dyson return policy	account	dyson.com/inside-dyson/terms/returns-policy	site-slot	slot:returns,template:name-first,from:head-brand	test	dysoncompany
+el salvador contact us	account	elsalvador.travel/esp/contacto	site-slot	slot:contact,template:name-first,from:own-title	test	elsalvador
+el salvador event calendar	account	elsalvador.travel/esp/agenda	site-slot	slot:events,template:name-first,from:own-title	test	elsalvador
+electric light orchestra online store	account	store.jefflynneselo.com	site-slot	slot:shop,template:name-first,from:own-title	test	electriclightorchestra
+elizabeth taylor blog	account	elizabethtaylor.com/news	site-slot	slot:blog,template:name-first,from:own-title	test	elizabethtaylor
+elizabeth taylor shop	account	store.elizabethtaylor.com	site-slot	slot:shop,template:name-first,from:own-title	test	elizabethtaylor
+enron cookies	account	enron.com/pages/cookie-notice	site-slot	slot:cookies,template:name-first,from:head-brand	test	enron
+epic games support	account	epicgames.com/help	site-slot	slot:support,template:name-first,from:head-brand	test	epicgames
+equatorial guinea contact	account	guineaecuatorialpress.com/contacto	site-slot	slot:contact,template:name-first,from:own-title	test	equatorialguinea
+esg accenture	account	accenture.com/en/services/sustainability	site-slot	slot:sustainability,template:slot-first,from:head-brand	test	accenture
+esg nissan	account	nissan-global.com/en/sustainability	site-slot	slot:sustainability,template:slot-first,from:own-title	test	nissan
+events mario vargas llosa	account	catedravargasllosa.org/inicio/index.php/eventos	site-slot	slot:events,template:slot-first,from:own-title	test	mariovargasllosa
+executives sony pictures animation	account	sonypicturesanimation.com/index.php/our-team	site-slot	slot:team,template:slot-first,from:head-brand	test	sonypicturesanimation
+faqs michael jackson	account	michaeljackson.com/faq	site-slot	slot:faq,template:slot-first,from:own-title	test	michaeljackson
+fiji contact us	account	fiji.gov.fj/contact-us	site-slot	slot:contact,template:name-first,from:own-title	test	fiji
+firefox api	account	firefox.com/en-us/channel/desktop/developer	site-slot	slot:docs,template:name-first,from:head-brand	test	firefox
+firefox mobile app	account	firefox.com/en-us/mobile	site-slot	slot:app,template:name-first,from:head-brand	test	firefox
+fixtures cleveland browns	account	clevelandbrowns.com/schedule	site-slot	slot:schedule,template:slot-first,from:head-brand	test	clevelandbrowns
+fleetwood town f.c. game schedule	account	fleetwoodtownfc.com/womens-results	site-slot	slot:schedule,template:name-first,from:head-brand	test	fleetwoodtownfc
+fleetwood town f.c. hours	account	fleetwoodtownfc.com/opening-hours	site-slot	slot:hours,template:name-first,from:head-brand	test	fleetwoodtownfc
+focus features shop	account	focusfeatures.com/shop	site-slot	slot:shop,template:name-first,from:head-brand	test	focusfeatures
+focus features signup	account	insider.focusfeatures.com	site-slot	slot:signup,template:name-first,from:head-brand	test	focusfeatures
+ford motor company accessibility statement	account	ford.com/content/brand_ford/en_us/brand/help/contact	site-slot	slot:accessibility,template:name-first,from:own-title	test	fordmotorcompany
+ford motor company sitemap	account	ford.com/content/na/ford/en_us/help/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	test	fordmotorcompany
+fox news menu	account	foxnews.com/food-drink	site-slot	slot:menu,template:name-first,from:head-brand	test	foxnews
+fox news trust	account	foxnews.com/category/tech/topics/security	site-slot	slot:security,template:name-first,from:head-brand	test	foxnews
+franz beckenbauer imprint	account	franzbeckenbauer.de/impressum	site-slot	slot:legal,template:name-first,from:own-title	test	franzbeckenbauer
+freddie mercury merch	account	shopuk.freddiemercury.com	site-slot	slot:shop,template:name-first,from:own-title	test	freddiemercury
+french guiana legal	account	ctguyane.fr/mentions-legales	site-slot	slot:legal,template:name-first,from:own-title	test	frenchguiana
+frequently asked questions gatorade	account	gatorade.com/faqs	site-slot	slot:faq,template:slot-first,from:head-brand	test	gatorade
+frequently asked questions larry sanger	account	larrysanger.org/about-larrysangerorg-premium	site-slot	slot:faq,template:slot-first,from:own-title	test	larrysanger
+gamestop deals	account	gamestop.com/deals	site-slot	slot:deals,template:name-first,from:head-brand	test	gamestop
+gamestop track order	account	gamestop.com/order/search	site-slot	slot:tracking,template:name-first,from:head-brand	test	gamestop
+gap inc. event calendar	account	gapinc.com/investors/events	site-slot	slot:events,template:name-first,from:head-brand	test	gapinc
+gap inc. press	account	gapinc.com/news/media-center	site-slot	slot:press,template:name-first,from:head-brand	test	gapinc
+geely our story	account	geely.com/en/brand	site-slot	slot:about,template:name-first,from:head-brand	test	geely
+geely privacy policy	account	geely.com/en/privacy-policy	site-slot	slot:privacy,template:name-first,from:head-brand	test	geely
+gerhart hauptmann legal	account	gerhart-hauptmann-gesellschaft.de/impressum	site-slot	slot:legal,template:name-first,from:own-title	test	gerharthauptmann
+get the app kick	account	about.kick.com/download	site-slot	slot:download,template:slot-first,from:head-brand	test	kickservice
+ghana our story	account	ghana.gov.gh/about	site-slot	slot:about,template:name-first,from:own-title	test	ghana
+gibraltar sustainability	account	gibraltar.gov.gi/environment	site-slot	slot:sustainability,template:name-first,from:own-title	test	gibraltar
+give alternative for germany	account	spenden.afd.de	site-slot	slot:donate,template:slot-first,from:own-title	test	alternativeforgermany
+gofundme accessibility	account	gofundme.com/c/accessibility-statement	site-slot	slot:accessibility,template:name-first,from:head-brand	test	gofundme
+gofundme support	account	support.gofundme.com/hc/en-us	site-slot	slot:support,template:name-first,from:head-brand	test	gofundme
+gopro shipping	account	community.gopro.com/s/article/gopro-shipping-policy	site-slot	slot:shipping,template:name-first,from:head-brand	test	gopro
+gopro track my order	account	gopro.com/en/us/order-status	site-slot	slot:tracking,template:name-first,from:head-brand	test	gopro
+grammarly accessibility statement	account	grammarly.com/accessibility-statement	site-slot	slot:accessibility,template:name-first,from:head-brand	test	grammarly
+grammarly become a partner	account	grammarly.com/affiliates	site-slot	slot:partners,template:name-first,from:head-brand	test	grammarly
+greta garbo faq	account	gretagarbo.com/faq	site-slot	slot:faq,template:name-first,from:own-title	test	gretagarbo
+guinea get the app	account	presidence.gov.gn/wp-content/uploads/2022/11/mag-presidence_2.pdf	site-slot	slot:download,template:name-first,from:own-title	test	guinea
+guns n' roses sign in	account	gunsnroses.com/account/login	site-slot	slot:login,template:name-first,from:own-title	test	gunsnroses
+günter grass privacy policy	account	grass-stiftung.de/datenschutzerklaerung	site-slot	slot:privacy,template:name-first,from:own-title	test	gntergrass
+h. p. lovecraft donations	account	hplovecraft.com/about/donate.aspx	site-slot	slot:donate,template:name-first,from:own-title	test	hplovecraft
+h. p. lovecraft site map	account	hplovecraft.com/about/sitemap.aspx	site-slot	slot:sitemap,template:name-first,from:own-title	test	hplovecraft
+harley-davidson offers	account	harley-davidson.com/us/en/tools/offers.html	site-slot	slot:deals,template:name-first,from:head-brand	test	harleydavidson
+harpercollins help	account	harpercollins.com/pages/customer-service	site-slot	slot:support,template:name-first,from:head-brand	test	harpercollins
+harvard university accessibility	account	accessibility.harvard.edu	site-slot	slot:accessibility,template:name-first,from:own-title	test	harvarduniversity
+harvard university donate	account	alumni.harvard.edu/giving/givenow	site-slot	slot:donate,template:name-first,from:own-title	test	harvarduniversity
+hbo max help center	account	help.hbomax.com	site-slot	slot:support,template:name-first,from:head-brand	test	hbomax
+hbo max signup	account	auth.hbomax.com/product	site-slot	slot:signup,template:name-first,from:head-brand	test	hbomax
+help center ariana grande	account	shop.arianagrande.com/pages/help	site-slot	slot:support,template:slot-first,from:own-title	test	arianagrande
+help center sears	account	sears.com/en_us/customer-service.html	site-slot	slot:support,template:slot-first,from:head-brand	test	sears
+help kick	account	help.kick.com	site-slot	slot:support,template:slot-first,from:head-brand	test	kickservice
+help walmart	account	walmart.com/help	site-slot	slot:support,template:slot-first,from:head-brand	test	walmart
+hero motocorp blog	account	heromotocorp.com/en-in/blogs.html	site-slot	slot:blog,template:name-first,from:head-brand	test	heromotocorp
+hillary clinton about	account	hillaryclinton.com/about	site-slot	slot:about,template:name-first,from:own-title	test	hillaryclinton
+hillary clinton terms of use	account	hillaryclinton.com/terms	site-slot	slot:terms,template:name-first,from:own-title	test	hillaryclinton
+hooters giftcard	account	hooters.com/gift-cards	site-slot	slot:giftcards,template:name-first,from:head-brand	test	hooters
+humphrey bogart online store	account	merch.humphreybogart.com	site-slot	slot:shop,template:name-first,from:own-title	test	humphreybogart
+illinois accessibility	account	doit.illinois.gov/initiatives/accessibility/iitaa.html	site-slot	slot:accessibility,template:name-first,from:own-title	test	illinois
+illinois jobs	account	illinois.gov/employment.html	site-slot	slot:careers,template:name-first,from:own-title	test	illinois
+imagine dragons online store	account	shop.imaginedragonsmusic.com/collections/merch	site-slot	slot:shop,template:name-first,from:own-title	test	imaginedragons
+imagine dragons support	account	shop.imaginedragonsmusic.com/pages/help	site-slot	slot:support,template:name-first,from:own-title	test	imaginedragons
+impressum günter grass	account	grass-stiftung.de/impressum	site-slot	slot:legal,template:slot-first,from:own-title	test	gntergrass
+imprint kehlsteinhaus	account	kehlsteinhaus.de/impressum	site-slot	slot:legal,template:slot-first,from:head-brand	test	kehlsteinhaus
+imprint paris	account	paris.fr/mentions-legales	site-slot	slot:legal,template:slot-first,from:own-title	test	paris
+indian national congress calendar	account	inc.in/events-calendar	site-slot	slot:events,template:name-first,from:own-title	test	indiannationalcongress
+indian national congress volunteering	account	inc.in/join-the-party/volunteer	site-slot	slot:volunteer,template:name-first,from:own-title	test	indiannationalcongress
+infiniti cookie policy	account	infiniti.com/cookies.html	site-slot	slot:cookies,template:name-first,from:head-brand	test	infiniti
+infiniti site map	account	infiniti.com/sitemap.html	site-slot	slot:sitemap,template:name-first,from:head-brand	test	infiniti
+ingmar bergman contact	account	ingmarbergman.se/kontakt	site-slot	slot:contact,template:name-first,from:own-title	test	ingmarbergman
+investors lockheed martin	account	investors.lockheedmartin.com	site-slot	slot:investors,template:slot-first,from:head-brand	test	lockheedmartin
+italy cookie policy	account	italia.it/en/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	test	italy
+italy documentation	account	italia.it/en/italy/practical-information/travel-document-italy	site-slot	slot:docs,template:name-first,from:own-title	test	italy
+j. k. rowling impressum	account	jkrowling.com/legal	site-slot	slot:legal,template:name-first,from:own-title	test	jkrowling
+jamaica feedback	account	gov.jm/feedback	site-slot	slot:feedback,template:name-first,from:own-title	test	jamaica
+jamaica sitemap	account	gov.jm/site-map	site-slot	slot:sitemap,template:name-first,from:own-title	test	jamaica
+james joyce book a table	account	jamesjoyce.ie/bookings	site-slot	slot:reservations,template:name-first,from:own-title	test	jamesjoyce
+james joyce give	account	jamesjoyce.ie/donate	site-slot	slot:donate,template:name-first,from:own-title	test	jamesjoyce
+jane goodall management	account	janegoodall.org/leadership	site-slot	slot:team,template:name-first,from:own-title	test	janegoodall
+jane goodall press releases	account	janegoodall.org/press-room	site-slot	slot:press,template:name-first,from:own-title	test	janegoodall
+jimmy wales press releases	account	jimmywales.com/in-the-news	site-slot	slot:press,template:name-first,from:own-title	test	jimmywales
+jobs renault	account	renaultgroup.com/careers	site-slot	slot:careers,template:slot-first,from:own-title	test	renault
+jobs virginia	account	virginia.gov/services/employment	site-slot	slot:careers,template:slot-first,from:own-title	test	virginia
+julia gillard about	account	juliagillard.com.au/julia-gillard/about	site-slot	slot:about,template:name-first,from:own-title	test	juliagillard
+julia gillard privacy	account	juliagillard.com.au/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	juliagillard
+juventus fc app	account	juventus.com/it/bianconeri	site-slot	slot:app,template:name-first,from:own-title	test	juventusfc
+juventus fc loyalty	account	juventus.com/it/bianconeri	site-slot	slot:rewards,template:name-first,from:own-title	test	juventusfc
+kahlil gibran log in	account	kahlilgibran.com/account.html	site-slot	slot:login,template:name-first,from:own-title	test	kahlilgibran
+kahlil gibran signup	account	kahlilgibran.com/plans/gold.html	site-slot	slot:signup,template:name-first,from:own-title	test	kahlilgibran
+kamala harris accessibility	account	kamalaharris.com/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	test	kamalaharris
+kamala harris terms	account	kamalaharris.com/terms	site-slot	slot:terms,template:name-first,from:own-title	test	kamalaharris
+kansas faq	account	portal.kansas.gov/faq	site-slot	slot:faq,template:name-first,from:own-title	test	kansas
+kansas help center	account	portal.kansas.gov/help-center	site-slot	slot:support,template:name-first,from:own-title	test	kansas
+kehlsteinhaus about	account	kehlsteinhaus.de/geschichte	site-slot	slot:about,template:name-first,from:head-brand	test	kehlsteinhaus
+kerala blasters fc ticket	account	keralablastersfc.in/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	test	keralablastersfc
+kim kardashian offers	account	skims.com/collections/skims-sale	site-slot	slot:deals,template:name-first,from:own-title	test	kimkardashian
+kim kardashian shipping policy	account	skims.com/pages/shipping	site-slot	slot:shipping,template:name-first,from:own-title	test	kimkardashian
+kiribati esg	account	kiribati.gov.ki/information/environment-and-lands	site-slot	slot:sustainability,template:name-first,from:own-title	test	kiribati
+kiribati event calendar	account	kiribati.gov.ki/events	site-slot	slot:events,template:name-first,from:own-title	test	kiribati
+kojima productions cookies	account	kojimaproductions.jp/cookie-policy	site-slot	slot:cookies,template:name-first,from:head-brand	test	kojimaproductions
+kpmg accessibility statement	account	kpmg.com/xx/en/misc/accessibility.html	site-slot	slot:accessibility,template:name-first,from:head-brand	test	kpmg
+kpmg my account	account	kpmg.com/xx/en/account/profile.html	site-slot	slot:account,template:name-first,from:head-brand	test	kpmg
+lady gaga manage account	account	ladygaga.com/us-en/account	site-slot	slot:account,template:name-first,from:own-title	test	ladygaga
+lady gaga support	account	ladygaga.com/us-en/help	site-slot	slot:support,template:name-first,from:own-title	test	ladygaga
+larry sanger sign in	account	larrysanger.org/login	site-slot	slot:login,template:name-first,from:own-title	test	larrysanger
+legal la france insoumise	account	lafranceinsoumise.fr/mentions-legales	site-slot	slot:legal,template:slot-first,from:head-brand	test	lafranceinsoumise
+leicester city f.c. calendar	account	lcfc.com/events	site-slot	slot:events,template:name-first,from:own-title	test	leicestercityfc
+lesotho career	account	gov.ls/jobs	site-slot	slot:careers,template:name-first,from:own-title	test	lesotho
+lesotho help	account	gov.ls/support	site-slot	slot:support,template:name-first,from:own-title	test	lesotho
+let's encrypt documentation	account	letsencrypt.org/docs	site-slot	slot:docs,template:name-first,from:head-brand	test	letsencrypt
+liechtenstein impressum	account	liechtenstein.li/impressum	site-slot	slot:legal,template:name-first,from:own-title	test	liechtenstein
+lionel messi newsroom	account	messi.com/noticias-en-los-medios	site-slot	slot:press,template:name-first,from:own-title	test	lionelmessi
+little caesars menus	account	littlecaesars.com/menu	site-slot	slot:menu,template:name-first,from:head-brand	test	littlecaesars
+little caesars sign in	account	littlecaesars.com/login	site-slot	slot:login,template:name-first,from:head-brand	test	littlecaesars
+liverpool f.c. cookies	account	liverpoolfc.com/legal/cookies	site-slot	slot:cookies,template:name-first,from:own-title	test	liverpoolfc
+liverpool f.c. tickets	account	liverpoolfc.com/news/category/tickets	site-slot	slot:tickets,template:name-first,from:own-title	test	liverpoolfc
+lockheed martin shop	account	lockheedmartin.com/en-us/products.html	site-slot	slot:shop,template:name-first,from:head-brand	test	lockheedmartin
+log in gatorade	account	gatorade.com/sign-in	site-slot	slot:login,template:slot-first,from:head-brand	test	gatorade
+login balenciaga	account	balenciaga.com/en-us/login	site-slot	slot:login,template:slot-first,from:head-brand	test	balenciaga
+login commonwealth of nations	account	thecommonwealth.org/login	site-slot	slot:login,template:slot-first,from:own-title	test	commonwealthofnations
+login jane fonda	account	janefonda.com/login	site-slot	slot:login,template:slot-first,from:own-title	test	janefonda
+london city lionesses schedule	account	londoncitylionesses.com/fixtures	site-slot	slot:schedule,template:name-first,from:head-brand	test	londoncitylionesses
+louis armstrong rewards	account	louisarmstronghouse.org/membership	site-slot	slot:rewards,template:name-first,from:own-title	test	louisarmstrong
+louis armstrong tickets	account	louisarmstronghouse.org/visit	site-slot	slot:tickets,template:name-first,from:own-title	test	louisarmstrong
+louisiana visit	account	louisiana.gov/visit	site-slot	slot:directions,template:name-first,from:own-title	test	louisiana
+loyalty costco	account	costco.com/f/-/join-costco	site-slot	slot:rewards,template:slot-first,from:head-brand	test	costco
+luciano pavarotti contact us	account	lucianopavarottifoundation.com/contatti	site-slot	slot:contact,template:name-first,from:own-title	test	lucianopavarotti
+luciano pavarotti cookie policy	account	lucianopavarottifoundation.com/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	test	lucianopavarotti
+ludwig van beethoven impressum	account	beethoven.de/en/s/impressum	site-slot	slot:legal,template:name-first,from:own-title	test	ludwigvanbeethoven
+ludwig van beethoven tickets	account	beethoven.de/en/chamber-music-hall	site-slot	slot:tickets,template:name-first,from:own-title	test	ludwigvanbeethoven
+luigi pirandello about	account	pirandelloweb.com/chi-siamo	site-slot	slot:about,template:name-first,from:own-title	test	luigipirandello
+luigi pirandello privacy notice	account	pirandelloweb.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	luigipirandello
+lynyrd skynyrd about	account	lynyrdskynyrd.com/history	site-slot	slot:about,template:name-first,from:own-title	test	lynyrdskynyrd
+lynyrd skynyrd shop	account	store.lynyrdskynyrd.com	site-slot	slot:shop,template:name-first,from:own-title	test	lynyrdskynyrd
+malala yousafzai privacy	account	malala.org/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	malalayousafzai
+malala yousafzai terms of use	account	malala.org/terms-and-conditions	site-slot	slot:terms,template:name-first,from:own-title	test	malalayousafzai
+maldives plan your visit	account	visitmaldives.com/en/map	site-slot	slot:directions,template:name-first,from:own-title	test	maldives
+manchester city f.c. deals	account	shop.mancity.com/gb/en/sale	site-slot	slot:deals,template:name-first,from:own-title	test	manchestercityfc
+manchester city f.c. sitemap	account	mancity.com/sitemap	site-slot	slot:sitemap,template:name-first,from:own-title	test	manchestercityfc
+margrethe ii contact info	account	kongehuset.dk/organisation-og-kontakt/kontakt	site-slot	slot:contact,template:name-first,from:own-title	test	margretheii
+mariah carey privacy	account	mariahcarey.com/privacy	site-slot	slot:privacy,template:name-first,from:own-title	test	mariahcarey
+mariah carey terms of use	account	mariahcarey.com/terms	site-slot	slot:terms,template:name-first,from:own-title	test	mariahcarey
+mario vargas llosa cookie settings	account	catedravargasllosa.org/inicio/index.php/politica-de-cookies	site-slot	slot:cookies,template:name-first,from:own-title	test	mariovargasllosa
+marlon brando privacy	account	marlonbrando.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	marlonbrando
+maryland press	account	news.maryland.gov	site-slot	slot:press,template:name-first,from:own-title	test	maryland
+maryland terms	account	maryland.gov/terms-use	site-slot	slot:terms,template:name-first,from:own-title	test	maryland
+menu papa john's	account	papajohns.com/order/menu/pizza	site-slot	slot:menu,template:slot-first,from:head-brand	test	papajohns
+merch ariana grande	account	shop.arianagrande.com/collections/merch	site-slot	slot:shop,template:slot-first,from:own-title	test	arianagrande
+merch circle k	account	circlek.com/our-products	site-slot	slot:shop,template:slot-first,from:head-brand	test	circlek
+michael schumacher app	account	michael-schumacher.de/en/p/the-official-app-37.html	site-slot	slot:app,template:name-first,from:own-title	test	michaelschumacher
+michael schumacher log in	account	michael-schumacher.de/en/backend/default/index	site-slot	slot:login,template:name-first,from:own-title	test	michaelschumacher
+microsoft return policy	account	microsoft.com/en-us/store/b/returns	site-slot	slot:returns,template:name-first,from:head-brand	test	microsoft
+microsoft track my order	account	microsoft.com/en-us/store/b/order-tracking	site-slot	slot:tracking,template:name-first,from:head-brand	test	microsoft
+miley cyrus signup	account	mileyofficial.com/signup	site-slot	slot:signup,template:name-first,from:own-title	test	mileycyrus
+mississippi feedback	account	ms.gov/feedback	site-slot	slot:feedback,template:name-first,from:own-title	test	mississippi
+missouri careers	account	mo.gov/employment	site-slot	slot:careers,template:name-first,from:own-title	test	missouri
+mobile app telegram	account	telegram.org/apps	site-slot	slot:app,template:slot-first,from:head-brand	test	telegramsoftware
+mozilla security	account	mozilla.org/en-us/security	site-slot	slot:security,template:name-first,from:head-brand	test	mozilla
+mozilla volunteering	account	mozilla.org/en-us/contribute	site-slot	slot:volunteer,template:name-first,from:head-brand	test	mozilla
+muhammad yunus become a partner	account	muhammadyunus.org/post/388/yunus-centre-partners	site-slot	slot:partners,template:name-first,from:own-title	test	muhammadyunus
+muhammad yunus event calendar	account	muhammadyunus.org/category/events	site-slot	slot:events,template:name-first,from:own-title	test	muhammadyunus
+my account speedtest	account	speedtest.net/login	site-slot	slot:account,template:slot-first,from:head-brand	test	speedtestnet
+nando's corporate responsibility	account	nandos.com/restaurants/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	test	nandos
+nando's site map	account	nandos.com/site-map	site-slot	slot:sitemap,template:name-first,from:head-brand	test	nandos
+nbc news account	account	nbcnews.com/profile/details	site-slot	slot:account,template:name-first,from:head-brand	test	nbcnews
+nbc news contact info	account	nbcnews.com/information/nbc-news-info/contact-us-n1232521	site-slot	slot:contact,template:name-first,from:head-brand	test	nbcnews
+nelson mandela app	account	nelsonmandela.org/publications/category/apps	site-slot	slot:app,template:name-first,from:own-title	test	nelsonmandela
+nelson mandela blog	account	nelsonmandela.org/acom-blog	site-slot	slot:blog,template:name-first,from:own-title	test	nelsonmandela
+new jersey accessibility statement	account	nj.gov/nj/accessibility.shtml	site-slot	slot:accessibility,template:name-first,from:own-title	test	newjersey
+new jersey security	account	nj.gov/nj/safety	site-slot	slot:security,template:name-first,from:own-title	test	newjersey
+newsroom creative commons	account	creativecommons.org/press	site-slot	slot:press,template:slot-first,from:head-brand	test	creativecommons
+newsroom enron	account	enron.com/pages/newsroom	site-slot	slot:press,template:slot-first,from:head-brand	test	enron
+nickelback offers	account	nickelback.com/collections/sale	site-slot	slot:deals,template:name-first,from:own-title	test	nickelback
+nightwish impressum	account	nightwish.com/disclaimer	site-slot	slot:legal,template:name-first,from:own-title	test	nightwish
+nissan blog	account	nissan-global.com/en/stories	site-slot	slot:blog,template:name-first,from:own-title	test	nissan
+nvidia help center	account	nvidia.com/en-us/support	site-slot	slot:support,template:name-first,from:head-brand	test	nvidia
+olive garden food menu	account	olivegarden.com/menu	site-slot	slot:menu,template:name-first,from:head-brand	test	olivegarden
+olive garden gift card	account	olivegarden.com/gift-cards	site-slot	slot:giftcards,template:name-first,from:head-brand	test	olivegarden
+online store best buy	account	bestbuy.com/black-friday	site-slot	slot:shop,template:slot-first,from:head-brand	test	bestbuy
+oppo calendar	account	oppo.com/en/events	site-slot	slot:events,template:name-first,from:head-brand	test	oppo
+oppo press releases	account	oppo.com/en/newsroom	site-slot	slot:press,template:name-first,from:head-brand	test	oppo
+order status bose	account	bose.com/trackorder	site-slot	slot:tracking,template:slot-first,from:head-brand	test	bosebrand
+our story al gore	account	algore.com/about	site-slot	slot:about,template:slot-first,from:own-title	test	algore
+paris hilton merch	account	parishilton.com/collections/best-sellers-1	site-slot	slot:shop,template:name-first,from:own-title	test	parishilton
+paris hilton terms	account	parishilton.com/pages/terms-and-conditions	site-slot	slot:terms,template:name-first,from:own-title	test	parishilton
+paris press releases	account	presse.paris.fr	site-slot	slot:press,template:name-first,from:own-title	test	paris
+patreon app	account	patreon.com/mobile	site-slot	slot:app,template:name-first,from:head-brand	test	patreon
+paul cézanne sitemap	account	paul-cezanne.org/sitemap.html	site-slot	slot:sitemap,template:name-first,from:own-title	test	paulczanne
+paul mccartney terms of use	account	paulmccartney.com/terms	site-slot	slot:terms,template:name-first,from:own-title	test	paulmccartney
+pay bill gibraltar	account	gibraltar.gov.gi/income-tax-office/report-changes	site-slot	slot:paybill,template:slot-first,from:own-title	test	gibraltar
+paypal api	account	developer.paypal.com	site-slot	slot:docs,template:name-first,from:head-brand	test	paypal
+paypal downloads	account	paypal.com/us/digital-wallet	site-slot	slot:download,template:name-first,from:head-brand	test	paypal
+pearl jam sign in	account	pearljam.com/ten-club/log-in	site-slot	slot:login,template:name-first,from:own-title	test	pearljam
+pearl jam volunteering	account	pearljam.com/vitalogy/get-involved	site-slot	slot:volunteer,template:name-first,from:own-title	test	pearljam
+pet shop boys about us	account	petshopboys.co.uk/history	site-slot	slot:about,template:name-first,from:own-title	test	petshopboys
+pga tour schedule	account	pgatour.com/schedule	site-slot	slot:schedule,template:name-first,from:head-brand	test	pgatour
+philadelphia eagles fixtures	account	philadelphiaeagles.com/schedule	site-slot	slot:schedule,template:name-first,from:head-brand	test	philadelphiaeagles
+philadelphia eagles sitemap	account	philadelphiaeagles.com/sitemap/0	site-slot	slot:sitemap,template:name-first,from:head-brand	test	philadelphiaeagles
+plans patreon	account	patreon.com/pricing	site-slot	slot:pricing,template:slot-first,from:head-brand	test	patreon
+popeyes menus	account	popeyes.com/menu	site-slot	slot:menu,template:name-first,from:head-brand	test	popeyes
+popeyes support	account	popeyes.com/support	site-slot	slot:support,template:name-first,from:head-brand	test	popeyes
+premier league schedule	account	premierleague.com/en/matches	site-slot	slot:schedule,template:name-first,from:head-brand	test	premierleague
+premier league ticket	account	premierleague.com/en/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	test	premierleague
+press nvidia	account	blogs.nvidia.com/blog/tag/industrial-manufacturing	site-slot	slot:press,template:slot-first,from:head-brand	test	nvidia
+press releases hooters	account	hooters.com/about/news	site-slot	slot:press,template:slot-first,from:head-brand	test	hooters
+press releases iron maiden	account	ironmaiden.com/media	site-slot	slot:press,template:slot-first,from:own-title	test	ironmaiden
+press releases j. k. rowling	account	jkrowling.com/media-kit	site-slot	slot:press,template:slot-first,from:own-title	test	jkrowling
+press united arab emirates	account	u.ae/en/media	site-slot	slot:press,template:slot-first,from:own-title	test	unitedarabemirates
+privacy george w. bush	account	georgewbush.com/privacy-policy	site-slot	slot:privacy,template:slot-first,from:own-title	test	georgewbush
+privacy notice franz beckenbauer	account	franzbeckenbauer.de/datenschutz	site-slot	slot:privacy,template:slot-first,from:own-title	test	franzbeckenbauer
+privacy paul mccartney	account	paulmccartney.com/privacy-policy	site-slot	slot:privacy,template:slot-first,from:own-title	test	paulmccartney
+privacy policy gerhart hauptmann	account	gerhart-hauptmann-gesellschaft.de/datenschutzerklaerung	site-slot	slot:privacy,template:slot-first,from:own-title	test	gerharthauptmann
+privacy policy rwanda	account	gov.rw/privacy-policy	site-slot	slot:privacy,template:slot-first,from:own-title	test	rwanda
+privacy policy san marino	account	gov.sm/pub2/govsm/privacy.html	site-slot	slot:privacy,template:slot-first,from:own-title	test	sanmarino
+ramones shop	account	store.ramones.com	site-slot	slot:shop,template:name-first,from:own-title	test	ramones
+ray bradbury manage account	account	raybradbury.com/my/account	site-slot	slot:account,template:name-first,from:own-title	test	raybradbury
+ray bradbury sign in	account	raybradbury.com/login	site-slot	slot:login,template:name-first,from:own-title	test	raybradbury
+red hat docs	account	docs.redhat.com/en	site-slot	slot:docs,template:name-first,from:head-brand	test	redhat
+red hat trust	account	redhat.com/en/solutions/security-and-compliance-approach	site-slot	slot:security,template:name-first,from:head-brand	test	redhat
+refund policy harley-davidson	account	harley-davidson.com/us/en/customer-service/returns-and-exchanges.html	site-slot	slot:returns,template:slot-first,from:head-brand	test	harleydavidson
+register jane fonda	account	janefonda.com/join-jane-fonda	site-slot	slot:signup,template:slot-first,from:own-title	test	janefonda
+renault contact us	account	renaultgroup.com/contact	site-slot	slot:contact,template:name-first,from:own-title	test	renault
+reservations dublin	account	dublincity.ie/your-city-council/contact-dublin-city-council/make-appointment	site-slot	slot:reservations,template:slot-first,from:own-title	test	dublin
+restore britain donate	account	restorebritain.org.uk/donate	site-slot	slot:donate,template:name-first,from:head-brand	test	restorebritain
+restore britain volunteer opportunities	account	restorebritain.org.uk/get_involved	site-slot	slot:volunteer,template:name-first,from:head-brand	test	restorebritain
+return policy anker	account	anker.com/policies/refund-policy	site-slot	slot:returns,template:slot-first,from:head-brand	test	anker
+returns costco	account	customerservice.costco.com/app/answers/answer_view/a_id/6874	site-slot	slot:returns,template:slot-first,from:head-brand	test	costco
+rewards graham greene	account	grahamgreenebt.org/membership	site-slot	slot:rewards,template:slot-first,from:own-title	test	grahamgreene
+richard feynman our story	account	richardfeynman.com/about/bio.html	site-slot	slot:about,template:name-first,from:own-title	test	richardfeynman
+rimac automobili contact	account	rimac-automobili.com/contact-us	site-slot	slot:contact,template:name-first,from:head-brand	test	rimacautomobili
+ringo starr shop	account	store.ringostarr.com	site-slot	slot:shop,template:name-first,from:own-title	test	ringostarr
+ringo starr signup	account	ringostarr.com/newsletter	site-slot	slot:signup,template:name-first,from:own-title	test	ringostarr
+riot games investors	account	riotgames.com/en/annual-reports	site-slot	slot:investors,template:name-first,from:head-brand	test	riotgames
+riot games safety	account	riotgames.com/en/security	site-slot	slot:security,template:name-first,from:head-brand	test	riotgames
+rishi sunak accessibility	account	rishisunak.com/accessibility	site-slot	slot:accessibility,template:name-first,from:own-title	test	rishisunak
+rishi sunak cookie policy	account	rishisunak.com/cookies	site-slot	slot:cookies,template:name-first,from:own-title	test	rishisunak
+rwanda press	account	gov.rw/press-release	site-slot	slot:press,template:name-first,from:own-title	test	rwanda
+saint lucia feedback	account	govt.lc/feedback	site-slot	slot:feedback,template:name-first,from:own-title	test	saintlucia
+saint lucia sign in	account	govt.lc/login	site-slot	slot:login,template:name-first,from:own-title	test	saintlucia
+sale papa john's	account	papajohns.com/order/specials	site-slot	slot:deals,template:slot-first,from:head-brand	test	papajohns
+salesforce executives	account	salesforce.com/company/leadership	site-slot	slot:team,template:name-first,from:head-brand	test	salesforce
+salesforce trust	account	trust.salesforce.com	site-slot	slot:security,template:name-first,from:head-brand	test	salesforce
+salvador allende about	account	fundacionsalvadorallende.cl/historia	site-slot	slot:about,template:name-first,from:own-title	test	salvadorallende
+salvation army donations	account	salvationarmy.org/donate	site-slot	slot:donate,template:name-first,from:head-brand	test	salvationarmy
+salvation army volunteer opportunities	account	salvationarmy.org/get-involved	site-slot	slot:volunteer,template:name-first,from:head-brand	test	salvationarmy
+samoa contact info	account	samoagovt.ws/contact	site-slot	slot:contact,template:name-first,from:own-title	test	samoa
+samoa press releases	account	samoagovt.ws/media-center	site-slot	slot:press,template:name-first,from:own-title	test	samoa
+san marino contact us	account	gov.sm/pub2/govsm/contatti.html	site-slot	slot:contact,template:name-first,from:own-title	test	sanmarino
+schedule amc	account	amc.com/schedule	site-slot	slot:schedule,template:slot-first,from:head-brand	test	amctvchannel
+schedule celtic f.c.	account	celticfc.com/fixtures	site-slot	slot:schedule,template:slot-first,from:head-brand	test	celticfc
+schedule ss lazio	account	sslazio.it/calendario/lazio	site-slot	slot:schedule,template:slot-first,from:head-brand	test	sslazio
+searchlight pictures about us	account	searchlightpictures.com/about	site-slot	slot:about,template:name-first,from:head-brand	test	searchlightpictures
+searchlight pictures merch	account	searchlightpictures.com/shop	site-slot	slot:shop,template:name-first,from:head-brand	test	searchlightpictures
+sears locations	account	sears.com/stores	site-slot	slot:locations,template:name-first,from:head-brand	test	sears
+seat cookies	account	seat.com/company/cookie-policy	site-slot	slot:cookies,template:name-first,from:site-nav	test	seat
+seat ir	account	seat.com/company/annual-report	site-slot	slot:investors,template:name-first,from:site-nav	test	seat
+security cisco	account	cisco.com/site/us/en/products/security/index.html	site-slot	slot:security,template:slot-first,from:head-brand	test	cisco
+security dubai	account	dm.gov.ae/website-policies/security-privacy	site-slot	slot:security,template:slot-first,from:own-title	test	dubai
+seiko esg	account	seiko.co.jp/csr/esg_data	site-slot	slot:sustainability,template:name-first,from:head-brand	test	seiko
+selena gomez help	account	store.selenagomez.com/pages/help	site-slot	slot:support,template:name-first,from:own-title	test	selenagomez
+selena gomez merch	account	store.selenagomez.com/collections/merch	site-slot	slot:shop,template:name-first,from:own-title	test	selenagomez
+seychelles contact us	account	egov.sc/contact-us	site-slot	slot:contact,template:name-first,from:own-title	test	seychelles
+shop kojima productions	account	kojimaproductions.jp/%e5%95%86%e5%ba%97	site-slot	slot:shop,template:slot-first,from:head-brand	test	kojimaproductions
+sign up alternative for germany	account	afd.de/mitglied-werden	site-slot	slot:signup,template:slot-first,from:own-title	test	alternativeforgermany
+sign up cbs	account	cbs.com/account/signup/createaccount	site-slot	slot:signup,template:slot-first,from:head-brand	test	cbs
+sign up kylie minogue	account	kylie.com/signup	site-slot	slot:signup,template:slot-first,from:own-title	test	kylieminogue
+signup guns n' roses	account	gunsnroses.com/pages/subscribe	site-slot	slot:signup,template:slot-first,from:own-title	test	gunsnroses
+sitemap whole foods market	account	wholefoodsmarket.com/site-information/site-map	site-slot	slot:sitemap,template:slot-first,from:head-brand	test	wholefoodsmarket
+skechers giftcard	account	skechers.com/e-gift-card/skxgc01.html	site-slot	slot:giftcards,template:name-first,from:head-brand	test	skechers
+skechers sale	account	skechers.com/sale	site-slot	slot:deals,template:name-first,from:head-brand	test	skechers
+sony pictures animation careers	account	sonypicturesanimation.com/index.php/careers	site-slot	slot:careers,template:name-first,from:head-brand	test	sonypicturesanimation
+south carolina register	account	login.sc.gov	site-slot	slot:signup,template:name-first,from:own-title	test	southcarolina
+south carolina visit	account	sc.gov/visitors	site-slot	slot:directions,template:name-first,from:own-title	test	southcarolina
+spain impressum	account	administracion.gob.es/avisolegal	site-slot	slot:legal,template:name-first,from:own-title	test	spain
+speedtest app	account	speedtest.net/apps	site-slot	slot:app,template:name-first,from:head-brand	test	speedtestnet
+spice girls online store	account	store.thespicegirls.com	site-slot	slot:shop,template:name-first,from:own-title	test	spicegirls
+ss lazio tickets	account	sslazio.it/biglietteria/matches	site-slot	slot:tickets,template:name-first,from:head-brand	test	sslazio
+ssc napoli partners	account	sscnapoli.it/partner	site-slot	slot:partners,template:name-first,from:head-brand	test	sscnapoli
+ssc napoli shop	account	store.sscnapoli.it/it	site-slot	slot:shop,template:name-first,from:head-brand	test	sscnapoli
+stanford university directions	account	stanford.edu/life/visit	site-slot	slot:directions,template:name-first,from:own-title	test	stanforduniversity
+starbucks delivery	account	starbucks.com/stores-and-ordering/delivery	site-slot	slot:shipping,template:name-first,from:head-brand	test	starbucks
+starbucks order now	account	starbucks.com/discover/featured-menu	site-slot	slot:order,template:name-first,from:head-brand	test	starbucks
+stephen harper contact us	account	stephenharper.com/contact	site-slot	slot:contact,template:name-first,from:own-title	test	stephenharper
+subway terms	account	subway.com/content/subway/content-pages/us/en_us/modals/homepage/doritos	site-slot	slot:terms,template:name-first,from:head-brand	test	subwayrestaurant
+support bank of america	account	bankofamerica.com/help/overview	site-slot	slot:support,template:slot-first,from:head-brand	test	bankofamerica
+support duckduckgo	account	duckduckgo.com/duckduckgo-help-pages	site-slot	slot:support,template:slot-first,from:head-brand	test	duckduckgo
+sustainability maldives	account	visitmaldives.com/en/maldives/environment	site-slot	slot:sustainability,template:slot-first,from:own-title	test	maldives
+sustainability totalenergies	account	totalenergies.com/sustainability	site-slot	slot:sustainability,template:slot-first,from:head-brand	test	totalenergies
+sustainability uefa	account	uefa.com/sustainability	site-slot	slot:sustainability,template:slot-first,from:head-brand	test	uefa
+taiwan app	account	gov.tw/news_content_26_890691	site-slot	slot:app,template:name-first,from:own-title	test	taiwan
+telegram docs	account	core.telegram.org/api	site-slot	slot:docs,template:name-first,from:head-brand	test	telegramsoftware
+tencent executives	account	tencent.com/our-actions/governance	site-slot	slot:team,template:name-first,from:head-brand	test	tencent
+tencent game schedule	account	tencent.com/investors/results	site-slot	slot:schedule,template:name-first,from:head-brand	test	tencent
+terms of use aerosmith	account	aerosmith.com/terms-and-conditions	site-slot	slot:terms,template:slot-first,from:own-title	test	aerosmith
+terms of use mississippi	account	ms.gov/ai-terms-conditions	site-slot	slot:terms,template:slot-first,from:own-title	test	mississippi
+the beach boys merch	account	shop.thebeachboys.com	site-slot	slot:shop,template:name-first,from:own-title	test	thebeachboys
+the beach boys terms of use	account	thebeachboys.com/policies/terms-of-service	site-slot	slot:terms,template:name-first,from:own-title	test	thebeachboys
+the beatles shop	account	thebeatles.com/stores	site-slot	slot:shop,template:name-first,from:own-title	test	thebeatles
+the beatles terms	account	thebeatles.com/terms	site-slot	slot:terms,template:name-first,from:own-title	test	thebeatles
+the offspring privacy policy	account	offspring.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	theoffspring
+the offspring terms	account	offspring.com/terms-and-conditions	site-slot	slot:terms,template:name-first,from:own-title	test	theoffspring
+the prodigy cookie policy	account	theprodigy.com/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	test	theprodigy
+ticket london city lionesses	account	londoncitylionesses.com/tickets	site-slot	slot:tickets,template:slot-first,from:head-brand	test	londoncitylionesses
+ticket the prodigy	account	theprodigy.com/www.eventim.de/rarrip	site-slot	slot:tickets,template:slot-first,from:own-title	test	theprodigy
+tickets leicester city f.c.	account	tickets.lcfc.com	site-slot	slot:tickets,template:slot-first,from:own-title	test	leicestercityfc
+tickets pga tour	account	pgatour.com/tickets	site-slot	slot:tickets,template:slot-first,from:head-brand	test	pgatour
+tokio hotel impressum	account	tokiohotel.com/policies/legal-notice	site-slot	slot:legal,template:name-first,from:own-title	test	tokiohotel
+tokio hotel refund policy	account	tokiohotel.com/pages/returns	site-slot	slot:returns,template:name-first,from:own-title	test	tokiohotel
+totalenergies ir	account	totalenergies.com/investors	site-slot	slot:investors,template:name-first,from:head-brand	test	totalenergies
+uber manage account	account	account.uber.com	site-slot	slot:account,template:name-first,from:head-brand	test	uber
+uber sustainability	account	uber.com/us/en/about/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	test	uber
+uefa tickets	account	uefa.com/tickets	site-slot	slot:tickets,template:name-first,from:head-brand	test	uefa
+ukraine become a partner	account	ukraine.ua/partners	site-slot	slot:partners,template:name-first,from:own-title	test	ukraine
+unicef become a partner	account	unicef.org/partners	site-slot	slot:partners,template:name-first,from:head-brand	test	unicef
+unicef schedule	account	unicef.org/who-we-are/results	site-slot	slot:schedule,template:name-first,from:head-brand	test	unicef
+united kingdom cookie policy	account	gov.uk/help/cookies	site-slot	slot:cookies,template:name-first,from:own-title	test	unitedkingdom
+united kingdom menus	account	gov.uk/browse	site-slot	slot:menu,template:name-first,from:own-title	test	unitedkingdom
+uruguay contact info	account	gub.uy/contacto	site-slot	slot:contact,template:name-first,from:own-title	test	uruguay
+uruguay privacy notice	account	gub.uy/politica-de-privacidad	site-slot	slot:privacy,template:name-first,from:own-title	test	uruguay
+usain bolt become a partner	account	usainbolt.com/partners	site-slot	slot:partners,template:name-first,from:own-title	test	usainbolt
+usain bolt privacy policy	account	usainbolt.com/privacy-policy	site-slot	slot:privacy,template:name-first,from:own-title	test	usainbolt
+virgin atlantic deals	account	flights.virginatlantic.com/en-gb	site-slot	slot:deals,template:name-first,from:head-brand	test	virginatlantic
+virgin atlantic return policy	account	help.virginatlantic.com/us/en/flight-disruptions/cancelled-or-changed.html	site-slot	slot:returns,template:name-first,from:head-brand	test	virginatlantic
+virginia investors	account	virginia.gov/services/finance/financial-reports	site-slot	slot:investors,template:name-first,from:own-title	test	virginia
+volunteer united arab emirates	account	u.ae/en/information-and-services/charity-and-humanitarian-work/donations-and-volunteering/volunteering-platforms-and-initiatives	site-slot	slot:volunteer,template:slot-first,from:own-title	test	unitedarabemirates
+volunteering let's encrypt	account	letsencrypt.org/getinvolved	site-slot	slot:volunteer,template:slot-first,from:head-brand	test	letsencrypt
+václav havel about	account	vaclavhavel.cz/cs/o-nas	site-slot	slot:about,template:name-first,from:own-title	test	vclavhavel
+václav havel shop	account	vaclavhavel.cz/cs/aktivity/shop	site-slot	slot:shop,template:name-first,from:own-title	test	vclavhavel
+walmart accessibility	account	walmart.com/help/article/responsible-disclosure-and-accessibility-policies/0f173dab8bd942da84b1cd7ab5ffc3cb	site-slot	slot:accessibility,template:name-first,from:head-brand	test	walmart
+warner bros. entertainment accessibility	account	policies.warnerbros.com/terms/en-us	site-slot	slot:accessibility,template:name-first,from:own-title	test	warnerbrosentertainment
+warner bros. entertainment help center	account	warnerbros.com/help/faq	site-slot	slot:support,template:name-first,from:own-title	test	warnerbrosentertainment
+washington, d.c. apps	account	dc.gov/page/mobile-apps	site-slot	slot:app,template:name-first,from:own-title	test	washingtondc
+waymo corporate responsibility	account	waymo.com/sustainability	site-slot	slot:sustainability,template:name-first,from:head-brand	test	waymo
+waymo sign up	account	waymo.com/updates	site-slot	slot:signup,template:name-first,from:head-brand	test	waymo
+weezer cookie settings	account	weezer.com/cookie-policy	site-slot	slot:cookies,template:name-first,from:own-title	test	weezer
+weezer register	account	weezer.com/sign-up	site-slot	slot:signup,template:name-first,from:own-title	test	weezer
+wendy's franchising	account	wendys.com/franchising	site-slot	slot:franchise,template:name-first,from:head-brand	test	wendys
+wendy's loyalty	account	order.wendys.com/rewards-home	site-slot	slot:rewards,template:name-first,from:head-brand	test	wendys
+whatsapp mobile app	account	whatsapp.com/download	site-slot	slot:app,template:name-first,from:head-brand	test	whatsapp
+whatsapp service status	account	whatsapp.com/status	site-slot	slot:status,template:name-first,from:head-brand	test	whatsapp
+whitney houston event calendar	account	whitneyhouston.com/events	site-slot	slot:events,template:name-first,from:own-title	test	whitneyhouston
+whole foods market legal	account	wholefoodsmarket.com/legal	site-slot	slot:legal,template:name-first,from:head-brand	test	wholefoodsmarket
+wikidata help	account	wikidata.org/wiki/special:mylanguage/help:contents	site-slot	slot:support,template:name-first,from:own-title	test	wikidata
+wikileaks become a partner	account	wikileaks.org/-partners-.html	site-slot	slot:partners,template:name-first,from:head-brand	test	wikileaks
+wikileaks donate	account	shop.wikileaks.org/donate	site-slot	slot:donate,template:name-first,from:head-brand	test	wikileaks
+wisconsin contact us	account	wisconsin.gov/pages/contactus.aspx	site-slot	slot:contact,template:name-first,from:own-title	test	wisconsin
+world bank leadership	account	data360.worldbank.org/en/people	site-slot	slot:team,template:name-first,from:own-title	test	worldbank
+wwe schedule	account	wwe.com/shows/wwenxt/2026-11-4	site-slot	slot:schedule,template:name-first,from:head-brand	test	wwe
+wwe ticket	account	wwe.com/events	site-slot	slot:tickets,template:name-first,from:head-brand	test	wwe
+yahoo sale	account	shopping.yahoo.com/deals	site-slot	slot:deals,template:name-first,from:head-brand	test	yahoo
+zimbabwe leave feedback	account	zim.gov.zw/index.php/contact-us	site-slot	slot:feedback,template:name-first,from:own-title	test	zimbabwe
+zz top shop	account	store.zztop.com	site-slot	slot:shop,template:name-first,from:own-title	test	zztop
+zz top terms	account	zztop.com/terms	site-slot	slot:terms,template:name-first,from:own-title	test	zztop

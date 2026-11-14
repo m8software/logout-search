@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+"""Build the one-folder bundle of logout search for the system this runs on (gate T7): `logout-search`
+(installer/logout_search.py) with Python, the engine (serve/api), install.py, the update tools and the libraries inside.
+
+    python build.py [--out DIR] [--no-smoke]
+
+Needs the packages in requirements.txt (PyInstaller and what the engine imports), the same versions the engine image pins.
+Writes DIR/logout-search-<system>-<arch>/ (the folder people unpack), DIR/logout-search-<system>-<arch>.{tar.gz|zip} and
+DIR/SHA256SUMS, then runs the built program: `version`, `engine --check-imports` (every library loads), and the dry runs of
+`autostart` and `host register` against a fake install. A bundle that fails any of them is not kept.
+
+Systems: Linux x86_64, Windows x86_64, macOS arm64 (onnxruntime 1.30 publishes no macOS x86_64 wheel). The CI workflow
+(tools/public-repo/root/.github/workflows/bundle.yml) runs this on all three and attaches the results to a release.
+"""
+import argparse
+import hashlib
+import json
+import os
+import platform
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+import zipfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+INSTALLER = os.path.dirname(HERE)
+SEARCH = os.path.dirname(INSTALLER)
+ENGINE = os.path.join(SEARCH, "serve", "api")
+RELEASE = os.path.join(SEARCH, "release")
+
+# what the engine image copies (serve/api/Dockerfile), less the servers' own tools; shipped on disk so search_api.py runs as a file
+ENGINE_FILES = ["search_api.py", "lookups_sqlite.py", "lookups_release.py", "kinds_release.py", "tv_open.py", "release_root.py",
+                "sem_ivf.py", "site_pages.py", "product_table.py", "gov_state.py", "site_slots.py", "state_anchor.py", "result_store.py", "facts.py", "news_sqlite.py", "instant_answers.py", "ranker.json", "warm.py",
+                "native_host.py", "NOTICE"]
+ENGINE_DIRS = ["licenses"]
+# analysed with the launcher so every library and standard-library module they import is in the bundle
+ANALYSED = [os.path.join(INSTALLER, "logout_search.py"), os.path.join(ENGINE, "search_api.py"), os.path.join(ENGINE, "native_host.py"),
+            os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py")]
+COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary"]
+
+
+def system_name() -> str:
+    s = {"linux": "linux", "win32": "windows", "darwin": "macos"}.get(sys.platform, sys.platform)
+    m = platform.machine().lower()
+    arch = {"amd64": "x86_64", "x86_64": "x86_64", "arm64": "arm64", "aarch64": "arm64"}.get(m, m)
+    return f"{s}-{arch}"
+
+
+def sha256(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def stage_engine(stage: str) -> str:
+    eng = os.path.join(stage, "engine")
+    os.makedirs(eng)
+    for f in ENGINE_FILES:
+        shutil.copy2(os.path.join(ENGINE, f), eng)
+    for d in ENGINE_DIRS:
+        shutil.copytree(os.path.join(ENGINE, d), os.path.join(eng, d))
+    return eng
+
+
+def pyinstaller(stage: str, work: str, dist: str) -> None:
+    import PyInstaller.__main__ as pim
+    args = ["--noconfirm", "--clean", "--onedir", "--name", "logout-search", "--console",
+            "--workpath", work, "--distpath", dist, "--specpath", work,
+            "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
+            "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
+            "--hidden-import", "numpy", "--hidden-import", "psycopg"]
+    for m in COLLECT_ALL:
+        args += ["--collect-all", m]
+    args += ANALYSED
+    print("pyinstaller " + " ".join(args), flush=True)
+    pim.run(args)
+
+
+def exe_in(folder: str) -> str:
+    return os.path.join(folder, "logout-search.exe" if sys.platform == "win32" else "logout-search")
+
+
+def smoke(folder: str) -> None:
+    exe = exe_in(folder)
+    env = dict(os.environ, ORT_DISABLE_TELEMETRY="1")
+
+    def run(*args, **kw):
+        r = subprocess.run([exe, *args], capture_output=True, text=True, env={**env, **kw.get("env", {})}, timeout=600)
+        print(f"  $ logout-search {' '.join(args)} -> {r.returncode}")
+        if r.returncode:
+            print(r.stdout[-2000:], r.stderr[-2000:])
+            raise SystemExit(f"smoke: `{' '.join(args)}` exited {r.returncode}")
+        return r.stdout
+
+    v = json.loads(run("version"))
+    assert v["frozen"] is True, v
+    imp = json.loads(run("engine", "--check-imports"))
+    assert "search_api.py" in imp["engine_files"] and "ranker.json" in imp["engine_files"], imp
+    print("  libraries: " + ", ".join(f"{k} {imp[k]}" for k in ("numpy", "tantivy", "onnxruntime", "tokenizers", "psycopg")))
+    with tempfile.TemporaryDirectory() as t:
+        base = os.path.join(t, "base")
+        rel = os.path.join(base, "releases", "fx-1")
+        os.makedirs(os.path.join(rel, "models", "rerank-turbo"))
+        with open(os.path.join(rel, "manifest.json"), "w") as f:
+            json.dump({"release": "fx-1", "engine": {"reranker": {"cpu": "models/rerank-turbo"}}}, f)
+        for n in ("tokenizer.json", "model_int8.onnx"):
+            open(os.path.join(rel, "models", "rerank-turbo", n), "w").close()
+        sys.path.insert(0, RELEASE)
+        import release_ptr
+        release_ptr.set_pointer(base, "current", "fx-1")
+        out = run("start", "--dest", base, "--print-env", "--format", "json")
+        e = json.loads(out)
+        assert e["SEARCH_API_BIND"] == "127.0.0.1" and e["SEARCH_RELEASE_ID"] == "fx-1", e
+        run("autostart", "on", "--dest", base, "--print")
+        home = os.path.join(t, "home")
+        for d in (("home", ".config", "google-chrome"), ("home", "Library", "Application Support", "Google", "Chrome"),
+                  ("home", "AppData", "Local", "Google", "Chrome")):
+            os.makedirs(os.path.join(t, *d))
+        run("host", "register", "--dest", base, "--print",
+            env={"HOME": home, "USERPROFILE": home, "LOCALAPPDATA": os.path.join(home, "AppData", "Local"), "APPDATA": os.path.join(home, "AppData", "Roaming")})
+        st = json.loads(run("status", "--dest", base))
+        assert st["current"] == "fx-1", st
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--out", default=os.path.join(HERE, "build", "out"))
+    ap.add_argument("--no-smoke", action="store_true")
+    a = ap.parse_args()
+    name = f"logout-search-{system_name()}"
+    build = os.path.join(HERE, "build")
+    stage, work, dist = (os.path.join(build, d) for d in ("stage", "work", "dist"))
+    for d in (stage, work, dist):
+        shutil.rmtree(d, ignore_errors=True)
+        os.makedirs(d)
+    stage_engine(stage)
+    pyinstaller(stage, work, dist)
+    folder = os.path.join(dist, "logout-search")
+    if not os.path.isfile(exe_in(folder)):
+        raise SystemExit(f"build: {exe_in(folder)} was not produced")
+    with open(os.path.join(folder, "README.txt"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("logout search: a web search engine that runs on your own computer.\n\n"
+                "  logout-search install --source hf:logoutsearch/logout-search --pubkey ed25519:<key from the dataset page> --dest <folder>\n"
+                "  logout-search start --dest <folder>              the engine answers on http://127.0.0.1:8090\n"
+                "  logout-search autostart on --dest <folder>       start it at logon\n"
+                "  logout-search host register --dest <folder>      connect the logout browser extension\n"
+                "  logout-search update --dest <folder> --source hf:logoutsearch/logout-search --pubkey <key.pem>\n\n"
+                "Licences: engine/NOTICE and engine/licenses/ (the engine), LICENSE (AGPL-3.0); the data carries its own.\n")
+    if not a.no_smoke:
+        print("smoke:", flush=True)
+        smoke(folder)
+    os.makedirs(a.out, exist_ok=True)
+    final = os.path.join(a.out, name)
+    shutil.rmtree(final, ignore_errors=True)
+    shutil.move(folder, final)
+    if sys.platform == "win32":
+        archive = final + ".zip"
+        with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as z:
+            for d, _dirs, fs in os.walk(final):
+                for fn in fs:
+                    p = os.path.join(d, fn)
+                    z.write(p, os.path.relpath(p, a.out))
+    else:
+        archive = final + ".tar.gz"
+        with tarfile.open(archive, "w:gz") as t:
+            t.add(final, arcname=name)
+    sums = os.path.join(a.out, "SHA256SUMS")
+    lines = [ln for ln in (open(sums).read().splitlines() if os.path.isfile(sums) else []) if not ln.endswith(os.path.basename(archive))]
+    lines.append(f"{sha256(archive)}  {os.path.basename(archive)}")
+    with open(sums, "w", newline="\n") as f:
+        f.write("\n".join(lines) + "\n")
+    size = sum(os.path.getsize(os.path.join(d, fn)) for d, _x, fs in os.walk(final) for fn in fs)
+    print(f"built {final} ({size / 1e6:.0f} MB unpacked, {os.path.getsize(archive) / 1e6:.0f} MB archive)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

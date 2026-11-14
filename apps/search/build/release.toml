@@ -1,0 +1,267 @@
+# The search data release, as a pipeline (apps/search/build/pipeline.py). One file for every release: the per-release
+# values are [params] (--set on the command line), the per-machine ones are the paths under [runner] and the file:
+# inputs below (reference copy: buildbox, /data/release). The rc4..rc9p chains under release/buildbox/ were hand-edited copies of
+# each other; this replaces them. Every stage reads files and writes files into its own folder; a stage reruns only
+# when an input, its code, a param or its command changed (pipeline.py plan says which).
+#
+#   python3 apps/search/build/pipeline.py apps/search/build/release.toml --work /data/release/build sources fetch
+#   python3 apps/search/build/pipeline.py apps/search/build/release.toml --work /data/release/build plan
+#   python3 apps/search/build/pipeline.py apps/search/build/release.toml --work /data/release/build run --to web-index-pages
+#
+# Bridges (kind = "bridge:postgres") are the stages that still read the Postgres COPY: `status` counts them. The exit
+# from Postgres (docs/internal/SEARCH-POSTGRES-EXIT.md) is done when that count is 0 and [bridges] is deleted.
+
+[pipeline]
+name = "release"
+version = 1
+# hashed into every stage's key besides each stage's own `code`
+code = ["build/pipeline.py"]
+
+[runner]
+repo = ".."                                   # apps/search: mounted at /code in the container, {code} on the host
+engine = "docker"
+image = "logout/search-api:1"                 # the builder image (python, tantivy, numpy, the models under /models)
+image_key = "name"                            # keys name the image tag, so a work folder moves between machines
+container = true                              # the default; a stage says container = false to run on the host
+mounts = ["/usr/bin/zstd:/usr/bin/zstd:ro", "/usr/lib/x86_64-linux-gnu/libzstd.so.1:/usr/lib/x86_64-linux-gnu/libzstd.so.1:ro"]
+env = { PYTHONPATH = "/w/pylib", SQLITE_TMPDIR = "/w/tmp", TMPDIR = "/w/tmp", PHRASES_SQL = "/code/serve/phrases.sql", NO_PAGE_TEXT_CHECK = "/code/serve/no-page-text-check.sql", PYTHONDONTWRITEBYTECODE = "1" }
+host_env = { DOCKER = "docker", BRIDGE_PG_DIR = "/data/release/pg", BRIDGE_PG_NAME = "build-pg" }
+
+[params]
+release = "proto-20261104-rc14"               # the release id being built
+previous = "proto-20261102-rc13"              # the previous release: stable ids (--previous) and the reused parts
+previous_dir = "/data/release/w/rc13-prev"                       # its registry, lookup folder, pictures, facts (rc11's stage outputs)
+previous_web = "/data/release/w/proto-20261002-testbox/rc9p-web"    # its text indexes
+previous_wiki = "/data/release/w/rc13-prev/text/wiki"            # the Wikipedia index reused since rc9 (rc11's copy)
+previous_ivf = "/data/release/w/rc13-prev/vectors/ivf"
+pages_ivf = "/data/release/j532/semp14/pages-ivf1000"     # meaning search over the pages (pages_vec.py + ivf_build.py on the workstation, built for this release id)
+previous_publish = "/data/release/j532/rc13pub/publish"   # its download folder: unchanged files keep their .xz (assemble --reuse-publish)
+pgcopy = "build-db-tables-2026-10-20+se_authors+rc10-pages+rc11-stubs"     # WHICH copy of the build database the bridges read: change it when the copy changes
+pages_store = "/data/release/j532/pstore14"     # the inner pages as files (release/pages_store.py): page_docs no longer comes from pgcopy
+registry_unchanged = "wiki,place,account,youtube,stock,link"     # types that may not move in this release (regdiff check); sites and pages may
+restamp_reason = "the Wikipedia articles and their ids are unchanged since this file was built, and a rebuild from the same inputs gives the same rows"
+
+# ---- layer 1: sources (immutable, fetched by sha256) -------------------------------------------------------------
+[sources.cisa-dotgov]
+url = "https://raw.githubusercontent.com/cisagov/dotgov-data/main/current-full.csv"
+sha256 = "9591bf6023abefb790b39a8eb31eb0ff073ebac829c835c7c6b464b38d8b1d76"   # fetched 2026-10-26; `sources fetch cisa-dotgov` reports a changed upstream
+
+[sources.nsi]
+url = "https://cdn.jsdelivr.net/npm/name-suggestion-index@8.0.20260918/dist/json/nsi.min.json"
+sha256 = "85752fb28977082f6e631636f1e9b8f97513947f75aaf1338c47ffa87207f513"   # fetched 2026-10-30; name-suggestion-index 8.0.20260918, BSD-3-Clause
+
+[sources.oewn]
+url = "https://en-word.net/static/english-wordnet-2025.xml.gz"
+sha256 = "9ca6d1dcb75f822fdd66617f7d9da48142ace38dd544d6ad5e2feca1674ad3fe"   # fetched 2026-10-30; Open English WordNet 2025, CC BY 4.0
+
+# ---- the bridge: a throwaway Postgres over the copied tables, up before a bridge stage and down after it -----------
+[bridges.postgres]
+up = ["bash", "build/bridge-postgres.sh", "up"]
+down = ["bash", "build/bridge-postgres.sh", "down"]
+env = { PG_DSN = "host=127.0.0.1 dbname=search user=search", PG_SEARCH_DSN = "host=127.0.0.1 dbname=search user=search", PGHOST = "127.0.0.1", PGDATABASE = "search", PGUSER = "search" }
+
+# ---- layer 2/3: stages ----------------------------------------------------------------------------------------------
+[stages.gov-states]
+# which state a state, county, city or district .gov belongs to (CISA registry, public domain) -> gov-states.json
+container = false
+code = ["release/gov_states.py", "release/gov-state-domains.tsv"]
+inputs = { csv = "source:cisa-dotgov" }
+outputs = ["gov-states.json"]
+cmd = ["python3", "{code}/release/gov_states.py", "build", "{in.csv}", "{out}/gov-states.json", "{code}/release/gov-state-domains.tsv"]
+check = ["python3", "{code}/release/gov_states.py", "check", "{out}/gov-states.json"]
+
+[stages.brand-sites]
+# a brand's or operator's name -> its official site (name-suggestion-index, BSD-3-Clause; Wikidata P856, CC0) -> brand-sites.tsv
+# nsi-p856.tsv is Wikidata's answer for `brand_sites.py qids`, asked once before the build (a stage does not call out).
+container = false
+code = ["release/brand_sites.py"]
+inputs = { nsi = "source:nsi", p856 = "file:/data/release/rc5in/nsi-p856.tsv" }
+outputs = ["brand-sites.tsv"]
+cmd = ["python3", "{code}/release/brand_sites.py", "build", "{in.nsi}", "{in.p856}", "{out}/brand-sites.tsv"]
+check = ["python3", "{code}/release/brand_sites.py", "check", "{out}/brand-sites.tsv"]
+
+[stages.typo-words]
+# the words of English for the typo path, spelling only (Open English WordNet, CC BY 4.0) -> typo-words.txt
+container = false
+code = ["release/typo_words.py"]
+inputs = { oewn = "source:oewn" }
+outputs = ["typo-words.txt"]
+cmd = ["python3", "{code}/release/typo_words.py", "build", "{in.oewn}", "{out}/typo-words.txt"]
+check = ["python3", "{code}/release/typo_words.py", "check", "{out}/typo-words.txt"]
+
+[stages.stage-sqlite]
+# BRIDGE: the lookup builder's staging copy of ~22 tables (build.py stage) with own rank, the block lists and UT1's file
+kind = "bridge:postgres"
+code = ["tools/sqlite_lookups/build.py", "importer/ccpages.py", "release/pages_store.py", "release/pg-word-chars.txt"]
+inputs = { own = "file:/data/release/rc5in/own_rank_G.tsv", ut1 = "file:/data/release/rc5in/ut1-unsafe.tsv.gz", blocked = "file:/data/release/rc5in/blocked.tsv", db = "opaque:{param.pgcopy}", pages = "file:{param.pages_store}" }
+outputs = ["stage.sqlite"]
+memory = "3g"
+options = ["--network", "container:build-pg", "-w", "/code/tools/sqlite_lookups"]
+cmd = ["env", "SEARCH_PAGES_STORE={in.pages}", "python", "-c", "import sys, build, psycopg; pg = psycopg.connect(); pg.execute('SET statement_timeout = 0'); build.stage(pg, sys.argv[1], sys.argv[2], ut1_unsafe=sys.argv[3], blocked=sys.argv[4]).close()", "{out}/stage.sqlite", "{in.own}", "{in.ut1}", "{in.blocked}"]
+
+[stages.registry]
+# every document's id, from the staged universe and the dated places release; ids stable against the previous registry
+code = ["release/release_v1.py", "release/registry_idents.py", "build/regdiff.py"]
+inputs = { stage = "stage:stage-sqlite/stage.sqlite", prev = "file:{param.previous_dir}/registry.sqlite", places = "file:/data/release/places-2026-10-23-us" }
+outputs = ["registry.sqlite"]
+memory = "4g"
+env = { RELEASE_ID = "{param.release}" }
+cmd = ["python", "/code/release/release_v1.py", "registry", "{out}/registry.sqlite", "{param.release}", "--previous", "{in.prev}", "--from-stage", "{in.stage}", "--places-dir", "{in.places}"]
+check = ["python", "/code/build/regdiff.py", "{in.prev}", "{out}/registry.sqlite", "--unchanged", "{param.registry_unchanged}"]
+
+[stages.lookup]
+# lookup.sqlite, places-*.sqlite, hours-web.sqlite and a fresh typo index; ids stable against the previous lookup folder
+code = ["tools/sqlite_lookups", "release/release_v1.py"]
+inputs = { registry = "stage:registry/registry.sqlite", stage = "stage:stage-sqlite/stage.sqlite", places = "file:/data/release/places-2026-10-23-us", prev = "file:{param.previous_dir}/lookup" }
+outputs = ["lookup"]
+memory = "6g"
+options = ["-w", "/code/tools/sqlite_lookups"]
+cmd = ["python", "/code/tools/sqlite_lookups/build.py", "{out}/lookup", "--registry", "{in.registry}", "--release-id", "{param.release}", "--places-dir", "{in.places}", "--stage", "{in.stage}", "--previous", "{in.prev}"]
+check = ["python", "/code/release/release_v1.py", "sqlguard", "{in.registry}", "{out}/lookup/lookup.sqlite", "{out}/lookup/places-osm.sqlite", "{out}/lookup/places-overture.sqlite", "{out}/lookup/hours-web.sqlite"]
+
+[stages.typo]
+# the typo index as a monthly segment delta on the previous release's (ships small), else a rebuild
+code = ["release/typo_month.py", "release/update_common.py"]
+inputs = { prev_typo = "file:{param.previous_dir}/lookup/text/typo", prev_lookup = "file:{param.previous_dir}/lookup/lookup.sqlite", lookup = "stage:lookup/lookup/lookup.sqlite" }
+outputs = ["typo"]
+memory = "4g"
+cmd = ["python", "/code/release/typo_month.py", "{in.prev_typo}", "{in.prev_lookup}", "{in.lookup}", "{out}/typo", "{param.release}"]
+
+[stages.signals]
+# BRIDGE: popularity numbers per document (own rank, inlinks off)
+kind = "bridge:postgres"
+code = ["release/release_v1.py"]
+inputs = { registry = "stage:registry/registry.sqlite", own = "file:/data/release/rc5in/own_rank_G.tsv", db = "opaque:{param.pgcopy}" }
+outputs = ["signals.bin"]
+memory = "4g"
+options = ["--network", "container:build-pg"]
+env = { RELEASE_ID = "{param.release}" }
+cmd = ["python", "/code/release/release_v1.py", "signals", "{in.registry}", "{out}/signals.bin", "{param.release}", "--own-rank", "{in.own}"]
+check = ["python", "/code/release/release_v1.py", "sigdump", "{out}/signals.bin"]
+
+[stages.web-input]
+# BRIDGE: the rows of the three web text indexes (sites, pages, anchors); a government page gets its state's word
+kind = "bridge:postgres"
+code = ["release/release_v1.py", "release/gov_states.py", "serve/api/gov_state.py", "release/pages_store.py", "release/pg-word-chars.txt"]
+inputs = { registry = "stage:registry/registry.sqlite", gov = "stage:gov-states/gov-states.json", db = "opaque:{param.pgcopy}", pages = "file:{param.pages_store}" }
+outputs = ["webinput"]
+memory = "2500m"
+options = ["--network", "container:build-pg"]
+env = { RELEASE_ID = "{param.release}" }
+cmd = ["env", "SEARCH_PAGES_STORE={in.pages}", "python", "/code/release/release_v1.py", "web-input", "{in.registry}", "{out}/webinput", "{param.release}", "{in.gov}"]
+
+[stages.anchor-phrases]
+# BRIDGE: anchor-phrases.sqlite (exact anchor text per site)
+kind = "bridge:postgres"
+code = ["release/release_v1.py"]
+inputs = { registry = "stage:registry/registry.sqlite", db = "opaque:{param.pgcopy}" }
+outputs = ["anchor-phrases.sqlite"]
+memory = "2500m"
+options = ["--network", "container:build-pg"]
+env = { RELEASE_ID = "{param.release}" }
+cmd = ["python", "/code/release/release_v1.py", "anchor-phrases", "{in.registry}", "{out}/anchor-phrases.sqlite", "{param.release}"]
+
+[stages.pictures]
+# pictures.sqlite from the card-images working file (no database)
+code = ["release/release_v1.py"]
+inputs = { card = "file:/data/release/pics/card-images.sqlite", registry = "stage:registry/registry.sqlite" }
+outputs = ["pictures.sqlite"]
+memory = "4g"
+cmd = ["python", "/code/release/release_v1.py", "pictures-from", "{in.card}", "{in.registry}", "{out}/pictures.sqlite", "{param.release}"]
+
+[stages.kinds]
+# kinds.sqlite from the judged open-tier dump, kind-name vectors from bge-small (in the image)
+code = ["release/release_v1.py", "release/kinds_build.py"]
+inputs = { registry = "stage:registry/registry.sqlite", dump = "file:/data/release/kindsin/judged-tables.sql.gz" }
+outputs = ["kinds.sqlite"]
+memory = "5g"
+env = { RELEASE_ID = "{param.release}" }
+cmd = ["python", "/code/release/release_v1.py", "kinds", "{in.registry}", "{out}/kinds.sqlite", "{param.release}", "{in.dump}", "--embed", "/models/bge-small-en-v1.5"]
+check = ["python", "/code/release/release_v1.py", "sqlguard", "{out}/kinds.sqlite"]
+
+[stages.hostranks]
+# host TAB our rank: the popularity order of the web indexes
+container = false
+inputs = { own = "file:/data/release/rc5in/own_rank_G.tsv" }
+outputs = ["hostranks.tsv"]
+cmd = ["sh", "-c", "cut -f1,3 \"$1\" > \"$2\"", "hostranks", "{in.own}", "{out}/hostranks.tsv"]
+
+[stages.web-index-sites]
+container = false
+code = ["build/stage-web-index.sh", "build/tvstamp.py", "tools/tantivy-structure"]
+inputs = { registry = "stage:registry/registry.sqlite", rows = "stage:web-input/webinput/sites.rows.tsv.zst", ranks = "stage:hostranks/hostranks.tsv", stop = "file:../release/english.stop" }
+outputs = ["sites"]
+cmd = ["bash", "{code}/build/stage-web-index.sh", "{out}", "sites", "{in.registry}", "{in.rows}", "{in.ranks}", "{in.stop}", "{param.release}"]
+
+[stages.web-index-pages]
+container = false
+code = ["build/stage-web-index.sh", "build/tvstamp.py", "tools/tantivy-structure"]
+inputs = { registry = "stage:registry/registry.sqlite", rows = "stage:web-input/webinput/pages.rows.tsv.zst", ranks = "stage:hostranks/hostranks.tsv", stop = "file:../release/english.stop" }
+outputs = ["pages"]
+cmd = ["bash", "{code}/build/stage-web-index.sh", "{out}", "pages", "{in.registry}", "{in.rows}", "{in.ranks}", "{in.stop}", "{param.release}"]
+
+[stages.web-index-anchors]
+container = false
+code = ["build/stage-web-index.sh", "build/tvstamp.py", "tools/tantivy-structure"]
+inputs = { registry = "stage:registry/registry.sqlite", rows = "stage:web-input/webinput/anchors.rows.tsv.zst", ranks = "stage:hostranks/hostranks.tsv", stop = "file:../release/english.stop" }
+outputs = ["anchors"]
+cmd = ["bash", "{code}/build/stage-web-index.sh", "{out}", "anchors", "{in.registry}", "{in.rows}", "{in.ranks}", "{in.stop}", "{param.release}"]
+
+# ---- parts reused from the previous release (the Wikipedia ids did not move): a copy with the new stamp ---------------
+[stages.wiki-index]
+container = false
+code = ["build/restamp.py", "build/tvstamp.py"]
+inputs = { prev = "file:{param.previous_wiki}" }
+outputs = ["wiki"]
+cmd = ["python3", "{code}/build/restamp.py", "tantivy", "{in.prev}", "{out}/wiki", "{param.release}", "wiki"]
+
+[stages.ivf]
+container = false
+code = ["build/restamp.py"]
+inputs = { prev = "file:{param.previous_ivf}" }
+outputs = ["ivf"]
+cmd = ["python3", "{code}/build/restamp.py", "ivf", "{in.prev}", "{out}/ivf", "{param.release}"]
+
+[stages.facts]
+container = false
+code = ["build/restamp.py"]
+inputs = { prev = "file:{param.previous_dir}/facts.sqlite" }
+outputs = ["facts.sqlite"]
+cmd = ["python3", "{code}/build/restamp.py", "sqlite", "{in.prev}", "{out}/facts.sqlite", "{param.release}", "{param.restamp_reason}"]
+
+# ---- layer 4: the release folder (unsigned: the manifest is signed on the workstation, the key never leaves it) -------
+[stages.assemble]
+# what ships: the release and its download folder (xz, files in parallel, unchanged files reused from the previous one)
+code = ["release/assemble.py", "release/release_check.py", "release/gov_states.py", "release/brand_sites.py", "release/typo_words.py", "serve/api/ranker.json", "release/english.stop"]
+inputs = { typowords = "stage:typo-words/typo-words.txt", brandsites = "stage:brand-sites/brand-sites.tsv", registry = "stage:registry/registry.sqlite", signals = "stage:signals/signals.bin", lookup = "stage:lookup/lookup", typo = "stage:typo/typo", pictures = "stage:pictures/pictures.sqlite", kinds = "stage:kinds/kinds.sqlite", anchors = "stage:anchor-phrases/anchor-phrases.sqlite", facts = "stage:facts/facts.sqlite", wiki = "stage:wiki-index/wiki", sites = "stage:web-index-sites/sites", pages = "stage:web-index-pages/pages", anchidx = "stage:web-index-anchors/anchors", ivf = "stage:ivf/ivf", gov = "stage:gov-states/gov-states.json", models = "file:/data/release/models", pages_ivf = "file:{param.pages_ivf}", prevpub = "file:{param.previous_publish}" }
+outputs = ["release", "publish"]
+memory = "4g"
+options = ["-w", "/code/release"]
+cmd = ["python", "/code/release/assemble.py", "build", "--release-id", "{param.release}", "--out", "{out}/release", "--publish", "{out}/publish", "--compress", "xz", "--reuse-publish", "{in.prevpub}", "--mode", "auto",
+       "--registry", "{in.registry}", "--signals", "{in.signals}", "--lookup", "{in.lookup}/lookup.sqlite",
+       "--places-osm", "{in.lookup}/places-osm.sqlite", "--places-overture", "{in.lookup}/places-overture.sqlite", "--hours-web", "{in.lookup}/hours-web.sqlite",
+       "--pictures", "{in.pictures}", "--kinds", "{in.kinds}", "--anchor-phrases", "{in.anchors}", "--facts", "{in.facts}",
+       "--typo", "{in.typo}", "--wiki", "{in.wiki}", "--sites", "{in.sites}", "--pages", "{in.pages}", "--anchors", "{in.anchidx}",
+       "--ivf", "{in.ivf}", "--pages-ivf", "{in.pages_ivf}", "--nomic-dir", "{in.models}/nomic-embed-text-v1.5", "--rerank-dir", "{in.models}/rerank-turbo-jevfree",
+       "--kinds-model-dir", "{in.models}/bge-small-en-v1.5", "--ranker", "/code/serve/api/ranker.json", "--stopwords", "/code/release/english.stop",
+       "--gov-states", "{in.gov}", "--brand-sites", "{in.brandsites}", "--typo-words", "{in.typowords}",
+       "--licence-text", "/code/serve/api/licenses/Apache-2.0.txt", "--licence-text", "/code/serve/api/licenses/MIT-bge-small-en-v1.5.txt"]
+check = ["python", "/code/release/release_v1.py", "check", "{out}/release", "--tranco-free"]   # unsigned here: no public key given
+
+[stages.assemble-test]
+# the same release without the download folder, for acceptance: `run --to assemble-test` (rc12: the release in ~15 s; xz of the download folder took ~90 min)
+code = ["release/assemble.py", "release/release_check.py", "release/gov_states.py", "release/brand_sites.py", "release/typo_words.py", "serve/api/ranker.json", "release/english.stop"]
+inputs = { typowords = "stage:typo-words/typo-words.txt", brandsites = "stage:brand-sites/brand-sites.tsv", registry = "stage:registry/registry.sqlite", signals = "stage:signals/signals.bin", lookup = "stage:lookup/lookup", typo = "stage:typo/typo", pictures = "stage:pictures/pictures.sqlite", kinds = "stage:kinds/kinds.sqlite", anchors = "stage:anchor-phrases/anchor-phrases.sqlite", facts = "stage:facts/facts.sqlite", wiki = "stage:wiki-index/wiki", sites = "stage:web-index-sites/sites", pages = "stage:web-index-pages/pages", anchidx = "stage:web-index-anchors/anchors", ivf = "stage:ivf/ivf", gov = "stage:gov-states/gov-states.json", models = "file:/data/release/models", pages_ivf = "file:{param.pages_ivf}" }
+outputs = ["release"]
+memory = "4g"
+options = ["-w", "/code/release"]
+cmd = ["python", "/code/release/assemble.py", "build", "--release-id", "{param.release}", "--out", "{out}/release", "--mode", "auto",
+       "--registry", "{in.registry}", "--signals", "{in.signals}", "--lookup", "{in.lookup}/lookup.sqlite",
+       "--places-osm", "{in.lookup}/places-osm.sqlite", "--places-overture", "{in.lookup}/places-overture.sqlite", "--hours-web", "{in.lookup}/hours-web.sqlite",
+       "--pictures", "{in.pictures}", "--kinds", "{in.kinds}", "--anchor-phrases", "{in.anchors}", "--facts", "{in.facts}",
+       "--typo", "{in.typo}", "--wiki", "{in.wiki}", "--sites", "{in.sites}", "--pages", "{in.pages}", "--anchors", "{in.anchidx}",
+       "--ivf", "{in.ivf}", "--pages-ivf", "{in.pages_ivf}", "--nomic-dir", "{in.models}/nomic-embed-text-v1.5", "--rerank-dir", "{in.models}/rerank-turbo-jevfree",
+       "--kinds-model-dir", "{in.models}/bge-small-en-v1.5", "--ranker", "/code/serve/api/ranker.json", "--stopwords", "/code/release/english.stop",
+       "--gov-states", "{in.gov}", "--brand-sites", "{in.brandsites}", "--typo-words", "{in.typowords}",
+       "--licence-text", "/code/serve/api/licenses/Apache-2.0.txt", "--licence-text", "/code/serve/api/licenses/MIT-bge-small-en-v1.5.txt"]
+check = ["python", "/code/release/release_v1.py", "check", "{out}/release", "--tranco-free"]   # unsigned here: no public key given

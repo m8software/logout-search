@@ -1,0 +1,278 @@
+model	topic	judge	detailed
+Gemma-4-12B QAT Q4_0 detail	how to make whipped cream	local	True
+Gemma-4-12B QAT Q4_0 detail	how to boil eggs	local	True
+Gemma-4-12B QAT Q4_0 detail	how to cook rice	local	True
+Gemma-4-12B QAT Q4_0 detail	how to make pancakes	local	True
+Gemma-4-12B QAT Q4_0 detail	how to bake bread	local	True
+Gemma-4-12B QAT Q4_0 detail	how to freeze bananas	local	True
+Gemma-4-12B QAT Q4_0 detail	how to make cold brew coffee	local	True
+Gemma-4-12B QAT Q4_0 detail	how to caramelize onions	local	True
+Gemma-4-12B QAT Q4_0 detail	how to make a roux	local	True
+Gemma-4-12B QAT Q4_0 detail	how to tie a tie	local	True
+Gemma-4-12B QAT Q4_0 detail	how to tie a bow tie	local	True
+Gemma-4-12B QAT Q4_0 detail	how to fold a paper airplane	local	True
+Gemma-4-12B QAT Q4_0 detail	how to knit a scarf	local	True
+Gemma-4-12B QAT Q4_0 detail	how to crochet a chain stitch	local	True
+Gemma-4-12B QAT Q4_0 detail	how to make an origami crane	local	True
+Gemma-4-12B QAT Q4_0 detail	how to braid hair	local	True
+Gemma-4-12B QAT Q4_0 detail	how to tie a bowline knot	local	True
+Gemma-4-12B QAT Q4_0 detail	how to remove a red wine stain	local	True
+Gemma-4-12B QAT Q4_0 detail	how to unclog a drain with a plunger	local	True
+Gemma-4-12B QAT Q4_0 detail	how to fold a fitted sheet	local	True
+Gemma-4-12B QAT Q4_0 detail	how to get rid of fruit flies	local	True
+Gemma-4-12B QAT Q4_0 detail	how to hang a picture on drywall	local	True
+Gemma-4-12B QAT Q4_0 detail	how to sharpen a kitchen knife	local	False
+Gemma-4-12B QAT Q4_0 detail	how to clean a cast iron pan	local	True
+Gemma-4-12B QAT Q4_0 detail	how to patch a small hole in drywall	local	True
+Gemma-4-12B QAT Q4_0 detail	how to jump start a car	local	True
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on windows	local	True
+Gemma-4-12B QAT Q4_0 detail	how to take a screenshot on a mac	local	True
+Gemma-4-12B QAT Q4_0 detail	how to clear the browser cache in chrome	local	True
+Gemma-4-12B QAT Q4_0 detail	how to set up a new wifi router	local	True
+Gemma-4-12B QAT Q4_0 detail	how to factory reset an android phone	local	True
+Gemma-4-12B QAT Q4_0 detail	how to make a pdf smaller	local	True
+Gemma-4-12B QAT Q4_0 detail	how to unzip a file on windows	local	True
+Gemma-4-12B QAT Q4_0 detail	how to back up an iphone	local	True
+Gemma-4-12B QAT Q4_0 detail	how to find the ip address of a computer	local	True
+Gemma-4-12B QAT Q4_0 detail	how to prune tomato plants	local	True
+Gemma-4-12B QAT Q4_0 detail	how to grow grass from seed	local	True
+Gemma-4-12B QAT Q4_0 detail	how to remove dandelions from a lawn	local	True
+Gemma-4-12B QAT Q4_0 detail	how to start a compost pile	local	True
+Gemma-4-12B QAT Q4_0 detail	how to prune a rose bush	local	True
+Gemma-4-12B QAT Q4_0 detail	how to pack a suitcase	local	True
+Gemma-4-12B QAT Q4_0 detail	how to get over jet lag	local	False
+Gemma-4-12B QAT Q4_0 detail	how to get from narita airport to tokyo	local	True
+Gemma-4-12B QAT Q4_0 detail	how to use the paris metro	local	True
+Gemma-4-12B QAT Q4_0 detail	how to do long division	local	True
+Gemma-4-12B QAT Q4_0 detail	how to calculate a percentage	local	True
+Gemma-4-12B QAT Q4_0 detail	how to write a bibliography in mla format	local	True
+Gemma-4-12B QAT Q4_0	how to make whipped cream	local	True
+Gemma-4-12B QAT Q4_0	how to boil eggs	local	True
+Gemma-4-12B QAT Q4_0	how to cook rice	local	True
+Gemma-4-12B QAT Q4_0	how to make pancakes	local	True
+Gemma-4-12B QAT Q4_0	how to bake bread	local	True
+Gemma-4-12B QAT Q4_0	how to freeze bananas	local	True
+Gemma-4-12B QAT Q4_0	how to make cold brew coffee	local	True
+Gemma-4-12B QAT Q4_0	how to caramelize onions	local	True
+Gemma-4-12B QAT Q4_0	how to make a roux	local	True
+Gemma-4-12B QAT Q4_0	how to tie a tie	local	True
+Gemma-4-12B QAT Q4_0	how to tie a bow tie	local	True
+Gemma-4-12B QAT Q4_0	how to fold a paper airplane	local	True
+Gemma-4-12B QAT Q4_0	how to sew a button	local	True
+Gemma-4-12B QAT Q4_0	how to knit a scarf	local	True
+Gemma-4-12B QAT Q4_0	how to crochet a chain stitch	local	True
+Gemma-4-12B QAT Q4_0	how to make an origami crane	local	True
+Gemma-4-12B QAT Q4_0	how to braid hair	local	True
+Gemma-4-12B QAT Q4_0	how to tie a bowline knot	local	True
+Gemma-4-12B QAT Q4_0	how to remove a red wine stain	local	True
+Gemma-4-12B QAT Q4_0	how to unclog a drain with a plunger	local	True
+Gemma-4-12B QAT Q4_0	how to fold a fitted sheet	local	True
+Gemma-4-12B QAT Q4_0	how to get rid of fruit flies	local	True
+Gemma-4-12B QAT Q4_0	how to hang a picture on drywall	local	True
+Gemma-4-12B QAT Q4_0	how to sharpen a kitchen knife	local	False
+Gemma-4-12B QAT Q4_0	how to clean a cast iron pan	local	True
+Gemma-4-12B QAT Q4_0	how to patch a small hole in drywall	local	True
+Gemma-4-12B QAT Q4_0	how to jump start a car	local	True
+Gemma-4-12B QAT Q4_0	how to take a screenshot on windows	local	True
+Gemma-4-12B QAT Q4_0	how to take a screenshot on a mac	local	True
+Gemma-4-12B QAT Q4_0	how to clear the browser cache in chrome	local	True
+Gemma-4-12B QAT Q4_0	how to set up a new wifi router	local	True
+Gemma-4-12B QAT Q4_0	how to factory reset an android phone	local	True
+Gemma-4-12B QAT Q4_0	how to make a pdf smaller	local	True
+Gemma-4-12B QAT Q4_0	how to unzip a file on windows	local	True
+Gemma-4-12B QAT Q4_0	how to back up an iphone	local	True
+Gemma-4-12B QAT Q4_0	how to find the ip address of a computer	local	True
+Gemma-4-12B QAT Q4_0	how to prune tomato plants	local	True
+Gemma-4-12B QAT Q4_0	how to grow grass from seed	local	False
+Gemma-4-12B QAT Q4_0	how to remove dandelions from a lawn	local	True
+Gemma-4-12B QAT Q4_0	how to start a compost pile	local	True
+Gemma-4-12B QAT Q4_0	how to prune a rose bush	local	True
+Gemma-4-12B QAT Q4_0	how to pack a suitcase	local	True
+Gemma-4-12B QAT Q4_0	how to get over jet lag	local	False
+Gemma-4-12B QAT Q4_0	how to get from narita airport to tokyo	local	True
+Gemma-4-12B QAT Q4_0	how to use the paris metro	local	True
+Gemma-4-12B QAT Q4_0	how to do long division	local	True
+Gemma-4-12B QAT Q4_0	how to calculate a percentage	local	True
+Gemma-4-12B QAT Q4_0	how to write a bibliography in mla format	local	True
+Gemma-4-12B QAT Q4_0	how to find the area of a circle	local	True
+Gemma-4-31B Q8_0 detail	how to make whipped cream	local	True
+Gemma-4-31B Q8_0 detail	how to boil eggs	local	True
+Gemma-4-31B Q8_0 detail	how to cook rice	local	True
+Gemma-4-31B Q8_0 detail	how to make pancakes	local	True
+Gemma-4-31B Q8_0 detail	how to bake bread	local	True
+Gemma-4-31B Q8_0 detail	how to freeze bananas	local	True
+Gemma-4-31B Q8_0 detail	how to make cold brew coffee	local	True
+Gemma-4-31B Q8_0 detail	how to caramelize onions	local	True
+Gemma-4-31B Q8_0 detail	how to make a roux	local	True
+Gemma-4-31B Q8_0 detail	how to tie a tie	local	True
+Gemma-4-31B Q8_0 detail	how to tie a bow tie	local	True
+Gemma-4-31B Q8_0 detail	how to fold a paper airplane	local	True
+Gemma-4-31B Q8_0 detail	how to sew a button	local	True
+Gemma-4-31B Q8_0 detail	how to knit a scarf	local	True
+Gemma-4-31B Q8_0 detail	how to crochet a chain stitch	local	True
+Gemma-4-31B Q8_0 detail	how to make an origami crane	local	True
+Gemma-4-31B Q8_0 detail	how to braid hair	local	True
+Gemma-4-31B Q8_0 detail	how to remove a red wine stain	local	True
+Gemma-4-31B Q8_0 detail	how to unclog a drain with a plunger	local	True
+Gemma-4-31B Q8_0 detail	how to fold a fitted sheet	local	True
+Gemma-4-31B Q8_0 detail	how to get rid of fruit flies	local	True
+Gemma-4-31B Q8_0 detail	how to hang a picture on drywall	local	True
+Gemma-4-31B Q8_0 detail	how to sharpen a kitchen knife	local	False
+Gemma-4-31B Q8_0 detail	how to clean a cast iron pan	local	True
+Gemma-4-31B Q8_0 detail	how to patch a small hole in drywall	local	True
+Gemma-4-31B Q8_0 detail	how to jump start a car	local	True
+Gemma-4-31B Q8_0 detail	how to take a screenshot on windows	local	True
+Gemma-4-31B Q8_0 detail	how to take a screenshot on a mac	local	True
+Gemma-4-31B Q8_0 detail	how to clear the browser cache in chrome	local	True
+Gemma-4-31B Q8_0 detail	how to set up a new wifi router	local	True
+Gemma-4-31B Q8_0 detail	how to factory reset an android phone	local	True
+Gemma-4-31B Q8_0 detail	how to make a pdf smaller	local	True
+Gemma-4-31B Q8_0 detail	how to unzip a file on windows	local	True
+Gemma-4-31B Q8_0 detail	how to back up an iphone	local	True
+Gemma-4-31B Q8_0 detail	how to find the ip address of a computer	local	True
+Gemma-4-31B Q8_0 detail	how to prune tomato plants	local	True
+Gemma-4-31B Q8_0 detail	how to grow grass from seed	local	True
+Gemma-4-31B Q8_0 detail	how to remove dandelions from a lawn	local	True
+Gemma-4-31B Q8_0 detail	how to start a compost pile	local	True
+Gemma-4-31B Q8_0 detail	how to prune a rose bush	local	True
+Gemma-4-31B Q8_0 detail	how to pack a suitcase	local	True
+Gemma-4-31B Q8_0 detail	how to get from narita airport to tokyo	local	True
+Gemma-4-31B Q8_0 detail	how to use the paris metro	local	True
+Gemma-4-31B Q8_0 detail	how to do long division	local	True
+Gemma-4-31B Q8_0 detail	how to calculate a percentage	local	True
+Gemma-4-31B Q8_0 detail	how to write a bibliography in mla format	local	True
+Gemma-4-31B Q8_0 detail	how to find the area of a circle	local	True
+Gemma-4-31B Q8_0	how to make whipped cream	local	True
+Gemma-4-31B Q8_0	how to boil eggs	local	True
+Gemma-4-31B Q8_0	how to cook rice	local	True
+Gemma-4-31B Q8_0	how to make pancakes	local	True
+Gemma-4-31B Q8_0	how to bake bread	local	True
+Gemma-4-31B Q8_0	how to freeze bananas	local	True
+Gemma-4-31B Q8_0	how to make cold brew coffee	local	True
+Gemma-4-31B Q8_0	how to caramelize onions	local	True
+Gemma-4-31B Q8_0	how to make a roux	local	True
+Gemma-4-31B Q8_0	how to tie a tie	local	True
+Gemma-4-31B Q8_0	how to tie a bow tie	local	True
+Gemma-4-31B Q8_0	how to fold a paper airplane	local	True
+Gemma-4-31B Q8_0	how to sew a button	local	True
+Gemma-4-31B Q8_0	how to knit a scarf	local	True
+Gemma-4-31B Q8_0	how to crochet a chain stitch	local	True
+Gemma-4-31B Q8_0	how to make an origami crane	local	True
+Gemma-4-31B Q8_0	how to braid hair	local	True
+Gemma-4-31B Q8_0	how to tie a bowline knot	local	True
+Gemma-4-31B Q8_0	how to remove a red wine stain	local	True
+Gemma-4-31B Q8_0	how to unclog a drain with a plunger	local	True
+Gemma-4-31B Q8_0	how to fix a running toilet	local	False
+Gemma-4-31B Q8_0	how to fold a fitted sheet	local	True
+Gemma-4-31B Q8_0	how to get rid of fruit flies	local	True
+Gemma-4-31B Q8_0	how to hang a picture on drywall	local	True
+Gemma-4-31B Q8_0	how to sharpen a kitchen knife	local	False
+Gemma-4-31B Q8_0	how to clean a cast iron pan	local	True
+Gemma-4-31B Q8_0	how to patch a small hole in drywall	local	True
+Gemma-4-31B Q8_0	how to jump start a car	local	True
+Gemma-4-31B Q8_0	how to take a screenshot on windows	local	True
+Gemma-4-31B Q8_0	how to take a screenshot on a mac	local	True
+Gemma-4-31B Q8_0	how to clear the browser cache in chrome	local	True
+Gemma-4-31B Q8_0	how to set up a new wifi router	local	True
+Gemma-4-31B Q8_0	how to factory reset an android phone	local	True
+Gemma-4-31B Q8_0	how to make a pdf smaller	local	True
+Gemma-4-31B Q8_0	how to unzip a file on windows	local	True
+Gemma-4-31B Q8_0	how to back up an iphone	local	True
+Gemma-4-31B Q8_0	how to find the ip address of a computer	local	True
+Gemma-4-31B Q8_0	how to prune tomato plants	local	True
+Gemma-4-31B Q8_0	how to grow grass from seed	local	False
+Gemma-4-31B Q8_0	how to remove dandelions from a lawn	local	True
+Gemma-4-31B Q8_0	how to start a compost pile	local	True
+Gemma-4-31B Q8_0	how to prune a rose bush	local	False
+Gemma-4-31B Q8_0	how to pack a suitcase	local	True
+Gemma-4-31B Q8_0	how to get over jet lag	local	False
+Gemma-4-31B Q8_0	how to get from narita airport to tokyo	local	True
+Gemma-4-31B Q8_0	how to use the paris metro	local	True
+Gemma-4-31B Q8_0	how to do long division	local	True
+Gemma-4-31B Q8_0	how to calculate a percentage	local	True
+Gemma-4-31B Q8_0	how to write a bibliography in mla format	local	False
+Gemma-4-31B Q8_0	how to find the area of a circle	local	True
+Qwen3.8-27B Q8_0 detail	how to make whipped cream	local	True
+Qwen3.8-27B Q8_0 detail	how to boil eggs	local	True
+Qwen3.8-27B Q8_0 detail	how to cook rice	local	True
+Qwen3.8-27B Q8_0 detail	how to bake bread	local	True
+Qwen3.8-27B Q8_0 detail	how to freeze bananas	local	True
+Qwen3.8-27B Q8_0 detail	how to make cold brew coffee	local	True
+Qwen3.8-27B Q8_0 detail	how to caramelize onions	local	True
+Qwen3.8-27B Q8_0 detail	how to make a roux	local	True
+Qwen3.8-27B Q8_0 detail	how to tie a bow tie	local	True
+Qwen3.8-27B Q8_0 detail	how to fold a paper airplane	local	True
+Qwen3.8-27B Q8_0 detail	how to crochet a chain stitch	local	True
+Qwen3.8-27B Q8_0 detail	how to tie a bowline knot	local	True
+Qwen3.8-27B Q8_0 detail	how to unclog a drain with a plunger	local	True
+Qwen3.8-27B Q8_0 detail	how to fix a running toilet	local	False
+Qwen3.8-27B Q8_0 detail	how to fold a fitted sheet	local	True
+Qwen3.8-27B Q8_0 detail	how to get rid of fruit flies	local	True
+Qwen3.8-27B Q8_0 detail	how to sharpen a kitchen knife	local	True
+Qwen3.8-27B Q8_0 detail	how to clean a cast iron pan	local	True
+Qwen3.8-27B Q8_0 detail	how to jump start a car	local	True
+Qwen3.8-27B Q8_0 detail	how to take a screenshot on windows	local	True
+Qwen3.8-27B Q8_0 detail	how to take a screenshot on a mac	local	True
+Qwen3.8-27B Q8_0 detail	how to clear the browser cache in chrome	local	True
+Qwen3.8-27B Q8_0 detail	how to factory reset an android phone	local	True
+Qwen3.8-27B Q8_0 detail	how to unzip a file on windows	local	True
+Qwen3.8-27B Q8_0 detail	how to back up an iphone	local	True
+Qwen3.8-27B Q8_0 detail	how to find the ip address of a computer	local	True
+Qwen3.8-27B Q8_0 detail	how to prune tomato plants	local	True
+Qwen3.8-27B Q8_0 detail	how to grow grass from seed	local	True
+Qwen3.8-27B Q8_0 detail	how to remove dandelions from a lawn	local	True
+Qwen3.8-27B Q8_0 detail	how to start a compost pile	local	True
+Qwen3.8-27B Q8_0 detail	how to prune a rose bush	local	True
+Qwen3.8-27B Q8_0 detail	how to pack a suitcase	local	True
+Qwen3.8-27B Q8_0 detail	how to calculate a percentage	local	True
+Qwen3.8-27B Q8_0 detail	how to write a bibliography in mla format	local	True
+Qwen3.8-27B Q8_0 detail	how to find the area of a circle	local	True
+Qwen3.8-27B Q8_0	how to make whipped cream	local	True
+Qwen3.8-27B Q8_0	how to boil eggs	local	True
+Qwen3.8-27B Q8_0	how to cook rice	local	True
+Qwen3.8-27B Q8_0	how to make pancakes	local	True
+Qwen3.8-27B Q8_0	how to bake bread	local	True
+Qwen3.8-27B Q8_0	how to freeze bananas	local	True
+Qwen3.8-27B Q8_0	how to make cold brew coffee	local	True
+Qwen3.8-27B Q8_0	how to caramelize onions	local	True
+Qwen3.8-27B Q8_0	how to make a roux	local	True
+Qwen3.8-27B Q8_0	how to tie a tie	local	True
+Qwen3.8-27B Q8_0	how to tie a bow tie	local	True
+Qwen3.8-27B Q8_0	how to fold a paper airplane	local	True
+Qwen3.8-27B Q8_0	how to sew a button	local	True
+Qwen3.8-27B Q8_0	how to knit a scarf	local	True
+Qwen3.8-27B Q8_0	how to crochet a chain stitch	local	True
+Qwen3.8-27B Q8_0	how to make an origami crane	local	True
+Qwen3.8-27B Q8_0	how to braid hair	local	True
+Qwen3.8-27B Q8_0	how to tie a bowline knot	local	True
+Qwen3.8-27B Q8_0	how to remove a red wine stain	local	True
+Qwen3.8-27B Q8_0	how to unclog a drain with a plunger	local	True
+Qwen3.8-27B Q8_0	how to fix a running toilet	local	False
+Qwen3.8-27B Q8_0	how to fold a fitted sheet	local	True
+Qwen3.8-27B Q8_0	how to get rid of fruit flies	local	True
+Qwen3.8-27B Q8_0	how to hang a picture on drywall	local	True
+Qwen3.8-27B Q8_0	how to sharpen a kitchen knife	local	True
+Qwen3.8-27B Q8_0	how to clean a cast iron pan	local	True
+Qwen3.8-27B Q8_0	how to patch a small hole in drywall	local	True
+Qwen3.8-27B Q8_0	how to jump start a car	local	True
+Qwen3.8-27B Q8_0	how to take a screenshot on windows	local	True
+Qwen3.8-27B Q8_0	how to take a screenshot on a mac	local	True
+Qwen3.8-27B Q8_0	how to clear the browser cache in chrome	local	True
+Qwen3.8-27B Q8_0	how to set up a new wifi router	local	True
+Qwen3.8-27B Q8_0	how to factory reset an android phone	local	True
+Qwen3.8-27B Q8_0	how to make a pdf smaller	local	True
+Qwen3.8-27B Q8_0	how to unzip a file on windows	local	True
+Qwen3.8-27B Q8_0	how to back up an iphone	local	True
+Qwen3.8-27B Q8_0	how to find the ip address of a computer	local	True
+Qwen3.8-27B Q8_0	how to prune tomato plants	local	True
+Qwen3.8-27B Q8_0	how to grow grass from seed	local	True
+Qwen3.8-27B Q8_0	how to remove dandelions from a lawn	local	True
+Qwen3.8-27B Q8_0	how to start a compost pile	local	True
+Qwen3.8-27B Q8_0	how to prune a rose bush	local	True
+Qwen3.8-27B Q8_0	how to pack a suitcase	local	True
+Qwen3.8-27B Q8_0	how to get over jet lag	local	True
+Qwen3.8-27B Q8_0	how to get from narita airport to tokyo	local	True
+Qwen3.8-27B Q8_0	how to do long division	local	True
+Qwen3.8-27B Q8_0	how to calculate a percentage	local	True
+Qwen3.8-27B Q8_0	how to write a bibliography in mla format	local	True
+Qwen3.8-27B Q8_0	how to find the area of a circle	local	True

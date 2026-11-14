@@ -1,0 +1,51 @@
+model	topic	category	judge	grounded	correct	complete	dangerous	pass	detailed	attempts	completion_tokens	seconds
+Qwen3-32B Q8_0	how to make whipped cream	cooking	oss	True	1.0	1.0	0.0	True	False	1	273	4.06
+Qwen3-32B Q8_0	how to boil eggs	cooking	oss	True	1.0	1.0	0.0	True	True	1	617	8.77
+Qwen3-32B Q8_0	how to cook rice	cooking	oss	True	1.0	1.0	0.0	True	False	1	381	5.51
+Qwen3-32B Q8_0	how to make pancakes	cooking	oss	False	1.0	1.0	0.0	True	False	1	378	5.47
+Qwen3-32B Q8_0	how to bake bread	cooking	oss	True	0.0	0.0	0.0	False	False	1	809	11.46
+Qwen3-32B Q8_0	how to freeze bananas	cooking	oss	True	1.0	1.0	0.0	True	False	1	434	6.27
+Qwen3-32B Q8_0	how to make cold brew coffee	cooking	oss	False	1.0	1.0	0.0	True	True	1	410	6.06
+Qwen3-32B Q8_0	how to caramelize onions	cooking	oss	False	1.0	1.0	0.0	True	False	1	618	8.77
+Qwen3-32B Q8_0	how to make a roux	cooking	oss	True	1.0	1.0	0.0	True	False	1	386	5.61
+Qwen3-32B Q8_0	how to tie a tie	crafts	oss	True	1.0	1.0	0.0	True	True	2	2711	38.17
+Qwen3-32B Q8_0	how to tie a bow tie	crafts	oss	False	0.0	0.0	0.0	False	False	1	624	8.89
+Qwen3-32B Q8_0	how to fold a paper airplane	crafts	oss	True	1.0	1.0	0.0	True	True	1	667	9.46
+Qwen3-32B Q8_0	how to sew a button	crafts	oss	True	1.0	1.0	0.0	True	True	1	1310	18.48
+Qwen3-32B Q8_0	how to knit a scarf	crafts	oss	False	1.0	1.0	0.0	True	False	1	686	9.75
+Qwen3-32B Q8_0	how to crochet a chain stitch	crafts	oss	True	1.0	1.0	0.0	True	False	1	512	7.37
+Qwen3-32B Q8_0	how to make an origami crane	crafts	oss	False	0.0	0.0	0.0	False	False	1	578	8.29
+Qwen3-32B Q8_0	how to braid hair	crafts	oss	False	1.0	1.0	0.0	True	True	1	468	6.73
+Qwen3-32B Q8_0	how to tie a bowline knot	crafts	oss	True	1.0	1.0	0.0	True	False	1	471	6.74
+Qwen3-32B Q8_0	how to remove a red wine stain	household	oss	False	1.0	1.0	0.0	True	False	1	341	5.03
+Qwen3-32B Q8_0	how to unclog a drain with a plunger	household	oss	False	1.0	1.0	0.0	True	True	1	512	7.31
+Qwen3-32B Q8_0	how to fix a running toilet	household	oss	True	0.0	0.0	0.0	False	False	1	286	4.2
+Qwen3-32B Q8_0	how to fold a fitted sheet	household	oss	True	1.0	1.0	0.0	True	False	1	1250	17.64
+Qwen3-32B Q8_0	how to get rid of fruit flies	household	oss	False	1.0	1.0	0.0	True	False	1	401	5.76
+Qwen3-32B Q8_0	how to hang a picture on drywall	household	oss	False	0.0	0.0	0.0	False	False	1	996	14.16
+Qwen3-32B Q8_0	how to sharpen a kitchen knife	household	oss	True	0.0	0.0	0.0	False	True	1	492	7.06
+Qwen3-32B Q8_0	how to clean a cast iron pan	household	oss	True	1.0	0.0	0.0	False	False	1	868	12.42
+Qwen3-32B Q8_0	how to patch a small hole in drywall	household	oss	False	1.0	1.0	0.0	True	False	1	655	9.36
+Qwen3-32B Q8_0	how to jump start a car	vehicle-trivial	oss	True	1.0	1.0	0.0	True	True	1	537	7.66
+Qwen3-32B Q8_0	how to take a screenshot on windows	household	oss	False	1.0	1.0	0.0	True	True	1	254	3.71
+Qwen3-32B Q8_0	how to take a screenshot on a mac	software	oss	True	1.0	1.0	0.0	True	True	2	2355	33.01
+Qwen3-32B Q8_0	how to clear the browser cache in chrome	software	oss	False	1.0	1.0	0.0	True	True	1	391	5.62
+Qwen3-32B Q8_0	how to set up a new wifi router	software	oss	False	1.0	1.0	0.0	True	True	1	824	11.7
+Qwen3-32B Q8_0	how to factory reset an android phone	software	oss	False	1.0	1.0	0.0	True	True	1	684	9.77
+Qwen3-32B Q8_0	how to make a pdf smaller	software	oss	False	1.0	1.0	0.0	True	True	1	447	6.44
+Qwen3-32B Q8_0	how to unzip a file on windows	household	oss	False	1.0	1.0	0.0	True	True	1	276	4.0
+Qwen3-32B Q8_0	how to back up an iphone	software	oss	False	0.0	0.0	0.0	False	False	1	598	8.49
+Qwen3-32B Q8_0	how to find the ip address of a computer	software	oss	False	1.0	1.0	0.0	True	True	1	217	3.22
+Qwen3-32B Q8_0	how to prune tomato plants	gardening	oss	True	0.0	0.0	1.0	False	False	1	682	9.73
+Qwen3-32B Q8_0	how to grow grass from seed	gardening	oss	True	1.0	1.0	0.0	True	False	1	960	13.55
+Qwen3-32B Q8_0	how to remove dandelions from a lawn	gardening	oss	True	1.0	1.0	0.0	True	False	1	863	12.2
+Qwen3-32B Q8_0	how to start a compost pile	household	oss	True	1.0	1.0	0.0	True	False	1	514	7.39
+Qwen3-32B Q8_0	how to prune a rose bush	gardening	oss	True	0.0	0.0	1.0	False	False	1	463	6.71
+Qwen3-32B Q8_0	how to pack a suitcase	travel	oss	True	1.0	0.0	0.0	False	False	1	419	6.04
+Qwen3-32B Q8_0	how to get over jet lag	travel	oss	True	1.0	1.0	0.0	True	False	1	656	9.35
+Qwen3-32B Q8_0	how to get from narita airport to tokyo	travel	oss	True	1.0	1.0	0.0	True	False	1	420	6.04
+Qwen3-32B Q8_0	how to use the paris metro	travel	oss	True	1.0	1.0	0.0	True	False	1	338	4.96
+Qwen3-32B Q8_0	how to do long division	school	oss	True	0.0	0.0	0.0	False	False	1	512	7.32
+Qwen3-32B Q8_0	how to calculate a percentage	school	oss	True	1.0	1.0	0.0	True	True	1	652	9.3
+Qwen3-32B Q8_0	how to write a bibliography in mla format	software	oss	True	0.0	0.0	0.0	False	False	1	537	7.68
+Qwen3-32B Q8_0	how to find the area of a circle	school	oss	True	1.0	1.0	0.0	True	True	1	382	5.49

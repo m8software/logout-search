@@ -1,0 +1,261 @@
+# Descriptive "find me a site/app of this kind" queries (2026-09-28 follow-up).
+# Hand-written, independent of every data source the kinds index is built from.
+# Odd lines (1st, 3rd, ...) = dev (tuning), even lines = test (held out). Judged by Jev's SITE noul.
+free email service
+email provider with privacy
+online photo editor
+edit pdf online free
+merge pdf files online
+convert video to mp3
+free file sharing site
+send large files online
+cloud storage service
+online backup service
+video calling app
+video conferencing software
+team chat app
+project management tool
+kanban board online
+online whiteboard
+free website builder
+blog hosting platform
+domain name registrar
+web hosting company
+online code editor
+learn to code online
+coding practice site
+online course platform
+flashcard app
+math homework help site
+online graphing calculator
+translate text online
+grammar checker
+online thesaurus
+free ebook library
+audiobook app
+podcast app
+music streaming app
+internet radio streaming
+live streaming platform for gamers
+short video app
+meme site
+image hosting site
+stock photos free
+free icons website
+font download site
+graphic design tool online
+3d modeling software free
+diagram maker online
+mind map tool
+survey maker
+online form builder
+e-signature service
+invoice software for small business
+accounting software online
+budgeting app
+personal finance tracker
+stock trading app
+cryptocurrency exchange
+online bank
+mortgage calculator site
+tax filing software
+credit card comparison site
+price comparison website
+coupon codes site
+cashback website
+online grocery delivery
+food delivery app
+meal kit delivery
+restaurant reservation app
+recipe app
+calorie counter app
+workout tracking app
+running app
+meditation app
+sleep tracking app
+telehealth service
+online pharmacy
+symptom checker
+doctor reviews site
+dating app
+social network for professionals
+anonymous forum
+question and answer site
+online forum for car enthusiasts
+neighborhood social network
+event ticketing site
+concert tickets
+movie showtimes site
+streaming service for movies
+free movie streaming legal
+tv show tracker
+book reviews site
+reading tracker app
+online library catalog
+online encyclopedia
+dictionary website
+map website
+driving directions
+public transit app
+flight tracker
+airline tickets booking
+train tickets online
+car rental comparison
+rideshare app
+bike sharing app
+travel guide website
+travel reviews site
+hotel price comparison
+home swap site
+apartment rental listings
+real estate listings site
+home value estimate
+roommate finder
+moving company quotes
+home services marketplace
+handyman booking app
+freelance marketplace
+remote job board
+tech job board
+resume builder
+salary comparison site
+company reviews by employees
+online marketplace for local buying and selling
+sell used electronics
+buy refurbished phones
+online auction site
+vintage clothing marketplace
+sneaker resale site
+furniture store online
+print on demand service
+custom t-shirt printing
+photo printing service
+online florist
+gift ideas site
+pet supplies online
+adopt a pet website
+vet telehealth
+genealogy website
+dna testing service
+crossword puzzle online
+online chess
+play board games online
+free online games
+game store for pc
+game reviews site
+video game wiki
+speedrun leaderboards
+esports news
+fantasy football app
+sports betting site
+sports news app
+weather radar site
+earthquake tracker
+air quality map
+news aggregator
+fact checking website
+open source code hosting
+package registry for javascript
+developer documentation site
+api testing tool
+website speed test
+dns lookup tool
+what is my ip
+url shortener
+password generator
+two factor authentication app
+encrypted messaging app
+secure email
+ad blocker
+browser extension store
+software download site
+linux distribution
+open source office suite
+note taking app with markdown
+todo list app
+calendar app
+habit tracker
+time tracking software
+screen recording software
+remote desktop software
+online paste bin
+file converter online
+unit converter
+currency converter
+timezone converter
+online stopwatch
+random name picker
+qr code generator
+logo maker
+color palette generator
+ai image generator
+ai chatbot
+speech to text online
+text to speech
+online dictionary for slang
+lyrics website
+guitar tabs site
+sheet music site
+music production software
+royalty free music
+sound effects library
+radio station finder
+film database
+tv guide
+anime streaming
+manga reader
+webcomics site
+fan wiki hosting
+crowdsourced travel photos
+citizen science projects
+volunteer opportunities site
+charity evaluator
+petition website
+government benefits site
+passport application
+car history report
+car value estimate
+auto parts store online
+gas prices near me app
+electric vehicle charging map
+parking reservation app
+package tracking site
+shipping rates comparison
+postage online
+small business loans marketplace
+crowdfunding for creators
+tip jar for creators
+newsletter platform
+link in bio tool
+social media scheduler
+website analytics
+email marketing service
+online store builder
+payment processor for websites
+peer to peer payments app
+money transfer abroad
+investment research site
+retirement calculator
+insurance quotes comparison
+student loan help
+scholarship search
+college search site
+textbook rental
+online tutoring
+language exchange app
+typing practice
+kids learning games
+parenting forum
+baby registry
+wedding planning site
+gardening guide site
+plant identification app
+bird identification app
+star map app
+astronomy news
+diy projects site
+woodworking plans
+knitting patterns
+home decor ideas
+paint color visualizer
+interior design app

@@ -1,0 +1,14 @@
+# What the unit tests import. Versions are the ones the images pin (apps/search/**/Dockerfile*,
+# apps/search/importer/requirements.txt). This is a test environment, not something we ship:
+# aiortc pulls in PyAV here, which the distributed image leaves out (Dockerfile.rtc).
+numpy==2.5.3
+tantivy==0.26.2
+tokenizers==0.23.2
+onnxruntime==1.30.0
+psycopg[binary]==3.3.6
+cryptography==50.0.2
+duckdb==1.5.5
+feedparser==6.0.12
+defusedxml==0.7.1
+websockets==17.1
+aiortc==1.15.0

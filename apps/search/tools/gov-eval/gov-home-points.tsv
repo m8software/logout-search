@@ -1,0 +1,51 @@
+# state	town	lat	lon — each state's most populous Census town (wx_towns, 2026-10-29): run.py home's searcher points
+AK	Anchorage	61.174	-149.284
+AL	Huntsville	34.698	-86.677
+AR	Little Rock	34.725	-92.359
+AZ	Phoenix	33.572	-112.090
+CA	Los Angeles	34.019	-118.411
+CO	Denver	39.762	-104.881
+CT	Bridgeport	41.187	-73.196
+DE	Wilmington	40.419	-107.248
+FL	Jacksonville	30.337	-81.662
+GA	Atlanta	33.763	-84.423
+HI	Honolulu	21.324	-157.848
+IA	Des Moines	41.573	-93.610
+ID	Boise City	43.599	-116.230
+IL	Chicago	41.837	-87.685
+IN	Indianapolis	39.777	-86.146
+KS	Wichita	37.691	-97.346
+KY	Louisville/Jefferson County metro government	38.165	-85.647
+LA	New Orleans	30.053	-89.935
+MA	Boston	42.339	-71.018
+MD	Baltimore	39.300	-76.610
+ME	Portland	43.633	-70.185
+MI	Detroit	42.383	-83.102
+MN	Minneapolis	44.963	-93.268
+MO	Kansas City	39.125	-94.550
+MS	Jackson	32.316	-90.213
+MT	Billings	45.789	-108.552
+NC	Charlotte	35.209	-80.831
+ND	Fargo	46.865	-96.829
+NE	Omaha	41.263	-96.053
+NH	Manchester	42.985	-71.444
+NJ	Newark	41.407	-105.889
+NM	Albuquerque	35.105	-106.647
+NV	Las Vegas	36.233	-115.264
+NY	New York	40.663	-73.939
+OH	Columbus	39.984	-82.985
+OK	Oklahoma City	35.467	-97.514
+OR	Portland	45.537	-122.650
+PA	Philadelphia	40.692	-106.849
+RI	Providence	41.823	-71.419
+SC	Charleston	32.828	-79.973
+SD	Sioux Falls	43.541	-96.732
+TN	Nashville-Davidson	36.172	-86.785
+TX	Houston	29.786	-95.389
+UT	Salt Lake City	40.777	-111.931
+VA	Virginia Beach	36.780	-76.029
+VT	Burlington	44.492	-73.239
+WA	Seattle	47.619	-122.352
+WI	Milwaukee	43.063	-87.967
+WV	Charleston	38.349	-81.632
+WY	Cheyenne	41.129	-104.791

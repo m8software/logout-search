@@ -1,0 +1,769 @@
+query	set	entities
+24	head-brand	2
+24kitchen	head-brand	2
+2day fm	head-brand	2
+365	head-brand	2
+6ix	head-brand	2
+8tv	head-brand	2
+abc	head-brand	2
+abc news	head-brand	2
+acorn computers	head-brand	2
+action	head-brand	2
+adelaide strikers	head-brand	2
+adult swim	head-brand	4
+adventure island	head-brand	2
+aeon	head-brand	2
+affinity	head-brand	2
+agora	head-brand	2
+aimco	head-brand	2
+airliners	head-brand	2
+airswift	head-brand	2
+al-watan	head-brand	3
+alaan	head-brand	2
+alfa	head-brand	2
+alley theatre	head-brand	2
+allied gold	head-brand	2
+allied schools	head-brand	2
+amica	head-brand	2
+ancon	head-brand	2
+animal planet	head-brand	4
+animax	head-brand	2
+anna	head-brand	2
+antidote films	head-brand	2
+antler	head-brand	2
+aquarius records	head-brand	2
+arena	head-brand	4
+argo	head-brand	2
+armenian airlines	head-brand	2
+armscor	head-brand	2
+artek	head-brand	2
+artrage	head-brand	2
+athens news	head-brand	2
+atlantic	head-brand	2
+atom	head-brand	2
+atv	head-brand	7
+au pied de cochon	head-brand	2
+aurora energy	head-brand	2
+autotrader	head-brand	2
+autoworld	head-brand	2
+axn	head-brand	2
+axs	head-brand	2
+azadliq	head-brand	2
+azot	head-brand	2
+azur air	head-brand	2
+b3	head-brand	2
+backstage	head-brand	2
+banca intesa	head-brand	2
+bank of china	head-brand	3
+bay fm	head-brand	2
+bbc earth	head-brand	2
+bbc knowledge	head-brand	2
+beaconsfield	head-brand	2
+bein sports	head-brand	4
+big w	head-brand	2
+bilan	head-brand	2
+bild	head-brand	2
+birkirkara f.c.	head-brand	2
+black star	head-brand	2
+blaze	head-brand	2
+blender	head-brand	2
+blip	head-brand	2
+bliss	head-brand	2
+blitz	head-brand	4
+blockchain	head-brand	2
+boavista f.c.	head-brand	2
+bolt	head-brand	2
+boylesports	head-brand	2
+bpifrance	head-brand	2
+bradfield college	head-brand	2
+bravo	head-brand	2
+brighton college	head-brand	2
+brisbane heat	head-brand	2
+broadview	head-brand	2
+btv	head-brand	3
+bulletin	head-brand	2
+business	head-brand	4
+business plus	head-brand	2
+business today	head-brand	2
+camera obscura	head-brand	2
+canadiana	head-brand	2
+canal 4	head-brand	2
+canal 9	head-brand	3
+canterbury school	head-brand	2
+capital	head-brand	3
+capital pride	head-brand	2
+cartoon network	head-brand	20
+cartoonito	head-brand	5
+cbc	head-brand	2
+ce europa	head-brand	2
+cellcom	head-brand	2
+centennial college	head-brand	2
+challenge	head-brand	4
+champions hockey league	head-brand	2
+channel 4	head-brand	2
+channel 9	head-brand	2
+chiltern railways	head-brand	2
+chime	head-brand	2
+choice	head-brand	2
+chorki	head-brand	2
+ciao	head-brand	2
+cinemax	head-brand	3
+cinestar	head-brand	2
+circa	head-brand	2
+circle records	head-brand	2
+citibank	head-brand	3
+city harvest	head-brand	2
+city market	head-brand	2
+citytv	head-brand	2
+cm	head-brand	2
+cmt	head-brand	2
+cnews	head-brand	2
+cnn	head-brand	2
+coast fm	head-brand	2
+cognia	head-brand	2
+comair	head-brand	2
+comedy central	head-brand	14
+comet	head-brand	2
+common	head-brand	2
+computer shopper	head-brand	2
+concord academy	head-brand	2
+confluence	head-brand	3
+congress	head-brand	2
+connect	head-brand	2
+conoco	head-brand	2
+construct	head-brand	2
+cookie	head-brand	2
+coop	head-brand	4
+corpus	head-brand	2
+cotidiano mujer	head-brand	2
+court theatre	head-brand	2
+covenant health	head-brand	2
+cox college	head-brand	2
+cracked	head-brand	2
+crave	head-brand	2
+creative loafing	head-brand	2
+criterion theatre	head-brand	2
+crypto	head-brand	2
+cs otopeni	head-brand	2
+csm oradea	head-brand	2
+csm roman	head-brand	2
+csm slatina	head-brand	2
+current	head-brand	2
+cypress gardens	head-brand	2
+cyprus airways	head-brand	2
+dagen	head-brand	2
+daily journal	head-brand	2
+daily news	head-brand	4
+daily post	head-brand	2
+daily press	head-brand	2
+daily record	head-brand	2
+daily sun	head-brand	2
+danske bank	head-brand	5
+data	head-brand	4
+davidson academy	head-brand	2
+de graafschap	head-brand	2
+delo	head-brand	2
+demos	head-brand	3
+deportivo cali	head-brand	2
+diabetes	head-brand	2
+diamond fm	head-brand	3
+dice	head-brand	3
+digi sport	head-brand	2
+dignitas	head-brand	2
+dirac	head-brand	2
+discovery channel	head-brand	6
+disney	head-brand	2
+disney channel	head-brand	2
+disney cinemagic	head-brand	2
+disney xd	head-brand	6
+dlf	head-brand	2
+dmax	head-brand	5
+dnevnik	head-brand	3
+docs	head-brand	2
+dolly	head-brand	2
+dosaaf	head-brand	2
+dove	head-brand	2
+dreams	head-brand	2
+drop	head-brand	2
+dspace	head-brand	2
+ducati	head-brand	2
+dwell	head-brand	2
+dynamic earth	head-brand	2
+edutopia	head-brand	2
+egyptian theatre	head-brand	2
+el comercio	head-brand	3
+el diario	head-brand	2
+el economista	head-brand	2
+el mundo	head-brand	4
+el nacional	head-brand	2
+el observador	head-brand	2
+el pollo loco	head-brand	3
+el siglo	head-brand	3
+el tiempo	head-brand	2
+el universal	head-brand	3
+electoral commission	head-brand	2
+eleven sports	head-brand	2
+elle	head-brand	2
+elna	head-brand	2
+eltham college	head-brand	2
+empress theatre	head-brand	2
+ence	head-brand	2
+entel	head-brand	2
+epic	head-brand	2
+epik	head-brand	2
+espn	head-brand	3
+esprit	head-brand	2
+esquire	head-brand	2
+eton college	head-brand	2
+etv	head-brand	2
+europa fm	head-brand	2
+eurosport	head-brand	2
+ex	head-brand	2
+exin	head-brand	2
+extra	head-brand	3
+fareshare	head-brand	2
+fc minsk	head-brand	2
+fc sevastopol	head-brand	2
+femina	head-brand	3
+fetv	head-brand	2
+fifa	head-brand	2
+fight for sight	head-brand	2
+film	head-brand	3
+fire records	head-brand	2
+focus	head-brand	4
+fokus	head-brand	3
+fold	head-brand	2
+food	head-brand	2
+foodtown	head-brand	2
+foothills academy	head-brand	2
+fora	head-brand	2
+forbes	head-brand	2
+forum	head-brand	3
+forza italia	head-brand	2
+fox	head-brand	3
+fox crime	head-brand	2
+fox sports	head-brand	7
+fox theatre	head-brand	2
+france info	head-brand	2
+freeview	head-brand	2
+fresh	head-brand	2
+fresh radio	head-brand	2
+fun radio	head-brand	2
+fuse	head-brand	2
+g	head-brand	2
+gala	head-brand	2
+galeria	head-brand	2
+gamesalad	head-brand	2
+garage	head-brand	2
+gate	head-brand	2
+gazeta	head-brand	2
+gem theatre	head-brand	2
+geo	head-brand	2
+gks tychy	head-brand	2
+gladrags	head-brand	2
+global vision	head-brand	2
+globus	head-brand	2
+gloria	head-brand	2
+go	head-brand	2
+gong	head-brand	2
+goodmans	head-brand	2
+google	head-brand	2
+gov	head-brand	2
+grand arcade	head-brand	2
+grand hotel	head-brand	2
+green party	head-brand	2
+grid	head-brand	2
+gtv	head-brand	2
+gulli	head-brand	2
+hackerspace	head-brand	2
+halkbank	head-brand	3
+hallmark channel	head-brand	2
+hamilton bulldogs	head-brand	2
+harbourfront centre	head-brand	2
+hase-dera	head-brand	2
+hatayspor	head-brand	2
+havok	head-brand	2
+headspace	head-brand	2
+heart	head-brand	2
+heavy	head-brand	2
+hello	head-brand	2
+hertog jan	head-brand	2
+hgtv	head-brand	2
+hineni	head-brand	2
+hobart hurricanes	head-brand	2
+home hardware	head-brand	2
+hot fm	head-brand	2
+hotels	head-brand	3
+howdy	head-brand	2
+hoy	head-brand	3
+hromadske	head-brand	2
+hsbc	head-brand	2
+humanists	head-brand	2
+ibis	head-brand	2
+ict group	head-brand	2
+idea	head-brand	2
+imagine	head-brand	2
+in	head-brand	2
+independent alliance	head-brand	2
+independiente santa fe	head-brand	2
+index	head-brand	2
+insomniac	head-brand	2
+insteon	head-brand	2
+inter	head-brand	2
+interjet	head-brand	2
+itv	head-brand	3
+jack	head-brand	2
+jazz fm	head-brand	2
+jcb	head-brand	2
+jet	head-brand	2
+jewish care	head-brand	2
+jockey club	head-brand	2
+joe	head-brand	2
+joox	head-brand	2
+jovem pan	head-brand	2
+jumbo	head-brand	2
+kanal 5	head-brand	2
+kanal d	head-brand	2
+kayhan	head-brand	2
+kbs world	head-brand	2
+keravnos b.c.	head-brand	2
+kernel	head-brand	2
+key	head-brand	2
+kik	head-brand	2
+king records	head-brand	2
+kingswood college	head-brand	2
+kink	head-brand	3
+kiss fm	head-brand	3
+kiwi	head-brand	2
+kiyomizu-dera	head-brand	2
+kk fmp	head-brand	2
+kompas	head-brand	2
+korrespondent	head-brand	2
+kosmos	head-brand	2
+kumu	head-brand	2
+kupu	head-brand	2
+kvadrat	head-brand	2
+l'express	head-brand	3
+l'opinion	head-brand	2
+la capitale	head-brand	2
+la gaceta	head-brand	3
+la poste	head-brand	2
+la prensa	head-brand	4
+la provincia	head-brand	2
+la tele	head-brand	2
+la tribune	head-brand	2
+la verdad	head-brand	2
+labour party	head-brand	2
+lacta	head-brand	2
+lambda	head-brand	2
+launchpad	head-brand	2
+le mans fc	head-brand	2
+le nouvelliste	head-brand	3
+le quotidien	head-brand	2
+le soleil	head-brand	2
+le temps	head-brand	2
+lenta	head-brand	2
+les echos	head-brand	2
+levante ud	head-brand	2
+lib	head-brand	2
+libera	head-brand	2
+liberal party	head-brand	2
+liberty bank	head-brand	2
+libro	head-brand	2
+lidl–trek	head-brand	2
+life	head-brand	3
+lift	head-brand	2
+lightbox	head-brand	2
+lime	head-brand	2
+liquorland	head-brand	2
+liverpool f.c.	head-brand	2
+loewe	head-brand	2
+londis	head-brand	2
+lumo	head-brand	2
+lux	head-brand	2
+luxe	head-brand	2
+m1	head-brand	2
+magic	head-brand	2
+mail	head-brand	2
+marca	head-brand	2
+massaya	head-brand	2
+maverick	head-brand	2
+max	head-brand	2
+maxim	head-brand	2
+maxima	head-brand	2
+mediaset infinity	head-brand	2
+mediaset italia	head-brand	2
+mediaset premium	head-brand	2
+mega	head-brand	4
+megabox	head-brand	2
+melbourne city fc	head-brand	2
+melbourne renegades	head-brand	2
+melbourne stars	head-brand	2
+men's fitness	head-brand	2
+men's health	head-brand	2
+mera25	head-brand	2
+meritas	head-brand	2
+metal storm	head-brand	2
+metro	head-brand	4
+metro fm	head-brand	2
+mhs aviation	head-brand	2
+miche	head-brand	2
+migros	head-brand	2
+milford f.c.	head-brand	2
+mind	head-brand	2
+minerva	head-brand	2
+mirabilandia	head-brand	2
+mitre 10	head-brand	2
+mitsubishi motors	head-brand	2
+mobilize	head-brand	3
+mobitel	head-brand	3
+molde fk	head-brand	2
+money	head-brand	3
+monitor	head-brand	2
+moulin rouge	head-brand	2
+mountain line	head-brand	2
+movistar team	head-brand	2
+mtv	head-brand	22
+my	head-brand	2
+mygov	head-brand	2
+myx	head-brand	2
+n-joy	head-brand	2
+namco	head-brand	2
+napster	head-brand	3
+nascar	head-brand	2
+nashi	head-brand	2
+nashville sc	head-brand	2
+nation	head-brand	2
+national assembly	head-brand	3
+national gallery	head-brand	3
+national geographic	head-brand	2
+national party	head-brand	2
+nature	head-brand	2
+ndtv	head-brand	2
+nebula	head-brand	2
+neighbourly	head-brand	2
+netto	head-brand	2
+neuron	head-brand	2
+new vision	head-brand	2
+news	head-brand	5
+news24	head-brand	2
+newsday	head-brand	2
+nhl network	head-brand	2
+nic	head-brand	2
+nick jr.	head-brand	5
+nickelodeon	head-brand	9
+nicktoons	head-brand	2
+noclip	head-brand	2
+noda	head-brand	2
+nordica	head-brand	2
+nordstjernan	head-brand	2
+norfolk admirals	head-brand	2
+northtown mall	head-brand	2
+notre dame academy	head-brand	2
+notre dame college	head-brand	2
+notre dame high school	head-brand	3
+nova	head-brand	7
+nova cinema	head-brand	2
+novair	head-brand	2
+nrj	head-brand	2
+ntv	head-brand	3
+ny tid	head-brand	2
+o2	head-brand	3
+ocean fm	head-brand	2
+olympiacos sfp	head-brand	2
+one	head-brand	5
+ontario place	head-brand	2
+ooni	head-brand	2
+opendesk	head-brand	2
+opennet	head-brand	2
+openstreetmap	head-brand	2
+opera	head-brand	3
+opex	head-brand	2
+opnet	head-brand	2
+orange sport	head-brand	2
+otv	head-brand	2
+out	head-brand	2
+pacificlight	head-brand	2
+padre	head-brand	2
+palace cinemas	head-brand	2
+pams	head-brand	2
+pan	head-brand	2
+pandora	head-brand	2
+panorama	head-brand	4
+paramount network	head-brand	3
+path	head-brand	2
+payzone	head-brand	2
+pc world	head-brand	2
+peak	head-brand	2
+pec zwolle	head-brand	2
+people	head-brand	3
+people's party	head-brand	2
+pep	head-brand	2
+pepco	head-brand	2
+perth scorchers	head-brand	2
+phoenix theatre	head-brand	2
+ping	head-brand	2
+piraeus bank	head-brand	2
+planeta	head-brand	2
+play	head-brand	3
+playboy	head-brand	4
+player	head-brand	2
+plus	head-brand	4
+podemos	head-brand	2
+pogo	head-brand	2
+politics	head-brand	2
+politis	head-brand	2
+portfolio	head-brand	2
+posta	head-brand	2
+pravda	head-brand	3
+premier hockey league	head-brand	2
+president hotel	head-brand	2
+priceline	head-brand	2
+prime bank	head-brand	2
+primera hora	head-brand	2
+princess theatre	head-brand	2
+privatbank	head-brand	2
+pro recco	head-brand	2
+procredit bank	head-brand	2
+pronto	head-brand	2
+prosa	head-brand	2
+prozorro	head-brand	2
+punjab police	head-brand	2
+pure	head-brand	3
+purple	head-brand	2
+qmusic	head-brand	2
+qwest	head-brand	2
+radio 1	head-brand	2
+radio 10	head-brand	2
+radio centraal	head-brand	2
+radio nova	head-brand	3
+radio one	head-brand	2
+radio sputnik	head-brand	2
+raiffeisen	head-brand	2
+rain	head-brand	2
+rakuten	head-brand	2
+random	head-brand	2
+rare	head-brand	3
+real radio xs	head-brand	2
+record	head-brand	3
+record europa	head-brand	2
+red pepper	head-brand	2
+redi	head-brand	2
+reflex	head-brand	2
+reforma	head-brand	2
+relay	head-brand	2
+represent	head-brand	2
+republic	head-brand	3
+resist	head-brand	2
+respublika	head-brand	2
+reverb	head-brand	2
+rexall	head-brand	2
+rfm	head-brand	2
+ricochet	head-brand	3
+rio ave f.c.	head-brand	2
+rip it up	head-brand	2
+riviera theatre	head-brand	2
+roadrunner	head-brand	3
+rodina	head-brand	2
+rtl	head-brand	4
+rts	head-brand	2
+s.c. braga	head-brand	2
+s.l. benfica	head-brand	4
+s.u. 1º dezembro	head-brand	2
+safeway	head-brand	3
+saigon heat	head-brand	2
+sakshi	head-brand	2
+samba	head-brand	3
+samsunspor	head-brand	2
+saur	head-brand	2
+savers	head-brand	2
+sc heerenveen	head-brand	2
+scala	head-brand	3
+science	head-brand	2
+scifi	head-brand	2
+scoop	head-brand	2
+scotrail	head-brand	2
+scout	head-brand	2
+scroll	head-brand	2
+semafor	head-brand	2
+senate	head-brand	4
+serv	head-brand	2
+shad	head-brand	2
+share	head-brand	2
+shazam	head-brand	2
+shelbourne f.c.	head-brand	2
+sherpa	head-brand	2
+shoes	head-brand	2
+shogakukan	head-brand	2
+showbox	head-brand	2
+sinar	head-brand	3
+sita	head-brand	2
+six flags	head-brand	2
+sixdegrees	head-brand	2
+skat	head-brand	2
+sketch	head-brand	2
+sky radio	head-brand	2
+skyrock	head-brand	2
+slate	head-brand	2
+smithsonian channel	head-brand	2
+snoop	head-brand	2
+social finance	head-brand	2
+socialist action	head-brand	3
+socialist alternative	head-brand	3
+socialist studies	head-brand	2
+sol	head-brand	2
+sonair	head-brand	2
+sony channel	head-brand	2
+soundtracker	head-brand	2
+south east water	head-brand	2
+spacex	head-brand	2
+spin	head-brand	2
+sport	head-brand	3
+sport1	head-brand	2
+sportradar	head-brand	2
+st. mark's college	head-brand	2
+standard life	head-brand	2
+star channel	head-brand	2
+starlight	head-brand	2
+starz	head-brand	2
+state theatre	head-brand	2
+stellar	head-brand	3
+stjarnan	head-brand	2
+stopklatka	head-brand	2
+stradivarius	head-brand	2
+studio universal	head-brand	2
+stuff	head-brand	3
+stv	head-brand	2
+supervalu	head-brand	2
+sv meppen	head-brand	2
+sydney fc	head-brand	2
+sydney thunder	head-brand	2
+syfy	head-brand	4
+synova	head-brand	2
+syria	head-brand	3
+t3	head-brand	2
+taiwan	head-brand	2
+tamil murasu	head-brand	2
+tele 5	head-brand	2
+telemach	head-brand	2
+telerama	head-brand	2
+tempo	head-brand	2
+tenet	head-brand	2
+tet	head-brand	2
+thai express	head-brand	2
+the advocate	head-brand	2
+the argus	head-brand	2
+the breeze	head-brand	4
+the bulletin	head-brand	2
+the contributor	head-brand	2
+the courier	head-brand	3
+the daily star	head-brand	2
+the day	head-brand	2
+the dispatch	head-brand	2
+the independent	head-brand	2
+the local	head-brand	2
+the mercury	head-brand	2
+the messenger	head-brand	2
+the people's voice	head-brand	2
+the phoenix	head-brand	2
+the star	head-brand	3
+the sun	head-brand	2
+the tablet	head-brand	2
+the varsity	head-brand	2
+the wire	head-brand	2
+the works	head-brand	3
+third way	head-brand	2
+this place	head-brand	2
+tide	head-brand	2
+times square	head-brand	2
+tlc	head-brand	3
+tnt sports	head-brand	2
+todos	head-brand	2
+tomorrow	head-brand	2
+toolbox	head-brand	2
+topaz	head-brand	2
+torikeskus	head-brand	2
+trabzonspor	head-brand	2
+translink	head-brand	2
+trees for life	head-brand	2
+trentino volley	head-brand	2
+trinity health	head-brand	2
+trove	head-brand	2
+trud	head-brand	2
+truenorth	head-brand	2
+trust bank	head-brand	2
+trutv	head-brand	3
+tv1	head-brand	3
+tv3	head-brand	6
+tv4	head-brand	2
+tv5	head-brand	3
+tv6	head-brand	6
+tv8	head-brand	5
+tvm	head-brand	2
+tvn	head-brand	3
+tvr	head-brand	2
+tvri	head-brand	2
+tvs	head-brand	2
+twine	head-brand	2
+u	head-brand	2
+u.d. oliveirense	head-brand	3
+ul	head-brand	2
+unbound	head-brand	2
+unibank	head-brand	2
+unit	head-brand	2
+unitel	head-brand	2
+universal publishers	head-brand	2
+universal records	head-brand	2
+ursuline academy	head-brand	2
+usa	head-brand	2
+valley metro	head-brand	2
+valur	head-brand	2
+veikkaus	head-brand	2
+veritas	head-brand	2
+verizon	head-brand	2
+vfl bochum	head-brand	2
+vh1	head-brand	3
+viacom	head-brand	2
+viasat	head-brand	2
+vision	head-brand	2
+vision research	head-brand	2
+viu	head-brand	2
+viva	head-brand	3
+vivi	head-brand	2
+vivo	head-brand	2
+vk	head-brand	3
+vodafone	head-brand	2
+vote	head-brand	2
+vtv	head-brand	2
+wayfinder	head-brand	2
+wbbz	head-brand	2
+web	head-brand	2
+webank	head-brand	2
+west coast university	head-brand	2
+westminster school	head-brand	3
+where	head-brand	2
+whitehouse	head-brand	3
+wildworks	head-brand	2
+wilo	head-brand	2
+witness	head-brand	2
+wjct	head-brand	2
+wmcn	head-brand	2
+wnyc	head-brand	2
+woolworth	head-brand	2
+woolworths	head-brand	4
+wrcr	head-brand	2
+wrike	head-brand	2
+wsup	head-brand	2
+wvlt	head-brand	2
+xfl	head-brand	2
+yachad	head-brand	2
+yes	head-brand	2
+you	head-brand	3
+your party	head-brand	2
+z	head-brand	2
+zavvi	head-brand	2
+zee one	head-brand	2
+zesty	head-brand	2
+zip	head-brand	2
+znak	head-brand	2
+ztv	head-brand	2

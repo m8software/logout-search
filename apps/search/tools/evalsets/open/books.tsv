@@ -1,0 +1,721 @@
+query	category	expected	set	stratum	split	entity
+alexander ewing gutenberg	books	gutenberg.org/ebooks/author/38110	books	kind:author,sitelinks:1-9	dev	alexanderewingbishop
+augustus jessopp gutenberg	books	gutenberg.org/ebooks/author/2118	books	kind:author,sitelinks:1-9	dev	augustusjessopp
+basil thomas alfred evetts gutenberg	books	gutenberg.org/ebooks/author/45800	books	kind:author,sitelinks:1-9	dev	Q93252584
+charles butler hunt gutenberg	books	gutenberg.org/ebooks/author/55328	books	kind:author,sitelinks:1-9	dev	Q62718600
+charles campbell gutenberg	books	gutenberg.org/ebooks/author/35922	books	kind:author,sitelinks:1-9	dev	Q16944072
+clara jessup moore gutenberg	books	gutenberg.org/ebooks/author/48788|gutenberg.org/ebooks/author/6406	books	kind:author,sitelinks:1-9	dev	clarajessupmoore
+cosme vidal i rosich gutenberg	books	gutenberg.org/ebooks/author/57289	books	kind:author,sitelinks:1-9	dev	Q10974619
+douglas argyll robertson gutenberg	books	gutenberg.org/ebooks/author/55496	books	kind:author,sitelinks:1-9	dev	douglasargyllrobertson
+eliezer edwards gutenberg	books	gutenberg.org/ebooks/author/8273	books	kind:author,sitelinks:1-9	dev	Q106686783
+eric maclagan gutenberg	books	gutenberg.org/ebooks/author/38454	books	kind:author,sitelinks:1-9	dev	ericmaclagan
+fanny parkes gutenberg	books	gutenberg.org/ebooks/author/50729	books	kind:author,sitelinks:1-9	dev	fannyparkes
+frank oliver call gutenberg	books	gutenberg.org/ebooks/author/36469	books	kind:author,sitelinks:1-9	dev	frankolivercall
+françois aimé louis dumoulin gutenberg	books	gutenberg.org/ebooks/author/26811	books	kind:author,sitelinks:1-9	dev	franoisaimlouisdumoulin
+frederick townsend martin gutenberg	books	gutenberg.org/ebooks/author/52222	books	kind:author,sitelinks:1-9	dev	fredericktownsendmartin
+george adolphus storey gutenberg	books	gutenberg.org/ebooks/author/9117	books	kind:author,sitelinks:1-9	dev	georgeadolphusstorey
+gertrude helena bone gutenberg	books	gutenberg.org/ebooks/author/4973	books	kind:author,sitelinks:1-9	dev	gertrudehelenabone
+grace zaring stone gutenberg	books	gutenberg.org/ebooks/author/59192	books	kind:author,sitelinks:1-9	dev	gracezaringstone
+gustaf erik eurén gutenberg	books	gutenberg.org/ebooks/author/6397	books	kind:author,sitelinks:1-9	dev	Q11860789
+h. wallace knapp gutenberg	books	gutenberg.org/ebooks/author/55952	books	kind:author,sitelinks:1-9	dev	hwallaceknapp
+harry snyder gutenberg	books	gutenberg.org/ebooks/author/9581	books	kind:author,sitelinks:1-9	dev	harrysnyderscientist
+henry clay trumbull gutenberg	books	gutenberg.org/ebooks/author/3589	books	kind:author,sitelinks:1-9	dev	henryclaytrumbull
+henry percy boulnois gutenberg	books	gutenberg.org/ebooks/author/47884	books	kind:author,sitelinks:1-9	dev	Q63156171
+j. comyns carr gutenberg	books	gutenberg.org/ebooks/author/53983	books	kind:author,sitelinks:1-9	dev	jcomynscarr
+jacob ellsworth reighard gutenberg	books	gutenberg.org/ebooks/author/49924	books	kind:author,sitelinks:1-9	dev	jacobellsworthreighard
+james mercer garnett gutenberg	books	gutenberg.org/ebooks/author/6357	books	kind:author,sitelinks:1-9	dev	Q20651079
+john alan lyde caunter gutenberg	books	gutenberg.org/ebooks/author/37859	books	kind:author,sitelinks:1-9	dev	johnalanlydecaunter
+john allen giles gutenberg	books	gutenberg.org/ebooks/author/760	books	kind:author,sitelinks:1-9	dev	johnallengiles
+john cumming gutenberg	books	gutenberg.org/ebooks/author/54197	books	kind:author,sitelinks:1-9	dev	johncummingclergyman
+john gerard gutenberg	books	gutenberg.org/ebooks/author/36738	books	kind:author,sitelinks:1-9	dev	Q16990207
+john heckewelder gutenberg	books	gutenberg.org/ebooks/author/45830	books	kind:author,sitelinks:1-9	dev	johnheckewelder
+john otway percy bland gutenberg	books	gutenberg.org/ebooks/author/5866	books	kind:author,sitelinks:1-9	dev	johnotwaypercybland
+john rhys gutenberg	books	gutenberg.org/ebooks/author/48154	books	kind:author,sitelinks:1-9	dev	johnrhs
+john sinclair gutenberg	books	gutenberg.org/ebooks/author/47060	books	kind:author,sitelinks:1-9	dev	johnsinclairarchdeaconofmiddlesex
+johnny gruelle gutenberg	books	gutenberg.org/ebooks/author/3936	books	kind:author,sitelinks:1-9	dev	johnnygruelle
+kauppis-heikki gutenberg	books	gutenberg.org/ebooks/author/5651	books	kind:author,sitelinks:1-9	dev	Q5486613
+linn boyd porter gutenberg	books	gutenberg.org/ebooks/author/32115	books	kind:author,sitelinks:1-9	dev	Q105670551
+manning force gutenberg	books	gutenberg.org/ebooks/author/26492	books	kind:author,sitelinks:1-9	dev	manningfergusonforce
+marcus j. martin gutenberg	books	gutenberg.org/ebooks/author/36709	books	kind:author,sitelinks:1-9	dev	Q128744791
+nathaniel gould gutenberg	books	gutenberg.org/ebooks/author/26742	books	kind:author,sitelinks:1-9	dev	natgould
+rafael mitjana y gordón gutenberg	books	gutenberg.org/ebooks/author/42499	books	kind:author,sitelinks:1-9	dev	Q6097683
+raoul vèze gutenberg	books	gutenberg.org/ebooks/author/54189	books	kind:author,sitelinks:1-9	dev	Q51881909
+robert c. stanley gutenberg	books	gutenberg.org/ebooks/author/25529	books	kind:author,sitelinks:1-9	dev	robertcstanley
+robert swain peabody gutenberg	books	gutenberg.org/ebooks/author/37579	books	kind:author,sitelinks:1-9	dev	robertswainpeabody
+ruth ogden gutenberg	books	gutenberg.org/ebooks/author/716	books	kind:author,sitelinks:1-9	dev	ruthogden
+salvatore barzilai gutenberg	books	gutenberg.org/ebooks/author/31142	books	kind:author,sitelinks:1-9	dev	salvatorebarzilai
+samuel green gutenberg	books	gutenberg.org/ebooks/author/43061	books	kind:author,sitelinks:1-9	dev	samuelgosnellgreen
+scheltema johann friedrich gutenberg	books	gutenberg.org/ebooks/author/41673	books	kind:author,sitelinks:1-9	dev	Q59628972
+sophie frances fane veitch gutenberg	books	gutenberg.org/ebooks/author/35851	books	kind:author,sitelinks:1-9	dev	Q114676696
+theodore h. eaton gutenberg	books	gutenberg.org/ebooks/author/34978	books	kind:author,sitelinks:1-9	dev	Q110110431
+thomas wemyss fulton gutenberg	books	gutenberg.org/ebooks/author/48140	books	kind:author,sitelinks:1-9	dev	Q19325680
+tomás orts ramos gutenberg	books	gutenberg.org/ebooks/author/33697	books	kind:author,sitelinks:1-9	dev	Q29998152
+william albert riley gutenberg	books	gutenberg.org/ebooks/author/36930	books	kind:author,sitelinks:1-9	dev	Q55071932
+william alexander taylor gutenberg	books	gutenberg.org/ebooks/author/47256	books	kind:author,sitelinks:1-9	dev	Q57451238
+william heysham overend gutenberg	books	gutenberg.org/ebooks/author/9706	books	kind:author,sitelinks:1-9	dev	williamheyshamoverend
+william jefferson winter gutenberg	books	gutenberg.org/ebooks/author/51949	books	kind:author,sitelinks:1-9	dev	Q113374266
+william thompson gutenberg	books	gutenberg.org/ebooks/author/4004	books	kind:author,sitelinks:1-9	dev	williamthompsonjournalist
+william windsor gutenberg	books	gutenberg.org/ebooks/author/24830	books	kind:author,sitelinks:1-9	dev	Q66690302
+albert weisgerber gutenberg	books	gutenberg.org/ebooks/author/56005	books	kind:author,sitelinks:10-29	dev	albertweisgerber
+alexei panshin gutenberg	books	gutenberg.org/ebooks/author/51411	books	kind:author,sitelinks:10-29	dev	alexeipanshin
+alice dunbar nelson gutenberg	books	gutenberg.org/ebooks/author/354	books	kind:author,sitelinks:10-29	dev	alicedunbarnelson
+blanche oelrichs gutenberg	books	gutenberg.org/ebooks/author/25776	books	kind:author,sitelinks:10-29	dev	michaelstrange
+carlo bini gutenberg	books	gutenberg.org/ebooks/author/45437	books	kind:author,sitelinks:10-29	dev	Q3659082
+cecil sharp gutenberg	books	gutenberg.org/ebooks/author/4718	books	kind:author,sitelinks:10-29	dev	cecilsharp
+charles granville bruce gutenberg	books	gutenberg.org/ebooks/author/51247	books	kind:author,sitelinks:10-29	dev	charlesgranvillebruce
+clarkson frederick stanfield gutenberg	books	gutenberg.org/ebooks/author/38927	books	kind:author,sitelinks:10-29	dev	clarksonfrederickstanfield
+clément juglar gutenberg	books	gutenberg.org/ebooks/author/2442	books	kind:author,sitelinks:10-29	dev	clmentjuglar
+edwin muir gutenberg	books	gutenberg.org/ebooks/author/47291	books	kind:author,sitelinks:10-29	dev	edwinmuir
+elliott coues gutenberg	books	gutenberg.org/ebooks/author/4611	books	kind:author,sitelinks:10-29	dev	elliottcoues
+elsa asenijeff gutenberg	books	gutenberg.org/ebooks/author/51553	books	kind:author,sitelinks:10-29	dev	elsaasenijeff
+epifanio de los santos gutenberg	books	gutenberg.org/ebooks/author/6107	books	kind:author,sitelinks:10-29	dev	epifaniodelossantos
+ernst von dobschütz gutenberg	books	gutenberg.org/ebooks/author/38375	books	kind:author,sitelinks:10-29	dev	ernstvondobschtz
+erskine childers gutenberg	books	gutenberg.org/ebooks/author/875	books	kind:author,sitelinks:10-29	dev	erskinechildersauthor
+francis ellingwood abbot gutenberg	books	gutenberg.org/ebooks/author/8871	books	kind:author,sitelinks:10-29	dev	francisellingwoodabbot
+francisco gomes de amorim gutenberg	books	gutenberg.org/ebooks/author/37188	books	kind:author,sitelinks:10-29	dev	franciscogomesdeamorim
+frans hjalmar nortamo gutenberg	books	gutenberg.org/ebooks/author/47480	books	kind:author,sitelinks:10-29	dev	franshjalmarnortamo
+franz blei gutenberg	books	gutenberg.org/ebooks/author/39373	books	kind:author,sitelinks:10-29	dev	franzblei
+frederick burr opper gutenberg	books	gutenberg.org/ebooks/author/9918	books	kind:author,sitelinks:10-29	dev	frederickburropper
+georgette leblanc gutenberg	books	gutenberg.org/ebooks/author/25320	books	kind:author,sitelinks:10-29	dev	georgetteleblanc
+gerhard friedrich rohlfs gutenberg	books	gutenberg.org/ebooks/author/5383	books	kind:author,sitelinks:10-29	dev	friedrichgerhardrohlfs
+guy chantepleure gutenberg	books	gutenberg.org/ebooks/author/33152	books	kind:author,sitelinks:10-29	dev	guychantepleure
+harriet mann miller gutenberg	books	gutenberg.org/ebooks/author/31220	books	kind:author,sitelinks:10-29	dev	harrietmannmiller
+helen rowland gutenberg	books	gutenberg.org/ebooks/author/34715	books	kind:author,sitelinks:10-29	dev	helenrowland
+helene von druskowitz gutenberg	books	gutenberg.org/ebooks/author/52944	books	kind:author,sitelinks:10-29	dev	helenevondruskowitz
+henry bradley gutenberg	books	gutenberg.org/ebooks/author/33768	books	kind:author,sitelinks:10-29	dev	henrybradley
+henry drummond gutenberg	books	gutenberg.org/ebooks/author/940	books	kind:author,sitelinks:10-29	dev	henrydrummondevangelist
+henry schoolcraft gutenberg	books	gutenberg.org/ebooks/author/3850	books	kind:author,sitelinks:10-29	dev	henryschoolcraft
+ina coolbrith gutenberg	books	gutenberg.org/ebooks/author/52452	books	kind:author,sitelinks:10-29	dev	inacoolbrith
+increase mather gutenberg	books	gutenberg.org/ebooks/author/33377	books	kind:author,sitelinks:10-29	dev	increasemather
+james greenwood gutenberg	books	gutenberg.org/ebooks/author/43368	books	kind:author,sitelinks:10-29	dev	jamesgreenwoodjournalist
+joel t. headley gutenberg	books	gutenberg.org/ebooks/author/2224	books	kind:author,sitelinks:10-29	dev	joeltheadley
+johann rudolf wyss gutenberg	books	gutenberg.org/ebooks/author/41285	books	kind:author,sitelinks:10-29	dev	johannrudolfwyss
+john jakes gutenberg	books	gutenberg.org/ebooks/author/50438	books	kind:author,sitelinks:10-29	dev	johnjakes
+john r. swanton gutenberg	books	gutenberg.org/ebooks/author/57315	books	kind:author,sitelinks:10-29	dev	johnrswanton
+joseph méry gutenberg	books	gutenberg.org/ebooks/author/25630	books	kind:author,sitelinks:10-29	dev	josephmry
+joseph pennell gutenberg	books	gutenberg.org/ebooks/author/33068	books	kind:author,sitelinks:10-29	dev	josephpennell
+josephus daniels gutenberg	books	gutenberg.org/ebooks/author/3396	books	kind:author,sitelinks:10-29	dev	josephusdaniels
+juliette gordon low gutenberg	books	gutenberg.org/ebooks/author/33618	books	kind:author,sitelinks:10-29	dev	juliettegordonlow
+karl eugen neumann gutenberg	books	gutenberg.org/ebooks/author/44746	books	kind:author,sitelinks:10-29	dev	karleugenneumann
+klementyna hoffmanowa gutenberg	books	gutenberg.org/ebooks/author/38405	books	kind:author,sitelinks:10-29	dev	klementynahoffmanowa
+lilli lehmann gutenberg	books	gutenberg.org/ebooks/author/8478	books	kind:author,sitelinks:10-29	dev	lillilehmann
+lucy madox brown gutenberg	books	gutenberg.org/ebooks/author/2167	books	kind:author,sitelinks:10-29	dev	lucymadoxbrown
+margaret mayo gutenberg	books	gutenberg.org/ebooks/author/448	books	kind:author,sitelinks:10-29	dev	margaretmayoplaywright
+oskar pfungst gutenberg	books	gutenberg.org/ebooks/author/36714	books	kind:author,sitelinks:10-29	dev	oskarpfungst
+paul bekker gutenberg	books	gutenberg.org/ebooks/author/6582	books	kind:author,sitelinks:10-29	dev	paulbekker
+paul van ostaijen gutenberg	books	gutenberg.org/ebooks/author/35588	books	kind:author,sitelinks:10-29	dev	paulvanostaijen
+pierre nicole gutenberg	books	gutenberg.org/ebooks/author/33587	books	kind:author,sitelinks:10-29	dev	pierrenicole
+randall garrett gutenberg	books	gutenberg.org/ebooks/author/25267	books	kind:author,sitelinks:10-29	dev	randallgarrett
+rex ingram gutenberg	books	gutenberg.org/ebooks/author/53616	books	kind:author,sitelinks:10-29	dev	rexingramdirector
+richard bowdler sharpe gutenberg	books	gutenberg.org/ebooks/author/52512	books	kind:author,sitelinks:10-29	dev	richardbowdlersharpe
+roy wood sellars gutenberg	books	gutenberg.org/ebooks/author/35555	books	kind:author,sitelinks:10-29	dev	roywoodsellars
+samuel rawson gardiner gutenberg	books	gutenberg.org/ebooks/author/33168	books	kind:author,sitelinks:10-29	dev	samuelrawsongardiner
+sir george trevelyan, 2nd baronet gutenberg	books	gutenberg.org/ebooks/author/985	books	kind:author,sitelinks:10-29	dev	sirgeorgetrevelyan2ndbaronet
+steen steensen blicher gutenberg	books	gutenberg.org/ebooks/author/5843	books	kind:author,sitelinks:10-29	dev	steensteensenblicher
+thomas bulfinch gutenberg	books	gutenberg.org/ebooks/author/1179	books	kind:author,sitelinks:10-29	dev	thomasbulfinch
+virginia m. alexander gutenberg	books	gutenberg.org/ebooks/author/38590	books	kind:author,sitelinks:10-29	dev	virginiamalexander
+wilhelm von bode gutenberg	books	gutenberg.org/ebooks/author/8212	books	kind:author,sitelinks:10-29	dev	wilhelmvonbode
+william ellsworth robinson gutenberg	books	gutenberg.org/ebooks/author/51650	books	kind:author,sitelinks:10-29	dev	chunglingsoo
+william playfair gutenberg	books	gutenberg.org/ebooks/author/6802	books	kind:author,sitelinks:10-29	dev	williamplayfair
+william zebina ripley gutenberg	books	gutenberg.org/ebooks/author/44487	books	kind:author,sitelinks:10-29	dev	williamzripley
+yan zhitui gutenberg	books	gutenberg.org/ebooks/author/2476	books	kind:author,sitelinks:10-29	dev	yanzhitui
+abbé delille gutenberg	books	gutenberg.org/ebooks/author/55165	books	kind:author,sitelinks:30+	dev	jacquesdelille
+adolf erik nordenskiöld gutenberg	books	gutenberg.org/ebooks/author/26429	books	kind:author,sitelinks:30+	dev	adolferiknordenskild
+andrew jackson gutenberg	books	gutenberg.org/ebooks/author/1641	books	kind:author,sitelinks:30+	dev	andrewjackson
+archimedes gutenberg	books	gutenberg.org/ebooks/author/2545	books	kind:author,sitelinks:30+	dev	archimedes
+brewster kahle gutenberg	books	gutenberg.org/ebooks/author/26183	books	kind:author,sitelinks:30+	dev	brewsterkahle
+canada gutenberg	books	gutenberg.org/ebooks/author/62	books	kind:author,sitelinks:30+	dev	canada
+carl michael bellman gutenberg	books	gutenberg.org/ebooks/author/44224	books	kind:author,sitelinks:30+	dev	carlmichaelbellman
+cesare lombroso gutenberg	books	gutenberg.org/ebooks/author/34235	books	kind:author,sitelinks:30+	dev	cesarelombroso
+chrétien de troyes gutenberg	books	gutenberg.org/ebooks/author/435	books	kind:author,sitelinks:30+	dev	chrtiendetroyes
+confucius gutenberg	books	gutenberg.org/ebooks/author/1180	books	kind:author,sitelinks:30+	dev	confucius
+cory doctorow gutenberg	books	gutenberg.org/ebooks/author/3826	books	kind:author,sitelinks:30+	dev	corydoctorow
+cyril m. kornbluth gutenberg	books	gutenberg.org/ebooks/author/34039	books	kind:author,sitelinks:30+	dev	cyrilmkornbluth
+david brewster gutenberg	books	gutenberg.org/ebooks/author/31721	books	kind:author,sitelinks:30+	dev	davidbrewster
+david strauss gutenberg	books	gutenberg.org/ebooks/author/52725	books	kind:author,sitelinks:30+	dev	davidstrauss
+dionysios solomos gutenberg	books	gutenberg.org/ebooks/author/41487	books	kind:author,sitelinks:30+	dev	dionysiossolomos
+e. e. cummings gutenberg	books	gutenberg.org/ebooks/author/2755	books	kind:author,sitelinks:30+	dev	eecummings
+eduard von hartmann gutenberg	books	gutenberg.org/ebooks/author/48151	books	kind:author,sitelinks:30+	dev	eduardvonhartmann
+edvard westermarck gutenberg	books	gutenberg.org/ebooks/author/46679	books	kind:author,sitelinks:30+	dev	edvardwestermarck
+edward gibbon gutenberg	books	gutenberg.org/ebooks/author/375	books	kind:author,sitelinks:30+	dev	edwardgibbon
+elizabeth von arnim gutenberg	books	gutenberg.org/ebooks/author/603	books	kind:author,sitelinks:30+	dev	elizabethvonarnim
+emilio aguinaldo gutenberg	books	gutenberg.org/ebooks/author/5462	books	kind:author,sitelinks:30+	dev	emilioaguinaldo
+frederick winslow taylor gutenberg	books	gutenberg.org/ebooks/author/2055	books	kind:author,sitelinks:30+	dev	frederickwinslowtaylor
+friedrich gottlieb klopstock gutenberg	books	gutenberg.org/ebooks/author/6558	books	kind:author,sitelinks:30+	dev	friedrichgottliebklopstock
+fyodor dostoyevsky gutenberg	books	gutenberg.org/ebooks/author/314	books	kind:author,sitelinks:30+	dev	fyodordostoevsky
+fyodor sologub gutenberg	books	gutenberg.org/ebooks/author/2481	books	kind:author,sitelinks:30+	dev	fyodorsologub
+general electric gutenberg	books	gutenberg.org/ebooks/author/47657	books	kind:author,sitelinks:30+	dev	generalelectric
+grazia deledda gutenberg	books	gutenberg.org/ebooks/author/33472	books	kind:author,sitelinks:30+	dev	graziadeledda
+gérard de nerval gutenberg	books	gutenberg.org/ebooks/author/6559	books	kind:author,sitelinks:30+	dev	grarddenerval
+gösta mittag-leffler gutenberg	books	gutenberg.org/ebooks/author/2542	books	kind:author,sitelinks:30+	dev	gstamittagleffler
+hafez gutenberg	books	gutenberg.org/ebooks/author/39907	books	kind:author,sitelinks:30+	dev	hafez
+hendrik lorentz gutenberg	books	gutenberg.org/ebooks/author/3944	books	kind:author,sitelinks:30+	dev	hendriklorentz
+horace bénédict de saussure gutenberg	books	gutenberg.org/ebooks/author/51925	books	kind:author,sitelinks:30+	dev	horacebndictdesaussure
+james hopwood jeans gutenberg	books	gutenberg.org/ebooks/author/58410	books	kind:author,sitelinks:30+	dev	jamesjeans
+jefferson davis gutenberg	books	gutenberg.org/ebooks/author/1741	books	kind:author,sitelinks:30+	dev	jeffersondavis
+jens peter jacobsen gutenberg	books	gutenberg.org/ebooks/author/2193	books	kind:author,sitelinks:30+	dev	jenspeterjacobsen
+jeppe aakjær gutenberg	books	gutenberg.org/ebooks/author/26525	books	kind:author,sitelinks:30+	dev	jeppeaakjr
+johannes kepler gutenberg	books	gutenberg.org/ebooks/author/43585	books	kind:author,sitelinks:30+	dev	johanneskepler
+john burgoyne gutenberg	books	gutenberg.org/ebooks/author/38354	books	kind:author,sitelinks:30+	dev	johnburgoyne
+john cleland gutenberg	books	gutenberg.org/ebooks/author/9040	books	kind:author,sitelinks:30+	dev	johncleland
+josé enrique rodó gutenberg	books	gutenberg.org/ebooks/author/25587	books	kind:author,sitelinks:30+	dev	josenriquerod
+jules lemaître gutenberg	books	gutenberg.org/ebooks/author/5505	books	kind:author,sitelinks:30+	dev	juleslematre
+józef kazimierz hofmann gutenberg	books	gutenberg.org/ebooks/author/39899	books	kind:author,sitelinks:30+	dev	josefhofmann
+karl weierstraß gutenberg	books	gutenberg.org/ebooks/author/34161	books	kind:author,sitelinks:30+	dev	karlweierstrass
+kate greenaway gutenberg	books	gutenberg.org/ebooks/author/6307	books	kind:author,sitelinks:30+	dev	kategreenaway
+kumārajīva gutenberg	books	gutenberg.org/ebooks/author/31248	books	kind:author,sitelinks:30+	dev	kumrajva
+leonardo da vinci gutenberg	books	gutenberg.org/ebooks/author/1629	books	kind:author,sitelinks:30+	dev	leonardodavinci
+liu hui gutenberg	books	gutenberg.org/ebooks/author/32384	books	kind:author,sitelinks:30+	dev	liuhui
+margaret sanger gutenberg	books	gutenberg.org/ebooks/author/693	books	kind:author,sitelinks:30+	dev	margaretsanger
+miles franklin gutenberg	books	gutenberg.org/ebooks/author/4051	books	kind:author,sitelinks:30+	dev	milesfranklin
+mór jókai gutenberg	books	gutenberg.org/ebooks/author/5845	books	kind:author,sitelinks:30+	dev	mrjkai
+nitobe inazō gutenberg	books	gutenberg.org/ebooks/author/4225	books	kind:author,sitelinks:30+	dev	nitobeinaz
+office of strategic services gutenberg	books	gutenberg.org/ebooks/author/31855	books	kind:author,sitelinks:30+	dev	officeofstrategicservices
+poul anderson gutenberg	books	gutenberg.org/ebooks/author/25203	books	kind:author,sitelinks:30+	dev	poulanderson
+roger williams gutenberg	books	gutenberg.org/ebooks/author/52197	books	kind:author,sitelinks:30+	dev	rogerwilliams
+rudolf virchow gutenberg	books	gutenberg.org/ebooks/author/4552	books	kind:author,sitelinks:30+	dev	rudolfvirchow
+samuel finley breese morse gutenberg	books	gutenberg.org/ebooks/author/3797	books	kind:author,sitelinks:30+	dev	samuelmorse
+samuel pepys gutenberg	books	gutenberg.org/ebooks/author/1181	books	kind:author,sitelinks:30+	dev	samuelpepys
+stephen leacock gutenberg	books	gutenberg.org/ebooks/author/1221	books	kind:author,sitelinks:30+	dev	stephenleacock
+theodore dreiser gutenberg	books	gutenberg.org/ebooks/author/130	books	kind:author,sitelinks:30+	dev	theodoredreiser
+thomas jefferson gutenberg	books	gutenberg.org/ebooks/author/1638	books	kind:author,sitelinks:30+	dev	thomasjefferson
+viktor rydberg gutenberg	books	gutenberg.org/ebooks/author/3156	books	kind:author,sitelinks:30+	dev	viktorrydberg
+walther von der vogelweide gutenberg	books	gutenberg.org/ebooks/author/37904	books	kind:author,sitelinks:30+	dev	walthervondervogelweide
+william henry fox talbot gutenberg	books	gutenberg.org/ebooks/author/36415	books	kind:author,sitelinks:30+	dev	henryfoxtalbot
+william langland gutenberg	books	gutenberg.org/ebooks/author/42349	books	kind:author,sitelinks:30+	dev	williamlangland
+william wordsworth gutenberg	books	gutenberg.org/ebooks/author/2879	books	kind:author,sitelinks:30+	dev	williamwordsworth
+zsigmond móricz gutenberg	books	gutenberg.org/ebooks/author/41606	books	kind:author,sitelinks:30+	dev	zsigmondmricz
+a legend of montrose gutenberg	books	gutenberg.org/ebooks/1461	books	kind:book,sitelinks:1-9	dev	alegendofmontrose
+a new witnesses for god gutenberg	books	gutenberg.org/ebooks/46202|gutenberg.org/ebooks/47316|gutenberg.org/ebooks/59951	books	kind:book,sitelinks:1-9	dev	Q135292260
+a twentieth century idealist gutenberg	books	gutenberg.org/ebooks/64612	books	kind:book,sitelinks:1-9	dev	Q133558365
+above the french lines gutenberg	books	gutenberg.org/ebooks/62480	books	kind:book,sitelinks:1-9	dev	Q101229989
+an inland voyage gutenberg	books	gutenberg.org/ebooks/534	books	kind:book,sitelinks:1-9	dev	Q123485382
+an unsocial socialist gutenberg	books	gutenberg.org/ebooks/1654	books	kind:book,sitelinks:1-9	dev	Q19041492
+as a man thinketh gutenberg	books	gutenberg.org/ebooks/4507	books	kind:book,sitelinks:1-9	dev	asamanthinketh
+ayala's angel gutenberg	books	gutenberg.org/ebooks/33500	books	kind:book,sitelinks:1-9	dev	ayalasangel
+baltimore catechism gutenberg	books	gutenberg.org/ebooks/14552	books	kind:book,sitelinks:1-9	dev	baltimorecatechism
+betty zane gutenberg	books	gutenberg.org/ebooks/1261	books	kind:book,sitelinks:1-9	dev	bettyzanenovel
+buccaneer of the star seas gutenberg	books	gutenberg.org/ebooks/61794	books	kind:book,sitelinks:1-9	dev	Q90201897
+bulldog carney gutenberg	books	gutenberg.org/ebooks/45926	books	kind:book,sitelinks:1-9	dev	Q112774324
+daddy-long-legs gutenberg	books	gutenberg.org/ebooks/157	books	kind:book,sitelinks:1-9	dev	Q140795521
+drapier's letters gutenberg	books	gutenberg.org/ebooks/12784	books	kind:book,sitelinks:1-9	dev	drapiersletters
+esther gutenberg	books	gutenberg.org/ebooks/14409	books	kind:book,sitelinks:1-9	dev	esthernovel
+esther waters gutenberg	books	gutenberg.org/ebooks/8157	books	kind:book,sitelinks:1-9	dev	estherwaters
+george crabbe: poems gutenberg	books	gutenberg.org/ebooks/46858|gutenberg.org/ebooks/51003|gutenberg.org/ebooks/59204	books	kind:book,sitelinks:1-9	dev	Q68081382
+guild court: a london story gutenberg	books	gutenberg.org/ebooks/56176	books	kind:book,sitelinks:1-9	dev	Q124083451
+helen gutenberg	books	gutenberg.org/ebooks/8531	books	kind:book,sitelinks:1-9	dev	helennovel
+in the tiger's lair gutenberg	books	gutenberg.org/ebooks/69515	books	kind:book,sitelinks:1-9	dev	Q134619416
+los ladrones de londres gutenberg	books	gutenberg.org/ebooks/62201	books	kind:book,sitelinks:1-9	dev	Q19456757
+lost in the backwoods gutenberg	books	gutenberg.org/ebooks/68584	books	kind:book,sitelinks:1-9	dev	Q124084645
+love at paddington gutenberg	books	gutenberg.org/ebooks/26135	books	kind:book,sitelinks:1-9	dev	Q112246299
+made-over dishes gutenberg	books	gutenberg.org/ebooks/6978	books	kind:book,sitelinks:1-9	dev	Q19022846
+mafarka the futurist gutenberg	books	gutenberg.org/ebooks/25211	books	kind:book,sitelinks:1-9	dev	Q3843036
+memoirs of a cavalier gutenberg	books	gutenberg.org/ebooks/12259	books	kind:book,sitelinks:1-9	dev	memoirsofacavalier
+modern french masters gutenberg	books	gutenberg.org/ebooks/58279	books	kind:book,sitelinks:1-9	dev	Q68085842
+mr standfast gutenberg	books	gutenberg.org/ebooks/560	books	kind:book,sitelinks:1-9	dev	mrstandfast
+much ado about peter gutenberg	books	gutenberg.org/ebooks/42768	books	kind:book,sitelinks:1-9	dev	Q54871029
+nahkaratti (finnish) gutenberg	books	gutenberg.org/ebooks/56573	books	kind:book,sitelinks:1-9	dev	Q68823997
+on the track gutenberg	books	gutenberg.org/ebooks/1231	books	kind:book,sitelinks:1-9	dev	onthetrackshortstorycollection
+quaestiones romanae gutenberg	books	gutenberg.org/ebooks/57513	books	kind:book,sitelinks:1-9	dev	Q28942560
+revolt on io gutenberg	books	gutenberg.org/ebooks/61858	books	kind:book,sitelinks:1-9	dev	Q91210367
+saltbush bill gutenberg	books	gutenberg.org/ebooks/1317	books	kind:book,sitelinks:1-9	dev	saltbushbilljp
+skulls in the stars gutenberg	books	gutenberg.org/ebooks/70540	books	kind:book,sitelinks:1-9	dev	Q19110219
+south wind gutenberg	books	gutenberg.org/ebooks/4508	books	kind:book,sitelinks:1-9	dev	southwindnovel
+st. paul's gutenberg	books	gutenberg.org/ebooks/59044	books	kind:book,sitelinks:1-9	dev	Q68081550
+stalky & co. gutenberg	books	gutenberg.org/ebooks/3006	books	kind:book,sitelinks:1-9	dev	stalkyco
+tartarin on the alps gutenberg	books	gutenberg.org/ebooks/5105	books	kind:book,sitelinks:1-9	dev	Q56323182
+the adventures of rob roy gutenberg	books	gutenberg.org/ebooks/69420	books	kind:book,sitelinks:1-9	dev	Q124092882
+the american scene gutenberg	books	gutenberg.org/ebooks/68717	books	kind:book,sitelinks:1-9	dev	theamericanscene
+the arrow of gold gutenberg	books	gutenberg.org/ebooks/1083	books	kind:book,sitelinks:1-9	dev	thearrowofgold
+the centaur gutenberg	books	gutenberg.org/ebooks/9964	books	kind:book,sitelinks:1-9	dev	Q111747643
+the conchologist's first book gutenberg	books	gutenberg.org/ebooks/65171	books	kind:book,sitelinks:1-9	dev	theconchologistsfirstbook
+the cowardly lion of oz gutenberg	books	gutenberg.org/ebooks/58765	books	kind:book,sitelinks:1-9	dev	thecowardlylionofoz
+the coxon fund gutenberg	books	gutenberg.org/ebooks/1193	books	kind:book,sitelinks:1-9	dev	thecoxonfund
+the green carnation gutenberg	books	gutenberg.org/ebooks/24499	books	kind:book,sitelinks:1-9	dev	thegreencarnation
+the jade god gutenberg	books	gutenberg.org/ebooks/65559	books	kind:book,sitelinks:1-9	dev	Q133546534
+the last of the barons gutenberg	books	gutenberg.org/ebooks/7727	books	kind:book,sitelinks:1-9	dev	Q111972088
+the magical mimics in oz gutenberg	books	gutenberg.org/ebooks/56555	books	kind:book,sitelinks:1-9	dev	themagicalmimicsinoz
+the magician gutenberg	books	gutenberg.org/ebooks/14257	books	kind:book,sitelinks:1-9	dev	themagicianmaughamnovel
+the monster men gutenberg	books	gutenberg.org/ebooks/96	books	kind:book,sitelinks:1-9	dev	themonstermen
+the newspaper gutenberg	books	gutenberg.org/ebooks/56551	books	kind:book,sitelinks:1-9	dev	Q68823922
+the prophet gutenberg	books	gutenberg.org/ebooks/58585	books	kind:book,sitelinks:1-9	dev	Q96245612
+the pupil gutenberg	books	gutenberg.org/ebooks/1032	books	kind:book,sitelinks:1-9	dev	thepupilshortstory
+the research magnificent gutenberg	books	gutenberg.org/ebooks/1138	books	kind:book,sitelinks:1-9	dev	theresearchmagnificent
+the starmen gutenberg	books	gutenberg.org/ebooks/70310	books	kind:book,sitelinks:1-9	dev	thestarmen
+the vanguard of venus gutenberg	books	gutenberg.org/ebooks/72597	books	kind:book,sitelinks:1-9	dev	Q132852460
+three men gutenberg	books	gutenberg.org/ebooks/56456	books	kind:book,sitelinks:1-9	dev	Q68824085
+venus equilateral gutenberg	books	gutenberg.org/ebooks/68008	books	kind:book,sitelinks:1-9	dev	venusequilateral
+vera, the medium gutenberg	books	gutenberg.org/ebooks/1843	books	kind:book,sitelinks:1-9	dev	Q95630739
+victory gutenberg	books	gutenberg.org/ebooks/9358	books	kind:book,sitelinks:1-9	dev	victorynovel
+wild roses gutenberg	books	gutenberg.org/ebooks/56514	books	kind:book,sitelinks:1-9	dev	Q68824320
+william the outlaw gutenberg	books	gutenberg.org/ebooks/70736	books	kind:book,sitelinks:1-9	dev	williamtheoutlaw
+work: a story of experience gutenberg	books	gutenberg.org/ebooks/4770	books	kind:book,sitelinks:1-9	dev	workastoryofexperience
+a house of pomegranates gutenberg	books	gutenberg.org/ebooks/873	books	kind:book,sitelinks:10-29	dev	ahouseofpomegranates
+a modest proposal gutenberg	books	gutenberg.org/ebooks/1080	books	kind:book,sitelinks:10-29	dev	amodestproposal
+adolphe gutenberg	books	gutenberg.org/ebooks/13861	books	kind:book,sitelinks:10-29	dev	adolphe
+at the mountains of madness gutenberg	books	gutenberg.org/ebooks/70652	books	kind:book,sitelinks:10-29	dev	atthemountainsofmadness
+doctor pascal gutenberg	books	gutenberg.org/ebooks/10720	books	kind:book,sitelinks:10-29	dev	ledocteurpascal
+don juan gutenberg	books	gutenberg.org/ebooks/1708	books	kind:book,sitelinks:10-29	dev	donjuanpoem
+elective affinities gutenberg	books	gutenberg.org/ebooks/2403	books	kind:book,sitelinks:10-29	dev	electiveaffinities
+gertrud gutenberg	books	gutenberg.org/ebooks/61266	books	kind:book,sitelinks:10-29	dev	gertrudnovel
+green mansions gutenberg	books	gutenberg.org/ebooks/942	books	kind:book,sitelinks:10-29	dev	greenmansions
+herland gutenberg	books	gutenberg.org/ebooks/32	books	kind:book,sitelinks:10-29	dev	herlandnovel
+jacques the fatalist gutenberg	books	gutenberg.org/ebooks/39976	books	kind:book,sitelinks:10-29	dev	jacquesthefatalist
+jo's boys gutenberg	books	gutenberg.org/ebooks/3499	books	kind:book,sitelinks:10-29	dev	josboys
+la conquête de plassans gutenberg	books	gutenberg.org/ebooks/8712	books	kind:book,sitelinks:10-29	dev	laconqutedeplassans
+le chevalier de maison-rouge gutenberg	books	gutenberg.org/ebooks/18006|gutenberg.org/ebooks/71356	books	kind:book,sitelinks:10-29	dev	lechevalierdemaisonrouge
+le cousin pons gutenberg	books	gutenberg.org/ebooks/1856	books	kind:book,sitelinks:10-29	dev	lecousinpons
+le rêve gutenberg	books	gutenberg.org/ebooks/17533	books	kind:book,sitelinks:10-29	dev	lervenovel
+les caves du vatican gutenberg	books	gutenberg.org/ebooks/6739	books	kind:book,sitelinks:10-29	dev	Q27462
+les chouans gutenberg	books	gutenberg.org/ebooks/1921	books	kind:book,sitelinks:10-29	dev	leschouans
+little dorrit gutenberg	books	gutenberg.org/ebooks/963	books	kind:book,sitelinks:10-29	dev	littledorrit
+lord arthur savile's crime gutenberg	books	gutenberg.org/ebooks/773	books	kind:book,sitelinks:10-29	dev	lordarthursavilescrime
+luther's large catechism gutenberg	books	gutenberg.org/ebooks/1722	books	kind:book,sitelinks:10-29	dev	lutherslargecatechism
+master and man gutenberg	books	gutenberg.org/ebooks/986	books	kind:book,sitelinks:10-29	dev	masterandmanshortstory
+mayflower compact gutenberg	books	gutenberg.org/ebooks/7	books	kind:book,sitelinks:10-29	dev	mayflowercompact
+niels klim's underground travels gutenberg	books	gutenberg.org/ebooks/27884	books	kind:book,sitelinks:10-29	dev	nielsklimsundergroundtravels
+polity of the lacedaemonians gutenberg	books	gutenberg.org/ebooks/1178	books	kind:book,sitelinks:10-29	dev	constitutionofthelacedaemonians
+principles of geology gutenberg	books	gutenberg.org/ebooks/33224	books	kind:book,sitelinks:10-29	dev	principlesofgeology
+prometheus gutenberg	books	gutenberg.org/ebooks/9260	books	kind:book,sitelinks:10-29	dev	prometheusgoethe
+pudd'nhead wilson gutenberg	books	gutenberg.org/ebooks/102	books	kind:book,sitelinks:10-29	dev	puddnheadwilson
+ralph 124c 41+ gutenberg	books	gutenberg.org/ebooks/60944	books	kind:book,sitelinks:10-29	dev	ralph124c41
+roman elegies gutenberg	books	gutenberg.org/ebooks/5325	books	kind:book,sitelinks:10-29	dev	romanelegies
+second variety gutenberg	books	gutenberg.org/ebooks/32032	books	kind:book,sitelinks:10-29	dev	secondvariety
+statesman gutenberg	books	gutenberg.org/ebooks/1738	books	kind:book,sitelinks:10-29	dev	statesmandialogue
+séraphîta gutenberg	books	gutenberg.org/ebooks/1432	books	kind:book,sitelinks:10-29	dev	sraphta
+tales from shakspeare gutenberg	books	gutenberg.org/ebooks/20657	books	kind:book,sitelinks:10-29	dev	talesfromshakespeare
+the archipelago on fire gutenberg	books	gutenberg.org/ebooks/17660	books	kind:book,sitelinks:10-29	dev	thearchipelagoonfire
+the awakening gutenberg	books	gutenberg.org/ebooks/160	books	kind:book,sitelinks:10-29	dev	theawakeningchopinnovel
+the blue lagoon gutenberg	books	gutenberg.org/ebooks/393	books	kind:book,sitelinks:10-29	dev	thebluelagoonnovel
+the book of tea gutenberg	books	gutenberg.org/ebooks/769	books	kind:book,sitelinks:10-29	dev	thebookoftea
+the child of the cavern gutenberg	books	gutenberg.org/ebooks/1355	books	kind:book,sitelinks:10-29	dev	thechildofthecavern
+the cricket on the hearth gutenberg	books	gutenberg.org/ebooks/678	books	kind:book,sitelinks:10-29	dev	thecricketonthehearth
+the cruise of the dazzler gutenberg	books	gutenberg.org/ebooks/11051	books	kind:book,sitelinks:10-29	dev	thecruiseofthedazzler
+the curse of capistrano gutenberg	books	gutenberg.org/ebooks/61620	books	kind:book,sitelinks:10-29	dev	thecurseofcapistrano
+the darling gutenberg	books	gutenberg.org/ebooks/13416	books	kind:book,sitelinks:10-29	dev	thedarlingshortstory
+the fur country gutenberg	books	gutenberg.org/ebooks/17796	books	kind:book,sitelinks:10-29	dev	thefurcountry
+the guide for the perplexed gutenberg	books	gutenberg.org/ebooks/73584	books	kind:book,sitelinks:10-29	dev	theguidefortheperplexed
+the kybalion gutenberg	books	gutenberg.org/ebooks/14209	books	kind:book,sitelinks:10-29	dev	thekybalion
+the ladies' paradise gutenberg	books	gutenberg.org/ebooks/16852	books	kind:book,sitelinks:10-29	dev	aubonheurdesdames
+the pillars of society gutenberg	books	gutenberg.org/ebooks/2296	books	kind:book,sitelinks:10-29	dev	thepillarsofsociety
+the princess and the goblin gutenberg	books	gutenberg.org/ebooks/708	books	kind:book,sitelinks:10-29	dev	theprincessandthegoblin
+the rainbow gutenberg	books	gutenberg.org/ebooks/28948	books	kind:book,sitelinks:10-29	dev	therainbow
+the war in the air gutenberg	books	gutenberg.org/ebooks/780	books	kind:book,sitelinks:10-29	dev	thewarintheair
+tom sawyer, detective gutenberg	books	gutenberg.org/ebooks/93	books	kind:book,sitelinks:10-29	dev	tomsawyerdetective
+tusculanae disputationes gutenberg	books	gutenberg.org/ebooks/14988	books	kind:book,sitelinks:10-29	dev	tusculanaedisputationes
+undine gutenberg	books	gutenberg.org/ebooks/18752	books	kind:book,sitelinks:10-29	dev	undinenovella
+varney the vampire gutenberg	books	gutenberg.org/ebooks/14833	books	kind:book,sitelinks:10-29	dev	varneythevampire
+villette gutenberg	books	gutenberg.org/ebooks/9182	books	kind:book,sitelinks:10-29	dev	villettenovel
+wilhelm meister's apprenticeship gutenberg	books	gutenberg.org/ebooks/36483	books	kind:book,sitelinks:10-29	dev	wilhelmmeistersapprenticeship
+winesburg, ohio gutenberg	books	gutenberg.org/ebooks/416	books	kind:book,sitelinks:10-29	dev	winesburgohio
+y gododdin gutenberg	books	gutenberg.org/ebooks/9842	books	kind:book,sitelinks:10-29	dev	ygododdin
+zadig or destiny gutenberg	books	gutenberg.org/ebooks/18972	books	kind:book,sitelinks:10-29	dev	zadig
+zanoni gutenberg	books	gutenberg.org/ebooks/2664	books	kind:book,sitelinks:10-29	dev	zanoni
+a doll's house gutenberg	books	gutenberg.org/ebooks/15492	books	kind:book,sitelinks:30+	dev	adollshouse
+a study in scarlet gutenberg	books	gutenberg.org/ebooks/244	books	kind:book,sitelinks:30+	dev	astudyinscarlet
+antiquities of the jews gutenberg	books	gutenberg.org/ebooks/2848	books	kind:book,sitelinks:30+	dev	antiquitiesofthejews
+apology gutenberg	books	gutenberg.org/ebooks/57085	books	kind:book,sitelinks:30+	dev	apologyplato
+areopagitica gutenberg	books	gutenberg.org/ebooks/608	books	kind:book,sitelinks:30+	dev	areopagitica
+critique of pure reason gutenberg	books	gutenberg.org/ebooks/4280	books	kind:book,sitelinks:30+	dev	critiqueofpurereason
+de architectura gutenberg	books	gutenberg.org/ebooks/20239	books	kind:book,sitelinks:30+	dev	dearchitectura
+der judenstaat gutenberg	books	gutenberg.org/ebooks/25282	books	kind:book,sitelinks:30+	dev	derjudenstaat
+emile, or on education gutenberg	books	gutenberg.org/ebooks/5427	books	kind:book,sitelinks:30+	dev	emileoroneducation
+federalist papers gutenberg	books	gutenberg.org/ebooks/1404	books	kind:book,sitelinks:30+	dev	thefederalistpapers
+kim gutenberg	books	gutenberg.org/ebooks/2226	books	kind:book,sitelinks:30+	dev	kimnovel
+la reine margot gutenberg	books	gutenberg.org/ebooks/13857	books	kind:book,sitelinks:30+	dev	lareinemargotnovel
+le roman de la rose gutenberg	books	gutenberg.org/ebooks/16816	books	kind:book,sitelinks:30+	dev	romandelarose
+little lord fauntleroy gutenberg	books	gutenberg.org/ebooks/479	books	kind:book,sitelinks:30+	dev	littlelordfauntleroy
+little women gutenberg	books	gutenberg.org/ebooks/514	books	kind:book,sitelinks:30+	dev	littlewomen
+magna carta gutenberg	books	gutenberg.org/ebooks/10000	books	kind:book,sitelinks:30+	dev	magnacarta
+manon lescaut gutenberg	books	gutenberg.org/ebooks/17983|gutenberg.org/ebooks/468	books	kind:book,sitelinks:30+	dev	manonlescaut
+mansfield park gutenberg	books	gutenberg.org/ebooks/141	books	kind:book,sitelinks:30+	dev	mansfieldpark
+new atlantis gutenberg	books	gutenberg.org/ebooks/2434	books	kind:book,sitelinks:30+	dev	newatlantis
+northanger abbey gutenberg	books	gutenberg.org/ebooks/121	books	kind:book,sitelinks:30+	dev	northangerabbey
+oliver twist gutenberg	books	gutenberg.org/ebooks/56586	books	kind:book,sitelinks:30+	dev	olivertwist
+pericles, prince of tyre gutenberg	books	gutenberg.org/ebooks/1537	books	kind:book,sitelinks:30+	dev	periclesprinceoftyre
+persuasion gutenberg	books	gutenberg.org/ebooks/105	books	kind:book,sitelinks:30+	dev	persuasionnovel
+pollyanna gutenberg	books	gutenberg.org/ebooks/1450	books	kind:book,sitelinks:30+	dev	pollyanna
+pride and prejudice gutenberg	books	gutenberg.org/ebooks/1342	books	kind:book,sitelinks:30+	dev	prideandprejudice
+resurrection gutenberg	books	gutenberg.org/ebooks/1938	books	kind:book,sitelinks:30+	dev	resurrectiontolstoynovel
+richard iii gutenberg	books	gutenberg.org/ebooks/2257	books	kind:book,sitelinks:30+	dev	richardiiiplay
+rip van winkle gutenberg	books	gutenberg.org/ebooks/60976|gutenberg.org/ebooks/64636	books	kind:book,sitelinks:30+	dev	ripvanwinkle
+robinson crusoe gutenberg	books	gutenberg.org/ebooks/12623|gutenberg.org/ebooks/70841	books	kind:book,sitelinks:30+	dev	robinsoncrusoe
+saga of erik the red gutenberg	books	gutenberg.org/ebooks/17946	books	kind:book,sitelinks:30+	dev	sagaoferikthered
+salammbô gutenberg	books	gutenberg.org/ebooks/1290	books	kind:book,sitelinks:30+	dev	salammb
+siddhartha gutenberg	books	gutenberg.org/ebooks/2500|gutenberg.org/ebooks/58344	books	kind:book,sitelinks:30+	dev	siddharthanovel
+the adventures of tom sawyer gutenberg	books	gutenberg.org/ebooks/74	books	kind:book,sitelinks:30+	dev	theadventuresoftomsawyer
+the call of the wild gutenberg	books	gutenberg.org/ebooks/215	books	kind:book,sitelinks:30+	dev	thecallofthewild
+the charterhouse of parma gutenberg	books	gutenberg.org/ebooks/796	books	kind:book,sitelinks:30+	dev	thecharterhouseofparma
+the great gatsby gutenberg	books	gutenberg.org/ebooks/64317	books	kind:book,sitelinks:30+	dev	thegreatgatsby
+the hound of the baskervilles gutenberg	books	gutenberg.org/ebooks/3070	books	kind:book,sitelinks:30+	dev	thehoundofthebaskervilles
+the house of the dead gutenberg	books	gutenberg.org/ebooks/37536	books	kind:book,sitelinks:30+	dev	thehouseofthedeadnovel
+the interpretation of dreams gutenberg	books	gutenberg.org/ebooks/40739	books	kind:book,sitelinks:30+	dev	theinterpretationofdreams
+the jungle book gutenberg	books	gutenberg.org/ebooks/236	books	kind:book,sitelinks:30+	dev	thejunglebook
+the kreutzer sonata gutenberg	books	gutenberg.org/ebooks/689	books	kind:book,sitelinks:30+	dev	thekreutzersonata
+the miser gutenberg	books	gutenberg.org/ebooks/6318	books	kind:book,sitelinks:30+	dev	themiser
+the pickwick papers gutenberg	books	gutenberg.org/ebooks/580	books	kind:book,sitelinks:30+	dev	thepickwickpapers
+the picture of dorian gray gutenberg	books	gutenberg.org/ebooks/4078	books	kind:book,sitelinks:30+	dev	thepictureofdoriangray
+the red and the black gutenberg	books	gutenberg.org/ebooks/798	books	kind:book,sitelinks:30+	dev	theredandtheblack
+the return of sherlock holmes gutenberg	books	gutenberg.org/ebooks/108	books	kind:book,sitelinks:30+	dev	thereturnofsherlockholmes
+the seagull gutenberg	books	gutenberg.org/ebooks/1754	books	kind:book,sitelinks:30+	dev	theseagull
+the sorrows of young werther gutenberg	books	gutenberg.org/ebooks/2527	books	kind:book,sitelinks:30+	dev	thesorrowsofyoungwerther
+the three musketeers gutenberg	books	gutenberg.org/ebooks/13951	books	kind:book,sitelinks:30+	dev	thethreemusketeers
+the travels of marco polo gutenberg	books	gutenberg.org/ebooks/12410	books	kind:book,sitelinks:30+	dev	thetravelsofmarcopolo
+the valley of fear gutenberg	books	gutenberg.org/ebooks/3289	books	kind:book,sitelinks:30+	dev	thevalleyoffear
+the waste land gutenberg	books	gutenberg.org/ebooks/1321	books	kind:book,sitelinks:30+	dev	thewasteland
+the wonderful wizard of oz gutenberg	books	gutenberg.org/ebooks/43936	books	kind:book,sitelinks:30+	dev	thewonderfulwizardofoz
+through the looking-glass gutenberg	books	gutenberg.org/ebooks/12	books	kind:book,sitelinks:30+	dev	throughthelookingglass
+ulysses gutenberg	books	gutenberg.org/ebooks/4300	books	kind:book,sitelinks:30+	dev	ulyssesnovel
+united states bill of rights gutenberg	books	gutenberg.org/ebooks/2	books	kind:book,sitelinks:30+	dev	unitedstatesbillofrights
+utopia gutenberg	books	gutenberg.org/ebooks/2130	books	kind:book,sitelinks:30+	dev	utopiabook
+vanity fair gutenberg	books	gutenberg.org/ebooks/599	books	kind:book,sitelinks:30+	dev	vanityfairnovel
+vita karoli magni gutenberg	books	gutenberg.org/ebooks/48870	books	kind:book,sitelinks:30+	dev	vitakarolimagni
+white fang gutenberg	books	gutenberg.org/ebooks/910	books	kind:book,sitelinks:30+	dev	whitefang
+adelaide hoodless gutenberg	books	gutenberg.org/ebooks/author/7805	books	kind:author,sitelinks:1-9	test	adelaidehoodless
+alajos degré gutenberg	books	gutenberg.org/ebooks/author/52948	books	kind:author,sitelinks:1-9	test	alajosdegr
+alberto pisa gutenberg	books	gutenberg.org/ebooks/author/38488	books	kind:author,sitelinks:1-9	test	albertopisa
+alex ebel gutenberg	books	gutenberg.org/ebooks/author/35627	books	kind:author,sitelinks:1-9	test	alexebel
+andrew battell gutenberg	books	gutenberg.org/ebooks/author/41086	books	kind:author,sitelinks:1-9	test	Q5675293
+archibald m. howe gutenberg	books	gutenberg.org/ebooks/author/26595	books	kind:author,sitelinks:1-9	test	archibaldmhowe
+arthur doughty gutenberg	books	gutenberg.org/ebooks/author/2072	books	kind:author,sitelinks:1-9	test	arthurdoughty
+arvo haveri gutenberg	books	gutenberg.org/ebooks/author/56761	books	kind:author,sitelinks:1-9	test	Q100780224
+benjamin leonard d’ooge gutenberg	books	gutenberg.org/ebooks/author/7901	books	kind:author,sitelinks:1-9	test	benjaminleonarddooge
+charles brent gutenberg	books	gutenberg.org/ebooks/author/37179	books	kind:author,sitelinks:1-9	test	charlesbrent
+charles rogers gutenberg	books	gutenberg.org/ebooks/author/25197	books	kind:author,sitelinks:1-9	test	charlesrogersauthor
+edison marshall gutenberg	books	gutenberg.org/ebooks/author/3967	books	kind:author,sitelinks:1-9	test	edisonmarshall
+edith cowper gutenberg	books	gutenberg.org/ebooks/author/40757	books	kind:author,sitelinks:1-9	test	eecowper
+edmond john philip gutenberg	books	gutenberg.org/ebooks/author/50820	books	kind:author,sitelinks:1-9	test	Q59630070
+edwin lillie miller gutenberg	books	gutenberg.org/ebooks/author/9867	books	kind:author,sitelinks:1-9	test	Q110937990
+elinor mordaunt gutenberg	books	gutenberg.org/ebooks/author/34943	books	kind:author,sitelinks:1-9	test	elinormordaunt
+eliza orne white gutenberg	books	gutenberg.org/ebooks/author/9552	books	kind:author,sitelinks:1-9	test	elizaornewhite
+emmett langdon avery gutenberg	books	gutenberg.org/ebooks/author/35371	books	kind:author,sitelinks:1-9	test	Q109478745
+ethel romanes gutenberg	books	gutenberg.org/ebooks/author/45182	books	kind:author,sitelinks:1-9	test	ethelromanes
+florence akin gutenberg	books	gutenberg.org/ebooks/author/3059	books	kind:author,sitelinks:1-9	test	Q105748685
+francis henry gribble gutenberg	books	gutenberg.org/ebooks/author/41309	books	kind:author,sitelinks:1-9	test	francisgribble
+frank berkeley smith gutenberg	books	gutenberg.org/ebooks/author/32168	books	kind:author,sitelinks:1-9	test	Q113199255
+frederick edward maning gutenberg	books	gutenberg.org/ebooks/author/36343	books	kind:author,sitelinks:1-9	test	frederickedwardmaning
+frederick hollick gutenberg	books	gutenberg.org/ebooks/author/44492	books	kind:author,sitelinks:1-9	test	frederickhollick
+frederick upham adams gutenberg	books	gutenberg.org/ebooks/author/5942	books	kind:author,sitelinks:1-9	test	frederickuphamadams
+george burnham ives gutenberg	books	gutenberg.org/ebooks/author/9437	books	kind:author,sitelinks:1-9	test	georgeburnhamives
+george chadwick gutenberg	books	gutenberg.org/ebooks/author/36396	books	kind:author,sitelinks:1-9	test	georgechadwickbishop
+geraldine butt gutenberg	books	gutenberg.org/ebooks/author/8027	books	kind:author,sitelinks:1-9	test	Q64685568
+giovanni cairoli gutenberg	books	gutenberg.org/ebooks/author/40877	books	kind:author,sitelinks:1-9	test	Q3766921
+grace frankland gutenberg	books	gutenberg.org/ebooks/author/41988	books	kind:author,sitelinks:1-9	test	gracefrankland
+hans effenberger gutenberg	books	gutenberg.org/ebooks/author/39252	books	kind:author,sitelinks:1-9	test	Q1579284
+harold titus gutenberg	books	gutenberg.org/ebooks/author/37945	books	kind:author,sitelinks:1-9	test	Q35238938
+helen a. clarke gutenberg	books	gutenberg.org/ebooks/author/5638	books	kind:author,sitelinks:1-9	test	helenaclarke
+henry souttar gutenberg	books	gutenberg.org/ebooks/author/3833	books	kind:author,sitelinks:1-9	test	henrysouttar
+herbert strang gutenberg	books	gutenberg.org/ebooks/author/5234	books	kind:author,sitelinks:1-9	test	herbertstrang
+hugues imbert gutenberg	books	gutenberg.org/ebooks/author/31625	books	kind:author,sitelinks:1-9	test	Q3787458
+jenkin lloyd jones gutenberg	books	gutenberg.org/ebooks/author/36264	books	kind:author,sitelinks:1-9	test	jenkinlloydjones
+jeremiah curtin gutenberg	books	gutenberg.org/ebooks/author/1053	books	kind:author,sitelinks:1-9	test	jeremiahcurtin
+john francis xavier o'conor gutenberg	books	gutenberg.org/ebooks/author/26560	books	kind:author,sitelinks:1-9	test	Q18911622
+john t. goolrick gutenberg	books	gutenberg.org/ebooks/author/40004	books	kind:author,sitelinks:1-9	test	Q116305284
+john van alstyne weaver gutenberg	books	gutenberg.org/ebooks/author/5789	books	kind:author,sitelinks:1-9	test	johnvanalstyneweaver
+joseph ward swain gutenberg	books	gutenberg.org/ebooks/author/41138	books	kind:author,sitelinks:1-9	test	Q18910535
+leigh h. irvine gutenberg	books	gutenberg.org/ebooks/author/41099	books	kind:author,sitelinks:1-9	test	Q55702538
+lucie elizabeth page gutenberg	books	gutenberg.org/ebooks/author/40655	books	kind:author,sitelinks:1-9	test	Q21546573
+margaret ashmun gutenberg	books	gutenberg.org/ebooks/author/7183	books	kind:author,sitelinks:1-9	test	margaretashmun
+maria ŝidlovskaja gutenberg	books	gutenberg.org/ebooks/author/48270	books	kind:author,sitelinks:1-9	test	Q20481871
+marian andrews gutenberg	books	gutenberg.org/ebooks/author/3954	books	kind:author,sitelinks:1-9	test	marianandrews
+mary jean stone gutenberg	books	gutenberg.org/ebooks/author/1450	books	kind:author,sitelinks:1-9	test	maryjeanstone
+mel trotter gutenberg	books	gutenberg.org/ebooks/author/37628	books	kind:author,sitelinks:1-9	test	meltrotter
+nathaniel ward gutenberg	books	gutenberg.org/ebooks/author/37356	books	kind:author,sitelinks:1-9	test	nathanielward
+otto engelbrekt jaatinen gutenberg	books	gutenberg.org/ebooks/author/42086	books	kind:author,sitelinks:1-9	test	Q11886001
+otto seemann gutenberg	books	gutenberg.org/ebooks/author/51667	books	kind:author,sitelinks:1-9	test	Q29892109
+paul flat gutenberg	books	gutenberg.org/ebooks/author/34238	books	kind:author,sitelinks:1-9	test	Q16915489
+pavlos lampros gutenberg	books	gutenberg.org/ebooks/author/35548	books	kind:author,sitelinks:1-9	test	Q1242927
+pierre emmanuel albert, baron ducasse gutenberg	books	gutenberg.org/ebooks/author/34707	books	kind:author,sitelinks:1-9	test	pierreemmanuelalbertbaronducasse
+robert eugene ritzenthaler gutenberg	books	gutenberg.org/ebooks/author/51881	books	kind:author,sitelinks:1-9	test	Q105883474
+stephen meredyth edwardes gutenberg	books	gutenberg.org/ebooks/author/3294	books	kind:author,sitelinks:1-9	test	stephenedwardes
+sándor baksay gutenberg	books	gutenberg.org/ebooks/author/53091	books	kind:author,sitelinks:1-9	test	Q789065
+tom beecham gutenberg	books	gutenberg.org/ebooks/author/34284	books	kind:author,sitelinks:1-9	test	Q52151133
+william griggs gutenberg	books	gutenberg.org/ebooks/author/51316	books	kind:author,sitelinks:1-9	test	williamgriggsinventor
+william ingersoll bowditch gutenberg	books	gutenberg.org/ebooks/author/39623	books	kind:author,sitelinks:1-9	test	williamibowditch
+william lockwood marsh gutenberg	books	gutenberg.org/ebooks/author/454	books	kind:author,sitelinks:1-9	test	Q110087176
+zachary taylor sweeney gutenberg	books	gutenberg.org/ebooks/author/5791	books	kind:author,sitelinks:1-9	test	Q106705944
+august derleth gutenberg	books	gutenberg.org/ebooks/author/34440	books	kind:author,sitelinks:10-29	test	augustderleth
+benjamin silliman sr. gutenberg	books	gutenberg.org/ebooks/author/44313	books	kind:author,sitelinks:10-29	test	benjaminsilliman
+c. lloyd morgan gutenberg	books	gutenberg.org/ebooks/author/33458	books	kind:author,sitelinks:10-29	test	clloydmorgan
+catharine parr traill gutenberg	books	gutenberg.org/ebooks/author/2715|gutenberg.org/ebooks/author/47893	books	kind:author,sitelinks:10-29	test	catharineparrtraill
+charles edward trevelyan, 1st baronet gutenberg	books	gutenberg.org/ebooks/author/49004	books	kind:author,sitelinks:10-29	test	sircharlestrevelyan1stbaronet
+clarence hudson white gutenberg	books	gutenberg.org/ebooks/author/35403	books	kind:author,sitelinks:10-29	test	clarencehudsonwhite
+constance fenimore woolson gutenberg	books	gutenberg.org/ebooks/author/2041	books	kind:author,sitelinks:10-29	test	constancefenimorewoolson
+cornelia parker gutenberg	books	gutenberg.org/ebooks/author/5752	books	kind:author,sitelinks:10-29	test	corneliaparker
+edward hitchcock gutenberg	books	gutenberg.org/ebooks/author/37655	books	kind:author,sitelinks:10-29	test	edwardhitchcock
+elizabeth bibesco gutenberg	books	gutenberg.org/ebooks/author/5890	books	kind:author,sitelinks:10-29	test	elizabethbibesco
+erich schmidt gutenberg	books	gutenberg.org/ebooks/author/44858	books	kind:author,sitelinks:10-29	test	erichschmidthistorian
+felipe trigo gutenberg	books	gutenberg.org/ebooks/author/43564	books	kind:author,sitelinks:10-29	test	felipetrigo
+francis amasa walker gutenberg	books	gutenberg.org/ebooks/author/32421	books	kind:author,sitelinks:10-29	test	francisamasawalker
+george griffith gutenberg	books	gutenberg.org/ebooks/author/8557	books	kind:author,sitelinks:10-29	test	georgegriffith
+george washington williams gutenberg	books	gutenberg.org/ebooks/author/24926	books	kind:author,sitelinks:10-29	test	georgewashingtonwilliams
+guan zhong gutenberg	books	gutenberg.org/ebooks/author/2445	books	kind:author,sitelinks:10-29	test	guanzhong
+gustav falke gutenberg	books	gutenberg.org/ebooks/author/3825	books	kind:author,sitelinks:10-29	test	gustavfalke
+gustav wied gutenberg	books	gutenberg.org/ebooks/author/38936	books	kind:author,sitelinks:10-29	test	gustavwied
+harold mattingly gutenberg	books	gutenberg.org/ebooks/author/42163	books	kind:author,sitelinks:10-29	test	haroldmattingly
+heinrich graetz gutenberg	books	gutenberg.org/ebooks/author/42001	books	kind:author,sitelinks:10-29	test	heinrichgraetz
+henry woodward gutenberg	books	gutenberg.org/ebooks/author/45425	books	kind:author,sitelinks:10-29	test	henrywoodwardgeologist
+hermann, fürst von pückler-muskau gutenberg	books	gutenberg.org/ebooks/author/40271	books	kind:author,sitelinks:10-29	test	hermannfrstvonpcklermuskau
+jeremiah o'donovan rossa gutenberg	books	gutenberg.org/ebooks/author/45640	books	kind:author,sitelinks:10-29	test	jeremiahodonovanrossa
+jesse walter fewkes gutenberg	books	gutenberg.org/ebooks/author/7741	books	kind:author,sitelinks:10-29	test	jessewalterfewkes
+john anderson gutenberg	books	gutenberg.org/ebooks/author/54425	books	kind:author,sitelinks:10-29	test	johnandersonzoologist
+john campbell, 1st baron campbell gutenberg	books	gutenberg.org/ebooks/author/40427	books	kind:author,sitelinks:10-29	test	johncampbell1stbaroncampbell
+joseph mccabe gutenberg	books	gutenberg.org/ebooks/author/521	books	kind:author,sitelinks:10-29	test	josephmccabe
+juan bautista arriaza gutenberg	books	gutenberg.org/ebooks/author/49555	books	kind:author,sitelinks:10-29	test	juanbautistaarriaza
+julius schnorr von carolsfeld gutenberg	books	gutenberg.org/ebooks/author/51782	books	kind:author,sitelinks:10-29	test	juliusschnorrvoncarolsfeld
+jón sveinsson gutenberg	books	gutenberg.org/ebooks/author/8990	books	kind:author,sitelinks:10-29	test	jnsveinsson
+karl gottlob zumpt gutenberg	books	gutenberg.org/ebooks/author/34153	books	kind:author,sitelinks:10-29	test	karlgottlobzumpt
+katherine cameron gutenberg	books	gutenberg.org/ebooks/author/8229	books	kind:author,sitelinks:10-29	test	katharinecameron
+kitty clive gutenberg	books	gutenberg.org/ebooks/author/5267	books	kind:author,sitelinks:10-29	test	kittyclive
+marsden hartley gutenberg	books	gutenberg.org/ebooks/author/9607	books	kind:author,sitelinks:10-29	test	marsdenhartley
+mary hunter austin gutenberg	books	gutenberg.org/ebooks/author/201	books	kind:author,sitelinks:10-29	test	maryhunteraustin
+moriz haupt gutenberg	books	gutenberg.org/ebooks/author/42465	books	kind:author,sitelinks:10-29	test	morizhaupt
+nathaniel parker willis gutenberg	books	gutenberg.org/ebooks/author/6238	books	kind:author,sitelinks:10-29	test	nathanielparkerwillis
+nellie mcclung gutenberg	books	gutenberg.org/ebooks/author/1470	books	kind:author,sitelinks:10-29	test	nelliemcclung
+nora may french gutenberg	books	gutenberg.org/ebooks/author/47045	books	kind:author,sitelinks:10-29	test	noramayfrench
+ottokar czernin gutenberg	books	gutenberg.org/ebooks/author/7843	books	kind:author,sitelinks:10-29	test	ottokarczernin
+p. c. wren gutenberg	books	gutenberg.org/ebooks/author/3626	books	kind:author,sitelinks:10-29	test	pcwren
+rebecca harding davis gutenberg	books	gutenberg.org/ebooks/author/186	books	kind:author,sitelinks:10-29	test	rebeccahardingdavis
+reginald johnston gutenberg	books	gutenberg.org/ebooks/author/44967	books	kind:author,sitelinks:10-29	test	reginaldjohnston
+richard andree gutenberg	books	gutenberg.org/ebooks/author/34872	books	kind:author,sitelinks:10-29	test	richardandree
+richard chenevix trench gutenberg	books	gutenberg.org/ebooks/author/2062	books	kind:author,sitelinks:10-29	test	richardchenevixtrench
+robert lowie gutenberg	books	gutenberg.org/ebooks/author/38964	books	kind:author,sitelinks:10-29	test	robertlowie
+ronald firbank gutenberg	books	gutenberg.org/ebooks/author/50114	books	kind:author,sitelinks:10-29	test	ronaldfirbank
+rudolf leonhard gutenberg	books	gutenberg.org/ebooks/author/36361	books	kind:author,sitelinks:10-29	test	rudolfleonhard
+thomas dunn english gutenberg	books	gutenberg.org/ebooks/author/55762	books	kind:author,sitelinks:10-29	test	thomasdunnenglish
+victor margueritte gutenberg	books	gutenberg.org/ebooks/author/45656	books	kind:author,sitelinks:10-29	test	victormargueritte
+whitelaw reid gutenberg	books	gutenberg.org/ebooks/author/31773	books	kind:author,sitelinks:10-29	test	whitelawreid
+wilhelm wattenbach gutenberg	books	gutenberg.org/ebooks/author/48115	books	kind:author,sitelinks:10-29	test	wilhelmwattenbach
+william james beal gutenberg	books	gutenberg.org/ebooks/author/31834	books	kind:author,sitelinks:10-29	test	williamjamesbeal
+william keith gutenberg	books	gutenberg.org/ebooks/author/52773	books	kind:author,sitelinks:10-29	test	williamkeithartist
+william thierry preyer gutenberg	books	gutenberg.org/ebooks/author/8739	books	kind:author,sitelinks:10-29	test	williamthierrypreyer
+william wilson hunter gutenberg	books	gutenberg.org/ebooks/author/37908	books	kind:author,sitelinks:10-29	test	williamwilsonhunter
+zona gale gutenberg	books	gutenberg.org/ebooks/author/3531	books	kind:author,sitelinks:10-29	test	zonagale
+ada lovelace gutenberg	books	gutenberg.org/ebooks/author/57832	books	kind:author,sitelinks:30+	test	adalovelace
+adelbert von chamisso gutenberg	books	gutenberg.org/ebooks/author/1779	books	kind:author,sitelinks:30+	test	adelbertvonchamisso
+alberto santos-dumont gutenberg	books	gutenberg.org/ebooks/author/41635	books	kind:author,sitelinks:30+	test	albertosantosdumont
+aleksandr kuprin gutenberg	books	gutenberg.org/ebooks/author/1552	books	kind:author,sitelinks:30+	test	aleksandrikuprin
+aloysius bertrand gutenberg	books	gutenberg.org/ebooks/author/7573	books	kind:author,sitelinks:30+	test	aloysiusbertrand
+american red cross gutenberg	books	gutenberg.org/ebooks/author/35748	books	kind:author,sitelinks:30+	test	americanredcross
+annie proulx gutenberg	books	gutenberg.org/ebooks/author/51419	books	kind:author,sitelinks:30+	test	annieproulx
+apolinario mabini gutenberg	books	gutenberg.org/ebooks/author/5616	books	kind:author,sitelinks:30+	test	apolinariomabini
+august wilhelm von schlegel gutenberg	books	gutenberg.org/ebooks/author/2356	books	kind:author,sitelinks:30+	test	augustwilhelmschlegel
+auguste de marmont gutenberg	books	gutenberg.org/ebooks/author/32686	books	kind:author,sitelinks:30+	test	augustedemarmont
+auguste villiers de l'isle-adam gutenberg	books	gutenberg.org/ebooks/author/6262	books	kind:author,sitelinks:30+	test	augustevilliersdelisleadam
+beatrice webb gutenberg	books	gutenberg.org/ebooks/author/42231	books	kind:author,sitelinks:30+	test	beatricewebb
+benedict of nursia gutenberg	books	gutenberg.org/ebooks/author/45673	books	kind:author,sitelinks:30+	test	benedictofnursia
+benito mussolini gutenberg	books	gutenberg.org/ebooks/author/52104	books	kind:author,sitelinks:30+	test	benitomussolini
+carl van vechten gutenberg	books	gutenberg.org/ebooks/author/31911	books	kind:author,sitelinks:30+	test	carlvanvechten
+charles a. beard gutenberg	books	gutenberg.org/ebooks/author/7052	books	kind:author,sitelinks:30+	test	charlesabeard
+charles nodier gutenberg	books	gutenberg.org/ebooks/author/7795	books	kind:author,sitelinks:30+	test	charlesnodier
+edward jenner gutenberg	books	gutenberg.org/ebooks/author/33899	books	kind:author,sitelinks:30+	test	edwardjenner
+ella wheeler wilcox gutenberg	books	gutenberg.org/ebooks/author/1138	books	kind:author,sitelinks:30+	test	ellawheelerwilcox
+ernst abbe gutenberg	books	gutenberg.org/ebooks/author/8866	books	kind:author,sitelinks:30+	test	ernstabbe
+francesco crispi gutenberg	books	gutenberg.org/ebooks/author/37976	books	kind:author,sitelinks:30+	test	francescocrispi
+georg kaiser gutenberg	books	gutenberg.org/ebooks/author/51206	books	kind:author,sitelinks:30+	test	georgkaiser
+george bancroft gutenberg	books	gutenberg.org/ebooks/author/32221	books	kind:author,sitelinks:30+	test	georgebancroft
+george brinton mcclellan gutenberg	books	gutenberg.org/ebooks/author/54710	books	kind:author,sitelinks:30+	test	georgebmcclellan
+georges cuvier gutenberg	books	gutenberg.org/ebooks/author/52186	books	kind:author,sitelinks:30+	test	georgescuvier
+hermann ebbinghaus gutenberg	books	gutenberg.org/ebooks/author/47058	books	kind:author,sitelinks:30+	test	hermannebbinghaus
+james blish gutenberg	books	gutenberg.org/ebooks/author/25608	books	kind:author,sitelinks:30+	test	jamesblish
+jean meslier gutenberg	books	gutenberg.org/ebooks/author/7485	books	kind:author,sitelinks:30+	test	jeanmeslier
+jean moréas gutenberg	books	gutenberg.org/ebooks/author/52317	books	kind:author,sitelinks:30+	test	jeanmoras
+jean-françois regnard gutenberg	books	gutenberg.org/ebooks/author/1551	books	kind:author,sitelinks:30+	test	jeanfranoisregnard
+jerome k. jerome gutenberg	books	gutenberg.org/ebooks/author/173	books	kind:author,sitelinks:30+	test	jeromekjerome
+john reed gutenberg	books	gutenberg.org/ebooks/author/1109	books	kind:author,sitelinks:30+	test	johnreedjournalist
+john vanbrugh gutenberg	books	gutenberg.org/ebooks/author/46244	books	kind:author,sitelinks:30+	test	johnvanbrugh
+joseph butler gutenberg	books	gutenberg.org/ebooks/author/1116	books	kind:author,sitelinks:30+	test	josephbutler
+louis-sébastien mercier gutenberg	books	gutenberg.org/ebooks/author/42296	books	kind:author,sitelinks:30+	test	louissbastienmercier
+michael roger oldfield thomas gutenberg	books	gutenberg.org/ebooks/author/56083	books	kind:author,sitelinks:30+	test	oldfieldthomas
+miguel de unamuno gutenberg	books	gutenberg.org/ebooks/author/5605	books	kind:author,sitelinks:30+	test	migueldeunamuno
+natalie clifford barney gutenberg	books	gutenberg.org/ebooks/author/45595	books	kind:author,sitelinks:30+	test	nataliecliffordbarney
+oswald spengler gutenberg	books	gutenberg.org/ebooks/author/56648	books	kind:author,sitelinks:30+	test	oswaldspengler
+ouyang xiu gutenberg	books	gutenberg.org/ebooks/author/31150	books	kind:author,sitelinks:30+	test	ouyangxiu
+rebecca west gutenberg	books	gutenberg.org/ebooks/author/6499	books	kind:author,sitelinks:30+	test	rebeccawest
+robert ezra park gutenberg	books	gutenberg.org/ebooks/author/33365	books	kind:author,sitelinks:30+	test	robertepark
+roy chapman andrews gutenberg	books	gutenberg.org/ebooks/author/4301	books	kind:author,sitelinks:30+	test	roychapmanandrews
+samuel taylor coleridge gutenberg	books	gutenberg.org/ebooks/author/95	books	kind:author,sitelinks:30+	test	samueltaylorcoleridge
+sherwood anderson gutenberg	books	gutenberg.org/ebooks/author/231	books	kind:author,sitelinks:30+	test	sherwoodanderson
+thomas carlyle gutenberg	books	gutenberg.org/ebooks/author/523	books	kind:author,sitelinks:30+	test	thomascarlyle
+united states geological survey gutenberg	books	gutenberg.org/ebooks/author/396	books	kind:author,sitelinks:30+	test	unitedstatesgeologicalsurvey
+vitruvius gutenberg	books	gutenberg.org/ebooks/author/9180	books	kind:author,sitelinks:30+	test	vitruvius
+wilhelm hauff gutenberg	books	gutenberg.org/ebooks/author/2125	books	kind:author,sitelinks:30+	test	wilhelmhauff
+william holman hunt gutenberg	books	gutenberg.org/ebooks/author/57383	books	kind:author,sitelinks:30+	test	williamholmanhunt
+woodrow wilson gutenberg	books	gutenberg.org/ebooks/author/1689	books	kind:author,sitelinks:30+	test	woodrowwilson
+xuande emperor gutenberg	books	gutenberg.org/ebooks/author/34623	books	kind:author,sitelinks:30+	test	xuandeemperor
+yvette guilbert gutenberg	books	gutenberg.org/ebooks/author/53920	books	kind:author,sitelinks:30+	test	yvetteguilbert
+émile jaques-dalcroze gutenberg	books	gutenberg.org/ebooks/author/24837	books	kind:author,sitelinks:30+	test	milejaquesdalcroze
+a personal record gutenberg	books	gutenberg.org/ebooks/687	books	kind:book,sitelinks:1-9	test	apersonalrecord
+afloat and ashore gutenberg	books	gutenberg.org/ebooks/8647	books	kind:book,sitelinks:1-9	test	afloatandashore
+beyond the door gutenberg	books	gutenberg.org/ebooks/28644	books	kind:book,sitelinks:1-9	test	beyondthedoorshortstory
+clotel gutenberg	books	gutenberg.org/ebooks/2046	books	kind:book,sitelinks:1-9	test	clotel
+cottage economy gutenberg	books	gutenberg.org/ebooks/32863	books	kind:book,sitelinks:1-9	test	cottageeconomy
+den vidtudraabte besættelse udi thisted gutenberg	books	gutenberg.org/ebooks/34213	books	kind:book,sitelinks:1-9	test	Q27919128
+dreamer's world gutenberg	books	gutenberg.org/ebooks/58670	books	kind:book,sitelinks:1-9	test	Q68082604
+edison's conquest of mars gutenberg	books	gutenberg.org/ebooks/19141	books	kind:book,sitelinks:1-9	test	edisonsconquestofmars
+elämäni (finnish) gutenberg	books	gutenberg.org/ebooks/58278	books	kind:book,sitelinks:1-9	test	Q68086256
+flower o' the peach gutenberg	books	gutenberg.org/ebooks/44195	books	kind:book,sitelinks:1-9	test	Q125544143
+gaudissart ii gutenberg	books	gutenberg.org/ebooks/1475	books	kind:book,sitelinks:1-9	test	gaudissartii
+gladiator gutenberg	books	gutenberg.org/ebooks/42914	books	kind:book,sitelinks:1-9	test	gladiatornovel
+hans råskov gutenberg	books	gutenberg.org/ebooks/41956	books	kind:book,sitelinks:1-9	test	Q28148956
+last enemy gutenberg	books	gutenberg.org/ebooks/18800	books	kind:book,sitelinks:1-9	test	lastenemy
+les musardises gutenberg	books	gutenberg.org/ebooks/57762	books	kind:book,sitelinks:1-9	test	Q13100892
+lisbeth longfrock gutenberg	books	gutenberg.org/ebooks/26348	books	kind:book,sitelinks:1-9	test	Q139819872
+lähtevien laivojen kaupunki (finnish) gutenberg	books	gutenberg.org/ebooks/56559	books	kind:book,sitelinks:1-9	test	Q68823984
+molière (french) gutenberg	books	gutenberg.org/ebooks/57270	books	kind:book,sitelinks:1-9	test	Q96245604
+mycenæ gutenberg	books	gutenberg.org/ebooks/56940	books	kind:book,sitelinks:1-9	test	Q123906540
+north american wild flowers gutenberg	books	gutenberg.org/ebooks/56288	books	kind:book,sitelinks:1-9	test	Q51511010
+one of ours gutenberg	books	gutenberg.org/ebooks/2369	books	kind:book,sitelinks:1-9	test	Q119801660
+phineas finn gutenberg	books	gutenberg.org/ebooks/18000	books	kind:book,sitelinks:1-9	test	phineasfinn
+roads of destiny gutenberg	books	gutenberg.org/ebooks/1646	books	kind:book,sitelinks:1-9	test	Q121177573
+rocky mountain national park, colorado gutenberg	books	gutenberg.org/ebooks/58561	books	kind:book,sitelinks:1-9	test	Q68081778
+sailing alone around the world gutenberg	books	gutenberg.org/ebooks/6317	books	kind:book,sitelinks:1-9	test	sailingalonearoundtheworld
+samling af swenska ordspråk gutenberg	books	gutenberg.org/ebooks/56567	books	kind:book,sitelinks:1-9	test	Q68823974
+second stage lensmen gutenberg	books	gutenberg.org/ebooks/70494	books	kind:book,sitelinks:1-9	test	secondstagelensmen
+sir harry hotspur of humblethwaite gutenberg	books	gutenberg.org/ebooks/27712	books	kind:book,sitelinks:1-9	test	sirharryhotspurofhumblethwaite
+skylark of valeron gutenberg	books	gutenberg.org/ebooks/68609	books	kind:book,sitelinks:1-9	test	skylarkofvaleron
+spanish john gutenberg	books	gutenberg.org/ebooks/61224	books	kind:book,sitelinks:1-9	test	Q96245640
+the adventures of roderick random gutenberg	books	gutenberg.org/ebooks/4085	books	kind:book,sitelinks:1-9	test	theadventuresofroderickrandom
+the autobiography of a slander gutenberg	books	gutenberg.org/ebooks/1273	books	kind:book,sitelinks:1-9	test	Q140826728
+the book of husbandry gutenberg	books	gutenberg.org/ebooks/57457	books	kind:book,sitelinks:1-9	test	Q12902303
+the book of the sword gutenberg	books	gutenberg.org/ebooks/61751	books	kind:book,sitelinks:1-9	test	Q89671431
+the country house gutenberg	books	gutenberg.org/ebooks/41781	books	kind:book,sitelinks:1-9	test	Q134934721
+the d'arblay mystery gutenberg	books	gutenberg.org/ebooks/70996	books	kind:book,sitelinks:1-9	test	Q26219436
+the disappearance of kimball webb gutenberg	books	gutenberg.org/ebooks/59060	books	kind:book,sitelinks:1-9	test	Q68081522
+the enchanted burro gutenberg	books	gutenberg.org/ebooks/58954	books	kind:book,sitelinks:1-9	test	Q68081684
+the message gutenberg	books	gutenberg.org/ebooks/1189	books	kind:book,sitelinks:1-9	test	lemessage
+the old english baron gutenberg	books	gutenberg.org/ebooks/5182	books	kind:book,sitelinks:1-9	test	theoldenglishbaron
+the people of the mist gutenberg	books	gutenberg.org/ebooks/6769	books	kind:book,sitelinks:1-9	test	thepeopleofthemist
+the pleistocene of north america gutenberg	books	gutenberg.org/ebooks/61765	books	kind:book,sitelinks:1-9	test	Q89888716
+the scarecrow of oz gutenberg	books	gutenberg.org/ebooks/957	books	kind:book,sitelinks:1-9	test	thescarecrowofoz
+the sun also rises gutenberg	books	gutenberg.org/ebooks/67138	books	kind:book,sitelinks:1-9	test	Q136338859
+the works of max beerbohm gutenberg	books	gutenberg.org/ebooks/1859	books	kind:book,sitelinks:1-9	test	theworksofmaxbeerbohm
+the world factbook 2004 gutenberg	books	gutenberg.org/ebooks/27559	books	kind:book,sitelinks:1-9	test	Q19037581
+the wrecker gutenberg	books	gutenberg.org/ebooks/1024	books	kind:book,sitelinks:1-9	test	thewreckerstevensonnovel
+to london town gutenberg	books	gutenberg.org/ebooks/58282	books	kind:book,sitelinks:1-9	test	Q68085828
+to whom this may come gutenberg	books	gutenberg.org/ebooks/22704	books	kind:book,sitelinks:1-9	test	towhomthismaycome
+une fille d'ève gutenberg	books	gutenberg.org/ebooks/1481	books	kind:book,sitelinks:1-9	test	Q2564464
+venus and adonis gutenberg	books	gutenberg.org/ebooks/1045	books	kind:book,sitelinks:1-9	test	Q140809942
+vrouwenkiesrecht gutenberg	books	gutenberg.org/ebooks/21922	books	kind:book,sitelinks:1-9	test	Q133467927
+welcome martians! gutenberg	books	gutenberg.org/ebooks/58639	books	kind:book,sitelinks:1-9	test	Q68082656
+whirligigs gutenberg	books	gutenberg.org/ebooks/1595	books	kind:book,sitelinks:1-9	test	Q4228091
+world of mockery gutenberg	books	gutenberg.org/ebooks/61904	books	kind:book,sitelinks:1-9	test	Q91834857
+a martian odyssey gutenberg	books	gutenberg.org/ebooks/23731	books	kind:book,sitelinks:10-29	test	amartianodyssey
+almayer's folly gutenberg	books	gutenberg.org/ebooks/720	books	kind:book,sitelinks:10-29	test	almayersfolly
+babbitt gutenberg	books	gutenberg.org/ebooks/1156	books	kind:book,sitelinks:10-29	test	babbittnovel
+confessions of an english opium-eater gutenberg	books	gutenberg.org/ebooks/2040	books	kind:book,sitelinks:10-29	test	confessionsofanenglishopiumeater
+dua libro gutenberg	books	gutenberg.org/ebooks/20006	books	kind:book,sitelinks:10-29	test	dualibro
+effi briest gutenberg	books	gutenberg.org/ebooks/5323	books	kind:book,sitelinks:10-29	test	effibriest
+far from the madding crowd gutenberg	books	gutenberg.org/ebooks/107	books	kind:book,sitelinks:10-29	test	farfromthemaddingcrowd
+futurist manifesto gutenberg	books	gutenberg.org/ebooks/28144	books	kind:book,sitelinks:10-29	test	manifestooffuturism
+girolamo da treviso the younger gutenberg	books	gutenberg.org/ebooks/28421	books	kind:book,sitelinks:10-29	test	girolamodatreviso
+götz von berlichingen gutenberg	books	gutenberg.org/ebooks/2321	books	kind:book,sitelinks:10-29	test	gtzvonberlichingengoethe
+heinrich von ofterdingen gutenberg	books	gutenberg.org/ebooks/31873	books	kind:book,sitelinks:10-29	test	heinrichvonofterdingen
+holinshed's chronicles gutenberg	books	gutenberg.org/ebooks/16496	books	kind:book,sitelinks:10-29	test	holinshedschronicles
+howards end gutenberg	books	gutenberg.org/ebooks/22452|gutenberg.org/ebooks/2891	books	kind:book,sitelinks:10-29	test	howardsend
+in our time gutenberg	books	gutenberg.org/ebooks/61085	books	kind:book,sitelinks:10-29	test	inourtimeshortstorycollection
+jacob's room gutenberg	books	gutenberg.org/ebooks/5670	books	kind:book,sitelinks:10-29	test	jacobsroom
+josephine mutzenbacher gutenberg	books	gutenberg.org/ebooks/31284	books	kind:book,sitelinks:10-29	test	josephinemutzenbacher
+kidnapped gutenberg	books	gutenberg.org/ebooks/421|gutenberg.org/ebooks/56562	books	kind:book,sitelinks:10-29	test	kidnappednovel
+l'assommoir gutenberg	books	gutenberg.org/ebooks/8558	books	kind:book,sitelinks:10-29	test	lassommoir
+la bête humaine gutenberg	books	gutenberg.org/ebooks/5154	books	kind:book,sitelinks:10-29	test	labtehumaine
+la débâcle gutenberg	books	gutenberg.org/ebooks/17831	books	kind:book,sitelinks:10-29	test	ladbcle
+lady susan gutenberg	books	gutenberg.org/ebooks/946	books	kind:book,sitelinks:10-29	test	ladysusan
+lady windermere's fan gutenberg	books	gutenberg.org/ebooks/790	books	kind:book,sitelinks:10-29	test	ladywindermeresfan
+le ventre de paris gutenberg	books	gutenberg.org/ebooks/6470	books	kind:book,sitelinks:10-29	test	leventredeparis
+moll flanders gutenberg	books	gutenberg.org/ebooks/370	books	kind:book,sitelinks:10-29	test	mollflanders
+montezuma's daughter gutenberg	books	gutenberg.org/ebooks/1848	books	kind:book,sitelinks:10-29	test	montezumasdaughter
+nana gutenberg	books	gutenberg.org/ebooks/5250	books	kind:book,sitelinks:10-29	test	nananovel
+paul et virginie gutenberg	books	gutenberg.org/ebooks/10859	books	kind:book,sitelinks:10-29	test	pauletvirginie
+scaramouche gutenberg	books	gutenberg.org/ebooks/1947	books	kind:book,sitelinks:10-29	test	scaramouchenovel
+shirley gutenberg	books	gutenberg.org/ebooks/30486	books	kind:book,sitelinks:10-29	test	shirleynovel
+smalcald articles gutenberg	books	gutenberg.org/ebooks/273	books	kind:book,sitelinks:10-29	test	smalcaldarticles
+sonnets from the portuguese gutenberg	books	gutenberg.org/ebooks/2002	books	kind:book,sitelinks:10-29	test	sonnetsfromtheportuguese
+the autobiography of benjamin franklin gutenberg	books	gutenberg.org/ebooks/22016	books	kind:book,sitelinks:10-29	test	theautobiographyofbenjaminfranklin
+the ballad of reading gaol gutenberg	books	gutenberg.org/ebooks/301	books	kind:book,sitelinks:10-29	test	theballadofreadinggaol
+the battle of maldon gutenberg	books	gutenberg.org/ebooks/15879	books	kind:book,sitelinks:10-29	test	thebattleofmaldon
+the black tulip gutenberg	books	gutenberg.org/ebooks/965	books	kind:book,sitelinks:10-29	test	theblacktulip
+the chessmen of mars gutenberg	books	gutenberg.org/ebooks/1153	books	kind:book,sitelinks:10-29	test	thechessmenofmars
+the confusions of young törless gutenberg	books	gutenberg.org/ebooks/34717	books	kind:book,sitelinks:10-29	test	theconfusionsofyoungtrless
+the emperor of portugallia gutenberg	books	gutenberg.org/ebooks/14356	books	kind:book,sitelinks:10-29	test	theemperorofportugallia
+the fable of the bees gutenberg	books	gutenberg.org/ebooks/57260	books	kind:book,sitelinks:10-29	test	thefableofthebees
+the festival gutenberg	books	gutenberg.org/ebooks/68553	books	kind:book,sitelinks:10-29	test	thefestivalshortstory
+the golden bowl gutenberg	books	gutenberg.org/ebooks/4264	books	kind:book,sitelinks:10-29	test	thegoldenbowl
+the house at pooh corner gutenberg	books	gutenberg.org/ebooks/67098	books	kind:book,sitelinks:10-29	test	thehouseatpoohcorner
+the king of elfland's daughter gutenberg	books	gutenberg.org/ebooks/61077	books	kind:book,sitelinks:10-29	test	thekingofelflandsdaughter
+the lady of the lake gutenberg	books	gutenberg.org/ebooks/3011	books	kind:book,sitelinks:10-29	test	theladyofthelakepoem
+the mayor of casterbridge gutenberg	books	gutenberg.org/ebooks/143	books	kind:book,sitelinks:10-29	test	themayorofcasterbridge
+the mystery of marie rogêt gutenberg	books	gutenberg.org/ebooks/2147	books	kind:book,sitelinks:10-29	test	themysteryofmarierogt
+the painted veil gutenberg	books	gutenberg.org/ebooks/64682	books	kind:book,sitelinks:10-29	test	thepaintedveilnovel
+the phoenix and the turtle gutenberg	books	gutenberg.org/ebooks/1525	books	kind:book,sitelinks:10-29	test	thephoenixandtheturtle
+the rape of lucrece gutenberg	books	gutenberg.org/ebooks/1505	books	kind:book,sitelinks:10-29	test	therapeoflucrece
+the secret of chimneys gutenberg	books	gutenberg.org/ebooks/65238	books	kind:book,sitelinks:10-29	test	thesecretofchimneys
+the silver key gutenberg	books	gutenberg.org/ebooks/70478	books	kind:book,sitelinks:10-29	test	thesilverkey
+the star rover gutenberg	books	gutenberg.org/ebooks/1162	books	kind:book,sitelinks:10-29	test	thestarrover
+the talisman gutenberg	books	gutenberg.org/ebooks/1377	books	kind:book,sitelinks:10-29	test	thetalismanscottnovel
+the valley of the moon gutenberg	books	gutenberg.org/ebooks/1449	books	kind:book,sitelinks:10-29	test	thevalleyofthemoonnovel
+this side of paradise gutenberg	books	gutenberg.org/ebooks/805	books	kind:book,sitelinks:10-29	test	thissideofparadise
+three men on the bummel gutenberg	books	gutenberg.org/ebooks/2183	books	kind:book,sitelinks:10-29	test	threemenonthebummel
+typee gutenberg	books	gutenberg.org/ebooks/1900	books	kind:book,sitelinks:10-29	test	typee
+unto this last gutenberg	books	gutenberg.org/ebooks/36541	books	kind:book,sitelinks:10-29	test	untothislast
+zoonomia gutenberg	books	gutenberg.org/ebooks/15707	books	kind:book,sitelinks:10-29	test	zoonomia
+a christmas carol gutenberg	books	gutenberg.org/ebooks/46	books	kind:book,sitelinks:30+	test	achristmascarol
+a scandal in bohemia gutenberg	books	gutenberg.org/ebooks/1661	books	kind:book,sitelinks:30+	test	ascandalinbohemia
+a tale of two cities gutenberg	books	gutenberg.org/ebooks/98	books	kind:book,sitelinks:30+	test	ataleoftwocities
+an antarctic mystery gutenberg	books	gutenberg.org/ebooks/10339	books	kind:book,sitelinks:30+	test	anantarcticmystery
+anne of green gables gutenberg	books	gutenberg.org/ebooks/64365	books	kind:book,sitelinks:30+	test	anneofgreengables
+around the moon gutenberg	books	gutenberg.org/ebooks/16457	books	kind:book,sitelinks:30+	test	aroundthemoon
+bleak house gutenberg	books	gutenberg.org/ebooks/1023	books	kind:book,sitelinks:30+	test	bleakhouse
+candide gutenberg	books	gutenberg.org/ebooks/19942	books	kind:book,sitelinks:30+	test	candide
+code of hammurabi gutenberg	books	gutenberg.org/ebooks/17150	books	kind:book,sitelinks:30+	test	codeofhammurabi
+crime and punishment gutenberg	books	gutenberg.org/ebooks/2554	books	kind:book,sitelinks:30+	test	crimeandpunishment
+critique of practical reason gutenberg	books	gutenberg.org/ebooks/5683	books	kind:book,sitelinks:30+	test	critiqueofpracticalreason
+daphnis and chloe gutenberg	books	gutenberg.org/ebooks/55639	books	kind:book,sitelinks:30+	test	daphnisandchloe
+david copperfield gutenberg	books	gutenberg.org/ebooks/766	books	kind:book,sitelinks:30+	test	davidcopperfield
+democracy in america gutenberg	books	gutenberg.org/ebooks/816	books	kind:book,sitelinks:30+	test	democracyinamerica
+demons gutenberg	books	gutenberg.org/ebooks/8117	books	kind:book,sitelinks:30+	test	demonsdostoevskynovel
+discourse on the method gutenberg	books	gutenberg.org/ebooks/13846	books	kind:book,sitelinks:30+	test	discourseonthemethod
+ecce homo gutenberg	books	gutenberg.org/ebooks/7202	books	kind:book,sitelinks:30+	test	eccehomobook
+emma gutenberg	books	gutenberg.org/ebooks/158	books	kind:book,sitelinks:30+	test	emmanovel
+essays gutenberg	books	gutenberg.org/ebooks/3600	books	kind:book,sitelinks:30+	test	essaysmontaigne
+eugénie grandet gutenberg	books	gutenberg.org/ebooks/11049	books	kind:book,sitelinks:30+	test	eugniegrandet
+first folio gutenberg	books	gutenberg.org/ebooks/2270	books	kind:book,sitelinks:30+	test	firstfolio
+flatland gutenberg	books	gutenberg.org/ebooks/201	books	kind:book,sitelinks:30+	test	flatland
+gargantua and pantagruel gutenberg	books	gutenberg.org/ebooks/1200	books	kind:book,sitelinks:30+	test	gargantuaandpantagruel
+great expectations gutenberg	books	gutenberg.org/ebooks/1400	books	kind:book,sitelinks:30+	test	greatexpectations
+hedda gabler gutenberg	books	gutenberg.org/ebooks/4093	books	kind:book,sitelinks:30+	test	heddagabler
+henry v gutenberg	books	gutenberg.org/ebooks/1119|gutenberg.org/ebooks/1521|gutenberg.org/ebooks/1784	books	kind:book,sitelinks:30+	test	henryvplay
+ivanhoe gutenberg	books	gutenberg.org/ebooks/82	books	kind:book,sitelinks:30+	test	ivanhoe
+les fleurs du mal gutenberg	books	gutenberg.org/ebooks/6099	books	kind:book,sitelinks:30+	test	lesfleursdumal
+les liaisons dangereuses gutenberg	books	gutenberg.org/ebooks/52006	books	kind:book,sitelinks:30+	test	lesliaisonsdangereuses
+max havelaar gutenberg	books	gutenberg.org/ebooks/11024	books	kind:book,sitelinks:30+	test	maxhavelaar
+meditations gutenberg	books	gutenberg.org/ebooks/2680	books	kind:book,sitelinks:30+	test	meditations
+nicholas nickleby gutenberg	books	gutenberg.org/ebooks/967	books	kind:book,sitelinks:30+	test	nicholasnickleby
+ninety-five theses gutenberg	books	gutenberg.org/ebooks/274	books	kind:book,sitelinks:30+	test	ninetyfivetheses
+orlando furioso gutenberg	books	gutenberg.org/ebooks/3747	books	kind:book,sitelinks:30+	test	orlandofurioso
+peter pan gutenberg	books	gutenberg.org/ebooks/16	books	kind:book,sitelinks:30+	test	peterpanplayandnovel
+poor folk gutenberg	books	gutenberg.org/ebooks/2302	books	kind:book,sitelinks:30+	test	poorfolk
+prose edda gutenberg	books	gutenberg.org/ebooks/18947	books	kind:book,sitelinks:30+	test	proseedda
+res gestae divi augusti gutenberg	books	gutenberg.org/ebooks/66595	books	kind:book,sitelinks:30+	test	resgestaediviaugusti
+rosary gutenberg	books	gutenberg.org/ebooks/58213	books	kind:book,sitelinks:30+	test	rosary
+rule of saint benedict gutenberg	books	gutenberg.org/ebooks/50040	books	kind:book,sitelinks:30+	test	ruleofsaintbenedict
+the adventures of sherlock holmes gutenberg	books	gutenberg.org/ebooks/1661	books	kind:book,sitelinks:30+	test	theadventuresofsherlockholmes
+the big four gutenberg	books	gutenberg.org/ebooks/70114	books	kind:book,sitelinks:30+	test	thebigfournovel
+the call of cthulhu gutenberg	books	gutenberg.org/ebooks/68283	books	kind:book,sitelinks:30+	test	thecallofcthulhu
+the canterbury tales gutenberg	books	gutenberg.org/ebooks/2383	books	kind:book,sitelinks:30+	test	thecanterburytales
+the communist manifesto gutenberg	books	gutenberg.org/ebooks/61	books	kind:book,sitelinks:30+	test	thecommunistmanifesto
+the decameron gutenberg	books	gutenberg.org/ebooks/23700	books	kind:book,sitelinks:30+	test	thedecameron
+the divine comedy gutenberg	books	gutenberg.org/ebooks/57303	books	kind:book,sitelinks:30+	test	divinecomedy
+the gambler gutenberg	books	gutenberg.org/ebooks/2197	books	kind:book,sitelinks:30+	test	thegamblernovel
+the merchant of venice gutenberg	books	gutenberg.org/ebooks/2243	books	kind:book,sitelinks:30+	test	themerchantofvenice
+the phantom of the opera gutenberg	books	gutenberg.org/ebooks/175	books	kind:book,sitelinks:30+	test	thephantomoftheoperanovel
+the pilgrim’s progress gutenberg	books	gutenberg.org/ebooks/131	books	kind:book,sitelinks:30+	test	thepilgrimsprogress
+the prince gutenberg	books	gutenberg.org/ebooks/1232|gutenberg.org/ebooks/57037	books	kind:book,sitelinks:30+	test	theprince
+the scarlet letter gutenberg	books	gutenberg.org/ebooks/33	books	kind:book,sitelinks:30+	test	thescarletletter
+the scarlet pimpernel gutenberg	books	gutenberg.org/ebooks/60	books	kind:book,sitelinks:30+	test	thescarletpimpernel
+the tale of peter rabbit gutenberg	books	gutenberg.org/ebooks/14838	books	kind:book,sitelinks:30+	test	thetaleofpeterrabbit
+the trial gutenberg	books	gutenberg.org/ebooks/7849	books	kind:book,sitelinks:30+	test	thetrial
+tirant lo blanc gutenberg	books	gutenberg.org/ebooks/378	books	kind:book,sitelinks:30+	test	tirantloblanch
+treasure island gutenberg	books	gutenberg.org/ebooks/120	books	kind:book,sitelinks:30+	test	treasureisland
+twenty years after gutenberg	books	gutenberg.org/ebooks/1259	books	kind:book,sitelinks:30+	test	twentyyearsafter
+vita nuova gutenberg	books	gutenberg.org/ebooks/41085	books	kind:book,sitelinks:30+	test	lavitanuova

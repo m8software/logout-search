@@ -1,0 +1,43 @@
+# Controls for the descriptive-site work: queries about a KIND of thing where the article
+# (or an explanation) is the right answer, not a list of sites. Judged with RELEVANT.
+# A kinds tier must not push the article out of the top 5 on these.
+how does a password manager work
+history of social media
+what is a vpn
+how does video streaming work
+what is cloud computing
+history of online dating
+what is a cryptocurrency exchange
+how do search engines work
+what is web hosting
+history of the world wide web
+how does email encryption work
+what is two factor authentication
+peer to peer file sharing history
+what is a content delivery network
+how do podcasts make money
+what is a url shortener
+what is open source software
+how does gps navigation work
+history of video games
+what is a crowdfunding campaign
+how does ride sharing work
+what is telehealth
+effects of social media on teenagers
+what is a mind map
+how does text to speech work
+history of the smartphone
+what is machine translation
+how do recommendation algorithms work
+what is a wiki
+history of online shopping
+what is a blog
+what is an ad blocker
+how does dns work
+what is a qr code
+how do dating apps match people
+what is a freelance worker
+history of e-books
+what is a meal kit
+what is an online auction
+how does a price comparison site make money

@@ -1,0 +1,3 @@
+# Sites whose description a release does not show, at their owner's request (G3 D4c).
+# One registrable domain per line, lower case. Requests arrive at help@logout.cloud; add the domain here with the
+# date in a comment above it, and build the next release with OPTOUT_FILE pointing at this file.

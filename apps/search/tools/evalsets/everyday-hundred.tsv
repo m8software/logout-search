@@ -1,0 +1,101 @@
+# everyday-hundred.tsv: 100 searches a first-time visitor might type, written by hand on 2026-11-13 (nobody's history, not from any ranked list). For the "is it ready for people" check with list-judge.py. BAR, fixed before judging: a first page is acceptable when its first row is relevant AND at least half of the rows shown (up to 8) are relevant.
+speakers	product
+headphones	product
+air fryer	product
+running shoes	product
+office chair	product
+laptop	product
+coffee maker	product
+backpack	product
+vacuum cleaner	product
+mattress	product
+winter coat	product
+phone case	product
+electric toothbrush	product
+standing desk	product
+dog food	product
+best wireless earbuds	best
+best budget laptop	best
+best electric car	best
+best mattress for back pain	best
+best credit card for travel	best
+best robot vacuum	best
+best password manager	best
+best streaming service	best
+best hiking boots	best
+best air purifier	best
+how to tie a tie	howto
+how to boil eggs	howto
+how to change a tire	howto
+how to write a resume	howto
+how to take a screenshot on windows	howto
+how to unclog a drain	howto
+how to lose weight	howto
+how to start a garden	howto
+how to jump start a car	howto
+how to get a passport	howto
+how to remove a stain from carpet	howto
+how to cook rice	howto
+how to learn spanish	howto
+how to fix a leaky faucet	howto
+how to invest in stocks	howto
+youtube	nav
+facebook	nav
+amazon	nav
+gmail	nav
+wikipedia	nav
+netflix	nav
+reddit	nav
+weather	nav
+google maps	nav
+espn	nav
+new york times	nav
+craigslist	nav
+zillow	nav
+irs	nav
+usps tracking	nav
+what is inflation	info
+why is the sky blue	info
+how many ounces in a cup	info
+what causes migraines	info
+who invented the telephone	info
+what is a 401k	info
+symptoms of the flu	info
+how does solar power work	info
+what is the capital of australia	info
+how tall is mount everest	info
+what is machine learning	info
+when is daylight saving time	info
+what is a mortgage	info
+how long do cats live	info
+what is the speed of light	info
+chicken soup recipe	everyday
+chocolate chip cookies recipe	everyday
+banana bread	everyday
+pizza dough recipe	everyday
+meal prep ideas	everyday
+tax brackets 2026	everyday
+minimum wage	everyday
+mortgage calculator	everyday
+unemployment benefits	everyday
+renew drivers license	everyday
+social security office	everyday
+cheap flights	everyday
+car insurance	everyday
+student loans	everyday
+health insurance marketplace	everyday
+taylor swift	entity
+lebron james	entity
+barack obama	entity
+the beatles	entity
+star wars	entity
+minecraft	entity
+tesla	entity
+harry potter	entity
+world war 2	entity
+the great gatsby	entity
+python tutorial	tech
+excel formulas	tech
+javascript array methods	tech
+what is my ip	tech
+linux commands	tech

@@ -1,0 +1,1001 @@
+query	category	expected	set	stratum	split	entity
+anna's archive	site	annas-archive.gl	head-brand	views-rank:1-100,template:title,name:only	dev	annasarchive
+chatgpt	site	chatgpt.com	head-brand	views-rank:1-100,template:title,name:only	test	chatgpt
+youtube	site	youtube.com	head-brand	views-rank:1-100,template:title,name:only	dev	youtube
+wikipedia	site	wikipedia.org	head-brand	views-rank:1-100,template:title,name:only	test	wikipedia
+instagram	site	instagram.com	head-brand	views-rank:1-100,template:title,name:only	dev	instagram
+xnxx	site	xnxx.com	head-brand	views-rank:1-100,template:title,name:only	dev	xnxx
+facebook	site	facebook.com	head-brand	views-rank:1-100,template:title,name:only	test	facebook
+chelsea f.c.	site	chelseafc.com	head-brand	views-rank:1-100,template:title,name:only	dev	chelseafc
+anthropic	site	anthropic.com	head-brand	views-rank:1-100,template:title,name:only	test	anthropic
+openai	site	openai.com	head-brand	views-rank:1-100,template:title,name:only	dev	openai
+premier league	site	premierleague.com	head-brand	views-rank:1-100,template:title,name:only	test	premierleague
+bbc world service	site	bbcworldservice.com	head-brand	views-rank:1-100,template:title,name:only	test	bbcworldservice
+whatsapp	site	whatsapp.com	head-brand	views-rank:1-100,template:title,name:only	test	whatsapp
+hugging face	site	huggingface.co	head-brand	views-rank:1-100,template:title,name:only	dev	huggingface
+amazon	site	amazon.com	head-brand	views-rank:1-100,template:title,name:shared	dev	amazoncompany
+microsoft	site	microsoft.com	head-brand	views-rank:1-100,template:title,name:only	test	microsoft
+duckduckgo	site	duckduckgo.com	head-brand	views-rank:1-100,template:title,name:only	test	duckduckgo
+tiktok	site	tiktok.com	head-brand	views-rank:1-100,template:title,name:only	test	tiktok
+windows on the world	site	windowsontheworld.com	head-brand	views-rank:1-100,template:title,name:only	test	windowsontheworld
+bbc	site	bbc.co.uk|bbc.com	head-brand	views-rank:1-100,template:title,name:only	dev	bbc
+reddit	site	reddit.com	head-brand	views-rank:1-100,template:title,name:only	dev	reddit
+netflix	site	netflix.com	head-brand	views-rank:1-100,template:title,name:only	test	netflix
+burning man	site	burningman.org	head-brand	views-rank:1-100,template:title,name:only	test	burningman
+yandex	site	yandex.com	head-brand	views-rank:1-100,template:title,name:only	test	yandex
+nvidia	site	nvidia.com	head-brand	views-rank:1-100,template:title,name:only	test	nvidia
+everton f.c.	site	evertonfc.com	head-brand	views-rank:1-100,template:title,name:only	dev	evertonfc
+1337x	site	1337x.to	head-brand	views-rank:1-100,template:title,name:only	test	1337x
+claude	site	claude.ai	head-brand	views-rank:1-100,template:title,name:shared	dev	claudeai
+wwe	site	wwe.com	head-brand	views-rank:1-100,template:title,name:only	test	wwe
+buffalo bills	site	buffalobills.com	head-brand	views-rank:1-100,template:title,name:only	test	buffalobills
+die linke	site	die-linke.de	head-brand	views-rank:1-100,template:title,name:only	test	dielinke
+kennedy center	site	kennedy-center.org	head-brand	views-rank:1-100,template:title,name:only	dev	kennedycenter
+pbs	site	pbs.org	head-brand	views-rank:1-100,template:title,name:only	dev	pbs
+ac milan	site	acmilan.com	head-brand	views-rank:1-100,template:title,name:only	test	acmilan
+linkedin	site	linkedin.com	head-brand	views-rank:1-100,template:title,name:only	dev	linkedin
+github	site	github.com	head-brand	views-rank:1-100,template:title,name:only	dev	github
+rockstar games	site	rockstargames.com	head-brand	views-rank:1-100,template:title,name:only	test	rockstargames
+nato	site	nato.int	head-brand	views-rank:1-100,template:title,name:only	dev	nato
+telegram	site	telegram.org	head-brand	views-rank:1-100,template:title,name:shared	test	telegramsoftware
+palantir	site	palantir.com	head-brand	views-rank:1-100,template:title,name:only	dev	palantir
+mcdonald's	site	mcdonalds.com	head-brand	views-rank:1-100,template:title,name:only	test	mcdonalds
+wikimedia foundation	site	wikimediafoundation.org	head-brand	views-rank:1-100,template:title,name:only	dev	wikimediafoundation
+wrexham a.f.c.	site	wrexhamafc.co.uk	head-brand	views-rank:1-100,template:title,name:only	dev	wrexhamafc
+dallas cowboys	site	dallascowboys.com	head-brand	views-rank:1-100,template:title,name:only	dev	dallascowboys
+inter miami cf	site	intermiamicf.com	head-brand	views-rank:1-100,template:title,name:only	test	intermiamicf
+chicago bears	site	chicagobears.com	head-brand	views-rank:1-100,template:title,name:only	dev	chicagobears
+blackrock	site	blackrock.com	head-brand	views-rank:1-100,template:title,name:only	dev	blackrock
+stellantis	site	stellantis.com	head-brand	views-rank:1-100,template:title,name:only	test	stellantis
+the walt disney company	site	thewaltdisneycompany.com	head-brand	views-rank:1-100,template:title,name:only	dev	thewaltdisneycompany
+universal pictures	site	universalpictures.com	head-brand	views-rank:1-100,template:title,name:only	dev	universalpictures
+celtic f.c.	site	celticfc.com	head-brand	views-rank:1-100,template:title,name:only	test	celticfc
+walmart	site	walmart.com	head-brand	views-rank:1-100,template:title,name:only	test	walmart
+philadelphia eagles	site	philadelphiaeagles.com	head-brand	views-rank:1-100,template:title,name:only	test	philadelphiaeagles
+bundestag	site	bundestag.de	head-brand	views-rank:1-100,template:title,name:only	dev	bundestag
+as roma	site	asroma.com	head-brand	views-rank:1-100,template:title,name:only	test	asroma
+discord	site	discord.com|discord.gg|discord.new	head-brand	views-rank:1-100,template:title,name:only	dev	discord
+berkshire hathaway	site	berkshirehathaway.com	head-brand	views-rank:1-100,template:title,name:only	test	berkshirehathaway
+fulham f.c.	site	fulhamfc.com	head-brand	views-rank:1-100,template:title,name:only	dev	fulhamfc
+brentford f.c.	site	brentfordfc.com	head-brand	views-rank:1-100,template:title,name:only	test	brentfordfc
+pixar	site	pixar.com	head-brand	views-rank:1-100,template:title,name:only	dev	pixar
+cleveland browns	site	clevelandbrowns.com	head-brand	views-rank:1-100,template:title,name:only	test	clevelandbrowns
+baltimore ravens	site	baltimoreravens.com	head-brand	views-rank:1-100,template:title,name:only	dev	baltimoreravens
+deepseek	site	deepseek.com	head-brand	views-rank:1-100,template:title,name:only	test	deepseek
+mossad	site	mossad.gov.il	head-brand	views-rank:1-100,template:title,name:only	dev	mossad
+london city lionesses	site	londoncitylionesses.com	head-brand	views-rank:1-100,template:title,name:only	test	londoncitylionesses
+bmw	site	bmw.com	head-brand	views-rank:1-100,template:title,name:only	test	bmw
+ssc napoli	site	sscnapoli.it	head-brand	views-rank:1-100,template:title,name:only	test	sscnapoli
+g20	site	g20.org	head-brand	views-rank:1-100,template:title,name:only	dev	g20
+all elite wrestling	site	allelitewrestling.com	head-brand	views-rank:1-100,template:title,name:only	dev	allelitewrestling
+sci-hub	site	sci-hub.ru|sci-hub.st|sci-hub.su	head-brand	views-rank:1-100,template:title,name:only	test	scihub
+pinterest	site	pinterest.com	head-brand	views-rank:1-100,template:title,name:only	dev	pinterest
+heaven's gate	site	heavensgate.com	head-brand	views-rank:1-100,template:title,name:only	dev	heavensgatereligiousgroup
+new york jets	site	newyorkjets.com	head-brand	views-rank:1-100,template:title,name:only	test	newyorkjets
+restore britain	site	restorebritain.org.uk	head-brand	views-rank:1-100,template:title,name:only	test	restorebritain
+millwall f.c.	site	millwallfc.co.uk	head-brand	views-rank:1-100,template:title,name:only	dev	millwallfc
+paris fc	site	parisfc.fr	head-brand	views-rank:1-100,template:title,name:only	test	parisfc
+firefox	site	firefox.com	head-brand	views-rank:1-100,template:title,name:only	test	firefox
+feyenoord	site	feyenoord.com	head-brand	views-rank:1-100,template:title,name:only	dev	feyenoord
+denver broncos	site	denverbroncos.com	head-brand	views-rank:1-100,template:title,name:only	test	denverbroncos
+the guardian	site	theguardian.com	head-brand	views-rank:1-100,template:title,name:only	dev	theguardian
+dollywood	site	dollywood.com	head-brand	views-rank:1-100,template:title,name:only	dev	dollywood
+4chan	site	4chan.org	head-brand	views-rank:1-100,template:title,name:only	test	4chan
+tennessee titans	site	tennesseetitans.com	head-brand	views-rank:1-100,template:title,name:only	test	tennesseetitans
+monty python	site	montypython.com	head-brand	views-rank:1-100,template:title,name:only	test	montypython
+spotify	site	spotify.com	head-brand	views-rank:1-100,template:title,name:only	test	spotify
+bundesliga	site	bundesliga.com	head-brand	views-rank:1-100,template:title,name:only	dev	bundesliga
+miami dolphins	site	miamidolphins.com	head-brand	views-rank:1-100,template:title,name:only	dev	miamidolphins
+rotten tomatoes	site	rottentomatoes.com	head-brand	views-rank:1-100,template:title,name:only	test	rottentomatoes
+sony	site	sony.co.in|sony.com	head-brand	views-rank:1-100,template:title,name:only	dev	sony
+airbus	site	airbus.com	head-brand	views-rank:1-100,template:title,name:only	test	airbus
+valencia cf	site	valenciacf.com	head-brand	views-rank:1-100,template:title,name:only	dev	valenciacf
+ms	site	ms.now	head-brand	views-rank:1-100,template:label,name:only	test	msnow
+atlanta falcons	site	atlantafalcons.com	head-brand	views-rank:1-100,template:title,name:only	dev	atlantafalcons
+samsung	site	samsung.com	head-brand	views-rank:1-100,template:title,name:only	dev	samsung
+detroit lions	site	detroitlions.com	head-brand	views-rank:1-100,template:title,name:only	dev	detroitlions
+adidas	site	adidas.com	head-brand	views-rank:1-100,template:title,name:only	test	adidas
+yabloko	site	yabloko.ru	head-brand	views-rank:1-100,template:title,name:only	test	yabloko
+nasa	site	nasa.gov	head-brand	views-rank:1-100,template:title,name:only	dev	nasa
+mediacorp	site	mediacorp.sg	head-brand	views-rank:1-100,template:title,name:only	dev	mediacorp
+starbucks	site	starbucks.com	head-brand	views-rank:1-100,template:title,name:only	test	starbucks
+ligue 1	site	ligue1.com	head-brand	views-rank:101-300,template:title,name:only	test	ligue1
+costco	site	costco.com	head-brand	views-rank:101-300,template:title,name:only	test	costco
+project 2025	site	project2025.org	head-brand	views-rank:101-300,template:title,name:only	dev	project2025
+jpmorgan chase	site	jpmorganchase.com	head-brand	views-rank:101-300,template:title,name:only	test	jpmorganchase
+royal navy	site	royalnavy.mod.uk	head-brand	views-rank:101-300,template:title,name:only	test	royalnavy
+pan am	site	panam.org	head-brand	views-rank:101-300,template:title,name:only	dev	panam
+capcom	site	capcom.co.jp|capcom.com	head-brand	views-rank:101-300,template:title,name:only	dev	capcom
+yahoo	site	yahoo.com	head-brand	views-rank:101-300,template:title,name:only	test	yahoo
+ryanair	site	ryanair.com	head-brand	views-rank:101-300,template:title,name:only	dev	ryanair
+likud	site	likud.org.il	head-brand	views-rank:101-300,template:title,name:only	test	likud
+snapchat	site	snapchat.com	head-brand	views-rank:101-300,template:title,name:only	dev	snapchat
+hells angels	site	hells-angels.com	head-brand	views-rank:101-300,template:title,name:only	dev	hellsangels
+episcopal church	site	episcopalchurch.org	head-brand	views-rank:101-300,template:title,name:only	test	episcopalchurchunitedstates
+canva	site	canva.com	head-brand	views-rank:101-300,template:title,name:only	dev	canva
+new orleans saints	site	neworleanssaints.com	head-brand	views-rank:101-300,template:title,name:only	test	neworleanssaints
+1xbet	site	1xbet.com	head-brand	views-rank:101-300,template:title,name:only	test	1xbet
+althorp	site	althorp.com	head-brand	views-rank:101-300,template:title,name:only	test	althorp
+houston texans	site	houstontexans.com	head-brand	views-rank:101-300,template:title,name:only	test	houstontexans
+paypal	site	paypal.com	head-brand	views-rank:101-300,template:title,name:only	test	paypal
+boeing	site	boeing.com	head-brand	views-rank:101-300,template:title,name:only	dev	boeing
+bank of america	site	bankofamerica.com	head-brand	views-rank:101-300,template:title,name:only	test	bankofamerica
+fc porto	site	fcporto.pt	head-brand	views-rank:101-300,template:title,name:only	test	fcporto
+acf fiorentina	site	acffiorentina.com	head-brand	views-rank:101-300,template:title,name:only	dev	acffiorentina
+mercedes-benz	site	mercedes-benz.com	head-brand	views-rank:101-300,template:title,name:only	dev	mercedesbenz
+real sociedad	site	realsociedad.eus	head-brand	views-rank:101-300,template:title,name:only	test	realsociedad
+lvmh	site	lvmh.com	head-brand	views-rank:101-300,template:title,name:only	test	lvmh
+nbcuniversal	site	nbcuniversal.com	head-brand	views-rank:101-300,template:title,name:only	dev	nbcuniversal
+nokia	site	nokia.com	head-brand	views-rank:101-300,template:title,name:only	dev	nokia
+waymo	site	waymo.com	head-brand	views-rank:101-300,template:title,name:only	test	waymo
+grok	site	grok.com	head-brand	views-rank:101-300,template:title,name:shared	dev	grokchatbot
+twitch	site	twitch.tv	head-brand	views-rank:101-300,template:title,name:shared	dev	twitchservice
+archive	site	archive.today	head-brand	views-rank:101-300,template:label,name:shared	dev	archivetoday
+nbc	site	nbc.com	head-brand	views-rank:101-300,template:title,name:only	dev	nbc
+emirates	site	emirates.com	head-brand	views-rank:101-300,template:title,name:shared	test	emiratesairline
+southampton f.c.	site	southamptonfc.com	head-brand	views-rank:101-300,template:title,name:only	test	southamptonfc
+enron	site	enron.com	head-brand	views-rank:101-300,template:title,name:only	test	enron
+ebay	site	ebay.com	head-brand	views-rank:101-300,template:title,name:only	dev	ebay
+deloitte	site	deloitte.com	head-brand	views-rank:101-300,template:title,name:only	test	deloitte
+fromsoftware	site	fromsoftware.jp	head-brand	views-rank:101-300,template:title,name:only	test	fromsoftware
+lockheed martin	site	lockheedmartin.com	head-brand	views-rank:101-300,template:title,name:only	test	lockheedmartin
+effective altruism	site	effectivealtruism.org	head-brand	views-rank:101-300,template:title,name:only	dev	effectivealtruism
+revolut	site	revolut.com	head-brand	views-rank:101-300,template:title,name:only	dev	revolut
+ibm	site	ibm.com	head-brand	views-rank:101-300,template:title,name:only	test	ibm
+uefa	site	uefa.com	head-brand	views-rank:101-300,template:title,name:only	test	uefa
+lufthansa	site	lufthansa.com	head-brand	views-rank:101-300,template:title,name:only	dev	lufthansa
+rb leipzig	site	rbleipzig.com	head-brand	views-rank:101-300,template:title,name:only	test	rbleipzig
+fox news	site	foxnews.com	head-brand	views-rank:101-300,template:title,name:only	test	foxnews
+aldi	site	aldi.com	head-brand	views-rank:101-300,template:title,name:only	test	aldi
+cbs	site	cbs.com	head-brand	views-rank:101-300,template:title,name:only	test	cbs
+kojima productions	site	kojimaproductions.jp	head-brand	views-rank:101-300,template:title,name:only	test	kojimaproductions
+indian air force	site	indianairforce.nic.in	head-brand	views-rank:101-300,template:title,name:only	dev	indianairforce
+ss lazio	site	sslazio.it	head-brand	views-rank:101-300,template:title,name:only	test	sslazio
+flydubai	site	flydubai.com	head-brand	views-rank:101-300,template:title,name:only	dev	flydubai
+euronews	site	euronews.com	head-brand	views-rank:101-300,template:title,name:only	test	euronews
+ferrari	site	ferrari.com	head-brand	views-rank:101-300,template:title,name:only	test	ferrari
+wework	site	wework.com	head-brand	views-rank:101-300,template:title,name:only	dev	wework
+aylo	site	aylo.com	head-brand	views-rank:101-300,template:title,name:only	dev	aylo
+hbo	site	hbo.com	head-brand	views-rank:101-300,template:title,name:only	dev	hbo
+sega	site	sega.com	head-brand	views-rank:101-300,template:title,name:only	test	sega
+polymarket	site	polymarket.com	head-brand	views-rank:101-300,template:title,name:only	test	polymarket
+church of england	site	churchofengland.org	head-brand	views-rank:101-300,template:title,name:only	test	churchofengland
+uber	site	uber.com	head-brand	views-rank:101-300,template:title,name:only	test	uber
+goldman sachs	site	goldmansachs.com	head-brand	views-rank:101-300,template:title,name:only	dev	goldmansachs
+20th century studios	site	20thcenturystudios.com	head-brand	views-rank:101-300,template:title,name:only	test	20thcenturystudios
+asml	site	asml.com	head-brand	views-rank:101-300,template:title,name:only	test	asml
+sevilla fc	site	sevillafc.es	head-brand	views-rank:101-300,template:title,name:only	test	sevillafc
+fleetwood town f.c.	site	fleetwoodtownfc.com	head-brand	views-rank:101-300,template:title,name:only	test	fleetwoodtownfc
+lamborghini	site	lamborghini.com	head-brand	views-rank:101-300,template:title,name:only	dev	lamborghini
+kfc	site	kfc.com	head-brand	views-rank:101-300,template:title,name:only	dev	kfc
+tencent	site	tencent.com	head-brand	views-rank:101-300,template:title,name:only	test	tencent
+oecd	site	oecd.org	head-brand	views-rank:101-300,template:title,name:only	test	oecd
+7-eleven	site	7-eleven.com	head-brand	views-rank:101-300,template:title,name:only	dev	7eleven
+porsche	site	porsche.com	head-brand	views-rank:101-300,template:title,name:only	test	porsche
+wikileaks	site	wikileaks.org	head-brand	views-rank:101-300,template:title,name:only	test	wikileaks
+naughty dog	site	naughtydog.com	head-brand	views-rank:101-300,template:title,name:only	dev	naughtydog
+city football group	site	cityfootballgroup.com	head-brand	views-rank:101-300,template:title,name:only	test	cityfootballgroup
+level-5	site	level5.co.jp	head-brand	views-rank:101-300,template:title,name:only	dev	level5company
+salesforce	site	salesforce.com	head-brand	views-rank:101-300,template:title,name:only	test	salesforce
+lowe's	site	lowes.com	head-brand	views-rank:101-300,template:title,name:only	dev	lowes
+geely	site	geely.com	head-brand	views-rank:101-300,template:title,name:only	test	geely
+cathay pacific	site	cathaypacific.com	head-brand	views-rank:101-300,template:title,name:only	dev	cathaypacific
+ikea	site	ikea.com	head-brand	views-rank:101-300,template:title,name:only	dev	ikea
+villarreal cf	site	villarrealcf.es	head-brand	views-rank:101-300,template:title,name:only	dev	villarrealcf
+jesuits	site	jesuits.global	head-brand	views-rank:101-300,template:title,name:only	dev	jesuits
+dailymotion	site	dailymotion.com	head-brand	views-rank:101-300,template:title,name:only	test	dailymotion
+star alliance	site	staralliance.com	head-brand	views-rank:101-300,template:title,name:only	dev	staralliance
+activision	site	activision.com	head-brand	views-rank:101-300,template:title,name:only	test	activision
+rivian	site	rivian.com	head-brand	views-rank:101-300,template:title,name:only	dev	rivian
+pepsico	site	pepsico.com	head-brand	views-rank:101-300,template:title,name:only	test	pepsico
+morgan stanley	site	morganstanley.com	head-brand	views-rank:101-300,template:title,name:only	test	morganstanley
+tsmc	site	tsmc.com	head-brand	views-rank:101-300,template:title,name:only	test	tsmc
+nothing	site	nothing.tech	head-brand	views-rank:101-300,template:title,name:shared	dev	nothingcompany
+indian super league	site	indiansuperleague.com	head-brand	views-rank:101-300,template:title,name:only	dev	indiansuperleague
+rayo vallecano	site	rayovallecano.es	head-brand	views-rank:101-300,template:title,name:only	dev	rayovallecano
+imdb	site	imdb.com	head-brand	views-rank:101-300,template:title,name:only	dev	imdb
+indian army	site	indianarmy.nic.in	head-brand	views-rank:101-300,template:title,name:only	dev	indianarmy
+plaid	site	plaid.cymru	head-brand	views-rank:101-300,template:label,name:shared	dev	plaidcymru
+jaguar land rover	site	jaguarlandrover.com	head-brand	views-rank:101-300,template:title,name:only	dev	jaguarlandrover
+air india	site	airindia.com	head-brand	views-rank:101-300,template:title,name:only	test	airindia
+amd	site	amd.com	head-brand	views-rank:101-300,template:title,name:only	dev	amd
+stoke city f.c.	site	stokecityfc.com	head-brand	views-rank:101-300,template:title,name:only	test	stokecityfc
+usl championship	site	uslchampionship.com	head-brand	views-rank:101-300,template:title,name:only	test	uslchampionship
+chromium	site	chromium.org	head-brand	views-rank:101-300,template:title,name:shared	dev	chromiumwebbrowser
+hbo max	site	hbomax.com	head-brand	views-rank:101-300,template:title,name:only	test	hbomax
+rolling stone	site	rollingstone.com	head-brand	views-rank:101-300,template:title,name:only	test	rollingstone
+motorola	site	motorola.com	head-brand	views-rank:101-300,template:title,name:only	dev	motorola
+nasdaq	site	nasdaq.com	head-brand	views-rank:101-300,template:title,name:only	dev	nasdaq
+british airways	site	britishairways.com	head-brand	views-rank:101-300,template:title,name:only	test	britishairways
+cockroach janta party	site	cockroachjantaparty.org	head-brand	views-rank:101-300,template:title,name:only	test	cockroachjantaparty
+santos fc	site	santosfc.com.br	head-brand	views-rank:101-300,template:title,name:only	dev	santosfc
+polestar	site	polestar.com	head-brand	views-rank:101-300,template:title,name:only	dev	polestar
+chery	site	chery.cn	head-brand	views-rank:101-300,template:title,name:only	test	chery
+home depot	site	homedepot.com	head-brand	views-rank:101-300,template:title,name:only	dev	homedepot
+mi5	site	mi5.gov.uk	head-brand	views-rank:101-300,template:title,name:only	test	mi5
+cd eldense	site	cdeldense.es	head-brand	views-rank:101-300,template:title,name:only	dev	cdeldense
+brave	site	brave.com	head-brand	views-rank:101-300,template:title,name:shared	dev	bravewebbrowser
+eredivisie	site	eredivisie.nl	head-brand	views-rank:101-300,template:title,name:only	test	eredivisie
+bp	site	bp.com	head-brand	views-rank:101-300,template:title,name:only	dev	bp
+deviantart	site	deviantart.com	head-brand	views-rank:101-300,template:title,name:only	dev	deviantart
+unesco	site	unesco.org	head-brand	views-rank:101-300,template:title,name:only	dev	unesco
+airbnb	site	airbnb.com	head-brand	views-rank:101-300,template:title,name:only	test	airbnb
+substack	site	substack.com	head-brand	views-rank:101-300,template:title,name:only	test	substack
+hulu	site	hulu.com	head-brand	views-rank:101-300,template:title,name:only	dev	hulu
+disneyland	site	disneyland.disney.go.com	head-brand	views-rank:101-300,template:title,name:only	test	disneyland
+bilibili	site	bilibili.com	head-brand	views-rank:101-300,template:title,name:only	test	bilibili
+boyz ii men	site	boyziimen.com	head-brand	views-rank:101-300,template:title,name:only	dev	boyziimen
+cloudflare	site	cloudflare.com	head-brand	views-rank:101-300,template:title,name:only	test	cloudflare
+iskcon	site	iskcon.org	head-brand	views-rank:101-300,template:title,name:only	dev	iskcon
+france 24	site	france24.com	head-brand	views-rank:101-300,template:title,name:only	test	france24
+bungie	site	bungie.net	head-brand	views-rank:101-300,template:title,name:only	dev	bungie
+marx brothers	site	marx-brothers.org	head-brand	views-rank:101-300,template:title,name:only	dev	marxbrothers
+unilever	site	unilever.com	head-brand	views-rank:101-300,template:title,name:only	test	unilever
+accenture	site	accenture.com	head-brand	views-rank:101-300,template:title,name:only	test	accenture
+audi	site	audi.co.za|audi.com|audi.de|audi.fr	head-brand	views-rank:101-300,template:title,name:only	dev	audi
+rc strasbourg alsace	site	rcstrasbourgalsace.fr	head-brand	views-rank:101-300,template:title,name:only	test	rcstrasbourgalsace
+archive of our own	site	archiveofourown.org	head-brand	views-rank:101-300,template:title,name:only	test	archiveofourown
+volvo cars	site	volvocars.com	head-brand	views-rank:101-300,template:title,name:only	dev	volvocars
+rc lens	site	rclens.fr	head-brand	views-rank:101-300,template:title,name:only	dev	rclens
+liga mx	site	ligamx.net	head-brand	views-rank:101-300,template:title,name:only	test	ligamx
+kpmg	site	kpmg.com	head-brand	views-rank:101-300,template:title,name:only	test	kpmg
+sears	site	sears.com	head-brand	views-rank:101-300,template:title,name:only	test	sears
+louvre	site	louvre.fr	head-brand	views-rank:101-300,template:title,name:only	dev	louvre
+chick-fil-a	site	chick-fil-a.com	head-brand	views-rank:101-300,template:title,name:only	test	chickfila
+kia	site	kia.com	head-brand	views-rank:101-300,template:title,name:only	dev	kia
+temu	site	temu.com	head-brand	views-rank:101-300,template:title,name:only	dev	temu
+at&t	site	att.com	head-brand	views-rank:101-300,template:title,name:only	test	att
+afc wimbledon	site	afcwimbledon.co.uk	head-brand	views-rank:101-300,template:title,name:only	test	afcwimbledon
+philips	site	philips.com	head-brand	views-rank:101-300,template:title,name:only	test	philips
+illumination	site	illumination.com	head-brand	views-rank:101-300,template:title,name:shared	test	illuminationcompany
+konami	site	konami.com	head-brand	views-rank:101-300,template:title,name:only	dev	konami
+flipkart	site	flipkart.com	head-brand	views-rank:101-300,template:title,name:only	dev	flipkart
+guinness	site	guinness.com	head-brand	views-rank:101-300,template:title,name:only	test	guinness
+bundeswehr	site	bundeswehr.de	head-brand	views-rank:101-300,template:title,name:only	dev	bundeswehr
+federal reserve	site	federalreserve.gov	head-brand	views-rank:101-300,template:title,name:only	test	federalreserve
+mistral	site	mistral.ai	head-brand	views-rank:101-300,template:label,name:shared	test	mistralai
+siemens	site	siemens.com	head-brand	views-rank:101-300,template:title,name:only	test	siemens
+pinkerton	site	pinkerton.com	head-brand	views-rank:101-300,template:title,name:shared	dev	pinkertondetectiveagency
+wizz air	site	wizzair.com	head-brand	views-rank:101-300,template:title,name:only	test	wizzair
+interpol	site	interpol.int	head-brand	views-rank:101-300,template:title,name:only	test	interpol
+rockstar north	site	rockstarnorth.com	head-brand	views-rank:101-300,template:title,name:only	dev	rockstarnorth
+lenovo	site	lenovo.com	head-brand	views-rank:101-300,template:title,name:only	test	lenovo
+amtrak	site	amtrak.com	head-brand	views-rank:101-300,template:title,name:only	dev	amtrak
+tim hortons	site	timhortons.com	head-brand	views-rank:101-300,template:title,name:only	dev	timhortons
+trader joe's	site	traderjoes.com	head-brand	views-rank:101-300,template:title,name:only	test	traderjoes
+intel	site	intel.com	head-brand	views-rank:101-300,template:title,name:only	test	intel
+epic games	site	epicgames.com	head-brand	views-rank:101-300,template:title,name:only	test	epicgames
+cdu/csu	site	cducsu.de	head-brand	views-rank:101-300,template:title,name:only	test	cducsu
+app store	site	appstore.com	head-brand	views-rank:101-300,template:title,name:shared	dev	appstoreapple
+alibaba group	site	alibabagroup.com	head-brand	views-rank:101-300,template:title,name:only	dev	alibabagroup
+one nation	site	onenation.com.au	head-brand	views-rank:101-300,template:title,name:only	test	onenation
+aipac	site	aipac.org	head-brand	views-rank:101-300,template:title,name:only	dev	aipac
+turkish airlines	site	turkishairlines.com	head-brand	views-rank:101-300,template:title,name:only	test	turkishairlines
+atlantic records	site	atlanticrecords.com	head-brand	views-rank:101-300,template:title,name:only	test	atlanticrecords
+bytedance	site	bytedance.com	head-brand	views-rank:101-300,template:title,name:only	dev	bytedance
+southern football league	site	southern-football-league.co.uk	head-brand	views-rank:101-300,template:title,name:only	dev	southernfootballleague
+mondelez international	site	mondelezinternational.com	head-brand	views-rank:101-300,template:title,name:only	test	mondelezinternational
+northrop grumman	site	northropgrumman.com	head-brand	views-rank:101-300,template:title,name:only	dev	northropgrumman
+mazda	site	mazda.com	head-brand	views-rank:101-300,template:title,name:only	dev	mazda
+british museum	site	britishmuseum.org	head-brand	views-rank:101-300,template:title,name:only	dev	britishmuseum
+smosh	site	smosh.com	head-brand	views-rank:101-300,template:title,name:only	dev	smosh
+myspace	site	myspace.com	head-brand	views-rank:101-300,template:title,name:only	dev	myspace
+ymca	site	ymca.int	head-brand	views-rank:101-300,template:title,name:only	dev	ymca
+reuters	site	reuters.com	head-brand	views-rank:101-300,template:title,name:only	test	reuters
+ubisoft	site	ubisoft.com	head-brand	views-rank:101-300,template:title,name:only	dev	ubisoft
+wells fargo	site	wellsfargo.com	head-brand	views-rank:101-300,template:title,name:only	dev	wellsfargo
+laurel and hardy	site	laurel-and-hardy.com	head-brand	views-rank:101-300,template:title,name:only	dev	laurelandhardy
+tata motors	site	tatamotors.com	head-brand	views-rank:101-300,template:title,name:only	dev	tatamotors
+bae systems	site	baesystems.com	head-brand	views-rank:101-300,template:title,name:only	test	baesystems
+diageo	site	diageo.com	head-brand	views-rank:101-300,template:title,name:only	test	diageo
+qantas	site	qantas.com	head-brand	views-rank:101-300,template:title,name:only	dev	qantas
+blenheim palace	site	blenheimpalace.com	head-brand	views-rank:101-300,template:title,name:only	test	blenheimpalace
+watford f.c.	site	watfordfc.com	head-brand	views-rank:101-300,template:title,name:only	test	watfordfc
+la france insoumise	site	lafranceinsoumise.fr	head-brand	views-rank:101-300,template:title,name:only	test	lafranceinsoumise
+senedd	site	senedd.cymru|senedd.wales	head-brand	views-rank:101-300,template:title,name:only	test	senedd
+metacritic	site	metacritic.com	head-brand	views-rank:101-300,template:title,name:only	test	metacritic
+american express	site	americanexpress.com	head-brand	views-rank:101-300,template:title,name:only	dev	americanexpress
+y combinator	site	ycombinator.com	head-brand	views-rank:101-300,template:title,name:shared	dev	ycombinator
+huawei	site	huawei.com	head-brand	views-rank:101-300,template:title,name:only	dev	huawei
+foxconn	site	foxconn.com	head-brand	views-rank:101-300,template:title,name:only	test	foxconn
+activision blizzard	site	activisionblizzard.com	head-brand	views-rank:101-300,template:title,name:only	test	activisionblizzard
+double fine	site	doublefine.com	head-brand	views-rank:301+,template:title,name:only	test	doublefine
+chevrolet	site	chevrolet.com	head-brand	views-rank:301+,template:title,name:only	test	chevrolet
+columbia records	site	columbiarecords.com	head-brand	views-rank:301+,template:title,name:only	test	columbiarecords
+ofi crete f.c.	site	oficretefc.com	head-brand	views-rank:301+,template:title,name:only	test	oficretefc
+maybach	site	maybach.com	head-brand	views-rank:301+,template:title,name:only	test	maybach
+indian navy	site	indiannavy.gov.in	head-brand	views-rank:301+,template:title,name:only	dev	indiannavy
+boca juniors	site	bocajuniors.com.ar	head-brand	views-rank:301+,template:title,name:only	test	bocajuniors
+easyjet	site	easyjet.com	head-brand	views-rank:301+,template:title,name:only	test	easyjet
+aol	site	aol.com	head-brand	views-rank:301+,template:title,name:only	test	aol
+lask	site	lask.at	head-brand	views-rank:301+,template:title,name:shared	dev	lask
+taco bell	site	tacobell.com	head-brand	views-rank:301+,template:title,name:only	test	tacobell
+square enix	site	square-enix.com	head-brand	views-rank:301+,template:title,name:only	dev	squareenix
+louis vuitton	site	louisvuitton.com	head-brand	views-rank:301+,template:title,name:only	dev	louisvuitton
+pwc	site	pwc.com	head-brand	views-rank:301+,template:title,name:only	test	pwc
+wikiquote	site	wikiquote.org	head-brand	views-rank:301+,template:title,name:only	dev	wikiquote
+capcut	site	capcut.com	head-brand	views-rank:301+,template:title,name:only	test	capcut
+salford city f.c.	site	salfordcityfc.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	salfordcityfc
+qatar airways	site	qatarairways.com	head-brand	views-rank:301+,template:title,name:only	test	qatarairways
+daily mail	site	dailymail.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	dailymail
+portsmouth f.c.	site	portsmouthfc.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	portsmouthfc
+shein	site	shein.com	head-brand	views-rank:301+,template:title,name:only	test	shein
+hibernian f.c.	site	hibernianfc.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	hibernianfc
+cadillac	site	cadillac.com	head-brand	views-rank:301+,template:title,name:only	test	cadillac
+fox corporation	site	foxcorporation.com	head-brand	views-rank:301+,template:title,name:only	dev	foxcorporation
+gucci	site	gucci.com	head-brand	views-rank:301+,template:title,name:only	dev	gucci
+sap	site	sap.com	head-brand	views-rank:301+,template:title,name:shared	test	sap
+lg	site	lg.com	head-brand	views-rank:301+,template:title,name:only	dev	lg
+miramax	site	miramax.com	head-brand	views-rank:301+,template:title,name:only	dev	miramax
+the times	site	thetimes.com	head-brand	views-rank:301+,template:title,name:only	test	thetimes
+kibbutz	site	kibbutz.org.il	head-brand	views-rank:301+,template:title,name:only	test	kibbutz
+kmart	site	kmart.com	head-brand	views-rank:301+,template:title,name:only	test	kmart
+klm	site	klm.com	head-brand	views-rank:301+,template:title,name:only	dev	klm
+scratch	site	scratch.mit.edu	head-brand	views-rank:301+,template:title,name:shared	dev	scratchprogramminglanguage
+neuralink	site	neuralink.com	head-brand	views-rank:301+,template:title,name:only	test	neuralink
+samajwadi party	site	samajwadiparty.in	head-brand	views-rank:301+,template:title,name:only	dev	samajwadiparty
+mihoyo	site	mihoyo.com	head-brand	views-rank:301+,template:title,name:only	test	mihoyo
+air china	site	airchina.com	head-brand	views-rank:301+,template:title,name:only	dev	airchina
+virgin atlantic	site	virginatlantic.com	head-brand	views-rank:301+,template:title,name:only	test	virginatlantic
+kiwi farms	site	kiwifarms.net|kiwifarms.ru	head-brand	views-rank:301+,template:title,name:only	dev	kiwifarms
+chicago fire fc	site	chicagofirefc.com	head-brand	views-rank:301+,template:title,name:only	test	chicagofirefc
+rolex	site	rolex.com	head-brand	views-rank:301+,template:title,name:only	test	rolex
+wendy's	site	wendys.com	head-brand	views-rank:301+,template:title,name:only	test	wendys
+politico	site	politico.com	head-brand	views-rank:301+,template:title,name:only	test	politico
+cardiff city f.c.	site	cardiffcityfc.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	cardiffcityfc
+air canada	site	aircanada.com	head-brand	views-rank:301+,template:title,name:only	dev	aircanada
+darpa	site	darpa.mil	head-brand	views-rank:301+,template:title,name:only	dev	darpa
+waze	site	waze.com	head-brand	views-rank:301+,template:title,name:only	dev	waze
+infosys	site	infosys.com	head-brand	views-rank:301+,template:title,name:only	dev	infosys
+sony pictures	site	sonypictures.net	head-brand	views-rank:301+,template:title,name:only	dev	sonypictures
+lidl	site	lidl.de	head-brand	views-rank:301+,template:title,name:only	dev	lidl
+jetblue	site	jetblue.com	head-brand	views-rank:301+,template:title,name:only	dev	jetblue
+jeep	site	jeep.com	head-brand	views-rank:301+,template:title,name:only	dev	jeep
+balmoral castle	site	balmoralcastle.com	head-brand	views-rank:301+,template:title,name:only	dev	balmoralcastle
+elche cf	site	elchecf.es	head-brand	views-rank:301+,template:title,name:only	dev	elchecf
+ineos	site	ineos.com	head-brand	views-rank:301+,template:title,name:only	dev	ineos
+oneworld	site	oneworld.com	head-brand	views-rank:301+,template:title,name:only	dev	oneworld
+hugo boss	site	hugoboss.com	head-brand	views-rank:301+,template:title,name:only	dev	hugoboss
+creative commons	site	creativecommons.org	head-brand	views-rank:301+,template:title,name:only	test	creativecommons
+us cremonese	site	uscremonese.it	head-brand	views-rank:301+,template:title,name:only	test	uscremonese
+tumblr	site	tumblr.com	head-brand	views-rank:301+,template:title,name:only	test	tumblr
+lucid motors	site	lucidmotors.com	head-brand	views-rank:301+,template:title,name:only	dev	lucidmotors
+pbs kids	site	pbskids.org	head-brand	views-rank:301+,template:title,name:only	dev	pbskids
+genoa cfc	site	genoacfc.it	head-brand	views-rank:301+,template:title,name:only	dev	genoacfc
+opec	site	opec.org	head-brand	views-rank:301+,template:title,name:only	dev	opec
+dyson	site	dyson.com	head-brand	views-rank:301+,template:title,name:shared	test	dysoncompany
+kehlsteinhaus	site	kehlsteinhaus.de	head-brand	views-rank:301+,template:title,name:only	test	kehlsteinhaus
+beretta	site	beretta.com	head-brand	views-rank:301+,template:title,name:only	test	beretta
+la galaxy	site	lagalaxy.com	head-brand	views-rank:301+,template:title,name:only	dev	lagalaxy
+uniqlo	site	uniqlo.com	head-brand	views-rank:301+,template:title,name:only	test	uniqlo
+parma calcio 1913	site	parmacalcio1913.com	head-brand	views-rank:301+,template:title,name:only	dev	parmacalcio1913
+kick	site	kick.com	head-brand	views-rank:301+,template:title,name:shared	test	kickservice
+board of peace	site	boardofpeace.org	head-brand	views-rank:301+,template:title,name:only	test	boardofpeace
+dupont	site	dupont.com	head-brand	views-rank:301+,template:title,name:shared	dev	dupont
+skype	site	skype.com	head-brand	views-rank:301+,template:title,name:only	test	skype
+kroger	site	kroger.com	head-brand	views-rank:301+,template:title,name:only	test	kroger
+alstom	site	alstom.com	head-brand	views-rank:301+,template:title,name:only	test	alstom
+dhl	site	dhl.com	head-brand	views-rank:301+,template:title,name:only	test	dhl
+djarum	site	djarum.com	head-brand	views-rank:301+,template:title,name:only	dev	djarum
+kerala blasters fc	site	keralablastersfc.in	head-brand	views-rank:301+,template:title,name:only	test	keralablastersfc
+cisco	site	cisco.com	head-brand	views-rank:301+,template:title,name:only	test	cisco
+aeroflot	site	aeroflot.com	head-brand	views-rank:301+,template:title,name:only	dev	aeroflot
+al arabiya	site	alarabiya.net	head-brand	views-rank:301+,template:title,name:only	dev	alarabiya
+team17	site	team17.com	head-brand	views-rank:301+,template:title,name:only	test	team17
+rcd espanyol	site	rcdespanyol.com	head-brand	views-rank:301+,template:title,name:only	test	rcdespanyol
+mauser	site	mauser.com	head-brand	views-rank:301+,template:title,name:only	test	mauser
+eva air	site	evaair.com	head-brand	views-rank:301+,template:title,name:only	test	evaair
+paok fc	site	paokfc.gr	head-brand	views-rank:301+,template:title,name:only	dev	paokfc
+time	site	time.com	head-brand	views-rank:301+,template:title,name:shared	dev	timemagazine
+lotus cars	site	lotuscars.com	head-brand	views-rank:301+,template:title,name:only	dev	lotuscars
+shopify	site	shopify.com	head-brand	views-rank:301+,template:title,name:only	dev	shopify
+skyteam	site	skyteam.com	head-brand	views-rank:301+,template:title,name:only	dev	skyteam
+blockbuster	site	blockbuster.com	head-brand	views-rank:301+,template:title,name:shared	dev	blockbusterretailer
+converse	site	converse.com	head-brand	views-rank:301+,template:title,name:shared	dev	conversebrand
+dodge	site	dodge.com	head-brand	views-rank:301+,template:title,name:only	dev	dodge
+reading f.c.	site	readingfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	readingfc
+girona fc	site	gironafc.cat	head-brand	views-rank:301+,template:title,name:only	dev	gironafc
+pizza hut	site	pizzahut.com	head-brand	views-rank:301+,template:title,name:only	test	pizzahut
+cupra	site	cupra.com	head-brand	views-rank:301+,template:title,name:shared	dev	cupramarque
+peugeot	site	peugeot.co.uk|peugeot.com|peugeot.com.ar|peugeot.de|peugeot.fr	head-brand	views-rank:301+,template:title,name:only	dev	peugeot
+cognizant	site	cognizant.com	head-brand	views-rank:301+,template:title,name:only	dev	cognizant
+oneplus	site	oneplus.com	head-brand	views-rank:301+,template:title,name:only	test	oneplus
+cadbury	site	cadbury.co.uk	head-brand	views-rank:301+,template:title,name:only	test	cadbury
+elevenlabs	site	elevenlabs.io	head-brand	views-rank:301+,template:title,name:only	dev	elevenlabs
+concacaf	site	concacaf.com	head-brand	views-rank:301+,template:title,name:only	dev	concacaf
+alfa romeo	site	alfaromeo.com	head-brand	views-rank:301+,template:title,name:only	test	alfaromeo
+berghain	site	berghain.berlin	head-brand	views-rank:301+,template:title,name:only	dev	berghain
+kodak	site	kodak.com	head-brand	views-rank:301+,template:title,name:only	dev	kodak
+doordash	site	doordash.com	head-brand	views-rank:301+,template:title,name:only	dev	doordash
+opel	site	opel.com	head-brand	views-rank:301+,template:title,name:only	test	opel
+monolith soft	site	monolithsoft.co.jp	head-brand	views-rank:301+,template:title,name:only	dev	monolithsoft
+capital one	site	capitalone.com	head-brand	views-rank:301+,template:title,name:only	dev	capitalone
+embraer	site	embraer.com	head-brand	views-rank:301+,template:title,name:only	test	embraer
+korean air	site	koreanair.com	head-brand	views-rank:301+,template:title,name:only	test	koreanair
+broadcom	site	broadcom.com	head-brand	views-rank:301+,template:title,name:only	test	broadcom
+barclays	site	barclays.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	barclays
+riyadh air	site	riyadhair.com	head-brand	views-rank:301+,template:title,name:only	dev	riyadhair
+jollibee	site	jollibee.com.ph	head-brand	views-rank:301+,template:title,name:only	dev	jollibee
+yesh atid	site	yeshatid.org.il	head-brand	views-rank:301+,template:title,name:only	dev	yeshatid
+fallingwater	site	fallingwater.org	head-brand	views-rank:301+,template:title,name:only	dev	fallingwater
+sony pictures animation	site	sonypicturesanimation.com	head-brand	views-rank:301+,template:title,name:only	test	sonypicturesanimation
+signal	site	signal.org	head-brand	views-rank:301+,template:title,name:shared	dev	signalsoftware
+shas	site	shas.org.il	head-brand	views-rank:301+,template:title,name:only	test	shas
+craigslist	site	craigslist.org	head-brand	views-rank:301+,template:title,name:only	dev	craigslist
+colorado rockies	site	coloradorockies.com	head-brand	views-rank:301+,template:title,name:only	test	coloradorockies
+ravenna fc	site	ravennafc.it	head-brand	views-rank:301+,template:title,name:only	test	ravennafc
+game freak	site	gamefreak.co.jp	head-brand	views-rank:301+,template:title,name:only	dev	gamefreak
+unitedhealth group	site	unitedhealthgroup.com	head-brand	views-rank:301+,template:title,name:only	dev	unitedhealthgroup
+next.js	site	nextjs.org	head-brand	views-rank:301+,template:title,name:only	dev	nextjs
+npr	site	npr.org	head-brand	views-rank:301+,template:title,name:only	dev	npr
+kering	site	kering.com	head-brand	views-rank:301+,template:title,name:only	dev	kering
+starlux airlines	site	starlux-airlines.com	head-brand	views-rank:301+,template:title,name:only	dev	starluxairlines
+joint list	site	jointlist.org.il	head-brand	views-rank:301+,template:title,name:only	test	jointlist
+fc st. pauli	site	fcstpauli.com	head-brand	views-rank:301+,template:title,name:only	test	fcstpauli
+saic motor	site	saicmotor.com	head-brand	views-rank:301+,template:title,name:only	test	saicmotor
+black lives matter	site	blacklivesmatter.com	head-brand	views-rank:301+,template:title,name:only	dev	blacklivesmatter
+nec nijmegen	site	nec-nijmegen.nl	head-brand	views-rank:301+,template:title,name:only	test	necnijmegen
+fine gael	site	finegael.ie	head-brand	views-rank:301+,template:title,name:only	dev	finegael
+maserati	site	maserati.com	head-brand	views-rank:301+,template:title,name:only	dev	maserati
+mayo clinic	site	mayoclinic.org	head-brand	views-rank:301+,template:title,name:only	test	mayoclinic
+chicago tribune	site	chicagotribune.com	head-brand	views-rank:301+,template:title,name:only	dev	chicagotribune
+harley-davidson	site	harley-davidson.com	head-brand	views-rank:301+,template:title,name:only	test	harleydavidson
+dell	site	dell.com	head-brand	views-rank:301+,template:title,name:only	dev	dell
+icloud	site	icloud.com	head-brand	views-rank:301+,template:title,name:only	dev	icloud
+lucasfilm	site	lucasfilm.com	head-brand	views-rank:301+,template:title,name:only	test	lucasfilm
+koenigsegg	site	koenigsegg.com	head-brand	views-rank:301+,template:title,name:only	dev	koenigsegg
+vfl wolfsburg	site	vfl-wolfsburg.de	head-brand	views-rank:301+,template:title,name:only	dev	vflwolfsburg
+sig sauer	site	sigsauer.de	head-brand	views-rank:301+,template:title,name:only	test	sigsauer
+blue sky studios	site	blueskystudios.com	head-brand	views-rank:301+,template:title,name:only	test	blueskystudios
+annapurna	site	annapurna.pictures	head-brand	views-rank:301+,template:label,name:shared	dev	annapurnapictures
+geoguessr	site	geoguessr.com	head-brand	views-rank:301+,template:title,name:only	dev	geoguessr
+cagliari calcio	site	cagliaricalcio.com	head-brand	views-rank:301+,template:title,name:only	dev	cagliaricalcio
+de beers	site	debeers.com	head-brand	views-rank:301+,template:title,name:only	dev	debeers
+dunkin' donuts	site	dunkindonuts.com	head-brand	views-rank:301+,template:title,name:only	test	dunkindonuts
+baidu	site	baidu.com	head-brand	views-rank:301+,template:title,name:only	test	baidu
+xbox	site	xbox.com	head-brand	views-rank:301+,template:title,name:shared	dev	xboxdivision
+billboard	site	billboard.com	head-brand	views-rank:301+,template:title,name:shared	dev	billboardmagazine
+truth social	site	truthsocial.com	head-brand	views-rank:301+,template:title,name:only	test	truthsocial
+notts county f.c.	site	nottscountyfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	nottscountyfc
+highclere castle	site	highclerecastle.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	highclerecastle
+oceangate	site	oceangate.com	head-brand	views-rank:301+,template:title,name:shared	test	oceangate
+cnbc	site	cnbc.com	head-brand	views-rank:301+,template:title,name:only	test	cnbc
+vinted	site	vinted.com	head-brand	views-rank:301+,template:title,name:only	test	vinted
+us airways	site	usairways.com	head-brand	views-rank:301+,template:title,name:only	dev	usairways
+olympiacos b.c.	site	olympiacosbc.gr	head-brand	views-rank:301+,template:title,name:only	dev	olympiacosbc
+penthouse	site	penthouse.com	head-brand	views-rank:301+,template:title,name:shared	dev	penthousemagazine
+subway	site	subway.com	head-brand	views-rank:301+,template:title,name:shared	test	subwayrestaurant
+riot games	site	riotgames.com	head-brand	views-rank:301+,template:title,name:only	test	riotgames
+colo-colo	site	colocolo.cl	head-brand	views-rank:301+,template:title,name:only	test	colocolo
+aer lingus	site	aerlingus.com	head-brand	views-rank:301+,template:title,name:only	dev	aerlingus
+soundcloud	site	soundcloud.com	head-brand	views-rank:301+,template:title,name:only	dev	soundcloud
+frosinone calcio	site	frosinonecalcio.com	head-brand	views-rank:301+,template:title,name:only	dev	frosinonecalcio
+icann	site	icann.org	head-brand	views-rank:301+,template:title,name:only	dev	icann
+ubs	site	ubs.com	head-brand	views-rank:301+,template:title,name:only	dev	ubs
+super league	site	superleague.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	superleague
+wildberries	site	wildberries.ru	head-brand	views-rank:301+,template:title,name:only	test	wildberries
+larsen & toubro	site	larsentoubro.com	head-brand	views-rank:301+,template:title,name:only	test	larsentoubro
+capitol records	site	capitolrecords.com	head-brand	views-rank:301+,template:title,name:only	dev	capitolrecords
+fedex	site	fedex.com	head-brand	views-rank:301+,template:title,name:only	test	fedex
+fiba	site	fiba.basketball	head-brand	views-rank:301+,template:title,name:shared	dev	fiba
+buick	site	buick.com	head-brand	views-rank:301+,template:title,name:only	dev	buick
+torino fc	site	torinofc.it	head-brand	views-rank:301+,template:title,name:only	test	torinofc
+chanel	site	chanel.com	head-brand	views-rank:301+,template:title,name:only	dev	chanel
+harlem globetrotters	site	harlemglobetrotters.com	head-brand	views-rank:301+,template:title,name:only	test	harlemglobetrotters
+slack	site	slack.com	head-brand	views-rank:301+,template:title,name:shared	dev	slacksoftware
+colorado rapids	site	coloradorapids.com	head-brand	views-rank:301+,template:title,name:only	dev	coloradorapids
+venezia fc	site	veneziafc.it	head-brand	views-rank:301+,template:title,name:only	test	veneziafc
+patriots for europe	site	patriotsforeurope.eu	head-brand	views-rank:301+,template:title,name:only	test	patriotsforeurope
+homestuck	site	homestuck.com	head-brand	views-rank:301+,template:title,name:only	dev	homestuck
+crunchyroll	site	crunchyroll.com	head-brand	views-rank:301+,template:title,name:only	test	crunchyroll
+rca records	site	rcarecords.com	head-brand	views-rank:301+,template:title,name:only	test	rcarecords
+fiat	site	fiat.com|fiat.com.ar	head-brand	views-rank:301+,template:title,name:only	dev	fiat
+ita airways	site	ita-airways.com	head-brand	views-rank:301+,template:title,name:only	test	itaairways
+hoka	site	hoka.com	head-brand	views-rank:301+,template:title,name:only	dev	hoka
+isro	site	isro.gov.in	head-brand	views-rank:301+,template:title,name:only	test	isro
+airasia	site	airasia.com	head-brand	views-rank:301+,template:title,name:only	dev	airasia
+new york red bulls	site	newyorkredbulls.com	head-brand	views-rank:301+,template:title,name:only	test	newyorkredbulls
+charlie hebdo	site	charliehebdo.fr	head-brand	views-rank:301+,template:title,name:only	test	charliehebdo
+a&w restaurants	site	awrestaurants.com	head-brand	views-rank:301+,template:title,name:only	test	awrestaurants
+air france	site	airfrance.com	head-brand	views-rank:301+,template:title,name:only	dev	airfrance
+condor	site	condor.com	head-brand	views-rank:301+,template:title,name:shared	test	condorairline
+new balance	site	newbalance.com	head-brand	views-rank:301+,template:title,name:only	test	newbalance
+sydney swans	site	sydneyswans.com.au	head-brand	views-rank:301+,template:title,name:only	dev	sydneyswans
+abbott and costello	site	abbottandcostello.net	head-brand	views-rank:301+,template:title,name:only	dev	abbottandcostello
+lollapalooza	site	lollapalooza.com	head-brand	views-rank:301+,template:title,name:only	test	lollapalooza
+russell group	site	russellgroup.ac.uk	head-brand	views-rank:301+,template:title,name:only	dev	russellgroup
+dazn	site	dazn.com	head-brand	views-rank:301+,template:title,name:only	dev	dazn
+t-series	site	tseries.com	head-brand	views-rank:301+,template:title,name:only	dev	tseriescompany
+blue angels	site	blueangels.navy.mil	head-brand	views-rank:301+,template:title,name:only	dev	blueangels
+moonshot	site	moonshot.ai	head-brand	views-rank:301+,template:label,name:shared	dev	moonshotai
+speedtest	site	speedtest.net	head-brand	views-rank:301+,template:label,name:only	test	speedtestnet
+allegiant air	site	allegiantair.com	head-brand	views-rank:301+,template:title,name:only	dev	allegiantair
+vogue	site	vogue.com	head-brand	views-rank:301+,template:title,name:shared	dev	voguemagazine
+maruti suzuki	site	marutisuzuki.com	head-brand	views-rank:301+,template:title,name:only	dev	marutisuzuki
+haas f1 team	site	haasf1team.com	head-brand	views-rank:301+,template:title,name:only	dev	haasf1team
+dior	site	dior.com	head-brand	views-rank:301+,template:title,name:only	dev	dior
+seat	site	seat.com	head-brand	views-rank:301+,template:title,name:shared	test	seat
+reebok	site	reebok.com	head-brand	views-rank:301+,template:title,name:only	dev	reebok
+popeyes	site	popeyes.com	head-brand	views-rank:301+,template:title,name:only	test	popeyes
+china airlines	site	china-airlines.com	head-brand	views-rank:301+,template:title,name:only	dev	chinaairlines
+nando's	site	nandos.com	head-brand	views-rank:301+,template:title,name:only	test	nandos
+arkane studios	site	arkane-studios.com	head-brand	views-rank:301+,template:title,name:only	test	arkanestudios
+primark	site	primark.com	head-brand	views-rank:301+,template:title,name:only	test	primark
+warner bros. pictures animation	site	warnerbrospicturesanimation.com	head-brand	views-rank:301+,template:title,name:only	dev	warnerbrospicturesanimation
+oppo	site	oppo.com	head-brand	views-rank:301+,template:title,name:only	test	oppo
+character	site	character.ai	head-brand	views-rank:301+,template:label,name:shared	test	characterai
+bury f.c.	site	buryfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	buryfc
+el al	site	elal.co.il	head-brand	views-rank:301+,template:title,name:only	test	elal
+national wrestling alliance	site	nationalwrestlingalliance.com	head-brand	views-rank:301+,template:title,name:only	test	nationalwrestlingalliance
+walt disney studios	site	waltdisneystudios.com	head-brand	views-rank:301+,template:title,name:only	dev	waltdisneystudiosdivision
+khan academy	site	khanacademy.org	head-brand	views-rank:301+,template:title,name:only	dev	khanacademy
+hitachi	site	hitachi.com	head-brand	views-rank:301+,template:title,name:only	dev	hitachi
+victoria's secret	site	victoriassecret.com	head-brand	views-rank:301+,template:title,name:only	dev	victoriassecret
+unity	site	unity.com	head-brand	views-rank:301+,template:title,name:shared	dev	unitygameengine
+tmz	site	tmz.com	head-brand	views-rank:301+,template:title,name:only	test	tmz
+groupon	site	groupon.com	head-brand	views-rank:301+,template:title,name:only	dev	groupon
+zara	site	zara.com	head-brand	views-rank:301+,template:title,name:shared	test	zararetailer
+mitsubishi	site	mitsubishi.com	head-brand	views-rank:301+,template:title,name:only	test	mitsubishi
+cargill	site	cargill.com	head-brand	views-rank:301+,template:title,name:only	test	cargill
+sk hynix	site	skhynix.com	head-brand	views-rank:301+,template:title,name:only	dev	skhynix
+atlassian	site	atlassian.com	head-brand	views-rank:301+,template:title,name:only	test	atlassian
+fcsb	site	fcsb.ro	head-brand	views-rank:301+,template:title,name:only	dev	fcsb
+aam aadmi party	site	aamaadmiparty.org	head-brand	views-rank:301+,template:title,name:only	dev	aamaadmiparty
+getafe cf	site	getafecf.com	head-brand	views-rank:301+,template:title,name:only	dev	getafecf
+real zaragoza	site	realzaragoza.com	head-brand	views-rank:301+,template:title,name:only	test	realzaragoza
+palermo fc	site	palermofc.com	head-brand	views-rank:301+,template:title,name:only	dev	palermofc
+bromley f.c.	site	bromleyfc.net	head-brand	views-rank:301+,template:title,name:only	dev	bromleyfc
+bosch	site	bosch.com	head-brand	views-rank:301+,template:title,name:shared	dev	boschcompany
+obsidian	site	obsidian.md	head-brand	views-rank:301+,template:title,name:shared	dev	obsidiansoftware
+bayer	site	bayer.com	head-brand	views-rank:301+,template:title,name:only	test	bayer
+luxottica	site	luxottica.com	head-brand	views-rank:301+,template:title,name:only	test	luxottica
+honeywell	site	honeywell.com	head-brand	views-rank:301+,template:title,name:only	test	honeywell
+figma	site	figma.com	head-brand	views-rank:301+,template:title,name:only	dev	figma
+grokipedia	site	grokipedia.com	head-brand	views-rank:301+,template:title,name:only	dev	grokipedia
+harrods	site	harrods.com	head-brand	views-rank:301+,template:title,name:only	dev	harrods
+washington spirit	site	washingtonspirit.com	head-brand	views-rank:301+,template:title,name:only	test	washingtonspirit
+asics	site	asics.com	head-brand	views-rank:301+,template:title,name:only	dev	asics
+sc freiburg	site	scfreiburg.com	head-brand	views-rank:301+,template:title,name:only	test	scfreiburg
+toho	site	toho.co.jp	head-brand	views-rank:301+,template:title,name:only	test	toho
+university of california	site	universityofcalifornia.edu	head-brand	views-rank:301+,template:title,name:only	test	universityofcalifornia
+heinz	site	heinz.com	head-brand	views-rank:301+,template:title,name:only	test	heinz
+malaysia airlines	site	malaysiaairlines.com	head-brand	views-rank:301+,template:title,name:only	test	malaysiaairlines
+michelin	site	michelin.com	head-brand	views-rank:301+,template:title,name:only	dev	michelin
+chuck e. cheese	site	chuckecheese.com	head-brand	views-rank:301+,template:title,name:only	test	chuckecheese
+msc cruises	site	msccruises.com	head-brand	views-rank:301+,template:title,name:only	test	msccruises
+the wb	site	thewb.com	head-brand	views-rank:301+,template:title,name:only	dev	thewb
+hooters	site	hooters.com	head-brand	views-rank:301+,template:title,name:only	test	hooters
+jcpenney	site	jcpenney.com	head-brand	views-rank:301+,template:title,name:only	dev	jcpenney
+id software	site	idsoftware.com	head-brand	views-rank:301+,template:title,name:only	test	idsoftware
+die heimat	site	die-heimat.de	head-brand	views-rank:301+,template:title,name:only	test	dieheimat
+naacp	site	naacp.org	head-brand	views-rank:301+,template:title,name:only	dev	naacp
+zomato	site	zomato.com	head-brand	views-rank:301+,template:title,name:only	dev	zomato
+carabinieri	site	carabinieri.it	head-brand	views-rank:301+,template:title,name:only	test	carabinieri
+best buy	site	bestbuy.com	head-brand	views-rank:301+,template:title,name:only	test	bestbuy
+barnsley f.c.	site	barnsleyfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	barnsleyfc
+msn	site	msn.com	head-brand	views-rank:301+,template:title,name:only	dev	msn
+roc nation	site	rocnation.com	head-brand	views-rank:301+,template:title,name:only	dev	rocnation
+atlas air	site	atlasair.com	head-brand	views-rank:301+,template:title,name:only	dev	atlasair
+gopro	site	gopro.com	head-brand	views-rank:301+,template:title,name:only	test	gopro
+ogc nice	site	ogcnice.com	head-brand	views-rank:301+,template:title,name:only	test	ogcnice
+3m	site	3m.com	head-brand	views-rank:301+,template:title,name:only	dev	3m
+archie comics	site	archiecomics.com	head-brand	views-rank:301+,template:title,name:only	dev	archiecomics
+arch linux	site	archlinux.org	head-brand	views-rank:301+,template:title,name:only	test	archlinux
+jio	site	jio.com	head-brand	views-rank:301+,template:title,name:only	dev	jio
+hyatt	site	hyatt.com	head-brand	views-rank:301+,template:title,name:only	dev	hyatt
+westjet	site	westjet.com	head-brand	views-rank:301+,template:title,name:only	test	westjet
+blue origin	site	blueorigin.com	head-brand	views-rank:301+,template:title,name:only	dev	blueorigin
+kahoot!	site	kahoot.com	head-brand	views-rank:301+,template:title,name:only	test	kahoot
+ethiopian airlines	site	ethiopianairlines.com	head-brand	views-rank:301+,template:title,name:only	dev	ethiopianairlines
+faze clan	site	fazeclan.com	head-brand	views-rank:301+,template:title,name:only	dev	fazeclan
+wise	site	wise.com	head-brand	views-rank:301+,template:title,name:shared	dev	wisecompany
+haaretz	site	haaretz.co.il|haaretz.com	head-brand	views-rank:301+,template:title,name:only	dev	haaretz
+rockefeller center	site	rockefellercenter.com	head-brand	views-rank:301+,template:title,name:only	test	rockefellercenter
+tinder	site	tinder.com	head-brand	views-rank:301+,template:title,name:shared	dev	tinderapp
+gofundme	site	gofundme.com	head-brand	views-rank:301+,template:title,name:only	test	gofundme
+gatorade	site	gatorade.com	head-brand	views-rank:301+,template:title,name:only	test	gatorade
+rumble	site	rumble.com	head-brand	views-rank:301+,template:title,name:shared	dev	rumblecompany
+xiaohongshu	site	xiaohongshu.com	head-brand	views-rank:301+,template:title,name:only	test	xiaohongshu
+focus features	site	focusfeatures.com	head-brand	views-rank:301+,template:title,name:only	test	focusfeatures
+9/11 commission	site	9-11commission.gov	head-brand	views-rank:301+,template:title,name:only	test	911commission
+airbaltic	site	airbaltic.com	head-brand	views-rank:301+,template:title,name:only	test	airbaltic
+bletchley park	site	bletchleypark.org.uk	head-brand	views-rank:301+,template:title,name:only	dev	bletchleypark
+nexon	site	nexon.co.jp	head-brand	views-rank:301+,template:title,name:only	test	nexon
+vocaloid	site	vocaloid.com	head-brand	views-rank:301+,template:title,name:only	test	vocaloid
+threads	site	threads.com	head-brand	views-rank:301+,template:title,name:shared	test	threadssocialnetwork
+asus	site	asus.com	head-brand	views-rank:301+,template:title,name:only	dev	asus
+church of satan	site	churchofsatan.com	head-brand	views-rank:301+,template:title,name:only	dev	churchofsatan
+stenhousemuir f.c.	site	stenhousemuirfc.com	head-brand	views-rank:301+,template:title,name:only	dev	stenhousemuirfc
+the epoch times	site	theepochtimes.com	head-brand	views-rank:301+,template:title,name:only	test	theepochtimes
+booking	site	booking.com	head-brand	views-rank:301+,template:label,name:shared	dev	bookingcom
+bank of england	site	bankofengland.co.uk	head-brand	views-rank:301+,template:title,name:only	test	bankofengland
+lotte world	site	lotteworld.com	head-brand	views-rank:301+,template:title,name:only	dev	lotteworld
+constantin	site	constantin.film	head-brand	views-rank:301+,template:label,name:shared	test	constantinfilm
+etsy	site	etsy.com	head-brand	views-rank:301+,template:title,name:only	test	etsy
+patreon	site	patreon.com	head-brand	views-rank:301+,template:title,name:only	test	patreon
+balenciaga	site	balenciaga.com	head-brand	views-rank:301+,template:title,name:only	test	balenciaga
+binance	site	binance.com	head-brand	views-rank:301+,template:title,name:only	test	binance
+pratt & whitney	site	prattwhitney.com	head-brand	views-rank:301+,template:title,name:only	test	prattwhitney
+the atlantic	site	theatlantic.com	head-brand	views-rank:301+,template:title,name:only	dev	theatlantic
+atari	site	atari.com	head-brand	views-rank:301+,template:title,name:only	test	atari
+the onion	site	theonion.com	head-brand	views-rank:301+,template:title,name:only	dev	theonion
+rt	site	rt.com	head-brand	views-rank:301+,template:title,name:only	test	rttvnetwork
+krafton	site	krafton.com	head-brand	views-rank:301+,template:title,name:only	test	krafton
+mercedes-amg	site	mercedes-amg.com	head-brand	views-rank:301+,template:title,name:only	test	mercedesamg
+vespa	site	vespa.com	head-brand	views-rank:301+,template:title,name:only	test	vespa
+mappa	site	mappa.co.jp	head-brand	views-rank:301+,template:title,name:shared	dev	mappa
+platinumgames	site	platinumgames.co.jp|platinumgames.com	head-brand	views-rank:301+,template:title,name:only	test	platinumgames
+dneg	site	dneg.com	head-brand	views-rank:301+,template:title,name:only	dev	dneg
+hcltech	site	hcltech.com	head-brand	views-rank:301+,template:title,name:only	test	hcltech
+cbgb	site	cbgb.com	head-brand	views-rank:301+,template:title,name:only	dev	cbgb
+blackpool f.c.	site	blackpoolfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	blackpoolfc
+five guys	site	fiveguys.com	head-brand	views-rank:301+,template:title,name:only	dev	fiveguys
+arte	site	arte.tv	head-brand	views-rank:301+,template:title,name:only	test	arte
+ethereum	site	ethereum.org	head-brand	views-rank:301+,template:title,name:only	dev	ethereum
+domino's	site	dominos.com	head-brand	views-rank:301+,template:title,name:only	dev	dominos
+crowdstrike	site	crowdstrike.com	head-brand	views-rank:301+,template:title,name:only	dev	crowdstrike
+dairy queen	site	dairyqueen.com	head-brand	views-rank:301+,template:title,name:only	dev	dairyqueen
+sm entertainment	site	smentertainment.com	head-brand	views-rank:301+,template:title,name:only	test	smentertainment
+yash raj films	site	yashrajfilms.com	head-brand	views-rank:301+,template:title,name:only	dev	yashrajfilms
+inkscape	site	inkscape.org	head-brand	views-rank:301+,template:title,name:only	dev	inkscape
+swindon town f.c.	site	swindontownfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	swindontownfc
+harrow school	site	harrowschool.org.uk	head-brand	views-rank:301+,template:title,name:only	dev	harrowschool
+ktm	site	ktm.com	head-brand	views-rank:301+,template:title,name:only	dev	ktm
+hertha bsc	site	herthabsc.com	head-brand	views-rank:301+,template:title,name:only	dev	herthabsc
+mastercard	site	mastercard.com	head-brand	views-rank:301+,template:title,name:only	test	mastercard
+atlus	site	atlus.co.jp	head-brand	views-rank:301+,template:title,name:only	dev	atlus
+wiktionary	site	wiktionary.org	head-brand	views-rank:301+,template:title,name:only	dev	wiktionary
+merriam-webster	site	merriam-webster.com	head-brand	views-rank:301+,template:title,name:only	test	merriamwebster
+toulouse fc	site	toulousefc.com	head-brand	views-rank:301+,template:title,name:only	test	toulousefc
+morena	site	morena.org	head-brand	views-rank:301+,template:title,name:shared	test	morenapoliticalparty
+ekstraklasa	site	ekstraklasa.org	head-brand	views-rank:301+,template:title,name:only	test	ekstraklasa
+echl	site	echl.com	head-brand	views-rank:301+,template:title,name:only	dev	echl
+crocs	site	crocs.com	head-brand	views-rank:301+,template:title,name:only	dev	crocs
+universal studios hollywood	site	universalstudioshollywood.com	head-brand	views-rank:301+,template:title,name:only	test	universalstudioshollywood
+eliteserien	site	eliteserien.no	head-brand	views-rank:301+,template:title,name:only	dev	eliteserien
+maersk	site	maersk.com	head-brand	views-rank:301+,template:title,name:only	dev	maersk
+decathlon	site	decathlon.com	head-brand	views-rank:301+,template:title,name:shared	dev	decathlonretailer
+rcd mallorca	site	rcdmallorca.es	head-brand	views-rank:301+,template:title,name:only	test	rcdmallorca
+ecosia	site	ecosia.org	head-brand	views-rank:301+,template:title,name:only	dev	ecosia
+gordonstoun	site	gordonstoun.org.uk	head-brand	views-rank:301+,template:title,name:only	test	gordonstoun
+cirque du soleil	site	cirquedusoleil.com	head-brand	views-rank:301+,template:title,name:only	dev	cirquedusoleil
+mozilla	site	mozilla.org	head-brand	views-rank:301+,template:title,name:only	test	mozilla
+iberia	site	iberia.com	head-brand	views-rank:301+,template:title,name:shared	dev	iberiaairline
+anker	site	anker.com	head-brand	views-rank:301+,template:title,name:only	test	anker
+mall of america	site	mallofamerica.com	head-brand	views-rank:301+,template:title,name:only	dev	mallofamerica
+ac monza	site	acmonza.com	head-brand	views-rank:301+,template:title,name:only	test	acmonza
+fide	site	fide.com	head-brand	views-rank:301+,template:title,name:shared	test	fide
+dundee united f.c.	site	dundeeunitedfc.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	dundeeunitedfc
+saudia	site	saudia.com	head-brand	views-rank:301+,template:title,name:only	test	saudia
+u.s. steel	site	ussteel.com	head-brand	views-rank:301+,template:title,name:only	dev	ussteel
+columbus crew	site	columbuscrew.com	head-brand	views-rank:301+,template:title,name:only	test	columbuscrew
+republic records	site	republicrecords.com	head-brand	views-rank:301+,template:title,name:only	dev	republicrecords
+kyoto animation	site	kyotoanimation.co.jp	head-brand	views-rank:301+,template:title,name:only	test	kyotoanimation
+upn	site	upn.com	head-brand	views-rank:301+,template:title,name:only	test	upn
+suno	site	suno.com	head-brand	views-rank:301+,template:title,name:only	test	suno
+quantic dream	site	quanticdream.com	head-brand	views-rank:301+,template:title,name:only	dev	quanticdream
+smith & wesson	site	smith-wesson.com	head-brand	views-rank:301+,template:title,name:only	dev	smithwesson
+pfizer	site	pfizer.com	head-brand	views-rank:301+,template:title,name:only	dev	pfizer
+privy council	site	privycouncil.independent.gov.uk	head-brand	views-rank:301+,template:title,name:shared	test	privycouncilunitedkingdom
+anheuser-busch	site	anheuser-busch.com	head-brand	views-rank:301+,template:title,name:only	dev	anheuserbusch
+sag-aftra	site	sagaftra.org	head-brand	views-rank:301+,template:title,name:only	dev	sagaftra
+garmin	site	garmin.com	head-brand	views-rank:301+,template:title,name:only	dev	garmin
+aftermath entertainment	site	aftermath-entertainment.com	head-brand	views-rank:301+,template:title,name:only	test	aftermathentertainment
+chennai super kings	site	chennaisuperkings.com	head-brand	views-rank:301+,template:title,name:only	dev	chennaisuperkings
+marina bay sands	site	marinabaysands.com	head-brand	views-rank:301+,template:title,name:only	dev	marinabaysands
+carrefour	site	carrefour.com	head-brand	views-rank:301+,template:title,name:only	dev	carrefour
+mount vernon	site	mountvernon.org	head-brand	views-rank:301+,template:title,name:only	dev	mountvernon
+macy's	site	macys.com	head-brand	views-rank:301+,template:title,name:only	test	macys
+hero motocorp	site	heromotocorp.com	head-brand	views-rank:301+,template:title,name:only	test	heromotocorp
+anglican communion	site	anglicancommunion.org	head-brand	views-rank:301+,template:title,name:only	dev	anglicancommunion
+grindr	site	grindr.com	head-brand	views-rank:301+,template:title,name:only	dev	grindr
+queen's park f.c.	site	queensparkfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	queensparkfc
+esso	site	esso.com	head-brand	views-rank:301+,template:title,name:only	dev	esso
+dianetics	site	dianetics.org	head-brand	views-rank:301+,template:title,name:only	test	dianetics
+philippine airlines	site	philippineairlines.com	head-brand	views-rank:301+,template:title,name:only	dev	philippineairlines
+sheffield f.c.	site	sheffieldfc.com	head-brand	views-rank:301+,template:title,name:only	dev	sheffieldfc
+real oviedo	site	realoviedo.es	head-brand	views-rank:301+,template:title,name:only	dev	realoviedo
+kk partizan	site	kkpartizan.rs	head-brand	views-rank:301+,template:title,name:only	test	kkpartizan
+ashley madison	site	ashleymadison.com	head-brand	views-rank:301+,template:title,name:only	test	ashleymadison
+touchstone pictures	site	touchstonepictures.com	head-brand	views-rank:301+,template:title,name:only	dev	touchstonepictures
+heckler & koch	site	heckler-koch.com	head-brand	views-rank:301+,template:title,name:only	test	hecklerkoch
+orlando city sc	site	orlandocitysc.com	head-brand	views-rank:301+,template:title,name:only	dev	orlandocitysc
+gmc	site	gmc.com	head-brand	views-rank:301+,template:title,name:only	test	gmcautomobile
+variety	site	variety.com	head-brand	views-rank:301+,template:title,name:shared	dev	varietymagazine
+bluepoint games	site	bluepointgames.com	head-brand	views-rank:301+,template:title,name:only	test	bluepointgames
+pakistan army	site	pakistanarmy.gov.pk	head-brand	views-rank:301+,template:title,name:only	dev	pakistanarmy
+hutterites	site	hutterites.org	head-brand	views-rank:301+,template:title,name:only	dev	hutterites
+disneyland paris	site	disneylandparis.com	head-brand	views-rank:301+,template:title,name:only	dev	disneylandparis
+progressief nederland	site	progressiefnederland.nl	head-brand	views-rank:301+,template:title,name:only	dev	progressiefnederland
+national guard	site	nationalguard.mil	head-brand	views-rank:301+,template:title,name:shared	test	nationalguardunitedstates
+holden	site	holden.com.au	head-brand	views-rank:301+,template:title,name:only	dev	holden
+wipro	site	wipro.com	head-brand	views-rank:301+,template:title,name:only	dev	wipro
+haribo	site	haribo.com	head-brand	views-rank:301+,template:title,name:only	dev	haribo
+newell's old boys	site	newellsoldboys.com.ar	head-brand	views-rank:301+,template:title,name:only	test	newellsoldboys
+paradox interactive	site	paradoxinteractive.com	head-brand	views-rank:301+,template:title,name:only	test	paradoxinteractive
+air india express	site	airindiaexpress.in	head-brand	views-rank:301+,template:title,name:only	test	airindiaexpress
+bioware	site	bioware.com	head-brand	views-rank:301+,template:title,name:only	dev	bioware
+pga tour	site	pgatour.com	head-brand	views-rank:301+,template:title,name:only	test	pgatour
+salvation army	site	salvationarmy.org	head-brand	views-rank:301+,template:title,name:only	test	salvationarmy
+reason	site	reason.com	head-brand	views-rank:301+,template:title,name:shared	test	reasonmagazine
+fc augsburg	site	fcaugsburg.de	head-brand	views-rank:301+,template:title,name:only	test	fcaugsburg
+guerrilla games	site	guerrilla-games.com	head-brand	views-rank:301+,template:title,name:only	dev	guerrillagames
+ud las palmas	site	udlaspalmas.es	head-brand	views-rank:301+,template:title,name:only	test	udlaspalmas
+gchq	site	gchq.gov.uk	head-brand	views-rank:301+,template:title,name:only	test	gchq
+allmusic	site	allmusic.com	head-brand	views-rank:301+,template:title,name:only	dev	allmusic
+usa network	site	usanetwork.com	head-brand	views-rank:301+,template:title,name:only	dev	usanetwork
+l3harris	site	l3harris.com	head-brand	views-rank:301+,template:title,name:only	test	l3harris
+nhk	site	nhk.or.jp	head-brand	views-rank:301+,template:title,name:only	test	nhk
+ign	site	ign.com	head-brand	views-rank:301+,template:title,name:only	test	ign
+epic records	site	epicrecords.com	head-brand	views-rank:301+,template:title,name:only	dev	epicrecords
+gulf air	site	gulfair.com	head-brand	views-rank:301+,template:title,name:only	test	gulfair
+today	site	today.com	head-brand	views-rank:301+,template:title,name:shared	dev	todayamericantvprogram
+socialist international	site	socialistinternational.org	head-brand	views-rank:301+,template:title,name:only	test	socialistinternational
+kony 2012	site	kony2012.com	head-brand	views-rank:301+,template:title,name:only	test	kony2012
+glencore	site	glencore.com	head-brand	views-rank:301+,template:title,name:only	dev	glencore
+thales group	site	thalesgroup.com	head-brand	views-rank:301+,template:title,name:only	test	thalesgroup
+arc'teryx	site	arcteryx.com	head-brand	views-rank:301+,template:title,name:only	test	arcteryx
+acura	site	acura.com	head-brand	views-rank:301+,template:title,name:only	dev	acura
+wechat	site	wechat.com	head-brand	views-rank:301+,template:title,name:only	dev	wechat
+basf	site	basf.com	head-brand	views-rank:301+,template:title,name:only	dev	basf
+general mills	site	generalmills.com	head-brand	views-rank:301+,template:title,name:only	test	generalmills
+ram trucks	site	ramtrucks.com	head-brand	views-rank:301+,template:title,name:only	test	ramtrucks
+wix	site	wix.com	head-brand	views-rank:301+,template:label,name:shared	dev	wixcom
+dji	site	dji.com	head-brand	views-rank:301+,template:title,name:only	dev	dji
+fn herstal	site	fnherstal.com	head-brand	views-rank:301+,template:title,name:only	test	fnherstal
+xerox	site	xerox.com	head-brand	views-rank:301+,template:title,name:only	dev	xerox
+sc telstar	site	sctelstar.nl	head-brand	views-rank:301+,template:title,name:only	dev	sctelstar
+freeform	site	freeform.com	head-brand	views-rank:301+,template:title,name:shared	dev	freeformtvchannel
+hawaiian airlines	site	hawaiianairlines.com	head-brand	views-rank:301+,template:title,name:only	dev	hawaiianairlines
+example	site	example.com	head-brand	views-rank:301+,template:label,name:shared	dev	examplecom
+toluca fc	site	tolucafc.com	head-brand	views-rank:301+,template:title,name:only	test	tolucafc
+cash money records	site	cashmoney-records.com	head-brand	views-rank:301+,template:title,name:only	test	cashmoneyrecords
+johnnie walker	site	johnniewalker.com	head-brand	views-rank:301+,template:title,name:only	test	johnniewalker
+lay's	site	lays.com	head-brand	views-rank:301+,template:title,name:only	dev	lays
+sejm	site	sejm.gov.pl	head-brand	views-rank:301+,template:title,name:only	test	sejm
+panda express	site	pandaexpress.com	head-brand	views-rank:301+,template:title,name:only	dev	pandaexpress
+klasky csupo	site	klaskycsupo.com	head-brand	views-rank:301+,template:title,name:only	dev	klaskycsupo
+unicef	site	unicef.org	head-brand	views-rank:301+,template:title,name:only	test	unicef
+greggs	site	greggs.com	head-brand	views-rank:301+,template:title,name:only	dev	greggs
+shake shack	site	shakeshack.com|shakeshack.olo.com	head-brand	views-rank:301+,template:title,name:only	dev	shakeshack
+ftx	site	ftx.com	head-brand	views-rank:301+,template:title,name:shared	test	ftx
+amc	site	amc.com	head-brand	views-rank:301+,template:title,name:only	test	amctvchannel
+2k	site	2k.com	head-brand	views-rank:301+,template:title,name:only	test	2kcompany
+flightradar24	site	flightradar24.com	head-brand	views-rank:301+,template:title,name:only	dev	flightradar24
+frito-lay	site	fritolay.com	head-brand	views-rank:301+,template:title,name:only	test	fritolay
+philadelphia union	site	philadelphiaunion.com	head-brand	views-rank:301+,template:title,name:only	test	philadelphiaunion
+little caesars	site	littlecaesars.com	head-brand	views-rank:301+,template:title,name:only	test	littlecaesars
+news corp	site	newscorp.com	head-brand	views-rank:301+,template:title,name:only	test	newscorp
+ab inbev	site	ab-inbev.com	head-brand	views-rank:301+,template:title,name:only	test	abinbev
+coinbase	site	coinbase.com	head-brand	views-rank:301+,template:title,name:only	dev	coinbase
+sony music	site	sonymusic.com	head-brand	views-rank:301+,template:title,name:only	test	sonymusic
+bethesda game studios	site	bethesdagamestudios.com	head-brand	views-rank:301+,template:title,name:only	test	bethesdagamestudios
+gotham fc	site	gothamfc.com	head-brand	views-rank:301+,template:title,name:only	dev	gothamfc
+pinduoduo	site	pinduoduo.com	head-brand	views-rank:301+,template:title,name:only	test	pinduoduo
+ge aerospace	site	geaerospace.com	head-brand	views-rank:301+,template:title,name:only	dev	geaerospace
+barnet f.c.	site	barnetfc.com	head-brand	views-rank:301+,template:title,name:only	test	barnetfc
+bain capital	site	baincapital.com	head-brand	views-rank:301+,template:title,name:only	test	baincapital
+palo alto networks	site	paloaltonetworks.com	head-brand	views-rank:301+,template:title,name:only	dev	paloaltonetworks
+iveco	site	iveco.com	head-brand	views-rank:301+,template:title,name:only	dev	iveco
+warnermedia	site	warnermedia.com	head-brand	views-rank:301+,template:title,name:only	test	warnermedia
+fc twente	site	fctwente.nl	head-brand	views-rank:301+,template:title,name:only	test	fctwente
+onedrive	site	onedrive.live.com	head-brand	views-rank:301+,template:title,name:only	dev	onedrive
+pitchfork	site	pitchfork.com	head-brand	views-rank:301+,template:title,name:shared	dev	pitchforkwebsite
+conmebol	site	conmebol.com	head-brand	views-rank:301+,template:title,name:only	test	conmebol
+richemont	site	richemont.com	head-brand	views-rank:301+,template:title,name:only	test	richemont
+live nation entertainment	site	livenationentertainment.com	head-brand	views-rank:301+,template:title,name:only	test	livenationentertainment
+iran air	site	iranair.com	head-brand	views-rank:301+,template:title,name:only	test	iranair
+hotel chelsea	site	hotelchelsea.com	head-brand	views-rank:301+,template:title,name:only	dev	hotelchelsea
+wattpad	site	wattpad.com	head-brand	views-rank:301+,template:title,name:only	dev	wattpad
+walgreens	site	walgreens.com	head-brand	views-rank:301+,template:title,name:only	dev	walgreens
+potala palace	site	potalapalace.cn	head-brand	views-rank:301+,template:title,name:only	test	potalapalace
+chiquita	site	chiquita.com	head-brand	views-rank:301+,template:title,name:only	test	chiquita
+haier	site	haier.com	head-brand	views-rank:301+,template:title,name:only	test	haier
+amul	site	amul.com	head-brand	views-rank:301+,template:title,name:only	dev	amul
+monticello	site	monticello.org	head-brand	views-rank:301+,template:title,name:only	dev	monticello
+fandom	site	fandom.com	head-brand	views-rank:301+,template:title,name:shared	dev	fandomwebsite
+midjourney	site	midjourney.com	head-brand	views-rank:301+,template:title,name:only	dev	midjourney
+halliburton	site	halliburton.com	head-brand	views-rank:301+,template:title,name:only	dev	halliburton
+seiko	site	seiko.co.jp	head-brand	views-rank:301+,template:title,name:only	test	seiko
+gamestop	site	gamestop.com	head-brand	views-rank:301+,template:title,name:only	test	gamestop
+abbvie	site	abbvie.com	head-brand	views-rank:301+,template:title,name:only	test	abbvie
+us lecce	site	uslecce.it	head-brand	views-rank:301+,template:title,name:only	dev	uslecce
+capgemini	site	capgemini.com	head-brand	views-rank:301+,template:title,name:only	dev	capgemini
+jbl	site	jbl.com	head-brand	views-rank:301+,template:title,name:only	dev	jbl
+rheinmetall	site	rheinmetall.com	head-brand	views-rank:301+,template:title,name:only	dev	rheinmetall
+versace	site	versace.com	head-brand	views-rank:301+,template:title,name:only	dev	versace
+d.c. united	site	dcunited.com	head-brand	views-rank:301+,template:title,name:only	dev	dcunited
+aliexpress	site	aliexpress.com	head-brand	views-rank:301+,template:title,name:only	test	aliexpress
+vietnam airlines	site	vietnamairlines.com	head-brand	views-rank:301+,template:title,name:only	dev	vietnamairlines
+church of scotland	site	churchofscotland.org.uk	head-brand	views-rank:301+,template:title,name:only	dev	churchofscotland
+x	site	x.com	head-brand	views-rank:301+,template:label,name:shared	test	xcombank
+letterboxd	site	letterboxd.com	head-brand	views-rank:301+,template:title,name:only	test	letterboxd
+antonov	site	antonov.com	head-brand	views-rank:301+,template:title,name:only	dev	antonov
+island records	site	islandrecords.co.uk|islandrecords.com	head-brand	views-rank:301+,template:title,name:only	dev	islandrecords
+hadash	site	hadash.org.il	head-brand	views-rank:301+,template:title,name:only	test	hadash
+disney experiences	site	disneyexperiences.com	head-brand	views-rank:301+,template:title,name:only	dev	disneyexperiences
+nabisco	site	nabisco.com	head-brand	views-rank:301+,template:title,name:only	test	nabisco
+whole foods market	site	wholefoodsmarket.com	head-brand	views-rank:301+,template:title,name:only	test	wholefoodsmarket
+ruthless records	site	ruthlessrecords.com	head-brand	views-rank:301+,template:title,name:only	test	ruthlessrecords
+starplus	site	starplus.in	head-brand	views-rank:301+,template:title,name:only	test	starplus
+flixbus	site	flixbus.com	head-brand	views-rank:301+,template:title,name:only	dev	flixbus
+air arabia	site	airarabia.com	head-brand	views-rank:301+,template:title,name:only	dev	airarabia
+ard	site	ard.de	head-brand	views-rank:301+,template:title,name:only	dev	ardbroadcaster
+circle k	site	circlek.com	head-brand	views-rank:301+,template:title,name:only	test	circlek
+james s. a. corey	site	jamessacorey.com	head-brand	views-rank:301+,template:title,name:only	test	jamessacorey
+nelvana	site	nelvana.com	head-brand	views-rank:301+,template:title,name:only	test	nelvana
+kde	site	kde.org	head-brand	views-rank:301+,template:title,name:only	dev	kde
+parker solar probe	site	parkersolarprobe.jhuapl.edu	head-brand	views-rank:301+,template:title,name:only	dev	parkersolarprobe
+quora	site	quora.com	head-brand	views-rank:301+,template:title,name:only	test	quora
+white castle	site	whitecastle.com	head-brand	views-rank:301+,template:title,name:only	test	whitecastlerestaurant
+red hat	site	redhat.com	head-brand	views-rank:301+,template:title,name:only	test	redhat
+interactive brokers	site	interactivebrokers.com	head-brand	views-rank:301+,template:title,name:only	test	interactivebrokers
+axios	site	axios.com	head-brand	views-rank:301+,template:title,name:shared	test	axioswebsite
+cessna	site	cessna.txtav.com	head-brand	views-rank:301+,template:title,name:only	dev	cessna
+swarovski	site	swarovski.com	head-brand	views-rank:301+,template:title,name:only	test	swarovski
+zdf	site	zdf.de	head-brand	views-rank:301+,template:title,name:only	dev	zdf
+amc theatres	site	amctheatres.com	head-brand	views-rank:301+,template:title,name:only	test	amctheatres
+koch, inc.	site	kochinc.com	head-brand	views-rank:301+,template:title,name:only	test	kochinc
+krispy kreme	site	krispykreme.com	head-brand	views-rank:301+,template:title,name:only	dev	krispykreme
+under armour	site	underarmour.com	head-brand	views-rank:301+,template:title,name:only	dev	underarmour
+papa john's	site	papajohns.com	head-brand	views-rank:301+,template:title,name:only	test	papajohns
+jet2	site	jet2.com	head-brand	views-rank:301+,template:label,name:only	dev	jet2com
+totalenergies	site	totalenergies.com	head-brand	views-rank:301+,template:title,name:only	test	totalenergies
+nickelodeon movies	site	nickelodeonmovies.com	head-brand	views-rank:301+,template:title,name:only	dev	nickelodeonmovies
+the north face	site	thenorthface.com	head-brand	views-rank:301+,template:title,name:only	dev	thenorthface
+san diego fc	site	sandiegofc.com	head-brand	views-rank:301+,template:title,name:only	test	sandiegofc
+sephora	site	sephora.com	head-brand	views-rank:301+,template:title,name:only	dev	sephora
+harpercollins	site	harpercollins.co.uk|harpercollins.com	head-brand	views-rank:301+,template:title,name:only	test	harpercollins
+ted	site	ted.com	head-brand	views-rank:301+,template:title,name:shared	dev	tedconference
+inditex	site	inditex.com	head-brand	views-rank:301+,template:title,name:only	dev	inditex
+spicejet	site	spicejet.com	head-brand	views-rank:301+,template:title,name:only	test	spicejet
+rimac automobili	site	rimac-automobili.com	head-brand	views-rank:301+,template:title,name:only	test	rimacautomobili
+fenway sports group	site	fenwaysportsgroup.com	head-brand	views-rank:301+,template:title,name:only	dev	fenwaysportsgroup
+petronas	site	petronas.com	head-brand	views-rank:301+,template:title,name:only	dev	petronas
+toshiba	site	toshiba.com	head-brand	views-rank:301+,template:title,name:only	dev	toshiba
+sanrio	site	sanrio.com	head-brand	views-rank:301+,template:title,name:only	dev	sanrio
+infiniti	site	infiniti.com	head-brand	views-rank:301+,template:title,name:only	test	infiniti
+vim	site	vim.org	head-brand	views-rank:301+,template:title,name:shared	dev	vimtexteditor
+sukhoi	site	sukhoi.org	head-brand	views-rank:301+,template:title,name:only	dev	sukhoi
+gog	site	gog.com	head-brand	views-rank:301+,template:label,name:shared	dev	gogcom
+scribd	site	scribd.com	head-brand	views-rank:301+,template:title,name:only	dev	scribd
+getty images	site	gettyimages.com	head-brand	views-rank:301+,template:title,name:only	dev	gettyimages
+hennessy	site	hennessy.com	head-brand	views-rank:301+,template:title,name:only	dev	hennessy
+novartis	site	novartis.com	head-brand	views-rank:301+,template:title,name:only	dev	novartis
+stevenage f.c.	site	stevenagefc.com	head-brand	views-rank:301+,template:title,name:only	test	stevenagefc
+paok bc	site	paokbc.gr	head-brand	views-rank:301+,template:title,name:only	test	paokbc
+jack daniel's	site	jackdaniels.com	head-brand	views-rank:301+,template:title,name:only	dev	jackdaniels
+fidesz	site	fidesz.hu	head-brand	views-rank:301+,template:title,name:only	test	fidesz
+jack in the box	site	jackinthebox.com	head-brand	views-rank:301+,template:title,name:only	dev	jackinthebox
+atomic monster	site	atomicmonster.com	head-brand	views-rank:301+,template:title,name:only	dev	atomicmonster
+prageru	site	prageru.com	head-brand	views-rank:301+,template:title,name:only	dev	prageru
+burton albion f.c.	site	burtonalbionfc.co.uk	head-brand	views-rank:301+,template:title,name:only	test	burtonalbionfc
+tidal	site	tidal.com	head-brand	views-rank:301+,template:title,name:shared	dev	tidalservice
+bacardi	site	bacardi.com	head-brand	views-rank:301+,template:title,name:only	dev	bacardi
+rai	site	rai.it	head-brand	views-rank:301+,template:title,name:shared	dev	rai
+kk crvena zvezda	site	kkcrvenazvezda.rs	head-brand	views-rank:301+,template:title,name:only	test	kkcrvenazvezda
+lancia	site	lancia.com	head-brand	views-rank:301+,template:title,name:only	test	lancia
+thomson reuters	site	thomsonreuters.com	head-brand	views-rank:301+,template:title,name:only	dev	thomsonreuters
+vmware	site	vmware.com	head-brand	views-rank:301+,template:title,name:only	test	vmware
+baskin-robbins	site	baskinrobbins.com	head-brand	views-rank:301+,template:title,name:only	dev	baskinrobbins
+boomerang	site	boomerang.com	head-brand	views-rank:301+,template:title,name:shared	test	boomerangtvnetwork
+estudiantes de la plata	site	estudiantesdelaplata.com	head-brand	views-rank:301+,template:title,name:only	dev	estudiantesdelaplata
+compaq	site	compaq.com	head-brand	views-rank:301+,template:title,name:only	test	compaq
+orion pictures	site	orionpictures.com	head-brand	views-rank:301+,template:title,name:only	dev	orionpictures
+bones	site	bones.co.jp	head-brand	views-rank:301+,template:title,name:only	dev	bonesstudio
+supreme	site	supreme.com	head-brand	views-rank:301+,template:title,name:shared	test	supremebrand
+toronto fc	site	torontofc.ca	head-brand	views-rank:301+,template:title,name:only	test	torontofc
+brewdog	site	brewdog.com	head-brand	views-rank:301+,template:title,name:only	test	brewdog
+devilman crybaby	site	devilman-crybaby.com	head-brand	views-rank:301+,template:title,name:only	test	devilmancrybaby
+cartoon network studios	site	cartoonnetworkstudios.com	head-brand	views-rank:301+,template:title,name:only	test	cartoonnetworkstudios
+arya samaj	site	aryasamaj.org	head-brand	views-rank:301+,template:title,name:only	test	aryasamaj
+dr. martens	site	drmartens.com	head-brand	views-rank:301+,template:title,name:only	test	drmartens
+bajaj auto	site	bajajauto.com	head-brand	views-rank:301+,template:title,name:only	dev	bajajauto
+nordstrom	site	nordstrom.com	head-brand	views-rank:301+,template:title,name:only	test	nordstrom
+researchgate	site	researchgate.net	head-brand	views-rank:301+,template:title,name:only	dev	researchgate
+essilorluxottica	site	essilorluxottica.com	head-brand	views-rank:301+,template:title,name:only	test	essilorluxottica
+bursaspor	site	bursaspor.org.tr	head-brand	views-rank:301+,template:title,name:only	dev	bursaspor
+bechtel	site	bechtel.com	head-brand	views-rank:301+,template:title,name:only	dev	bechtel
+herbalife	site	herbalife.com	head-brand	views-rank:301+,template:title,name:only	test	herbalife
+newgrounds	site	newgrounds.com	head-brand	views-rank:301+,template:title,name:only	dev	newgrounds
+cummins	site	cummins.com	head-brand	views-rank:301+,template:title,name:only	test	cummins
+klarna	site	klarna.com	head-brand	views-rank:301+,template:title,name:only	test	klarna
+arby's	site	arbys.com	head-brand	views-rank:301+,template:title,name:only	dev	arbys
+dassault aviation	site	dassault-aviation.com	head-brand	views-rank:301+,template:title,name:only	test	dassaultaviation
+royal ulster constabulary	site	royalulsterconstabulary.org	head-brand	views-rank:301+,template:title,name:only	dev	royalulsterconstabulary
+fairphone	site	fairphone.com	head-brand	views-rank:301+,template:title,name:only	dev	fairphone
+pafos fc	site	pafosfc.com.cy	head-brand	views-rank:301+,template:title,name:only	test	pafosfc
+national front	site	nationalfront.info	head-brand	views-rank:301+,template:title,name:only	test	nationalfrontuk
+shiv sena	site	shivsena.org	head-brand	views-rank:301+,template:title,name:only	test	shivsena
+avianca	site	avianca.com	head-brand	views-rank:301+,template:title,name:only	dev	avianca
+honor	site	honor.com	head-brand	views-rank:301+,template:title,name:only	dev	honorcompany
+gmmtv	site	gmm-tv.com	head-brand	views-rank:301+,template:title,name:only	dev	gmmtv
+pininfarina	site	pininfarina.it	head-brand	views-rank:301+,template:title,name:only	dev	pininfarina
+finnair	site	finnair.com	head-brand	views-rank:301+,template:title,name:only	test	finnair
+royal caribbean group	site	royalcaribbeangroup.com	head-brand	views-rank:301+,template:title,name:only	dev	royalcaribbeangroup
+crossfit	site	crossfit.com	head-brand	views-rank:301+,template:title,name:only	dev	crossfit
+miu miu	site	miumiu.com	head-brand	views-rank:301+,template:title,name:only	dev	miumiu
+gap inc.	site	gapinc.com	head-brand	views-rank:301+,template:title,name:only	test	gapinc
+iglesia ni cristo	site	iglesianicristo.net	head-brand	views-rank:301+,template:title,name:only	dev	iglesianicristo
+ligue 2	site	ligue2.fr	head-brand	views-rank:301+,template:title,name:only	dev	ligue2
+mcafee	site	mcafee.com	head-brand	views-rank:301+,template:title,name:only	test	mcafee
+garuda indonesia	site	garuda-indonesia.com	head-brand	views-rank:301+,template:title,name:only	dev	garudaindonesia
+kaa gent	site	kaagent.be	head-brand	views-rank:301+,template:title,name:only	dev	kaagent
+ericsson	site	ericsson.com	head-brand	views-rank:301+,template:title,name:only	dev	ericsson
+chatroulette	site	chatroulette.com	head-brand	views-rank:301+,template:title,name:only	dev	chatroulette
+fc seoul	site	fcseoul.com	head-brand	views-rank:301+,template:title,name:only	test	fcseoul
+cma cgm	site	cma-cgm.com|cma-cgm.fr	head-brand	views-rank:301+,template:title,name:only	test	cmacgm
+bet	site	bet.com	head-brand	views-rank:301+,template:title,name:shared	test	bet
+htc	site	htc.com	head-brand	views-rank:301+,template:title,name:only	dev	htc
+gainax	site	gainax.co.jp	head-brand	views-rank:301+,template:title,name:only	dev	gainax
+nbc news	site	nbcnews.com	head-brand	views-rank:301+,template:title,name:only	test	nbcnews
+krc genk	site	krcgenk.be	head-brand	views-rank:301+,template:title,name:only	dev	krcgenk
+autodesk	site	autodesk.com	head-brand	views-rank:301+,template:title,name:only	test	autodesk
+chess	site	chess.com	head-brand	views-rank:301+,template:label,name:shared	test	chesscom
+icelandair	site	icelandair.com	head-brand	views-rank:301+,template:title,name:only	dev	icelandair
+skechers	site	skechers.com	head-brand	views-rank:301+,template:title,name:only	test	skechers
+let's encrypt	site	letsencrypt.org	head-brand	views-rank:301+,template:title,name:only	test	letsencrypt
+mediawiki	site	mediawiki.org	head-brand	views-rank:301+,template:title,name:only	dev	mediawiki
+swift	site	swift.com	head-brand	views-rank:301+,template:title,name:shared	test	swift
+discover airlines	site	discover-airlines.com	head-brand	views-rank:301+,template:title,name:only	test	discoverairlines
+startpage	site	startpage.com	head-brand	views-rank:301+,template:title,name:only	test	startpage
+virustotal	site	virustotal.com	head-brand	views-rank:301+,template:title,name:only	test	virustotal
+dropbox	site	dropbox.com	head-brand	views-rank:301+,template:title,name:only	dev	dropbox
+vimeo	site	vimeo.com	head-brand	views-rank:301+,template:title,name:only	dev	vimeo
+royal mail	site	royalmail.com	head-brand	views-rank:301+,template:title,name:only	test	royalmail
+fannie mae	site	fanniemae.com	head-brand	views-rank:301+,template:title,name:only	dev	fanniemae
+royal society	site	royalsociety.org	head-brand	views-rank:301+,template:title,name:only	test	royalsociety
+lacoste	site	lacoste.com	head-brand	views-rank:301+,template:title,name:only	test	lacoste
+castle howard	site	castlehoward.co.uk	head-brand	views-rank:301+,template:title,name:only	test	castlehoward
+motherwell f.c.	site	motherwellfc.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	motherwellfc
+jd	site	jd.com	head-brand	views-rank:301+,template:label,name:only	dev	jdcom
+fortuna sittard	site	fortunasittard.nl	head-brand	views-rank:301+,template:title,name:only	test	fortunasittard
+viber	site	viber.com	head-brand	views-rank:301+,template:title,name:only	dev	viber
+caesars palace	site	caesarspalace.com	head-brand	views-rank:301+,template:title,name:only	dev	caesarspalace
+yonex	site	yonex.com	head-brand	views-rank:301+,template:title,name:only	test	yonex
+catl	site	catl.com	head-brand	views-rank:301+,template:title,name:only	dev	catl
+box office mojo	site	boxofficemojo.com	head-brand	views-rank:301+,template:title,name:only	test	boxofficemojo
+mediatek	site	mediatek.com	head-brand	views-rank:301+,template:title,name:only	dev	mediatek
+montreal alouettes	site	montrealalouettes.com	head-brand	views-rank:301+,template:title,name:only	dev	montrealalouettes
+waldorf astoria new york	site	waldorfastorianewyork.com	head-brand	views-rank:301+,template:title,name:only	dev	waldorfastorianewyork
+vissel kobe	site	vissel-kobe.co.jp	head-brand	views-rank:301+,template:title,name:only	test	visselkobe
+playground games	site	playground-games.com	head-brand	views-rank:301+,template:title,name:only	dev	playgroundgames
+armani	site	armani.com	head-brand	views-rank:301+,template:title,name:only	test	armani
+exor	site	exor.com	head-brand	views-rank:301+,template:title,name:shared	dev	exorcompany
+gimp	site	gimp.org	head-brand	views-rank:301+,template:title,name:shared	dev	gimp
+asda	site	asda.com	head-brand	views-rank:301+,template:title,name:only	test	asda
+exeter city f.c.	site	exetercityfc.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	exetercityfc
+olive garden	site	olivegarden.com	head-brand	views-rank:301+,template:title,name:only	test	olivegarden
+credit suisse	site	credit-suisse.com	head-brand	views-rank:301+,template:title,name:only	dev	creditsuisse
+bose	site	bose.com	head-brand	views-rank:301+,template:title,name:shared	test	bosebrand
+moltbook	site	moltbook.com	head-brand	views-rank:301+,template:title,name:only	test	moltbook
+searchlight pictures	site	searchlightpictures.com	head-brand	views-rank:301+,template:title,name:only	test	searchlightpictures
+lion city sailors fc	site	lioncitysailorsfc.sg	head-brand	views-rank:301+,template:title,name:only	test	lioncitysailorsfc
+rio tinto	site	riotinto.com	head-brand	views-rank:301+,template:title,name:only	dev	riotintocorporation
+bank of baroda	site	bankofbaroda.bank.in	head-brand	views-rank:301+,template:title,name:only	dev	bankofbaroda
+sainsbury's	site	sainsburys.co.uk	head-brand	views-rank:301+,template:title,name:only	dev	sainsburys
+roche	site	roche.com	head-brand	views-rank:301+,template:title,name:only	dev	roche
+ashok leyland	site	ashokleyland.com	head-brand	views-rank:301+,template:title,name:only	dev	ashokleyland
+yad vashem	site	yadvashem.org	head-brand	views-rank:301+,template:title,name:only	test	yadvashem
+air new zealand	site	airnewzealand.com	head-brand	views-rank:301+,template:title,name:only	test	airnewzealand
+kalitta air	site	kalittaair.us	head-brand	views-rank:301+,template:title,name:only	test	kalittaair
+the hindu	site	thehindu.com	head-brand	views-rank:301+,template:title,name:only	dev	thehindu
+pantone	site	pantone.com	head-brand	views-rank:301+,template:title,name:only	test	pantone
+bridgestone	site	bridgestone.com	head-brand	views-rank:301+,template:title,name:only	test	bridgestone
+bad robot	site	badrobot.com	head-brand	views-rank:301+,template:title,name:only	test	badrobot
+dic entertainment	site	dicentertainment.com	head-brand	views-rank:301+,template:title,name:only	dev	dicentertainment
+fc andorra	site	fcandorra.com	head-brand	views-rank:301+,template:title,name:only	test	fcandorra
+putty	site	putty.software	head-brand	views-rank:301+,template:title,name:shared	test	putty
+grammarly	site	grammarly.com	head-brand	views-rank:301+,template:title,name:only	test	grammarly
+wit studio	site	witstudio.co.jp	head-brand	views-rank:301+,template:title,name:only	test	witstudio
+sandisk	site	sandisk.com	head-brand	views-rank:301+,template:title,name:only	test	sandisk
+mubi	site	mubi.com	head-brand	views-rank:301+,template:title,name:shared	dev	mubistreamingservice
+thyssenkrupp	site	thyssenkrupp.com	head-brand	views-rank:301+,template:title,name:only	dev	thyssenkrupp
+nordvpn	site	nordvpn.com	head-brand	views-rank:301+,template:title,name:only	test	nordvpn
+hellenic parliament	site	hellenicparliament.gr	head-brand	views-rank:301+,template:title,name:only	test	hellenicparliament
+powerball	site	powerball.com	head-brand	views-rank:301+,template:title,name:only	test	powerball
+die partei	site	die-partei.de	head-brand	views-rank:301+,template:title,name:only	test	diepartei
+real valladolid	site	realvalladolid.es	head-brand	views-rank:301+,template:title,name:only	test	realvalladolid
+fleshlight	site	fleshlight.com|fleshlight.eu	head-brand	views-rank:301+,template:title,name:only	dev	fleshlight
+winamp	site	winamp.com	head-brand	views-rank:301+,template:title,name:only	dev	winamp
+hainan airlines	site	hainanairlines.com	head-brand	views-rank:301+,template:title,name:only	test	hainanairlines

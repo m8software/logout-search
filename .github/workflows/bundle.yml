@@ -1,0 +1,45 @@
+# One-folder bundles of `logout-search` (apps/search/installer/bundle/build.py): the launcher with Python, the engine,
+# the installer, the update tools and the libraries inside. Built on every push and pull request so a break shows at
+# once; release.yml calls this and attaches the archives to the release.
+#
+# Systems: Linux x86_64, Windows x86_64, macOS arm64. onnxruntime 1.30 publishes no macOS x86_64 wheel, so Intel Macs
+# have no bundle; they can run the engine from source with Python 3.12.
+name: bundle
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install PyInstaller and the engine's libraries
+        run: pip install -r apps/search/installer/bundle/requirements.txt
+      - name: Build and smoke-test the bundle
+        env:
+          ORT_DISABLE_TELEMETRY: "1"
+        run: python apps/search/installer/bundle/build.py --out dist
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bundle-${{ matrix.os }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+          if-no-files-found: error

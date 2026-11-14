@@ -1,0 +1,22 @@
+# The engine's WebRTC peer: search-api's image + aiortc. Outbound only (a WebSocket to
+# the rendezvous and ICE), no listening port. Run with host networking so the engine's LAN
+# and VPN addresses are its ICE candidates.
+ARG BASE=logout/search-api:1
+FROM ${BASE}
+USER root
+# aiortc without PyAV: its `av` wheel is FFmpeg with x264 and x265 (GPL) plus 30 more libraries,
+# for audio and video this peer never opens. So aiortc goes in with --no-deps, its other
+# requirements are named here, and av_absent.py stands in as `av` (see that file and
+# apps/search/THIRD-PARTY-LICENSES.md). Raising aiortc's version means reading its Requires-Dist again.
+RUN pip install --no-cache-dir "aioice==0.10.2" "cryptography==50.0.2" "google-crc32c==1.9.0" "pyee==14.0.0" \
+      "pylibsrtp==1.0.0" "pyopenssl==26.4.0" "websockets==17.1" "qrcode==8.2" \
+ && pip install --no-cache-dir --no-deps "aiortc==1.15.0" \
+ && mkdir -p /state && chown 1000:1000 /state
+COPY av_absent.py /app/av.py
+COPY rtc_selfcheck.py /app/
+# fails the build if a data channel cannot open and carry a message without FFmpeg
+RUN python /app/rtc_selfcheck.py
+# search_api.py too: the engine answers with this branch's code whatever the base image is
+COPY search_api.py site_pages.py gov_state.py site_slots.py news_sqlite.py instant_answers.py product_table.py ranker.json native_host.py rtc_peer.py lookups_release.py lookups_sqlite.py facts.py memstat.py sq_candidates.py warm.py result_store.py /app/
+USER 1000:1000
+CMD ["python", "/app/rtc_peer.py"]

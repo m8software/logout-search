@@ -1,0 +1,555 @@
+# Bulk tier of the news box (ADR-060) — live-checked 2026-09-30 by utility/search-feed-live-check.py:
+# answered 200, parsed, posted within 30 days (official feeds: 120), mostly English (Wikidata rows).
+# Sources: agencies' and outlets' own RSS pages, their long-standing feed addresses, and Wikidata P1019
+# (CC0) vetted by Jev (utility/search-feed-vet.py). The user approved polling these (2026-09-30).
+# Remove a line to stop polling it (a publisher that objects is removed). Columns as feeds.tsv:
+# section	name	lean	kind	poll	url        — provenance of each line follows in a trailing comment block.
+official	USGS Earthquakes	-	official	15	https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom
+official	CPSC recalls	-	official	60	https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed/Recalls-RSS
+official	CPSC recalls	-	official	60	https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed/News-RSS
+official	NASA	-	official	60	https://www.nasa.gov/feed/
+official	NASA	-	official	60	https://www.nasa.gov/technology/feed/
+official	NASA	-	official	60	https://www.nasa.gov/missions/station/feed/
+official	NASA	-	official	60	https://www.nasa.gov/missions/artemis/feed/
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/cewqtr.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/empsit.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/jolts.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/realer.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/laus.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/cpi.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/ppi.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/ximpim.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/eci.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/prod2.rss
+official	National Hurricane Center	-	official	15	https://www.nhc.noaa.gov/gtwo.xml
+official	National Hurricane Center	-	official	15	https://www.nhc.noaa.gov/index-ep.xml
+official	National Hurricane Center	-	official	15	https://www.nhc.noaa.gov/index-cp.xml
+world	France 24	-	outlet	60	https://www.france24.com/en/europe/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/france/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/africa/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/americas/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/asia-pacific/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/business/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/sport/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/culture/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/earth/rss
+world	France 24	-	outlet	60	https://www.france24.com/en/health/rss
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-topstories
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-canada
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-politics
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-business
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-health
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-arts
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-technology
+world	CBC News	-	outlet	60	https://www.cbc.ca/webfeed/rss/rss-sports
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/news.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/business.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/on-the-inside.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/community.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/education.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/health.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/in-depth.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/indonz.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/ldr.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/pacific.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/political.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/sport.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/te-manu-korihi.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/weather.xml
+world	RNZ	-	outlet	60	https://www.rnz.co.nz/rss/world.xml
+world	CNA	-	outlet	60	https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml
+world	CNA	-	outlet	60	https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511
+world	CNA	-	outlet	60	https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936
+world	CNA	-	outlet	60	https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10416
+world	CNA	-	outlet	60	https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10296
+science	The Conversation	-	outlet	60	https://theconversation.com/us/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/arts/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/business/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/education/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/ethics/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/health/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/politics/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/world/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/local/articles.atom
+health	KFF Health News	-	outlet	60	https://kffhealthnews.org/topics/aging/feed/
+health	KFF Health News	-	outlet	60	https://kffhealthnews.org/topics/health-industry/feed/
+health	KFF Health News	-	outlet	60	https://kffhealthnews.org/topics/race-and-health/feed/
+health	KFF Health News	-	outlet	60	https://kffhealthnews.org/topics/mental-health/feed/
+world	Deutsche Welle	-	outlet	60	https://rss.dw.com/rdf/rss-en-all
+official	FDA — Press releases	-	official	60	https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml
+official	FDA — Recalls	-	official	60	https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/recalls/rss.xml
+official	NIH — News releases	-	official	60	https://www.nih.gov/news-releases/feed.xml
+official	FEMA — News	-	official	60	https://www.fema.gov/feeds/news.rss
+official	NWS — Storm Prediction Center watches	-	official	15	https://www.spc.noaa.gov/products/spcwwrss.xml
+official	NWS — Active alerts	-	official	15	https://api.weather.gov/alerts/active.atom
+business	Target Corporation	-	outlet	120	https://corporate.target.com/article/all/feed
+culture	Music Business Worldwide	-	outlet	120	https://www.musicbusinessworldwide.com/feed/
+research	Nursing Children and Young People	-	outlet	120	https://journals.rcni.com/feeds/ncyp
+tech	Tech Advisor	-	outlet	120	https://www.techadvisor.com/feed
+official	Kent County Public Schools	-	official	120	https://www.kent.k12.md.us/RSS/News/921419226794202.rss
+news	AllSides	-	outlet	120	https://www.allsides.com/news/rss
+tech	https://frame.work/	-	outlet	120	https://frame.work/blog.rss
+tech	Game Rant	-	outlet	120	https://gamerant.com/feed
+tech	Push Square	-	outlet	120	https://www.pushsquare.com/feeds/latest
+research	Physical Review Accelerators and Beams	-	outlet	120	http://feeds.aps.org/rss/recent/prstab.xml
+other	Pinkbike	-	outlet	120	https://www.pinkbike.com/pinkbike_xml_feed.php
+news	https://www.bruzz.be/	-	outlet	120	https://www.bruzz.be/rss.xml
+other	Committee to Protect Journalists	-	outlet	120	https://cpj.org/feed/atom/
+official	United States Air Force	-	official	120	https://www.af.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=1&isdashboardselected=0&max=20
+other	Strong Towns	-	outlet	120	https://www.strongtowns.org/journal?format=rss
+tech	The Cloudflare Blog	-	outlet	120	https://blog.cloudflare.com/rss/
+culture	Crunchyroll	-	outlet	120	https://feeds.feedburner.com/crunchyroll/rss
+research	Microsoft Research	-	outlet	120	https://www.microsoft.com/en-us/research/feed/
+news	IceNews	-	outlet	120	https://icenews.is/feed/
+research	Entomology Today	-	outlet	120	https://entomologytoday.org/feed/
+business	Ecosia	-	outlet	120	https://blog.ecosia.org/rss/
+culture	Sunday Miscellany	-	outlet	120	https://www.rte.ie/radio1/podcast/podcast_sundaymiscellany.xml
+tech	AUTOMATON WEST	-	outlet	120	https://automaton-media.com/en/feed/
+research	NutritionFacts	-	outlet	120	https://nutritionfacts.org/feed
+tech	LTT Labs	-	outlet	120	https://www.lttlabs.com/articles/rss.xml
+culture	Disney Parks Blog	-	outlet	120	https://disneyparksblog.com/feed/
+other	Marshall University	-	outlet	120	https://www.marshall.edu/feed/
+other	Fairleigh Dickinson University	-	outlet	120	https://www.fdu.edu/feed/
+official	Walter Reed National Military Medical Center	-	official	120	https://walterreed.tricare.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1,8&Site=1223&max=3
+tech	Gizmodo	-	outlet	120	https://gizmodo.com/rss
+news	Meet the Press	-	outlet	120	https://podcastfeeds.nbcnews.com/yf3E6y7x
+news	The Intercept	-	outlet	120	https://theintercept.com/feed/?rss
+research	Acta Neurochirurgica	-	outlet	120	https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=701&channel-name=Acta+Neurochirurgica
+research	BMC Veterinary Research	-	outlet	120	https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12917&channel-name=BMC+Veterinary+Research
+research	Health Research Policy and Systems	-	outlet	120	https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12961&channel-name=Health+Research+Policy+and+Systems
+research	Annals of the American Association of Geographers	-	outlet	120	https://www.tandfonline.com/feed/rss/raag21
+research	Veterinary Research	-	outlet	120	https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=13567&channel-name=Veterinary+Research
+research	International Society for Bayesian Analysis	-	outlet	120	https://bayesian.org/feed/
+tech	Techdirt	-	outlet	120	https://www.techdirt.com/feed/
+news	The Washington Post	-	outlet	120	http://feeds.washingtonpost.com/rss/politics
+other	iNaturalist	-	outlet	120	https://www.inaturalist.org/blog.atom
+other	American Studies Association	-	outlet	120	https://www.theasa.net/rss
+sports	USA Wrestling	-	outlet	120	https://www.themat.com/rss.xml
+news	The Federalist	-	outlet	120	https://www.spreaker.com/show/5457726/episodes/feed
+culture	PM Press	-	outlet	120	https://www.pmpress.org/blog/feed
+other	University of Texas at Dallas	-	outlet	120	https://www.utdallas.edu/feed/
+sports	Sports-Reference.com	-	outlet	120	https://www.sports-reference.com/blog/feed/
+research	Nature	-	outlet	120	http://feeds.nature.com/nature/rss/current
+news	ProPublica	-	outlet	120	http://feeds.propublica.org/propublica/main
+other	University of Tulsa	-	outlet	120	http://tulsahurricane.com/rss
+culture	Alt.Latino	-	outlet	120	https://feeds.npr.org/510305/podcast.xml
+official	United States Geological Survey	-	official	120	https://www.usgs.gov/news/all/feed
+research	National Institute of Mental Health	-	outlet	120	https://www.nimh.nih.gov/site-info/index-rss.atom
+other	Northwestern State University	-	outlet	120	https://www.nsula.edu/feed/
+research	Physical Review Letters	-	outlet	120	http://feeds.aps.org/rss/recent/prl.xml
+official	National Centers for Environmental Information	-	official	120	https://www.ncei.noaa.gov/news.xml
+other	Greater Greater Washington	-	outlet	120	https://ggwash.org/rss
+tech	Nintendo Life	-	outlet	120	https://www.nintendolife.com/feeds/latest
+other	American Civil Liberties Union	-	outlet	120	https://www.aclu.org/taxonomy/channel-term/1/feed
+tech	OpenAI	-	outlet	120	https://openai.com/news/rss.xml
+research	Cell Death and Disease	-	outlet	120	http://feeds.nature.com/cddis/rss/current
+research	ZooKeys	-	outlet	120	https://zookeys.pensoft.net/rss.php
+culture	Chortle	-	outlet	120	https://www.chortle.co.uk/rss/
+research	Zootaxa	-	outlet	120	https://www.mapress.com/zt/gateway/plugin/WebFeedGatewayPlugin/atom
+tech	Windows Central	-	outlet	120	http://feeds.windowscentral.com/wmexperts
+research	Physical Review B	-	outlet	120	http://feeds.aps.org/rss/recent/prb.xml
+other	Snopes	-	outlet	120	https://www.snopes.com/feed/
+tech	DC Rainmaker	-	outlet	120	https://www.dcrainmaker.com/feed/
+business	Yelp	-	outlet	120	https://www.yelpblog.com/feed/
+research	University of Manchester	-	outlet	120	https://www.manchester.ac.uk/about/news/tagfeed/en/tags/headlines
+official	National Aeronautics and Space Administration	-	official	120	https://www.nasa.gov/rss/dyn/breaking_news.rss
+official	National Aeronautics and Space Administration	-	official	120	https://www.nasa.gov/rss/dyn/educationnews.rss
+official	National Aeronautics and Space Administration	-	official	120	https://www.nasa.gov/rss/dyn/image_of_the_day.rss
+research	Our World in Data	-	outlet	120	https://ourworldindata.org/atom.xml
+official	Companies House	-	official	120	https://www.gov.uk/government/organisations/companies-house.atom
+tech	https://www.gameinformer.com	-	outlet	120	https://www.gameinformer.com/rss.xml
+research	Physical Review C	-	outlet	120	http://feeds.aps.org/rss/recent/prc.xml
+culture	Vulture	-	outlet	120	http://feeds.feedburner.com/nymag/vulture
+culture	Biography.com	-	outlet	120	https://www.biography.com/rss/all.xml
+other	Friends University	-	outlet	120	https://www.friends.edu/feed/
+other	1A	-	outlet	120	https://www.npr.org/rss/podcast.php?id=510316
+research	Palaeobiodiversity and Palaeoenvironments	-	outlet	120	https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12549&channel-name=Palaeobiodiversity+and+Palaeoenvironments
+culture	Car Talk	-	outlet	120	https://www.npr.org/templates/rss/podcast.php?id=510208
+research	Bulletin of the American Mathematical Society	-	outlet	120	https://www.ams.org/rss/bull.rss
+culture	American Music Therapy Association	-	outlet	120	https://www.musictherapy.org/rss/news.aspx
+culture	AllMusic	-	outlet	120	https://www.allmusic.com/rss
+culture	The A.V. Club	-	outlet	120	https://www.avclub.com/rss
+other	English Wikipedia	-	outlet	120	https://en.wikipedia.org/w/api.php?action=featuredfeed&feed=onthisday&feedformat=atom
+research	Physical Review A	-	outlet	120	http://feeds.aps.org/rss/recent/pra.xml
+research	Slavery & Abolition	-	outlet	120	https://www.tandfonline.com/feed/rss/fsla20
+other	St. Edward's University	-	outlet	120	https://www.stedwards.edu/rss.xml
+other	Adams State University	-	outlet	120	https://www.adams.edu/feed/
+tech	The Escapist	-	outlet	120	https://www.escapistmagazine.com/feed/
+official	Adaptation Fund	-	official	120	http://www.adaptation-fund.org/rss
+other	Washington Adventist University	-	outlet	120	https://www.wau.edu/feed/
+official	Equal Employment Opportunity Commission	-	official	120	https://eeoc.gov/rss.xml
+sports	The Athletic	-	outlet	120	https://theathletic.com/rss-feed/
+research	Scientific American	-	outlet	120	http://rss.sciam.com/ScientificAmerican-Global
+other	Landesa	-	outlet	120	https://www.landesa.org/feed/
+tech	https://venturebeat.com	-	outlet	120	http://feeds.feedburner.com/venturebeat/SZYF
+tech	https://www.gamespot.com	-	outlet	120	https://www.gamespot.com/feeds/mashup
+other	Internet Archive	-	outlet	120	https://blog.archive.org/feed/
+official	Miami-Dade County	-	official	120	https://www.miamidade.gov/global/rss-news.page
+news	Al-Monitor	-	outlet	120	https://www.al-monitor.com/rss
+other	All in the Mind	-	outlet	120	https://podcasts.files.bbci.co.uk/b006qxx9.rss
+research	Annals of Pharmacotherapy	-	outlet	120	https://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=aopd&type=axatoc&feed=rss
+research	Annals of Pharmacotherapy	-	outlet	120	https://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=aopd&type=etoc&feed=rss
+other	Georgia Southern University-Armstrong Campus	-	outlet	120	https://www.georgiasouthern.edu/feed
+tech	CA/Browser Forum	-	outlet	120	https://cabforum.org/posts/feed/
+other	CSU–Global Campus	-	outlet	120	https://csuglobal.edu/feed
+research	Citizen Lab	-	outlet	120	https://citizenlab.ca/feed/
+culture	College Art Association	-	outlet	120	http://www.collegeart.org/news/feed/
+other	Communication Arts	-	outlet	120	https://www.commarts.com/feed
+tech	Corporation for Education Network Initiatives in California	-	outlet	120	https://cenic.org/rss
+sports	Deadspin	-	outlet	120	https://deadspin.com/rss
+other	Dominican University	-	outlet	120	https://www.dom.edu/rss.xml
+other	Drury University	-	outlet	120	https://www.drury.edu/feed/
+other	FactCheck.org	-	outlet	120	https://www.factcheck.org/feed/
+other	Fielding Graduate University	-	outlet	120	https://www.fielding.edu/feed/
+business	Washington Business Journal	-	outlet	120	https://rss.bizjournals.com/feed/2c976b9e9ab38dbe5a468eeb848e17dc76188c19/2102?market=washington&selectortype=channel&selectorvalue=1,6,2,3,4,13,17,5,9,10,18,7,11,12,14,15,8,16
+other	Graham School of Continuing Liberal and Professional Studies	-	outlet	120	https://graham.uchicago.edu/feed/
+news	TheGuardian.com	-	outlet	120	https://www.theguardian.com/international/rss
+other	Wikimedia Commons	-	outlet	120	https://commons.wikimedia.org/w/api.php?action=featuredfeed&feed=motd&feedformat=atom
+other	Wikimedia Commons	-	outlet	120	https://commons.wikimedia.org/w/api.php?action=featuredfeed&feed=potd&feedformat=atom
+other	Extinction Rebellion	-	outlet	120	https://rebellion.global/feed.xml
+tech	Slashdot	-	outlet	120	http://rss.slashdot.org/Slashdot/slashdotMain
+research	IFLA Journal	-	outlet	120	https://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=iflb&type=etoc&feed=rss
+other	Iowa State University College of Business	-	outlet	120	https://www.ivybusiness.iastate.edu/feed/
+other	Iowa State University College of Liberal Arts and Sciences	-	outlet	120	https://las.iastate.edu/feed/
+tech	Lobsters	-	outlet	120	https://lobste.rs/rss
+tech	TechRadar	-	outlet	120	https://www.techradar.com/uk/rss
+research	United States National Library of Medicine	-	outlet	120	https://www.nlm.nih.gov/rss/nlmnews.rss
+research	United States National Library of Medicine	-	outlet	120	https://www.nlm.nih.gov/rss/techbull.rss
+official	Montgomery Parks	-	official	120	https://montgomeryparks.org/feed/
+official	Montgomery County Planning Department	-	official	120	https://montgomeryplanning.org/feed
+tech	https://www.gamesindustry.biz	-	outlet	120	https://www.gamesindustry.biz/feed
+tech	Electronic Frontier Foundation	-	outlet	120	https://www.eff.org/rss/updates.xml
+tech	https://www.macworld.com	-	outlet	120	https://www.macworld.com/feed
+other	McNeese State University	-	outlet	120	https://www.mcneese.edu/feed/
+research	AGU Advances	-	outlet	120	https://agupubs.onlinelibrary.wiley.com/feed/2576604x/most-recent
+other	Lawton Chiles Legal Information Center	-	outlet	120	http://www.law.ufl.edu/feed
+research	The Astronomical Journal	-	outlet	120	https://iopscience.iop.org/journal/rss/1538-3881
+other	Midland University	-	outlet	120	https://www.midlandu.edu/feed/
+business	Domain Name Wire	-	outlet	120	https://domainnamewire.com/feed
+other	Mount Vernon Nazarene University	-	outlet	120	https://mvnu.edu/feed/
+other	NASBE	-	outlet	120	https://www.nasbe.org/feed/
+research	National Agricultural Law Center	-	outlet	120	https://nationalaglawcenter.org/feed/
+other	National Association of Episcopal Schools	-	outlet	120	https://www.episcopalschools.org/feed
+other	North Central Missouri College	-	outlet	120	https://www.ncmissouri.edu/feed/
+research	Northeast Ohio Medical University	-	outlet	120	https://www.neomed.edu/feed/
+tech	PC World	-	outlet	120	https://www.pcworld.com/feed
+official	Oklahoma State System of Higher Education	-	official	120	https://okhighered.org/feed/
+culture	Organization for Transformative Works	-	outlet	120	https://www.transformativeworks.org/feed/
+news	PBS News Hour	-	outlet	120	https://www.pbs.org/newshour/feeds/rss/economy
+news	PBS News Hour	-	outlet	120	https://www.pbs.org/newshour/feeds/rss/education
+news	PBS News Hour	-	outlet	120	https://www.pbs.org/newshour/feeds/rss/politics
+news	Taipei Times	-	outlet	120	https://www.taipeitimes.com/xml/index.rss
+other	Pensacola State College	-	outlet	120	https://www.pensacolastate.edu/feed/
+tech	https://www.pocketgamer.com	-	outlet	120	https://www.pocketgamer.com/rss
+other	Point Loma Nazarene University	-	outlet	120	https://www.pointloma.edu/rss.xml
+research	Purdue University College of Technology	-	outlet	120	https://polytechnic.purdue.edu/rss.xml
+other	Queens University of Charlotte	-	outlet	120	https://www.queens.edu/feed/
+official	Richland County School District Two	-	official	120	https://www.richland2.org/fs/post-manager/boards/6/posts/feed
+other	Robert M. La Follette School of Public Affairs	-	outlet	120	https://lafollette.wisc.edu/feed/
+other	University of Maryland, Baltimore County	-	outlet	120	https://umbc.edu/feed/
+research	Russell Sage Foundation	-	outlet	120	https://www.russellsage.org/rss.xml
+other	Society of American Archivists	-	outlet	120	https://www2.archivists.org/latest/feed
+other	Stevenson University	-	outlet	120	https://www.stevenson.edu/feed/
+other	Sul Ross State University	-	outlet	120	https://www.sulross.edu/feed/
+other	The News Quiz	-	outlet	120	https://podcasts.files.bbci.co.uk/p02pc9pj.rss
+research	LSE Impact Blog	-	outlet	120	http://feeds.feedburner.com/feedburner/LSEImpactBlog
+other	Washingtonian	-	outlet	120	https://washingtonian.com/feed/
+other	University of Kentucky College of Communications & Informati	-	outlet	120	https://ci.uky.edu/rss.xml
+other	VegNews	-	outlet	120	http://vegnews.com/rss.do
+news	WRBL	-	outlet	120	https://www.wrbl.com/feed
+research	Water Resources Research	-	outlet	120	https://agupubs.onlinelibrary.wiley.com/feed/19447973/most-recent
+other	Which?	-	outlet	120	https://www.which.co.uk/news/feed
+tech	media.ccc.de	-	outlet	120	https://media.ccc.de/updates.rdf
+official	Prime Minister of Canada	-	official	120	https://www.pm.gc.ca/en/media.rss
+tech	https://www.rockpapershotgun.com	-	outlet	120	https://www.rockpapershotgun.com/feed
+tech	Android Central	-	outlet	120	http://feeds.androidcentral.com/androidcentral
+tech	Boing Boing	-	outlet	120	https://boingboing.net/feed
+tech	Boing Boing	-	outlet	120	https://boingboing.net/feed/atom
+tech	OpenStreetMap	-	outlet	120	https://blog.openstreetmap.org/rsslatest.xml
+tech	OpenStreetMap	-	outlet	120	https://www.openstreetmap.org/diary/rss
+other	University of Illinois Springfield	-	outlet	120	https://www.uis.edu/rss.xml
+other	Institute for Family Studies	-	outlet	120	https://ifstudies.org/blog/rss
+news	The Daily Memphian	-	outlet	120	https://dailymemphian.com/feed
+tech	https://www.mozilla.org/en-US/	-	outlet	120	https://blog.mozilla.org/en/feed/
+tech	GamingOnLinux	-	outlet	120	https://www.gamingonlinux.com/article_rss.php
+other	USAPP - American Politics and Policy Blog	-	outlet	120	http://feeds.feedburner.com/USApp
+other	EUROPP - European Politics and Policy Blog	-	outlet	120	http://feeds.feedburner.com/Europp
+business	LSE Business Review Blog	-	outlet	120	https://blogs.lse.ac.uk/businessreview/feed/
+research	University of Washington Department of Sociology	-	outlet	120	https://soc.washington.edu/news.xml
+official	Library of Congress Blog	-	official	120	https://blogs.loc.gov/loc/feed/
+news	Rest of World	-	outlet	120	https://restofworld.org/feed/latest
+# --- provenance (url <TAB> source) ---
+# https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom	page:https://earthquake.usgs.gov/earthquakes/feed/v1.0/atom.php
+# https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed/Recalls-RSS	page:https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed
+# https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed/News-RSS	page:https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed
+# https://www.nasa.gov/feed/	page:https://www.nasa.gov/rss-feeds/
+# https://www.nasa.gov/technology/feed/	page:https://www.nasa.gov/rss-feeds/
+# https://www.nasa.gov/missions/station/feed/	page:https://www.nasa.gov/rss-feeds/
+# https://www.nasa.gov/missions/artemis/feed/	page:https://www.nasa.gov/rss-feeds/
+# https://www.bls.gov/feed/cewqtr.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/empsit.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/jolts.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/realer.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/laus.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/cpi.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/ppi.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/ximpim.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/eci.rss	page:https://www.bls.gov/feed/
+# https://www.bls.gov/feed/prod2.rss	page:https://www.bls.gov/feed/
+# https://www.nhc.noaa.gov/gtwo.xml	page:https://www.nhc.noaa.gov/aboutrss.shtml
+# https://www.nhc.noaa.gov/index-ep.xml	page:https://www.nhc.noaa.gov/aboutrss.shtml
+# https://www.nhc.noaa.gov/index-cp.xml	page:https://www.nhc.noaa.gov/aboutrss.shtml
+# https://www.france24.com/en/europe/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/france/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/africa/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/americas/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/asia-pacific/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/business/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/sport/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/culture/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/earth/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.france24.com/en/health/rss	page:https://www.france24.com/en/rss-feeds
+# https://www.cbc.ca/webfeed/rss/rss-topstories	page:https://www.cbc.ca/rss/
+# https://www.cbc.ca/webfeed/rss/rss-canada	page:https://www.cbc.ca/rss/
+# https://www.cbc.ca/webfeed/rss/rss-politics	page:https://www.cbc.ca/rss/
+# https://www.cbc.ca/webfeed/rss/rss-business	page:https://www.cbc.ca/rss/
+# https://www.cbc.ca/webfeed/rss/rss-health	page:https://www.cbc.ca/rss/
+# https://www.cbc.ca/webfeed/rss/rss-arts	page:https://www.cbc.ca/rss/
+# https://www.cbc.ca/webfeed/rss/rss-technology	page:https://www.cbc.ca/rss/
+# https://www.cbc.ca/webfeed/rss/rss-sports	page:https://www.cbc.ca/rss/
+# https://www.rnz.co.nz/rss/news.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/business.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/on-the-inside.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/community.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/education.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/health.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/in-depth.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/indonz.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/ldr.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/pacific.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/political.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/sport.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/te-manu-korihi.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/weather.xml	page:https://www.rnz.co.nz/rss
+# https://www.rnz.co.nz/rss/world.xml	page:https://www.rnz.co.nz/rss
+# https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml	page:https://www.channelnewsasia.com/rss
+# https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511	page:https://www.channelnewsasia.com/rss
+# https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936	page:https://www.channelnewsasia.com/rss
+# https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10416	page:https://www.channelnewsasia.com/rss
+# https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10296	page:https://www.channelnewsasia.com/rss
+# https://theconversation.com/us/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/arts/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/business/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/education/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/ethics/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/health/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/politics/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/world/articles.atom	page:https://theconversation.com/us/feeds
+# https://theconversation.com/us/local/articles.atom	page:https://theconversation.com/us/feeds
+# https://kffhealthnews.org/topics/aging/feed/	page:https://kffhealthnews.org/rss-feeds/
+# https://kffhealthnews.org/topics/health-industry/feed/	page:https://kffhealthnews.org/rss-feeds/
+# https://kffhealthnews.org/topics/race-and-health/feed/	page:https://kffhealthnews.org/rss-feeds/
+# https://kffhealthnews.org/topics/mental-health/feed/	page:https://kffhealthnews.org/rss-feeds/
+# https://rss.dw.com/rdf/rss-en-all	direct
+# https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml	direct
+# https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/recalls/rss.xml	direct
+# https://www.nih.gov/news-releases/feed.xml	direct
+# https://www.fema.gov/feeds/news.rss	direct
+# https://www.spc.noaa.gov/products/spcwwrss.xml	direct
+# https://api.weather.gov/alerts/active.atom	direct
+# https://corporate.target.com/article/all/feed	wikidata:Q1046951
+# https://www.musicbusinessworldwide.com/feed/	wikidata:Q104880831
+# https://journals.rcni.com/feeds/ncyp	wikidata:Q107179902
+# https://www.techadvisor.com/feed	wikidata:Q107337541
+# https://www.kent.k12.md.us/RSS/News/921419226794202.rss	wikidata:Q107349154
+# https://www.allsides.com/news/rss	wikidata:Q107652036
+# https://frame.work/blog.rss	wikidata:Q107661386
+# https://gamerant.com/feed	wikidata:Q108723206
+# https://www.pushsquare.com/feeds/latest	wikidata:Q108733456
+# http://feeds.aps.org/rss/recent/prstab.xml	wikidata:Q109302751
+# https://www.pinkbike.com/pinkbike_xml_feed.php	wikidata:Q109658377
+# https://www.bruzz.be/rss.xml	wikidata:Q110494976
+# https://cpj.org/feed/atom/	wikidata:Q1115813
+# https://www.af.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=1&isdashboardselected=0&max=20	wikidata:Q11223
+# https://www.strongtowns.org/journal?format=rss	wikidata:Q113366518
+# https://blog.cloudflare.com/rss/	wikidata:Q113653785
+# https://feeds.feedburner.com/crunchyroll/rss	wikidata:Q1142035
+# https://www.microsoft.com/en-us/research/feed/	wikidata:Q1144725
+# https://icenews.is/feed/	wikidata:Q12349107
+# https://entomologytoday.org/feed/	wikidata:Q124464863
+# https://blog.ecosia.org/rss/	wikidata:Q1282139
+# https://www.rte.ie/radio1/podcast/podcast_sundaymiscellany.xml	wikidata:Q131539901
+# https://automaton-media.com/en/feed/	wikidata:Q135179723
+# https://nutritionfacts.org/feed	wikidata:Q135921098
+# https://www.lttlabs.com/articles/rss.xml	wikidata:Q135932328
+# https://disneyparksblog.com/feed/	wikidata:Q137771867
+# https://www.marshall.edu/feed/	wikidata:Q1379613
+# https://www.fdu.edu/feed/	wikidata:Q1393301
+# https://walterreed.tricare.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1,8&Site=1223&max=3	wikidata:Q1457886
+# https://gizmodo.com/rss	wikidata:Q1528871
+# https://podcastfeeds.nbcnews.com/yf3E6y7x	wikidata:Q1543066
+# https://theintercept.com/feed/?rss	wikidata:Q15725297
+# https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=701&channel-name=Acta+Neurochirurgica	wikidata:Q15749688
+# https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12917&channel-name=BMC+Veterinary+Research	wikidata:Q15751340
+# https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12961&channel-name=Health+Research+Policy+and+Systems	wikidata:Q15751858
+# https://www.tandfonline.com/feed/rss/raag21	wikidata:Q15753179
+# https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=13567&channel-name=Veterinary+Research	wikidata:Q15761008
+# https://bayesian.org/feed/	wikidata:Q15995201
+# https://www.techdirt.com/feed/	wikidata:Q1647664
+# http://feeds.washingtonpost.com/rss/politics	wikidata:Q166032
+# https://www.inaturalist.org/blog.atom	wikidata:Q16958215
+# https://www.theasa.net/rss	wikidata:Q16970792
+# https://www.themat.com/rss.xml	wikidata:Q17028949
+# https://www.spreaker.com/show/5457726/episodes/feed	wikidata:Q17086113
+# https://www.pmpress.org/blog/feed	wikidata:Q177136
+# https://www.utdallas.edu/feed/	wikidata:Q1781394
+# https://www.sports-reference.com/blog/feed/	wikidata:Q18002875
+# http://feeds.nature.com/nature/rss/current	wikidata:Q180445
+# http://feeds.propublica.org/propublica/main	wikidata:Q1817856
+# http://tulsahurricane.com/rss	wikidata:Q1848657
+# https://feeds.npr.org/510305/podcast.xml	wikidata:Q18614227
+# https://www.usgs.gov/news/all/feed	wikidata:Q193755
+# https://www.nimh.nih.gov/site-info/index-rss.atom	wikidata:Q1967405
+# https://www.nsula.edu/feed/	wikidata:Q2001231
+# http://feeds.aps.org/rss/recent/prl.xml	wikidata:Q2018386
+# https://www.ncei.noaa.gov/news.xml	wikidata:Q21015842
+# https://ggwash.org/rss	wikidata:Q21283241
+# https://www.nintendolife.com/feeds/latest	wikidata:Q21563301
+# https://www.aclu.org/taxonomy/channel-term/1/feed	wikidata:Q21637
+# https://openai.com/news/rss.xml	wikidata:Q21708200
+# http://feeds.nature.com/cddis/rss/current	wikidata:Q2197222
+# https://zookeys.pensoft.net/rss.php	wikidata:Q219980
+# https://www.chortle.co.uk/rss/	wikidata:Q22032073
+# https://www.mapress.com/zt/gateway/plugin/WebFeedGatewayPlugin/atom	wikidata:Q220370
+# http://feeds.windowscentral.com/wmexperts	wikidata:Q22099055
+# http://feeds.aps.org/rss/recent/prb.xml	wikidata:Q2284414
+# https://www.snopes.com/feed/	wikidata:Q2287154
+# https://www.dcrainmaker.com/feed/	wikidata:Q22907683
+# https://www.yelpblog.com/feed/	wikidata:Q2299611
+# https://www.manchester.ac.uk/about/news/tagfeed/en/tags/headlines	wikidata:Q230899
+# https://www.nasa.gov/rss/dyn/breaking_news.rss	wikidata:Q23548
+# https://www.nasa.gov/rss/dyn/educationnews.rss	wikidata:Q23548
+# https://www.nasa.gov/rss/dyn/image_of_the_day.rss	wikidata:Q23548
+# https://ourworldindata.org/atom.xml	wikidata:Q23680080
+# https://www.gov.uk/government/organisations/companies-house.atom	wikidata:Q257303
+# https://www.gameinformer.com/rss.xml	wikidata:Q27197
+# http://feeds.aps.org/rss/recent/prc.xml	wikidata:Q2779854
+# http://feeds.feedburner.com/nymag/vulture	wikidata:Q27881700
+# https://www.biography.com/rss/all.xml	wikidata:Q28025983
+# https://www.friends.edu/feed/	wikidata:Q284508
+# https://www.npr.org/rss/podcast.php?id=510316	wikidata:Q28453292
+# https://link.springer.com/search.rss?facet-content-type=Article&facet-journal-id=12549&channel-name=Palaeobiodiversity+and+Palaeoenvironments	wikidata:Q29043714
+# https://www.npr.org/templates/rss/podcast.php?id=510208	wikidata:Q2917613
+# https://www.ams.org/rss/bull.rss	wikidata:Q2928101
+# https://www.musictherapy.org/rss/news.aspx	wikidata:Q30270811
+# https://www.allmusic.com/rss	wikidata:Q31181
+# https://www.avclub.com/rss	wikidata:Q3233970
+# https://en.wikipedia.org/w/api.php?action=featuredfeed&feed=onthisday&feedformat=atom	wikidata:Q328
+# http://feeds.aps.org/rss/recent/pra.xml	wikidata:Q3382012
+# https://www.tandfonline.com/feed/rss/fsla20	wikidata:Q3486571
+# https://www.stedwards.edu/rss.xml	wikidata:Q3495253
+# https://www.adams.edu/feed/	wikidata:Q351971
+# https://www.escapistmagazine.com/feed/	wikidata:Q3520773
+# http://www.adaptation-fund.org/rss	wikidata:Q352378
+# https://www.wau.edu/feed/	wikidata:Q3551510
+# https://eeoc.gov/rss.xml	wikidata:Q3673184
+# https://theathletic.com/rss-feed/	wikidata:Q39087006
+# http://rss.sciam.com/ScientificAmerican-Global	wikidata:Q39379
+# https://www.landesa.org/feed/	wikidata:Q4042590
+# http://feeds.feedburner.com/venturebeat/SZYF	wikidata:Q4052640
+# https://www.gamespot.com/feeds/mashup	wikidata:Q45836
+# https://blog.archive.org/feed/	wikidata:Q461
+# https://www.miamidade.gov/global/rss-news.page	wikidata:Q468557
+# https://www.al-monitor.com/rss	wikidata:Q4702909
+# https://podcasts.files.bbci.co.uk/b006qxx9.rss	wikidata:Q4730021
+# https://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=aopd&type=axatoc&feed=rss	wikidata:Q4767858
+# https://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=aopd&type=etoc&feed=rss	wikidata:Q4767858
+# https://www.georgiasouthern.edu/feed	wikidata:Q4793919
+# https://cabforum.org/posts/feed/	wikidata:Q5008462
+# https://csuglobal.edu/feed	wikidata:Q5014426
+# https://citizenlab.ca/feed/	wikidata:Q5122568
+# http://www.collegeart.org/news/feed/	wikidata:Q5146323
+# https://www.commarts.com/feed	wikidata:Q5154089
+# https://cenic.org/rss	wikidata:Q5172534
+# https://deadspin.com/rss	wikidata:Q5245710
+# https://www.dom.edu/rss.xml	wikidata:Q5290854
+# https://www.drury.edu/feed/	wikidata:Q5309401
+# https://www.factcheck.org/feed/	wikidata:Q5428664
+# https://www.fielding.edu/feed/	wikidata:Q5447173
+# https://rss.bizjournals.com/feed/2c976b9e9ab38dbe5a468eeb848e17dc76188c19/2102?market=washington&selectortype=channel&selectorvalue=1,6,2,3,4,13,17,5,9,10,18,7,11,12,14,15,8,16	wikidata:Q55665960
+# https://graham.uchicago.edu/feed/	wikidata:Q5593213
+# https://www.theguardian.com/international/rss	wikidata:Q5614018
+# https://commons.wikimedia.org/w/api.php?action=featuredfeed&feed=motd&feedformat=atom	wikidata:Q565
+# https://commons.wikimedia.org/w/api.php?action=featuredfeed&feed=potd&feedformat=atom	wikidata:Q565
+# https://rebellion.global/feed.xml	wikidata:Q58819597
+# http://rss.slashdot.org/Slashdot/slashdotMain	wikidata:Q59083
+# https://journals.sagepub.com/action/showFeed?ui=0&mi=ehikzz&ai=2b4&jc=iflb&type=etoc&feed=rss	wikidata:Q5970787
+# https://www.ivybusiness.iastate.edu/feed/	wikidata:Q6064651
+# https://las.iastate.edu/feed/	wikidata:Q6064657
+# https://lobste.rs/rss	wikidata:Q60762874
+# https://www.techradar.com/uk/rss	wikidata:Q611515
+# https://www.nlm.nih.gov/rss/nlmnews.rss	wikidata:Q611833
+# https://www.nlm.nih.gov/rss/techbull.rss	wikidata:Q611833
+# https://montgomeryparks.org/feed/	wikidata:Q61359691
+# https://montgomeryplanning.org/feed	wikidata:Q61459306
+# https://www.gamesindustry.biz/feed	wikidata:Q61740436
+# https://www.eff.org/rss/updates.xml	wikidata:Q624023
+# https://www.macworld.com/feed	wikidata:Q631823
+# https://www.mcneese.edu/feed/	wikidata:Q634396
+# https://agupubs.onlinelibrary.wiley.com/feed/2576604x/most-recent	wikidata:Q64412529
+# http://www.law.ufl.edu/feed	wikidata:Q6505047
+# https://iopscience.iop.org/journal/rss/1538-3881	wikidata:Q669166
+# https://www.midlandu.edu/feed/	wikidata:Q6842463
+# https://domainnamewire.com/feed	wikidata:Q68936468
+# https://mvnu.edu/feed/	wikidata:Q6924393
+# https://www.nasbe.org/feed/	wikidata:Q6952456
+# https://nationalaglawcenter.org/feed/	wikidata:Q6970223
+# https://www.episcopalschools.org/feed	wikidata:Q6970658
+# https://www.ncmissouri.edu/feed/	wikidata:Q7054751
+# https://www.neomed.edu/feed/	wikidata:Q7057949
+# https://www.pcworld.com/feed	wikidata:Q707291
+# https://okhighered.org/feed/	wikidata:Q7082374
+# https://www.transformativeworks.org/feed/	wikidata:Q7101949
+# https://www.pbs.org/newshour/feeds/rss/economy	wikidata:Q7118447
+# https://www.pbs.org/newshour/feeds/rss/education	wikidata:Q7118447
+# https://www.pbs.org/newshour/feeds/rss/politics	wikidata:Q7118447
+# https://www.taipeitimes.com/xml/index.rss	wikidata:Q714427
+# https://www.pensacolastate.edu/feed/	wikidata:Q7164705
+# https://www.pocketgamer.com/rss	wikidata:Q7206402
+# https://www.pointloma.edu/rss.xml	wikidata:Q7208069
+# https://polytechnic.purdue.edu/rss.xml	wikidata:Q7260994
+# https://www.queens.edu/feed/	wikidata:Q7270829
+# https://www.richland2.org/fs/post-manager/boards/6/posts/feed	wikidata:Q7330621
+# https://lafollette.wisc.edu/feed/	wikidata:Q7347147
+# https://umbc.edu/feed/	wikidata:Q735049
+# https://www.russellsage.org/rss.xml	wikidata:Q7381762
+# https://www2.archivists.org/latest/feed	wikidata:Q7552352
+# https://www.stevenson.edu/feed/	wikidata:Q7615536
+# https://www.sulross.edu/feed/	wikidata:Q7635933
+# https://podcasts.files.bbci.co.uk/p02pc9pj.rss	wikidata:Q7753924
+# http://feeds.feedburner.com/feedburner/LSEImpactBlog	wikidata:Q77710848
+# https://washingtonian.com/feed/	wikidata:Q7773648
+# https://ci.uky.edu/rss.xml	wikidata:Q7895590
+# http://vegnews.com/rss.do	wikidata:Q7918242
+# https://www.wrbl.com/feed	wikidata:Q7954894
+# https://agupubs.onlinelibrary.wiley.com/feed/19447973/most-recent	wikidata:Q7973358
+# https://www.which.co.uk/news/feed	wikidata:Q7993544
+# https://media.ccc.de/updates.rdf	wikidata:Q80729951
+# https://www.pm.gc.ca/en/media.rss	wikidata:Q839078
+# https://www.rockpapershotgun.com/feed	wikidata:Q844055
+# http://feeds.androidcentral.com/androidcentral	wikidata:Q85140373
+# https://boingboing.net/feed	wikidata:Q891048
+# https://boingboing.net/feed/atom	wikidata:Q891048
+# https://blog.openstreetmap.org/rsslatest.xml	wikidata:Q936
+# https://www.openstreetmap.org/diary/rss	wikidata:Q936
+# https://www.uis.edu/rss.xml	wikidata:Q941855
+# https://ifstudies.org/blog/rss	wikidata:Q95395171
+# https://dailymemphian.com/feed	wikidata:Q96197149
+# https://blog.mozilla.org/en/feed/	wikidata:Q9661
+# https://www.gamingonlinux.com/article_rss.php	wikidata:Q97362088
+# http://feeds.feedburner.com/USApp	wikidata:Q98216510
+# http://feeds.feedburner.com/Europp	wikidata:Q98266065
+# https://blogs.lse.ac.uk/businessreview/feed/	wikidata:Q98271751
+# https://soc.washington.edu/news.xml	wikidata:Q98825276
+# https://blogs.loc.gov/loc/feed/	wikidata:Q99624619
+# https://restofworld.org/feed/latest	wikidata:Q99674412

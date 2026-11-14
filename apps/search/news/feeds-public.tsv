@@ -1,0 +1,222 @@
+# Feeds for the PUBLIC site's news box (search.logout.cloud) — ADR-062.
+# The page shows headline, outlet, time and a link to the publisher — never a summary, an image or
+# article text (the gateway enforces it). Basis: a headline with a link is link use, not a copy.
+#   1. CLEARED rows (first block): public domain, Creative Commons, or the outlet's RSS terms permit it.
+#   2. OUTLET rows (second block): the hand-approved feeds.tsv outlets (kind outlet/official), shown as
+#      headline + link under that basis. Left out on purpose:
+#        - outlets whose FEED-SPECIFIC terms restrict reuse: Reuters, Fox News, NBCUniversal (NBC News,
+#          CNBC, MSNBC, NBC's local stations), CBC
+#        - AP and Reuters altogether (they license headlines as a product), CNN's news sitemap
+#        - wire/news sitemaps, journalists' Bluesky/Mastodon posts, newsletters (personal posts, not
+#          outlet feeds), Hacker News (a third-party feed), SEC (refuses pollers without a contact)
+#        - NWS active alerts and SPC watches (boilerplate; the weather card shows alerts)
+# Opt-out: a publisher that asks is removed (delete its rows, redeploy search-public). The poller's
+# User-Agent names the site. Adding a row needs either a basis line (block 1) or a feeds.tsv outlet row.
+# Columns as feeds.tsv:
+# section	name	lean	kind	poll	url
+# --- 1. cleared ---
+business	Federal Reserve — Press releases	-	official	30	https://www.federalreserve.gov/feeds/press_all.xml
+science	NASA — News releases	-	official	60	https://www.nasa.gov/news-release/feed/
+science	USGS — Significant earthquakes (week)	-	official	15	https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.atom
+official	USGS Earthquakes	-	official	15	https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom
+official	CPSC recalls	-	official	60	https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed/Recalls-RSS
+official	CPSC recalls	-	official	60	https://www.cpsc.gov/Newsroom/CPSC-RSS-Feed/News-RSS
+official	NASA	-	official	60	https://www.nasa.gov/feed/
+official	NASA	-	official	60	https://www.nasa.gov/technology/feed/
+official	NASA	-	official	60	https://www.nasa.gov/missions/station/feed/
+official	NASA	-	official	60	https://www.nasa.gov/missions/artemis/feed/
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/cewqtr.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/empsit.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/jolts.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/realer.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/laus.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/cpi.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/ppi.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/ximpim.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/eci.rss
+official	Bureau of Labor Statistics	-	official	60	https://www.bls.gov/feed/prod2.rss
+official	National Hurricane Center	-	official	15	https://www.nhc.noaa.gov/gtwo.xml
+official	National Hurricane Center	-	official	15	https://www.nhc.noaa.gov/index-ep.xml
+official	National Hurricane Center	-	official	15	https://www.nhc.noaa.gov/index-cp.xml
+science	The Conversation	-	outlet	60	https://theconversation.com/us/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/arts/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/business/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/education/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/ethics/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/health/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/politics/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/world/articles.atom
+science	The Conversation	-	outlet	60	https://theconversation.com/us/local/articles.atom
+official	FDA — Press releases	-	official	60	https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml
+official	FDA — Recalls	-	official	60	https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/recalls/rss.xml
+official	NIH — News releases	-	official	60	https://www.nih.gov/news-releases/feed.xml
+official	FEMA — News	-	official	60	https://www.fema.gov/feeds/news.rss
+official	United States Air Force	-	official	120	https://www.af.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=1&isdashboardselected=0&max=20
+official	Walter Reed National Military Medical Center	-	official	120	https://walterreed.tricare.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1,8&Site=1223&max=3
+official	United States Geological Survey	-	official	120	https://www.usgs.gov/news/all/feed
+research	National Institute of Mental Health	-	outlet	120	https://www.nimh.nih.gov/site-info/index-rss.atom
+official	National Centers for Environmental Information	-	official	120	https://www.ncei.noaa.gov/news.xml
+official	National Aeronautics and Space Administration	-	official	120	https://www.nasa.gov/rss/dyn/breaking_news.rss
+official	National Aeronautics and Space Administration	-	official	120	https://www.nasa.gov/rss/dyn/educationnews.rss
+official	National Aeronautics and Space Administration	-	official	120	https://www.nasa.gov/rss/dyn/image_of_the_day.rss
+research	Our World in Data	-	outlet	120	https://ourworldindata.org/atom.xml
+official	Equal Employment Opportunity Commission	-	official	120	https://eeoc.gov/rss.xml
+research	United States National Library of Medicine	-	outlet	120	https://www.nlm.nih.gov/rss/nlmnews.rss
+research	United States National Library of Medicine	-	outlet	120	https://www.nlm.nih.gov/rss/techbull.rss
+official	Library of Congress Blog	-	official	120	https://blogs.loc.gov/loc/feed/
+tech	TechCrunch	-	outlet	15	https://techcrunch.com/feed/
+science	ScienceDaily	-	outlet	60	https://www.sciencedaily.com/rss/all.xml
+# --- 2. outlets (feeds.tsv, headline + link) ---
+world	BBC News — World	center	outlet	5	https://feeds.bbci.co.uk/news/world/rss.xml
+world	BBC News — Top stories	center	outlet	5	https://feeds.bbci.co.uk/news/rss.xml
+world	BBC News — Middle East	center	outlet	10	https://feeds.bbci.co.uk/news/world/middle_east/rss.xml
+world	BBC News — US & Canada	center	outlet	10	https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml
+world	Al Jazeera English	lean-left	outlet	5	https://www.aljazeera.com/xml/rss/all.xml
+world	The Guardian — World	lean-left	outlet	10	https://www.theguardian.com/world/rss
+world	DW — World	center	outlet	15	https://rss.dw.com/rdf/rss-en-world
+world	France 24 — English	center	outlet	15	https://www.france24.com/en/rss
+world	France 24 — Middle East	center	outlet	15	https://www.france24.com/en/middle-east/rss
+world	Sky News — World	center	outlet	10	https://feeds.skynews.com/feeds/rss/world.xml
+world	ABC News (Australia)	center	outlet	15	https://www.abc.net.au/news/feed/51120/rss.xml
+world	The Times of Israel	center	outlet	10	https://www.timesofisrael.com/feed/
+world	Middle East Eye	lean-left	outlet	15	https://www.middleeasteye.net/rss
+world	South China Morning Post — World	center	outlet	15	https://www.scmp.com/rss/91/feed
+world	The Japan Times	center	outlet	30	https://www.japantimes.co.jp/feed/
+world	The Hindu — International	center	outlet	30	https://www.thehindu.com/news/international/feeder/default.rss
+world	The Independent — World	lean-left	outlet	15	https://www.independent.co.uk/news/world/rss
+world	The Economist — Latest	center	outlet	30	https://www.economist.com/latest/rss.xml
+us	NPR — News	lean-left	outlet	5	https://feeds.npr.org/1001/rss.xml
+us	NPR — World	lean-left	outlet	10	https://feeds.npr.org/1004/rss.xml
+us	NPR — Politics	lean-left	outlet	10	https://feeds.npr.org/1014/rss.xml
+us	PBS NewsHour — Headlines	center	outlet	10	https://www.pbs.org/newshour/feeds/rss/headlines
+us	The New York Times — Home	lean-left	outlet	5	https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
+us	The New York Times — World	lean-left	outlet	10	https://rss.nytimes.com/services/xml/rss/nyt/World.xml
+us	The New York Times — Politics	lean-left	outlet	10	https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml
+us	The Washington Post — National	lean-left	outlet	10	https://feeds.washingtonpost.com/rss/national
+us	The Washington Post — World	lean-left	outlet	10	https://feeds.washingtonpost.com/rss/world
+us	The Washington Post — Politics	lean-left	outlet	10	https://feeds.washingtonpost.com/rss/politics
+us	The Wall Street Journal — World	center	outlet	10	https://feeds.a.dj.com/rss/RSSWorldNews.xml
+us	CBS News — Latest	center	outlet	5	https://www.cbsnews.com/latest/rss/main
+us	CBS News — Politics	center	outlet	10	https://www.cbsnews.com/latest/rss/politics
+us	ABC News — Top stories	lean-left	outlet	5	https://feeds.abcnews.com/abcnews/topstories
+us	New York Post	lean-right	outlet	5	https://nypost.com/feed/
+us	The Washington Times	lean-right	outlet	10	https://www.washingtontimes.com/rss/headlines/news/
+us	Washington Examiner	lean-right	outlet	10	https://www.washingtonexaminer.com/feed/
+us	Politico	lean-left	outlet	10	https://rss.politico.com/politics-news.xml
+us	The Hill	center	outlet	10	https://thehill.com/news/feed/
+us	Axios	lean-left	outlet	10	https://api.axios.com/feed/
+us	Semafor	center	outlet	15	https://www.semafor.com/rss.xml
+us	RealClearPolitics	lean-right	outlet	15	https://www.realclearpolitics.com/index.xml
+us	Newsweek	center	outlet	10	https://www.newsweek.com/rss
+us	Los Angeles Times — World & Nation	lean-left	outlet	15	https://www.latimes.com/world-nation/rss2.0.xml
+us	ProPublica	lean-left	outlet	60	https://www.propublica.org/feeds/propublica/main
+opinion	The Atlantic	lean-left	outlet	30	https://www.theatlantic.com/feed/all/
+opinion	The New Yorker — News	left	outlet	30	https://www.newyorker.com/feed/news
+opinion	Vox	left	outlet	30	https://www.vox.com/rss/index.xml
+opinion	Slate	left	outlet	30	https://slate.com/feeds/all.rss
+opinion	The Nation	left	outlet	30	https://www.thenation.com/feed/?post_type=article
+opinion	Mother Jones	left	outlet	30	https://www.motherjones.com/feed/
+opinion	The New Republic	left	outlet	30	https://newrepublic.com/rss.xml
+opinion	The Intercept	left	outlet	30	https://theintercept.com/feed/?lang=en
+opinion	Jacobin	left	outlet	60	https://jacobin.com/feed/
+opinion	HuffPost — Front page	left	outlet	15	https://www.huffpost.com/section/front-page/feed
+opinion	The Daily Beast	left	outlet	15	https://www.thedailybeast.com/arc/outboundfeeds/rss/articles/
+opinion	Reason	lean-right	outlet	30	https://reason.com/feed/
+opinion	The Free Press	lean-right	outlet	30	https://www.thefp.com/feed
+opinion	The Dispatch	lean-right	outlet	30	https://thedispatch.com/feed/
+opinion	National Review	right	outlet	30	https://www.nationalreview.com/feed/
+opinion	The American Conservative	right	outlet	60	https://www.theamericanconservative.com/feed/
+opinion	Commentary	right	outlet	60	https://www.commentary.org/feed/
+opinion	The Federalist	right	outlet	30	https://thefederalist.com/feed/
+opinion	The Daily Wire	right	outlet	15	https://www.dailywire.com/feeds/rss.xml
+opinion	The Daily Caller	right	outlet	15	https://dailycaller.com/feed/
+opinion	Newsmax — Newsfront	right	outlet	15	https://www.newsmax.com/rss/Newsfront/16/
+opinion	Breitbart	right	outlet	15	https://feeds.feedburner.com/breitbart
+opinion	The Blaze	right	outlet	15	https://www.theblaze.com/feeds/feed.rss
+opinion	The Washington Free Beacon	right	outlet	30	https://freebeacon.com/feed/
+opinion	The Spectator World	lean-right	outlet	60	https://thespectator.com/feed/
+opinion	Hot Air	right	outlet	30	https://hotair.com/feed
+opinion	The Wall Street Journal — Opinion	lean-right	outlet	30	https://feeds.a.dj.com/rss/RSSOpinion.xml
+opinion	Tangle (both sides, by design)	center	outlet	60	https://www.readtangle.com/feed
+business	The Wall Street Journal — Markets	center	outlet	10	https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+business	Bloomberg — Markets	center	outlet	10	https://feeds.bloomberg.com/markets/news.rss
+business	Bloomberg — Politics	center	outlet	15	https://feeds.bloomberg.com/politics/news.rss
+business	MarketWatch — Top stories	center	outlet	10	https://feeds.content.dowjones.io/public/rss/mw_topstories
+business	Financial Times — Home	center	outlet	15	https://www.ft.com/rss/home
+business	Yahoo Finance	center	outlet	15	https://finance.yahoo.com/news/rssindex
+business	Business Insider	lean-left	outlet	15	https://feeds.businessinsider.com/custom/all
+business	Fortune	center	outlet	30	https://fortune.com/feed/
+tech	The Verge	-	outlet	15	https://www.theverge.com/rss/index.xml
+tech	Ars Technica	-	outlet	15	https://feeds.arstechnica.com/arstechnica/index
+tech	Wired	-	outlet	30	https://www.wired.com/feed/rss
+tech	Engadget	-	outlet	15	https://www.engadget.com/rss.xml
+tech	404 Media	-	outlet	30	https://www.404media.co/rss/
+tech	The Register	-	outlet	15	https://www.theregister.com/headlines.atom
+tech	Tom's Hardware	-	outlet	30	https://www.tomshardware.com/feeds/all
+tech	9to5Mac	-	outlet	30	https://9to5mac.com/feed/
+tech	9to5Google	-	outlet	30	https://9to5google.com/feed/
+tech	MacRumors	-	outlet	30	https://feeds.macrumors.com/MacRumors-All
+tech	Android Authority	-	outlet	30	https://www.androidauthority.com/feed/
+tech	BleepingComputer	-	outlet	15	https://www.bleepingcomputer.com/feed/
+tech	Krebs on Security	-	outlet	60	https://krebsonsecurity.com/feed/
+tech	LWN.net	-	outlet	60	https://lwn.net/headlines/rss
+tech	Phoronix	-	outlet	60	https://www.phoronix.com/rss.php
+science	Nature	-	outlet	60	https://www.nature.com/nature.rss
+science	Science — News	-	outlet	60	https://www.science.org/rss/news_current.xml
+science	Space.com	-	outlet	30	https://www.space.com/feeds/all
+science	New Scientist	-	outlet	30	https://www.newscientist.com/feed/home/
+science	Quanta Magazine	-	outlet	60	https://www.quantamagazine.org/feed/
+health	STAT	-	outlet	30	https://www.statnews.com/feed/
+health	KFF Health News	-	outlet	60	https://kffhealthnews.org/feed/
+climate	Inside Climate News	-	outlet	60	https://insideclimatenews.org/feed/
+sports	ESPN — Top	-	outlet	5	https://www.espn.com/espn/rss/news
+sports	ESPN — NFL	-	outlet	5	https://www.espn.com/espn/rss/nfl/news
+sports	ESPN — NBA	-	outlet	5	https://www.espn.com/espn/rss/nba/news
+sports	ESPN — MLB	-	outlet	5	https://www.espn.com/espn/rss/mlb/news
+sports	ESPN — NHL	-	outlet	10	https://www.espn.com/espn/rss/nhl/news
+sports	ESPN — College football	-	outlet	10	https://www.espn.com/espn/rss/ncf/news
+sports	ESPN — College basketball	-	outlet	10	https://www.espn.com/espn/rss/ncb/news
+sports	ESPN — Soccer	-	outlet	10	https://www.espn.com/espn/rss/soccer/news
+sports	CBS Sports — Headlines	-	outlet	10	https://www.cbssports.com/rss/headlines/
+sports	CBS Sports — NFL	-	outlet	10	https://www.cbssports.com/rss/headlines/nfl/
+sports	CBS Sports — NBA	-	outlet	10	https://www.cbssports.com/rss/headlines/nba/
+sports	CBS Sports — MLB	-	outlet	10	https://www.cbssports.com/rss/headlines/mlb/
+sports	Yahoo Sports	-	outlet	10	https://sports.yahoo.com/rss/
+sports	BBC Sport	-	outlet	10	https://feeds.bbci.co.uk/sport/rss.xml
+sports	BBC Sport — Football	-	outlet	10	https://feeds.bbci.co.uk/sport/football/rss.xml
+sports	BBC Sport — Formula 1	-	outlet	15	https://feeds.bbci.co.uk/sport/formula1/rss.xml
+sports	BBC Sport — Tennis	-	outlet	30	https://feeds.bbci.co.uk/sport/tennis/rss.xml
+sports	The Guardian — Sport	-	outlet	10	https://www.theguardian.com/sport/rss
+sports	The Guardian — Football	-	outlet	10	https://www.theguardian.com/football/rss
+sports	Sky Sports — News	-	outlet	10	https://www.skysports.com/rss/12040
+sports	MLB.com — News	-	official	15	https://www.mlb.com/feeds/news/rss.xml
+sports	Motorsport.com — F1	-	outlet	15	https://www.motorsport.com/rss/f1/news/
+entertainment	Variety	-	outlet	15	https://variety.com/feed/
+entertainment	The Hollywood Reporter	-	outlet	15	https://www.hollywoodreporter.com/feed/
+entertainment	Deadline	-	outlet	15	https://deadline.com/feed/
+entertainment	Rolling Stone	-	outlet	30	https://www.rollingstone.com/feed/
+entertainment	Pitchfork — News	-	outlet	30	https://pitchfork.com/feed/feed-news/rss
+games	IGN	-	outlet	15	https://feeds.feedburner.com/ign/all
+games	Polygon	-	outlet	30	https://www.polygon.com/rss/index.xml
+games	GameSpot — News	-	outlet	30	https://www.gamespot.com/feeds/news/
+games	Eurogamer	-	outlet	30	https://www.eurogamer.net/feed
+games	Kotaku	-	outlet	30	https://kotaku.com/rss
+sports	Defector	-	outlet	30	https://defector.com/feed
+#
+# --- Basis (host: why it may be shown publicly) ---
+# *.gov / *.mil federal agencies (NASA, NOAA/NWS/NHC/SPC/NCEI, USGS, BLS, FDA, FEMA, CPSC, NIH/NIMH/NLM,
+#   EEOC, Library of Congress, Federal Reserve Board, US Air Force, Walter Reed/TRICARE): works of the US
+#   federal government are not subject to copyright — 17 U.S.C. § 105
+#   (https://www.law.cornell.edu/uscode/text/17/105). State, county and school .gov/.org sites are NOT
+#   covered and are left out (Miami-Dade, Montgomery County, school districts).
+# theconversation.com: articles published under Creative Commons CC BY-ND 4.0
+#   (https://theconversation.com/us/republishing-guidelines) — attribution = the outlet name shown.
+# ourworldindata.org: content under CC BY 4.0 (https://ourworldindata.org/faqs#can-i-use-or-reproduce-your-data).
+# techcrunch.com: RSS terms permit display "with attribution… must link to the full article"
+#   (https://techcrunch.com/rss-terms-of-use) — read 2026-10-01.
+# sciencedaily.com: "we encourage you to integrate our RSS feeds into your web site"
+#   (https://www.sciencedaily.com/newsfeeds.htm) — read 2026-10-01.
+# NOT cleared (2026-10-01 check of 39 outlets): site or feed terms say personal/non-commercial — Guardian,
+#   Al Jazeera, France 24, CBC, Times of Israel, Middle East Eye, SCMP, CBS, Fox, NBC, ABC (US), Condé Nast
+#   (Wired, Ars), UN News, Reuters, AP. Unread/unclear (terms page not retrievable): DW, Sky, ABC AU, NPR,
+#   Japan Times, The Hill, Politico, Axios, The Verge, New Scientist, Science, Nature, Quanta, PBS, Space.com.

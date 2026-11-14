@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "logout search — local",
+  "version": "0.1.0",
+  "description": "Answers searches on search.logout.cloud from the search engine on this computer. Nothing is sent to the site.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3un/pW0JnKfXTEN2qkzQrO+e1gEbOJUywIWZoJRIm98kZfriItmocnTA4Cnqc0fFPmKf97hnhWWLX71+OsNuEFDHnrdNnKVH3eUhiQ2EQK8vHmbJn+ST3LOlqA7rbu104X6vsb8RmQ+56sDK9pYr80fYgv9AmH/kvRSE+iIbrHLmo5nRX1JmmUQUXO6WeUcZSFeA4aCZJpWmk6WOj7gcUzC/zreeWdVXolKSviJg970FiZziJy0JXpp7x6Us5aF/gMTYBZxLoT2VO6aHKf49dRZuPhculuKRSbQ2I59jTIiWrRbD7wpgF6zjf+KlJ0jtjXOd3j4JDFTWkJlcwWbWKwIDAQAB",
+  "permissions": ["nativeMessaging"],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://search.logout.cloud/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": { "id": "search@logout.cloud", "strict_min_version": "121.0" }
+  }
+}

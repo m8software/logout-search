@@ -1,0 +1,129 @@
+# A state's own government sites beyond the .gov registry (step 2): STATE<TAB>domain<TAB>what it is.
+# Read by release/gov_states.py build into gov-states.json, so the engine's state rule, the importer's page
+# selection (ccpages gov_domain) and tools/gov-eval's grader all treat these as the state's pages.
+# Only a site the state itself runs or contracts for its residents: no county, city, university, association.
+# Each row was checked against the site's name and address (Clef 27B judge, or the eval set's own evidence).
+CT	ctparks.com	Connecticut State Parks and Forests (DEEP)
+HI	hawaiistateparks.org	Hawaii State Parks (DLNR Division of State Parks)
+ID	idmedicaid.com	Idaho Medicaid Health PAS online (Department of Health and Welfare)
+FL	myflorida.com	MyFlorida, the state's portal
+NJ	njportal.com	New Jersey online services portal (NJ Treasury)
+AZ	azstateparks.com	Arizona State Parks and Trails
+AL	alapark.com	Alabama State Parks
+AL	outdooralabama.com	Alabama Department of Conservation and Natural Resources
+# Added 2026-10-28 from Clef's verdicts on Wikidata's state agencies (P1001) and a hand list of wildlife and park
+# agencies, each kept only when its homepage on 2026-10-28 named the agency or redirected to the state's .gov.
+AL	alabamaachieves.org	Alabama State Department of Education
+AR	agfc.com	Arkansas Game and Fish Commission
+AR	arkansasheritage.com	Division of Arkansas Heritage
+AR	arkansashighways.com	Arkansas Department of Transportation (redirects to ardot.gov)
+AR	arkansashouse.org	Arkansas House of Representatives
+AZ	azgfd.com	Arizona Game and Fish Department
+CO	connectforhealthco.com	Connect for Health Colorado, the state's health insurance exchange
+FL	fldoe.org	Florida Department of Education
+FL	floridarevenue.com	Florida Department of Revenue
+FL	floridastateparks.org	Florida State Parks
+FL	floridasupremecourt.org	Supreme Court of Florida (redirects to flcourts.gov)
+FL	floridavets.org	Florida Department of Veterans' Affairs
+FL	myfloridacfo.com	Florida Department of Financial Services
+FL	myfloridalicense.com	Florida Department of Business and Professional Regulation
+FL	myfwc.com	Florida Fish and Wildlife Conservation Commission
+FL	sunbiz.org	Florida Division of Corporations (redirects to dos.fl.gov)
+GA	gaappeals.us	Court of Appeals of the State of Georgia
+GA	gadnr.org	Georgia Department of Natural Resources
+GA	gadoe.org	Georgia Department of Education
+GA	gastateparks.org	Georgia State Parks and Historic Sites (DNR)
+GA	georgia.org	Georgia Department of Economic Development
+GA	georgiawildlife.com	Georgia DNR Wildlife Resources Division
+GA	gohuntgeorgia.com	Georgia DNR hunting licences (redirects to georgiawildlife.com)
+HI	hawaiipublicschools.org	Hawaii State Department of Education
+IL	enjoyillinois.com	Illinois Office of Tourism
+IL	ibhe.org	Illinois Board of Higher Education
+KS	ksbha.org	Kansas State Board of Healing Arts
+KS	kscourts.org	Kansas courts (redirects to kscourts.gov)
+KS	ksde.org	Kansas State Department of Education (redirects to ksde.gov)
+KS	kshs.org	Kansas Historical Society (redirects to kansashistory.gov)
+KS	kslegislature.org	Kansas Legislature (redirects to kslegislature.gov)
+KS	ksoutdoors.com	Kansas Department of Wildlife and Parks (redirects to ksoutdoors.gov)
+LA	lasc.org	Louisiana Supreme Court
+LA	laworks.net	Louisiana Workforce Commission
+LA	lsp.org	Louisiana State Police
+MD	marylandaviation.com	Maryland Aviation Administration
+MD	marylandpublicschools.org	Maryland State Department of Education (redirects to msde.maryland.gov)
+ME	informe.org	InforME, Maine's online services (redirects to maine.gov)
+MN	senate.mn	Minnesota Senate (redirects to mnsenate.gov)
+MO	modot.org	Missouri Department of Transportation
+MO	mostateparks.com	Missouri State Parks
+MS	mdwfp.com	Mississippi Department of Wildlife, Fisheries and Parks
+NC	bmbt.org	North Carolina Board of Massage and Bodywork Therapy
+NC	ncalb.com	North Carolina Acupuncture Licensing Board
+NC	ncalb.org	North Carolina Auctioneer Licensing Board
+NC	ncappraisalboard.org	North Carolina Appraisal Board
+NC	ncbarch.org	North Carolina Board of Architecture
+NC	ncbate.org	North Carolina Board of Athletic Trainer Examiners
+NC	ncbdn.org	North Carolina Board of Dietetics/Nutrition
+NC	ncbeec.org	North Carolina State Board of Examiners of Electrical Contractors
+NC	ncbehavioranalystboard.org	North Carolina Behavior Analysis Board
+NC	ncbels.org	North Carolina Board of Examiners for Engineers and Surveyors
+NC	ncbenha.org	North Carolina State Board of Examiners for Nursing Home Administrators
+NC	ncbfs.org	North Carolina Board of Funeral Service
+NC	ncblcmhc.org	North Carolina Board of Licensed Clinical Mental Health Counselors
+NC	ncblg.org	North Carolina Board for Licensing of Geologists
+NC	ncbola.org	North Carolina Board of Landscape Architects
+NC	ncbop.org	North Carolina Board of Pharmacy
+NC	ncbot.org	North Carolina Board of Occupational Therapy
+NC	nccemetery.org	North Carolina Cemetery Commission
+NC	ncchiroboard.com	North Carolina Board of Chiropractic Examiners
+NC	nchfa.com	North Carolina Housing Finance Agency
+NC	nchomeadvantage.com	NC Home Advantage (North Carolina Housing Finance Agency)
+NC	ncids.org	North Carolina Indigent Defense Services
+NC	nclbgc.org	North Carolina Licensing Board for General Contractors
+NC	ncleg.net	North Carolina General Assembly (redirects to ncleg.gov)
+NC	nclicensing.org	North Carolina State Board of Examiners of Plumbing, Heating and Fire Sprinkler Contractors
+NC	ncmedboard.org	North Carolina Medical Board
+NC	ncopticiansboard.org	North Carolina State Board of Opticians
+NC	ncptboard.org	North Carolina Board of Physical Therapy Examiners
+NC	ncrcb.org	North Carolina Respiratory Care Board
+NC	ncvmb.org	North Carolina Veterinary Medical Board
+NC	ncwildlife.org	North Carolina Wildlife Resources Commission (redirects to ncwildlife.gov)
+NC	refrigerationboard.org	North Carolina State Board of Refrigeration Examiners
+NC	shpnc.org	North Carolina State Health Plan (redirects to shpnc.gov)
+NJ	njfishandwildlife.com	New Jersey Fish and Wildlife (redirects to dep.nj.gov/njfw)
+NJ	njsp.org	New Jersey State Police (redirects to njsp.njoag.gov)
+NM	newmexico.org	New Mexico Tourism Department
+NM	newmexicoculture.org	New Mexico Department of Cultural Affairs (redirects to dca.nm.gov)
+NM	nmececd.org	New Mexico Early Childhood Education and Care Department
+NM	nmhealth.org	New Mexico Department of Health
+NM	nmhistoricpreservation.org	New Mexico Historic Preservation Division (redirects to dca.nm.gov)
+NV	ndow.org	Nevada Department of Wildlife
+NV	nevadadot.com	Nevada Department of Transportation (redirects to dot.nv.gov)
+NV	nvcosmo.com	Nevada State Board of Cosmetology
+NY	nysif.com	New York State Insurance Fund
+NY	nystrs.org	New York State Teachers' Retirement System
+OH	ohiohome.org	Ohio Housing Finance Agency
+OH	ohiolottery.com	Ohio Lottery
+OH	petroboard.org	Ohio Petroleum Underground Storage Tank Release Compensation Board
+OK	okcca.net	Oklahoma Court of Criminal Appeals
+OK	okdhs.org	Oklahoma Human Services (redirects to oklahoma.gov)
+OK	oscn.net	Oklahoma State Courts Network
+OK	travelok.com	Oklahoma Tourism and Recreation Department
+OK	wildlifedepartment.com	Oklahoma Department of Wildlife Conservation
+OR	myodfw.com	Oregon Department of Fish and Wildlife
+OR	oregon4biz.com	Business Oregon (redirects to oregon.gov)
+OR	oregongeology.org	Oregon Department of Geology and Mineral Industries (redirects to oregon.gov)
+PA	palegis.us	Pennsylvania General Assembly
+PA	phfa.org	Pennsylvania Housing Finance Agency
+SC	sccourts.org	South Carolina Judicial Branch
+SC	scdot.org	South Carolina Department of Transportation
+SC	sces.org	South Carolina Department of Employment and Workforce (redirects to dew.sc.gov)
+SD	sddot.com	South Dakota Department of Transportation (redirects to dot.sd.gov)
+SD	sdtribalrelations.com	South Dakota Department of Tribal Relations (redirects to sd.gov)
+TN	tnecd.com	Tennessee Department of Economic and Community Development
+TN	tnstateparks.com	Tennessee State Parks
+VT	vermontjudiciary.org	Vermont Judiciary (redirects to vtcourts.gov)
+VT	vtfishandwildlife.com	Vermont Fish and Wildlife Department
+WA	wahealthplanfinder.org	Washington Healthplanfinder, the state's health insurance exchange
+WI	travelwisconsin.com	Wisconsin Department of Tourism
+WV	wvculture.org	West Virginia Department of Arts, Culture and History
+WV	wvde.us	West Virginia Department of Education
+ID	yourhealthidaho.org	Your Health Idaho, the state's health insurance exchange

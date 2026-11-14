@@ -1,0 +1,74 @@
+Logout local search — search-api
+================================
+
+This image contains the following third-party components. Full licence texts are in
+/app/licenses/ (Apache-2.0) and at the listed sources.
+
+rerank-turbo-jevfree (cross-encoder reranker, CPU, /models/rerank-turbo-jevfree/)
+  A MODIFIED version of jinaai/jina-reranker-v1-turbo-en
+  Copyright Jina AI GmbH — Licensed under the Apache License, Version 2.0
+  https://huggingface.co/jinaai/jina-reranker-v1-turbo-en
+  Modifications by Logout (2026-10-02): fine-tuned on search-relevance labels (answers known
+  by construction, and pairs two open judge models agreed on); exported to ONNX (int8).
+
+rerank-ettin68m-jevfree (cross-encoder reranker, Intel iGPU, /models/rerank-ettin68m-jevfree/)
+  A MODIFIED version of jhu-clsp/ettin-encoder-68m
+  Copyright Johns Hopkins University CLSP — MIT License
+  https://huggingface.co/jhu-clsp/ettin-encoder-68m
+  Modifications by Logout (2026-10-02): fine-tuned as a cross-encoder on the same labels;
+  exported to ONNX (int8) and OpenVINO IR (fp16, static shape).
+
+bge-small-en-v1.5 (query embedding, /models/bge-small-en-v1.5/)
+  Copyright BAAI — MIT License
+  https://huggingface.co/BAAI/bge-small-en-v1.5
+
+ONNX Runtime — Copyright Microsoft Corporation — MIT License
+  https://github.com/microsoft/onnxruntime
+
+OpenVINO — Copyright Intel Corporation — Apache License, Version 2.0
+  https://github.com/openvinotoolkit/openvino
+
+Intel Graphics Compute Runtime (NEO, incl. legacy1) and Intel Graphics Compiler
+  Copyright Intel Corporation — MIT License
+  https://github.com/intel/compute-runtime  https://github.com/intel/intel-graphics-compiler
+
+Hugging Face tokenizers — Apache License, Version 2.0
+  https://github.com/huggingface/tokenizers
+
+Tantivy and tantivy-py — Copyright Quickwit, Inc. and contributors — MIT License
+  https://github.com/quickwit-oss/tantivy  https://github.com/quickwit-oss/tantivy-py
+
+psycopg — LGPL-3.0 (used as an unmodified, dynamically loaded library)
+  https://github.com/psycopg/psycopg
+
+Currency conversion — euro foreign exchange reference rates
+  Source: European Central Bank (ECB), https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml
+  The reference rates are published by the ECB for information purposes only; using them for
+  transaction purposes is strongly discouraged. A rate between two currencies other than the
+  euro is calculated by this software from two ECB reference rates. The rates are available
+  free of charge on the ECB's website.
+
+Site lists used when the index is BUILT (no list and no data derived from one is in this software or its data files)
+  Sites named by these lists are left out of the index:
+  HaGeZi DNS Blocklists (Threat Intelligence Feeds, Pro, Hoster, NSFW, Gambling) — GPL-3.0
+    https://github.com/hagezi/dns-blocklists
+  NoCoin adblock list — MIT License, Copyright Hosh Sadiq
+    https://github.com/hoshsadiq/adblock-nocoin-list
+  WindowsSpyBlocker — MIT License, Copyright CrazyMax
+    https://github.com/crazy-max/WindowsSpyBlocker
+
+Junk-site flag in the search data (lookup.sqlite, sites.ut1)
+  UT1 blacklists, Universite Toulouse Capitole (Fabrice Prigent) — CC BY-SA 4.0
+    https://dsi.ut-capitole.fr/blacklists/
+
+Wikipedia links file (optional add-on wikilinks.sqlite, SEARCH_WIKILINKS; importer/wikiext.py)
+  Data derived from English Wikipedia (https://en.wikipedia.org): the addresses editors link from each article, the section and
+  sentence a citation is attached to, and the titles of cited pages. (c) Wikipedia contributors — CC BY-SA 4.0
+  https://creativecommons.org/licenses/by-sa/4.0/   The history page of each article lists its authors.
+  Changes by Logout: reduced to link, section, sentence and domain-count tables. The file is shared under CC BY-SA 4.0.
+
+Stack Exchange how-to index (optional add-on se-howto.sqlite, SEARCH_SE_INDEX; tools/se-howto.py)
+  Questions and answer excerpts from Stack Exchange network sites (official data dump uploaded by Stack Exchange, Inc.) —
+  CC BY-SA 2.5, 3.0 or 4.0 by the date of each answer. https://creativecommons.org/licenses/by-sa/4.0/
+  Each result with an excerpt links the question, names the asker and the answer's author (each linked to their profile) and
+  marks the licence version. Changes by Logout: titles, tags and excerpts reduced and re-indexed. The file is shared under CC BY-SA 4.0.

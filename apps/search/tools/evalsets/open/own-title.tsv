@@ -1,0 +1,1191 @@
+query	category	expected	set	stratum	split	entity
+barack obama	site	barackobama.com	own-title	kind:person,links-rank:1-100	dev	barackobama
+donald trump	site	donaldjtrump.com	own-title	kind:person,links-rank:1-100	dev	donaldtrump
+michael jackson	site	michaeljackson.com	own-title	kind:person,links-rank:1-100	test	michaeljackson
+albert einstein	site	alberteinstein.com	own-title	kind:person,links-rank:1-100	test	alberteinstein
+vladimir putin	site	putin.kremlin.ru	own-title	kind:person,links-rank:1-100	test	vladimirputin
+leonardo da vinci	site	leonardodavinci.rf.gd	own-title	kind:person,links-rank:1-100	dev	leonardodavinci
+nelson mandela	site	nelsonmandela.org	own-title	kind:person,links-rank:1-100	test	nelsonmandela
+leo tolstoy	site	leotolstoy.blog	own-title	kind:person,links-rank:1-100	dev	leotolstoy
+george w. bush	site	georgewbush.com	own-title	kind:person,links-rank:1-100	test	georgewbush
+joe biden	site	joebiden.com	own-title	kind:person,links-rank:1-100	test	joebiden
+ludwig van beethoven	site	beethoven.de	own-title	kind:person,links-rank:1-100	test	ludwigvanbeethoven
+charlie chaplin	site	charliechaplin.com	own-title	kind:person,links-rank:1-100	dev	charliechaplin
+martin luther king jr.	site	thekingcenter.org	own-title	kind:person,links-rank:1-100	test	martinlutherkingjr
+salvador dalí	site	salvador-dali.org	own-title	kind:person,links-rank:1-100	dev	salvadordal
+hans christian andersen	site	andersen.sdu.dk	own-title	kind:person,links-rank:1-100	test	hanschristianandersen
+bill gates	site	thegatesnotes.com	own-title	kind:person,links-rank:1-100	test	billgates
+marilyn monroe	site	marilynmonroe.com	own-title	kind:person,links-rank:1-100	dev	marilynmonroe
+jimmy wales	site	jimmywales.com	own-title	kind:person,links-rank:1-100	test	jimmywales
+shakira	site	shakira.com	own-title	kind:person,links-rank:1-100	dev	shakira
+edgar allan poe	site	eapoe.org	own-title	kind:person,links-rank:1-100	dev	edgarallanpoe
+lionel messi	site	messi.com	own-title	kind:person,links-rank:1-100	test	lionelmessi
+corbin bleu	site	corbinbleu.com	own-title	kind:person,links-rank:1-100	test	corbinbleu
+bill clinton	site	clintonlibrary.gov	own-title	kind:person,links-rank:1-100	dev	billclinton
+basshunter	site	basshunter.se	own-title	kind:person,links-rank:1-100	dev	basshunter
+angela merkel	site	buero-bundeskanzlerin-ad.de	own-title	kind:person,links-rank:1-100	dev	angelamerkel
+elvis presley	site	elvisthemusic.com	own-title	kind:person,links-rank:1-100	dev	elvispresley
+cristiano ronaldo	site	cristianoronaldo.com	own-title	kind:person,links-rank:1-100	dev	cristianoronaldo
+volodymyr zelenskyy	site	president.gov.ua	own-title	kind:person,links-rank:1-100	dev	volodymyrzelenskyy
+margaret thatcher	site	margaretthatcher.org	own-title	kind:person,links-rank:1-100	dev	margaretthatcher
+james joyce	site	jamesjoyce.ie	own-title	kind:person,links-rank:1-100	test	jamesjoyce
+j. r. r. tolkien	site	tolkienestate.com	own-title	kind:person,links-rank:1-100	dev	jrrtolkien
+marlene dietrich	site	marlene.com	own-title	kind:person,links-rank:1-100	test	marlenedietrich
+mikhail gorbachev	site	gorby.ru	own-title	kind:person,links-rank:1-100	test	mikhailgorbachev
+stephen hawking	site	hawking.org.uk	own-title	kind:person,links-rank:1-100	dev	stephenhawking
+mother teresa	site	motherteresa.org	own-title	kind:person,links-rank:1-100	dev	motherteresa
+agatha christie	site	agathachristie.com	own-title	kind:person,links-rank:1-100	test	agathachristie
+hillary clinton	site	hillaryclinton.com	own-title	kind:person,links-rank:1-100	test	hillaryclinton
+lady gaga	site	ladygaga.com	own-title	kind:person,links-rank:1-100	test	ladygaga
+george h. w. bush	site	bush41.org	own-title	kind:person,links-rank:1-100	test	georgehwbush
+kamala harris	site	kamalaharris.com	own-title	kind:person,links-rank:1-100	test	kamalaharris
+madonna	site	madonna.com	own-title	kind:person,links-rank:1-100	dev	madonna
+alan turing	site	turingarchive.org	own-title	kind:person,links-rank:1-100	dev	alanturing
+noam chomsky	site	chomsky.info	own-title	kind:person,links-rank:1-100	dev	noamchomsky
+hugo chávez	site	chavez.org.ve|todochavez.gob.ve	own-title	kind:person,links-rank:1-100	test	hugochvez
+john lennon	site	johnlennon.com	own-title	kind:person,links-rank:1-100	dev	johnlennon
+bob dylan	site	bobdylan.com	own-title	kind:person,links-rank:1-100	dev	bobdylan
+recep tayyip erdoğan	site	tccb.gov.tr	own-title	kind:person,links-rank:1-100	test	receptayyiperdoan
+arthur conan doyle	site	conandoyleestate.com	own-title	kind:person,links-rank:1-100	dev	arthurconandoyle
+muhammad ali	site	ali.com	own-title	kind:person,links-rank:1-100	dev	muhammadali
+pelé	site	pele10.org	own-title	kind:person,links-rank:1-100	dev	pel
+j. k. rowling	site	jkrowling.com	own-title	kind:person,links-rank:1-100	test	jkrowling
+justin bieber	site	justinbiebermusic.com	own-title	kind:person,links-rank:1-100	test	justinbieber
+andy warhol	site	warhol.org	own-title	kind:person,links-rank:1-100	test	andywarhol
+giuseppe verdi	site	verdi.san.beniculturali.it	own-title	kind:person,links-rank:1-100	test	giuseppeverdi
+louis armstrong	site	louisarmstronghouse.org	own-title	kind:person,links-rank:1-100	test	louisarmstrong
+taylor swift	site	taylorswift.com	own-title	kind:person,links-rank:1-100	dev	taylorswift
+freddie mercury	site	freddiemercury.com	own-title	kind:person,links-rank:1-100	test	freddiemercury
+beyoncé	site	beyonce.com	own-title	kind:person,links-rank:1-100	dev	beyonc
+eminem	site	eminem.com	own-title	kind:person,links-rank:1-100	dev	eminem
+selena gomez	site	selenagomez.com	own-title	kind:person,links-rank:1-100	test	selenagomez
+narendra modi	site	narendramodi.in	own-title	kind:person,links-rank:1-100	dev	narendramodi
+ludwig wittgenstein	site	wittgen-cam.ac.uk	own-title	kind:person,links-rank:1-100	test	ludwigwittgenstein
+michael schumacher	site	michael-schumacher.de	own-title	kind:person,links-rank:1-100	test	michaelschumacher
+anne frank	site	annefrank.org	own-title	kind:person,links-rank:1-100	dev	annefrank
+antoine de saint-exupéry	site	antoinedesaintexupery.com	own-title	kind:person,links-rank:1-100	test	antoinedesaintexupry
+benjamin netanyahu	site	netanyahu.org.il	own-title	kind:person,links-rank:1-100	dev	benjaminnetanyahu
+14th dalai lama	site	dalailama.com|dalailama.ru|de.dalailama.com|eldalailama.com|fr.dalailama.com	own-title	kind:person,links-rank:1-100	test	14thdalailama
+anna netrebko	site	annanetrebko.com	own-title	kind:person,links-rank:1-100	dev	annanetrebko
+dmitry medvedev	site	da-medvedev.ru	own-title	kind:person,links-rank:1-100	dev	dmitrymedvedev
+bruce lee	site	brucelee.com	own-title	kind:person,links-rank:1-100	dev	brucelee
+bob marley	site	bobmarley.com	own-title	kind:person,links-rank:1-100	dev	bobmarley
+shinzo abe	site	s-abe.or.jp	own-title	kind:person,links-rank:1-100	test	shinzoabe
+silvio berlusconi	site	silvioberlusconi.it	own-title	kind:person,links-rank:1-100	dev	silvioberlusconi
+isaac asimov	site	asimovonline.com	own-title	kind:person,links-rank:1-100	dev	isaacasimov
+federico fellini	site	federicofellini.it	own-title	kind:person,links-rank:1-100	dev	federicofellini
+ingmar bergman	site	ingmarbergman.se	own-title	kind:person,links-rank:1-100	test	ingmarbergman
+jackie chan	site	jackiechan.com	own-title	kind:person,links-rank:1-100	test	jackiechan
+mahathir mohamad	site	thechedet.com	own-title	kind:person,links-rank:1-100	dev	mahathirmohamad
+ali khamenei	site	khamenei.ir	own-title	kind:person,links-rank:1-100	test	alikhamenei
+celine dion	site	celinedion.com	own-title	kind:person,links-rank:1-100	dev	celinedion
+octave mirbeau	site	mirbeau.asso.fr	own-title	kind:person,links-rank:1-100	dev	octavemirbeau
+robin williams	site	robinwilliams.com	own-title	kind:person,links-rank:1-100	dev	robinwilliams
+aleksandr solzhenitsyn	site	solzhenitsyn.ru|solzhenitsyncenter.org	own-title	kind:person,links-rank:1-100	test	aleksandrsolzhenitsyn
+george frideric handel	site	gfhandel.org	own-title	kind:person,links-rank:1-100	test	georgefriderichandel
+lana del rey	site	lanadelrey.com	own-title	kind:person,links-rank:1-100	test	lanadelrey
+roger federer	site	rogerfederer.com	own-title	kind:person,links-rank:1-100	dev	rogerfederer
+stanley kubrick	site	kubrickfilms.com	own-title	kind:person,links-rank:1-100	test	stanleykubrick
+alexander lukashenko	site	president.gov.by	own-title	kind:person,links-rank:1-100	dev	alexanderlukashenko
+kahlil gibran	site	kahlilgibran.com	own-title	kind:person,links-rank:1-100	test	kahlilgibran
+marlon brando	site	marlonbrando.com	own-title	kind:person,links-rank:1-100	test	marlonbrando
+richard feynman	site	richardfeynman.com	own-title	kind:person,links-rank:1-100	test	richardfeynman
+woody allen	site	woodyallen.com	own-title	kind:person,links-rank:1-100	dev	woodyallen
+malala yousafzai	site	malala.org	own-title	kind:person,links-rank:1-100	test	malalayousafzai
+neymar	site	neymarjr.com	own-title	kind:person,links-rank:1-100	test	neymar
+rihanna	site	rihanna.com	own-title	kind:person,links-rank:1-100	test	rihanna
+tony blair	site	institute.global	own-title	kind:person,links-rank:1-100	dev	tonyblair
+guy de maupassant	site	maupassantiana.fr	own-title	kind:person,links-rank:1-100	dev	guydemaupassant
+selma lagerlöf	site	selmalagerlof.org	own-title	kind:person,links-rank:1-100	dev	selmalagerlf
+rafael nadal	site	rafaelnadal.com	own-title	kind:person,links-rank:1-100	dev	rafaelnadal
+arnold schwarzenegger	site	schwarzenegger.com	own-title	kind:person,links-rank:1-100	dev	arnoldschwarzenegger
+david cameron	site	davidcameronoffice.org	own-title	kind:person,links-rank:101+	dev	davidcameron
+judy garland	site	judygarland.com	own-title	kind:person,links-rank:101+	dev	judygarland
+linus torvalds	site	torvalds-family.blogspot.com	own-title	kind:person,links-rank:101+	dev	linustorvalds
+brigitte bardot	site	brigitte-bardot.fr	own-title	kind:person,links-rank:101+	dev	brigittebardot
+gustav mahler	site	gustav-mahler.org	own-title	kind:person,links-rank:101+	dev	gustavmahler
+novak djokovic	site	novakdjokovic.com	own-title	kind:person,links-rank:101+	dev	novakdjokovic
+antonín dvořák	site	antonin-dvorak.cz	own-title	kind:person,links-rank:101+	test	antonndvok
+umberto eco	site	umbertoeco.it	own-title	kind:person,links-rank:101+	dev	umbertoeco
+benazir bhutto	site	benazirbhutto.com	own-title	kind:person,links-rank:101+	test	benazirbhutto
+denis diderot	site	denis-diderot.com	own-title	kind:person,links-rank:101+	dev	denisdiderot
+anggun	site	anggun.com	own-title	kind:person,links-rank:101+	test	anggun
+luiz inácio lula da silva	site	lula.com.br	own-title	kind:person,links-rank:101+	test	luizincioluladasilva
+paul mccartney	site	paulmccartney.com	own-title	kind:person,links-rank:101+	test	paulmccartney
+agnez mo	site	agnezmo.com	own-title	kind:person,links-rank:101+	dev	agnezmo
+emily dickinson	site	emilydickinson.org	own-title	kind:person,links-rank:101+	dev	emilydickinson
+stephen king	site	stephenking.com	own-title	kind:person,links-rank:101+	dev	stephenking
+theresa may	site	tmay.co.uk	own-title	kind:person,links-rank:101+	test	theresamay
+britney spears	site	britneyspears.com	own-title	kind:person,links-rank:101+	dev	britneyspears
+zinedine zidane	site	zidane.fr	own-title	kind:person,links-rank:101+	dev	zinedinezidane
+maya angelou	site	mayaangelou.com	own-title	kind:person,links-rank:101+	dev	mayaangelou
+sean connery	site	seanconnery.com	own-title	kind:person,links-rank:101+	dev	seanconnery
+aldous huxley	site	huxley.net	own-title	kind:person,links-rank:101+	test	aldoushuxley
+elizabeth taylor	site	elizabethtaylor.com	own-title	kind:person,links-rank:101+	test	elizabethtaylor
+henry kissinger	site	henryakissinger.com	own-title	kind:person,links-rank:101+	dev	henrykissinger
+satyajit ray	site	satyajitray.org	own-title	kind:person,links-rank:101+	dev	satyajitray
+václav havel	site	vaclavhavel.cz	own-title	kind:person,links-rank:101+	test	vclavhavel
+carl sagan	site	carlsagan.com	own-title	kind:person,links-rank:101+	test	carlsagan
+ariana grande	site	arianagrande.com	own-title	kind:person,links-rank:101+	test	arianagrande
+miley cyrus	site	mileyofficial.com	own-title	kind:person,links-rank:101+	test	mileycyrus
+rishi sunak	site	rishisunak.com	own-title	kind:person,links-rank:101+	test	rishisunak
+bernie sanders	site	sanders.senate.gov	own-title	kind:person,links-rank:101+	test	berniesanders
+richard stallman	site	stallman.org	own-title	kind:person,links-rank:101+	test	richardstallman
+david beckham	site	davidbeckham.com	own-title	kind:person,links-rank:101+	test	davidbeckham
+paul cézanne	site	paul-cezanne.org	own-title	kind:person,links-rank:101+	test	paulczanne
+avril lavigne	site	avrillavigne.com	own-title	kind:person,links-rank:101+	dev	avrillavigne
+dilma rousseff	site	dilma.com.br	own-title	kind:person,links-rank:101+	dev	dilmarousseff
+frank sinatra	site	sinatra.com	own-title	kind:person,links-rank:101+	dev	franksinatra
+günter grass	site	grass-stiftung.de	own-title	kind:person,links-rank:101+	test	gntergrass
+michelle obama	site	obama.org	own-title	kind:person,links-rank:101+	dev	michelleobama
+orhan pamuk	site	orhanpamuk.net	own-title	kind:person,links-rank:101+	test	orhanpamuk
+whitney houston	site	whitneyhouston.com	own-title	kind:person,links-rank:101+	test	whitneyhouston
+adele	site	adele.com	own-title	kind:person,links-rank:101+	dev	adele
+david bowie	site	davidbowie.com	own-title	kind:person,links-rank:101+	test	davidbowie
+jennifer lopez	site	jenniferlopez.com	own-title	kind:person,links-rank:101+	dev	jenniferlopez
+jimi hendrix	site	jimihendrix.com	own-title	kind:person,links-rank:101+	dev	jimihendrix
+josé saramago	site	josesaramago.org	own-title	kind:person,links-rank:101+	dev	jossaramago
+richard dawkins	site	richarddawkins.com|richarddawkins.net	own-title	kind:person,links-rank:101+	dev	richarddawkins
+usain bolt	site	usainbolt.com	own-title	kind:person,links-rank:101+	test	usainbolt
+al gore	site	algore.com	own-title	kind:person,links-rank:101+	test	algore
+hector berlioz	site	hberlioz.com	own-title	kind:person,links-rank:101+	test	hectorberlioz
+katy perry	site	katyperry.com	own-title	kind:person,links-rank:101+	test	katyperry
+knut hamsun	site	hamsunsenteret.no	own-title	kind:person,links-rank:101+	dev	knuthamsun
+oprah winfrey	site	oprah.com	own-title	kind:person,links-rank:101+	dev	oprahwinfrey
+tupac shakur	site	2pac.com	own-title	kind:person,links-rank:101+	dev	tupacshakur
+will smith	site	willsmith.com	own-title	kind:person,links-rank:101+	test	willsmith
+doris lessing	site	dorislessing.org	own-title	kind:person,links-rank:101+	dev	dorislessing
+gregor mendel	site	mendelweb.org	own-title	kind:person,links-rank:101+	test	gregormendel
+luigi pirandello	site	pirandelloweb.com	own-title	kind:person,links-rank:101+	test	luigipirandello
+rainer maria rilke	site	rilke.de	own-title	kind:person,links-rank:101+	test	rainermariarilke
+kylian mbappé	site	kylianmbappe.com	own-title	kind:person,links-rank:101+	test	kylianmbapp
+paulo coelho	site	paulocoelhoblog.com	own-title	kind:person,links-rank:101+	dev	paulocoelho
+ruhollah khomeini	site	imam-khomeini.ir	own-title	kind:person,links-rank:101+	dev	ruhollahkhomeini
+toni morrison	site	tonimorrisonsociety.org	own-title	kind:person,links-rank:101+	dev	tonimorrison
+alexei navalny	site	navalny.com	own-title	kind:person,links-rank:101+	dev	alexeinavalny
+demi lovato	site	demilovato.com	own-title	kind:person,links-rank:101+	test	demilovato
+douglas adams	site	douglasadams.com	own-title	kind:person,links-rank:101+	dev	douglasadams
+gwyneth paltrow	site	gwynethpaltrow.com	own-title	kind:person,links-rank:101+	dev	gwynethpaltrow
+john mccain	site	johnmccain.com	own-title	kind:person,links-rank:101+	dev	johnmccain
+nicole kidman	site	nicolekidmanofficial.com	own-title	kind:person,links-rank:101+	test	nicolekidman
+charlotte rampling	site	charlotterampling.net	own-title	kind:person,links-rank:101+	dev	charlotterampling
+leonard cohen	site	leonardcohen.com	own-title	kind:person,links-rank:101+	test	leonardcohen
+mario vargas llosa	site	catedravargasllosa.org	own-title	kind:person,links-rank:101+	test	mariovargasllosa
+amy winehouse	site	amywinehouse.com	own-title	kind:person,links-rank:101+	dev	amywinehouse
+antónio guterres	site	antonioguterres.gov.pt	own-title	kind:person,links-rank:101+	test	antnioguterres
+christina aguilera	site	christinaaguilera.com	own-title	kind:person,links-rank:101+	dev	christinaaguilera
+ilham aliyev	site	president.az	own-title	kind:person,links-rank:101+	dev	ilhamaliyev
+haruki murakami	site	harukimurakami.com	own-title	kind:person,links-rank:101+	test	harukimurakami
+helmut kohl	site	helmut-kohl.de	own-title	kind:person,links-rank:101+	dev	helmutkohl
+salman rushdie	site	salmanrushdie.com	own-title	kind:person,links-rank:101+	test	salmanrushdie
+valery leontiev	site	leontiev.ru	own-title	kind:person,links-rank:101+	dev	valeryleontiev
+johan cruyff	site	johancruyff.com	own-title	kind:person,links-rank:101+	test	johancruyff
+giorgia meloni	site	giorgiameloni.it	own-title	kind:person,links-rank:101+	dev	giorgiameloni
+pope john paul i	site	fondazionepapaluciani.it	own-title	kind:person,links-rank:101+	dev	popejohnpauli
+steven seagal	site	stevenseagal.com	own-title	kind:person,links-rank:101+	dev	stevenseagal
+amelia earhart	site	ameliaearhart.com	own-title	kind:person,links-rank:101+	dev	ameliaearhart
+amitabh bachchan	site	srbachchan.tumblr.com	own-title	kind:person,links-rank:101+	test	amitabhbachchan
+anwar sadat	site	anwarsadat.org	own-title	kind:person,links-rank:101+	test	anwarsadat
+ayn rand	site	aynrand.org	own-title	kind:person,links-rank:101+	dev	aynrand
+elfriede jelinek	site	elfriedejelinek.com	own-title	kind:person,links-rank:101+	dev	elfriedejelinek
+francesco totti	site	francescototti.com	own-title	kind:person,links-rank:101+	test	francescototti
+mariah carey	site	mariahcarey.com	own-title	kind:person,links-rank:101+	test	mariahcarey
+olaf scholz	site	olaf-scholz.spd.de	own-title	kind:person,links-rank:101+	dev	olafscholz
+tom cruise	site	tomcruise.com	own-title	kind:person,links-rank:101+	dev	tomcruise
+toshiro mifune	site	mifuneproductions.co.jp	own-title	kind:person,links-rank:101+	dev	toshiromifune
+billie eilish	site	billieeilish.com	own-title	kind:person,links-rank:101+	test	billieeilish
+gabriela mistral	site	gabrielamistral.uchile.cl	own-title	kind:person,links-rank:101+	dev	gabrielamistral
+george harrison	site	georgeharrison.com	own-title	kind:person,links-rank:101+	dev	georgeharrison
+keir starmer	site	keirstarmer.com	own-title	kind:person,links-rank:101+	test	keirstarmer
+serena williams	site	serenawilliams.com	own-title	kind:person,links-rank:101+	dev	serenawilliams
+sylvester stallone	site	sylvesterstallone.com	own-title	kind:person,links-rank:101+	dev	sylvesterstallone
+dag hammarskjöld	site	daghammarskjold.se	own-title	kind:person,links-rank:101+	dev	daghammarskjld
+felix mendelssohn	site	mendelssohn-stiftung.de	own-title	kind:person,links-rank:101+	dev	felixmendelssohn
+gerhard schröder	site	gerhard-schroeder.de	own-title	kind:person,links-rank:101+	dev	gerhardschrder
+robert burns	site	robertburns.org	own-title	kind:person,links-rank:101+	dev	robertburns
+selena	site	q-productions.com	own-title	kind:person,links-rank:101+	dev	selena
+vladimir mayakovsky	site	v-v-mayakovsky.ru	own-title	kind:person,links-rank:101+	test	vladimirmayakovsky
+bing crosby	site	bingcrosby.com	own-title	kind:person,links-rank:101+	dev	bingcrosby
+coco chanel	site	chanel.com	own-title	kind:person,links-rank:101+	test	cocochanel
+czesław miłosz	site	milosz.pl	own-title	kind:person,links-rank:101+	test	czesawmiosz
+gerhart hauptmann	site	gerhart-hauptmann-gesellschaft.de	own-title	kind:person,links-rank:101+	test	gerharthauptmann
+hassan rouhani	site	president.ir	own-title	kind:person,links-rank:101+	test	hassanrouhani
+ingrid bergman	site	ingridbergman.com	own-title	kind:person,links-rank:101+	dev	ingridbergman
+kylie minogue	site	kylie.com	own-title	kind:person,links-rank:101+	test	kylieminogue
+salvador allende	site	fundacionsalvadorallende.cl	own-title	kind:person,links-rank:101+	test	salvadorallende
+dolly parton	site	dollyparton.com	own-title	kind:person,links-rank:101+	test	dollyparton
+jane fonda	site	janefonda.com	own-title	kind:person,links-rank:101+	test	janefonda
+jane goodall	site	janegoodall.org	own-title	kind:person,links-rank:101+	test	janegoodall
+joko widodo	site	presidenri.go.id	own-title	kind:person,links-rank:101+	dev	jokowidodo
+muhammad yunus	site	muhammadyunus.org	own-title	kind:person,links-rank:101+	test	muhammadyunus
+kurt vonnegut	site	vonnegut.com	own-title	kind:person,links-rank:101+	dev	kurtvonnegut
+mikheil saakashvili	site	saakashvilimikheil.com	own-title	kind:person,links-rank:101+	dev	mikheilsaakashvili
+svetlana alexievich	site	alexievich.info	own-title	kind:person,links-rank:101+	dev	svetlanaalexievich
+cher	site	cherfanclub.com	own-title	kind:person,links-rank:101+	test	cher
+john wayne	site	johnwayne.com	own-title	kind:person,links-rank:101+	dev	johnwayne
+liz truss	site	elizabethtruss.com	own-title	kind:person,links-rank:101+	test	liztruss
+cristina fernández de kirchner	site	cfkargentina.com	own-title	kind:person,links-rank:101+	test	cristinafernndezdekirchner
+garry kasparov	site	kasparov.com	own-title	kind:person,links-rank:101+	dev	garrykasparov
+harriet beecher stowe	site	harrietbeecherstowecenter.org	own-title	kind:person,links-rank:101+	dev	harrietbeecherstowe
+michelle bachelet	site	michellebachelet.cl	own-title	kind:person,links-rank:101+	dev	michellebachelet
+ray bradbury	site	raybradbury.com	own-title	kind:person,links-rank:101+	test	raybradbury
+william golding	site	william-golding.co.uk	own-title	kind:person,links-rank:101+	test	williamgolding
+charlize theron	site	charlizeafricaoutreach.org	own-title	kind:person,links-rank:101+	test	charlizetheron
+johnny cash	site	johnnycash.com	own-title	kind:person,links-rank:101+	dev	johnnycash
+melania trump	site	melaniatrump.com	own-title	kind:person,links-rank:101+	dev	melaniatrump
+mikhail bulgakov	site	bulgakov.ru	own-title	kind:person,links-rank:101+	test	mikhailbulgakov
+astrid lindgren	site	astridlindgren.com	own-title	kind:person,links-rank:101+	dev	astridlindgren
+chris pine	site	chris-pine.org	own-title	kind:person,links-rank:101+	dev	chrispine
+elton john	site	eltonjohn.com	own-title	kind:person,links-rank:101+	dev	eltonjohn
+fernando alonso	site	fernandoalonso.com	own-title	kind:person,links-rank:101+	test	fernandoalonso
+g. k. chesterton	site	chesterton.org	own-title	kind:person,links-rank:101+	dev	gkchesterton
+h. p. lovecraft	site	hplovecraft.com	own-title	kind:person,links-rank:101+	test	hplovecraft
+humphrey bogart	site	humphreybogart.com	own-title	kind:person,links-rank:101+	test	humphreybogart
+john travolta	site	travolta.com	own-title	kind:person,links-rank:101+	dev	johntravolta
+luciano pavarotti	site	lucianopavarotti.com|lucianopavarottifoundation.com	own-title	kind:person,links-rank:101+	test	lucianopavarotti
+marine le pen	site	mlafrance.fr	own-title	kind:person,links-rank:101+	test	marinelepen
+mohamed morsi	site	morsi.info	own-title	kind:person,links-rank:101+	test	mohamedmorsi
+viktor orbán	site	miniszterelnok.hu	own-title	kind:person,links-rank:101+	dev	viktororbn
+aretha franklin	site	arethafranklin.net	own-title	kind:person,links-rank:101+	test	arethafranklin
+bobby fischer	site	bobbyfischer.net	own-title	kind:person,links-rank:101+	dev	bobbyfischer
+franz beckenbauer	site	franzbeckenbauer.de	own-title	kind:person,links-rank:101+	test	franzbeckenbauer
+greta garbo	site	gretagarbo.com	own-title	kind:person,links-rank:101+	test	gretagarbo
+lewis hamilton	site	lewishamilton.com	own-title	kind:person,links-rank:101+	dev	lewishamilton
+pervez musharraf	site	generalpervezmusharraf.com	own-title	kind:person,links-rank:101+	dev	pervezmusharraf
+ringo starr	site	ringostarr.com	own-title	kind:person,links-rank:101+	test	ringostarr
+buzz aldrin	site	buzzaldrin.com	own-title	kind:person,links-rank:101+	dev	buzzaldrin
+frank-walter steinmeier	site	frank-walter-steinmeier.de	own-title	kind:person,links-rank:101+	test	frankwaltersteinmeier
+julia gillard	site	juliagillard.com.au	own-title	kind:person,links-rank:101+	test	juliagillard
+lech kaczyński	site	president.pl	own-title	kind:person,links-rank:101+	dev	lechkaczyski
+lila downs	site	liladowns.com	own-title	kind:person,links-rank:101+	dev	liladowns
+andrei sakharov	site	sakharov.space	own-title	kind:person,links-rank:101+	dev	andreisakharov
+arthur miller	site	arthurmiller.org	own-title	kind:person,links-rank:101+	dev	arthurmiller
+enya	site	enya.com	own-title	kind:person,links-rank:101+	test	enya
+kobe bryant	site	kobebryant.com	own-title	kind:person,links-rank:101+	dev	kobebryant
+larry sanger	site	larrysanger.org	own-title	kind:person,links-rank:101+	test	larrysanger
+mariano rajoy	site	rajoy.es	own-title	kind:person,links-rank:101+	test	marianorajoy
+mohammad khatami	site	khatami.ir	own-title	kind:person,links-rank:101+	dev	mohammadkhatami
+nicki minaj	site	nickiminajofficial.com	own-title	kind:person,links-rank:101+	dev	nickiminaj
+tsai ing-wen	site	english.president.gov.tw	own-title	kind:person,links-rank:101+	test	tsaiingwen
+christopher lee	site	christopherleeweb.com	own-title	kind:person,links-rank:101+	dev	christopherlee
+dua lipa	site	dualipa.com	own-title	kind:person,links-rank:101+	dev	dualipa
+george r. r. martin	site	georgerrmartin.com	own-title	kind:person,links-rank:101+	test	georgerrmartin
+giacomo leopardi	site	leopardi.it	own-title	kind:person,links-rank:101+	test	giacomoleopardi
+harold pinter	site	haroldpinter.org	own-title	kind:person,links-rank:101+	dev	haroldpinter
+kim kardashian	site	skims.com	own-title	kind:person,links-rank:101+	test	kimkardashian
+nursultan nazarbayev	site	akorda.kz	own-title	kind:person,links-rank:101+	test	nursultannazarbayev
+rodrigo duterte	site	president.gov.ph	own-title	kind:person,links-rank:101+	dev	rodrigoduterte
+abdullah ii	site	kingabdullah.jo	own-title	kind:person,links-rank:101+	test	abdullahii
+daniel radcliffe	site	danieljradcliffe.com	own-title	kind:person,links-rank:101+	test	danielradcliffe
+gianluigi buffon	site	gianluigibuffon.it	own-title	kind:person,links-rank:101+	dev	gianluigibuffon
+james dean	site	jamesdean.com	own-title	kind:person,links-rank:101+	dev	jamesdean
+lebron james	site	lebronjames.com	own-title	kind:person,links-rank:101+	dev	lebronjames
+louisa may alcott	site	louisamayalcott.org	own-title	kind:person,links-rank:101+	dev	louisamayalcott
+tina turner	site	tinaturnerofficial.com	own-title	kind:person,links-rank:101+	dev	tinaturner
+wole soyinka	site	wolesoyinkafoundation.org	own-title	kind:person,links-rank:101+	dev	wolesoyinka
+50 cent	site	50cent.com	own-title	kind:person,links-rank:101+	dev	50cent
+alfred adler	site	adler-iaip.net	own-title	kind:person,links-rank:101+	test	alfredadler
+benedicta boccoli	site	benedictaboccoli.it	own-title	kind:person,links-rank:101+	dev	benedictaboccoli
+graham greene	site	grahamgreenebt.org	own-title	kind:person,links-rank:101+	test	grahamgreene
+hayao miyazaki	site	ghibli.jp	own-title	kind:person,links-rank:101+	dev	hayaomiyazaki
+justin timberlake	site	justintimberlake.com	own-title	kind:person,links-rank:101+	test	justintimberlake
+margrethe ii	site	kongehuset.dk	own-title	kind:person,links-rank:101+	test	margretheii
+paris hilton	site	parishilton.com	own-title	kind:person,links-rank:101+	test	parishilton
+rachel carson	site	rachelcarson.org	own-title	kind:person,links-rank:101+	dev	rachelcarson
+stephen harper	site	stephenharper.com	own-title	kind:person,links-rank:101+	test	stephenharper
+barbra streisand	site	barbrastreisand.com	own-title	kind:person,links-rank:101+	dev	barbrastreisand
+corazon aquino	site	coryaquino.ph	own-title	kind:person,links-rank:101+	dev	corazonaquino
+dan brown	site	danbrown.com	own-title	kind:person,links-rank:101+	test	danbrown
+frank zappa	site	zappa.com	own-title	kind:person,links-rank:101+	dev	frankzappa
+kanye west	site	yeezy.com	own-title	kind:person,links-rank:101+	dev	kanyewest
+ludwig feuerbach	site	ludwig-feuerbach.de	own-title	kind:person,links-rank:101+	test	ludwigfeuerbach
+the beatles	site	thebeatles.com	own-title	kind:band,links-rank:1-100	test	thebeatles
+the carpenters	site	richardandkarencarpenter.com	own-title	kind:band,links-rank:1-100	dev	thecarpenters
+the doors	site	thedoors.com	own-title	kind:band,links-rank:1-100	dev	thedoors
+abba	site	abbasite.com	own-title	kind:band,links-rank:1-100	test	abba
+lordi	site	lordi.fi	own-title	kind:band,links-rank:1-100	dev	lordi
+paramore	site	paramoreisaband.com	own-title	kind:band,links-rank:1-100	test	paramore
+motörhead	site	imotorhead.com	own-title	kind:band,links-rank:1-100	dev	motrhead
+the rolling stones	site	rollingstones.com	own-title	kind:band,links-rank:1-100	test	therollingstones
+metallica	site	metallica.com	own-title	kind:band,links-rank:1-100	test	metallica
+pink floyd	site	pinkfloyd.com	own-title	kind:band,links-rank:1-100	dev	pinkfloyd
+bts	site	bts-official.jp|bts.ibighit.com|ibighit.com	own-title	kind:band,links-rank:1-100	test	bts
+led zeppelin	site	ledzeppelin.com	own-title	kind:band,links-rank:1-100	dev	ledzeppelin
+linkin park	site	linkinpark.com	own-title	kind:band,links-rank:1-100	dev	linkinpark
+blackpink	site	blackpinkofficial.com	own-title	kind:band,links-rank:1-100	dev	blackpink
+iron maiden	site	ironmaiden.com	own-title	kind:band,links-rank:1-100	test	ironmaiden
+nightwish	site	nightwish.com	own-title	kind:band,links-rank:1-100	test	nightwish
+ac/dc	site	acdc.com	own-title	kind:band,links-rank:1-100	dev	acdc
+coldplay	site	coldplay.com	own-title	kind:band,links-rank:1-100	dev	coldplay
+red hot chili peppers	site	redhotchilipeppers.com	own-title	kind:band,links-rank:1-100	dev	redhotchilipeppers
+one direction	site	onedirectionmusic.com	own-title	kind:band,links-rank:1-100	dev	onedirection
+thirty seconds to mars	site	thirtysecondstomars.com	own-title	kind:band,links-rank:1-100	dev	thirtysecondstomars
+twice	site	twice.jype.com|twicejapan.com	own-title	kind:band,links-rank:1-100	test	twice
+black sabbath	site	blacksabbath.com	own-title	kind:band,links-rank:1-100	test	blacksabbath
+guns n' roses	site	gunsnroses.com	own-title	kind:band,links-rank:1-100	test	gunsnroses
+rammstein	site	rammstein.de	own-title	kind:band,links-rank:1-100	test	rammstein
+duran duran	site	duranduran.com	own-title	kind:band,links-rank:1-100	dev	duranduran
+green day	site	greenday.com	own-title	kind:band,links-rank:1-100	dev	greenday
+the who	site	thewho.com	own-title	kind:band,links-rank:1-100	dev	thewho
+radiohead	site	radiohead.com	own-title	kind:band,links-rank:1-100	dev	radiohead
+deep purple	site	deeppurple.com	own-title	kind:band,links-rank:1-100	dev	deeppurple
+bon jovi	site	bonjovi.com	own-title	kind:band,links-rank:1-100	test	bonjovi
+aerosmith	site	aerosmith.com	own-title	kind:band,links-rank:1-100	test	aerosmith
+depeche mode	site	depechemode.com	own-title	kind:band,links-rank:1-100	test	depechemode
+dire straits	site	direstraits.com	own-title	kind:band,links-rank:1-100	dev	direstraits
+judas priest	site	judaspriest.com	own-title	kind:band,links-rank:1-100	test	judaspriest
+sex pistols	site	sexpistolsofficial.com	own-title	kind:band,links-rank:1-100	test	sexpistols
+megadeth	site	megadeth.com	own-title	kind:band,links-rank:1-100	dev	megadeth
+the beach boys	site	thebeachboys.com	own-title	kind:band,links-rank:1-100	test	thebeachboys
+spice girls	site	thespicegirls.com	own-title	kind:band,links-rank:1-100	test	spicegirls
+pussy riot	site	pussyriot.love	own-title	kind:band,links-rank:1-100	test	pussyriot
+system of a down	site	systemofadown.com	own-title	kind:band,links-rank:1-100	dev	systemofadown
+modern talking	site	moderntalking.com	own-title	kind:band,links-rank:1-100	dev	moderntalking
+maroon 5	site	maroon5.com	own-title	kind:band,links-rank:1-100	dev	maroon5
+måneskin	site	maneskin.com	own-title	kind:band,links-rank:1-100	dev	mneskin
+pearl jam	site	pearljam.com	own-title	kind:band,links-rank:1-100	test	pearljam
+the clash	site	theclash.com	own-title	kind:band,links-rank:1-100	dev	theclash
+the prodigy	site	theprodigy.com	own-title	kind:band,links-rank:1-100	test	theprodigy
+backstreet boys	site	backstreetboys.com	own-title	kind:band,links-rank:1-100	dev	backstreetboys
+lacuna coil	site	lacunacoil.com	own-title	kind:band,links-rank:1-100	dev	lacunacoil
+ramones	site	ramones.com	own-title	kind:band,links-rank:1-100	test	ramones
+the velvet underground	site	velvetundergroundmusic.com	own-title	kind:band,links-rank:1-100	test	thevelvetunderground
+black eyed peas	site	blackeyedpeas.com	own-title	kind:band,links-rank:1-100	dev	blackeyedpeas
+evanescence	site	evanescence.com|evanescencestore.com	own-title	kind:band,links-rank:1-100	test	evanescence
+the cure	site	thecure.com	own-title	kind:band,links-rank:1-100	test	thecure
+bee gees	site	beegees.com	own-title	kind:band,links-rank:1-100	test	beegees
+korn	site	kornofficial.com	own-title	kind:band,links-rank:1-100	test	korn
+nine inch nails	site	nin.com	own-title	kind:band,links-rank:1-100	test	nineinchnails
+the cranberries	site	cranberries.com	own-title	kind:band,links-rank:1-100	dev	thecranberries
+blink-182	site	blink182.com	own-title	kind:band,links-rank:1-100	test	blink182
+slayer	site	slayer.net	own-title	kind:band,links-rank:1-100	test	slayer
+akb48	site	akb48.co.jp|akb48.com.cn|akb48korea.co.kr|toyota-team8.jp	own-title	kind:band,links-rank:1-100	test	akb48
+arctic monkeys	site	arcticmonkeys.com	own-title	kind:band,links-rank:1-100	dev	arcticmonkeys
+daft punk	site	daftpunk.com	own-title	kind:band,links-rank:1-100	dev	daftpunk
+joy division	site	joydivisionofficial.com	own-title	kind:band,links-rank:1-100	test	joydivision
+my chemical romance	site	mychemicalromance.com	own-title	kind:band,links-rank:1-100	dev	mychemicalromance
+simon & garfunkel	site	simonandgarfunkel.com	own-title	kind:band,links-rank:1-100	dev	simongarfunkel
+the killers	site	thekillersmusic.com	own-title	kind:band,links-rank:1-100	test	thekillers
+jonas brothers	site	jonasbrothers.com	own-title	kind:band,links-rank:1-100	dev	jonasbrothers
+r.e.m.	site	remhq.com	own-title	kind:band,links-rank:1-100	dev	rem
+rage against the machine	site	ratm.com	own-title	kind:band,links-rank:1-100	test	rageagainstthemachine
+tokio hotel	site	tokiohotel.com	own-title	kind:band,links-rank:1-100	test	tokiohotel
+fleetwood mac	site	fleetwoodmac.com	own-title	kind:band,links-rank:1-100	test	fleetwoodmac
+girls' generation	site	girls-generation.jp	own-title	kind:band,links-rank:1-100	dev	girlsgeneration
+sum 41	site	sum41.com	own-title	kind:band,links-rank:1-100	test	sum41
+alice in chains	site	aliceinchains.com	own-title	kind:band,links-rank:1-100	dev	aliceinchains
+dream theater	site	dreamtheater.net	own-title	kind:band,links-rank:1-100	dev	dreamtheater
+foo fighters	site	foofighters.com	own-title	kind:band,links-rank:1-100	test	foofighters
+limp bizkit	site	limpbizkit.com	own-title	kind:band,links-rank:1-100	dev	limpbizkit
+momoiro clover z	site	momoclo.net	own-title	kind:band,links-rank:1-100	test	momoirocloverz
+nickelback	site	nickelback.com	own-title	kind:band,links-rank:1-100	test	nickelback
+t.a.t.u.	site	tatugirls.com	own-title	kind:band,links-rank:1-100	test	tatu
+soundgarden	site	soundgardenworld.com	own-title	kind:band,links-rank:1-100	dev	soundgarden
+avenged sevenfold	site	avengedsevenfold.com	own-title	kind:band,links-rank:1-100	dev	avengedsevenfold
+boney m.	site	boney-m.tv	own-title	kind:band,links-rank:1-100	dev	boneym
+clannad	site	clannad.ie	own-title	kind:band,links-rank:1-100	dev	clannad
+kraftwerk	site	kraftwerk.com	own-title	kind:band,links-rank:1-100	test	kraftwerk
+onerepublic	site	onerepublic.com	own-title	kind:band,links-rank:1-100	dev	onerepublic
+the police	site	thepolice.com	own-title	kind:band,links-rank:1-100	dev	thepolice
+wanna one	site	wannaone.ponycanyon.co.jp	own-title	kind:band,links-rank:1-100	dev	wannaone
+pantera	site	pantera.com	own-title	kind:band,links-rank:1-100	dev	pantera
+roxette	site	roxette.se	own-title	kind:band,links-rank:1-100	test	roxette
+the kinks	site	thekinks.info	own-title	kind:band,links-rank:1-100	test	thekinks
+the pussycat dolls	site	pcdmusic.com	own-title	kind:band,links-rank:1-100	dev	thepussycatdolls
+the white stripes	site	whitestripes.com	own-title	kind:band,links-rank:1-100	test	thewhitestripes
+creedence clearwater revival	site	creedence-online.net	own-title	kind:band,links-rank:1-100	dev	creedenceclearwaterrevival
+lynyrd skynyrd	site	lynyrdskynyrd.com	own-title	kind:band,links-rank:1-100	test	lynyrdskynyrd
+deftones	site	deftones.com	own-title	kind:band,links-rank:1-100	dev	deftones
+imagine dragons	site	imaginedragonsmusic.com	own-title	kind:band,links-rank:1-100	test	imaginedragons
+sepultura	site	sepultura.com.br	own-title	kind:band,links-rank:1-100	dev	sepultura
+the smashing pumpkins	site	smashingpumpkins.com	own-title	kind:band,links-rank:1-100	dev	thesmashingpumpkins
+twenty one pilots	site	twentyonepilots.com	own-title	kind:band,links-rank:101+	test	twentyonepilots
+van halen	site	van-halen.com	own-title	kind:band,links-rank:101+	test	vanhalen
+burzum	site	burzum.org	own-title	kind:band,links-rank:101+	test	burzum
+children of bodom	site	cobhc.com	own-title	kind:band,links-rank:101+	dev	childrenofbodom
+dimmu borgir	site	dimmu-borgir.com	own-title	kind:band,links-rank:101+	dev	dimmuborgir
+jefferson airplane	site	jeffersonairplane.com	own-title	kind:band,links-rank:101+	dev	jeffersonairplane
+sigur rós	site	sigurros.com	own-title	kind:band,links-rank:101+	test	sigurrs
+take that	site	takethat.com	own-title	kind:band,links-rank:101+	dev	takethat
+the offspring	site	offspring.com	own-title	kind:band,links-rank:101+	test	theoffspring
+the smiths	site	officialsmiths.co.uk	own-title	kind:band,links-rank:101+	dev	thesmiths
+def leppard	site	defleppard.com	own-title	kind:band,links-rank:101+	test	defleppard
+destiny's child	site	destinyschild.com	own-title	kind:band,links-rank:101+	dev	destinyschild
+florence and the machine	site	florenceandthemachine.net	own-title	kind:band,links-rank:101+	dev	florenceandthemachine
+gorillaz	site	gorillaz.com	own-title	kind:band,links-rank:101+	dev	gorillaz
+pet shop boys	site	petshopboys.co.uk	own-title	kind:band,links-rank:101+	test	petshopboys
+sonic youth	site	sonicyouth.com	own-title	kind:band,links-rank:101+	dev	sonicyouth
+the rasmus	site	therasmus.com	own-title	kind:band,links-rank:101+	dev	therasmus
+westlife	site	westlife.com	own-title	kind:band,links-rank:101+	dev	westlife
+beastie boys	site	beastieboys.com	own-title	kind:band,links-rank:101+	dev	beastieboys
+buranovskiye babushki	site	buranovskiebabushki.ru	own-title	kind:band,links-rank:101+	test	buranovskiyebabushki
+snow patrol	site	snowpatrol.com	own-title	kind:band,links-rank:101+	test	snowpatrol
+the jackson 5	site	thejacksons.com	own-title	kind:band,links-rank:101+	test	thejackson5
+zz top	site	zztop.com	own-title	kind:band,links-rank:101+	test	zztop
+apocalyptica	site	apocalyptica.com	own-title	kind:band,links-rank:101+	dev	apocalyptica
+fall out boy	site	falloutboy.com	own-title	kind:band,links-rank:101+	test	falloutboy
+n.w.a	site	nwaworld.com	own-title	kind:band,links-rank:101+	dev	nwa
+talking heads	site	talkingheadsofficial.com	own-title	kind:band,links-rank:101+	dev	talkingheads
+the strokes	site	thestrokes.com	own-title	kind:band,links-rank:101+	dev	thestrokes
+within temptation	site	within-temptation.com	own-title	kind:band,links-rank:101+	test	withintemptation
+king crimson	site	dgmlive.com	own-title	kind:band,links-rank:101+	test	kingcrimson
+manowar	site	manowar.com	own-title	kind:band,links-rank:101+	test	manowar
+stray kids	site	staydepartment.com|straykids.jype.com	own-title	kind:band,links-rank:101+	dev	straykids
+disturbed	site	disturbed1.com	own-title	kind:band,links-rank:101+	dev	disturbed
+grateful dead	site	dead.net	own-title	kind:band,links-rank:101+	dev	gratefuldead
+helloween	site	helloween.org	own-title	kind:band,links-rank:101+	test	helloween
+little big	site	littlebig.band|littlebig.ru	own-title	kind:band,links-rank:101+	dev	littlebig
+public enemy	site	publicenemy.com	own-title	kind:band,links-rank:101+	dev	publicenemy
+super junior	site	superjunior-jp.net	own-title	kind:band,links-rank:101+	dev	superjunior
+wu-tang clan	site	wutangclan.com	own-title	kind:band,links-rank:101+	dev	wutangclan
+2ne1	site	2ne1.jp	own-title	kind:band,links-rank:101+	test	2ne1
+a-ha	site	a-ha.com	own-title	kind:band,links-rank:101+	test	aha
+ace of base	site	aceofbase.com	own-title	kind:band,links-rank:101+	test	aceofbase
+bullet for my valentine	site	bulletformyvalentine.com	own-title	kind:band,links-rank:101+	test	bulletformyvalentine
+cannibal corpse	site	cannibalcorpse.net	own-title	kind:band,links-rank:101+	dev	cannibalcorpse
+il divo	site	ildivo.com	own-title	kind:band,links-rank:101+	dev	ildivo
+itzy	site	itzy.jype.com	own-title	kind:band,links-rank:101+	dev	itzy
+no doubt	site	nodoubt.com	own-title	kind:band,links-rank:101+	dev	nodoubt
+shinee	site	shinee.jp	own-title	kind:band,links-rank:101+	test	shinee
+the mars volta	site	themarsvolta.com	own-title	kind:band,links-rank:101+	dev	themarsvolta
+weezer	site	weezer.com	own-title	kind:band,links-rank:101+	test	weezer
+panic! at the disco	site	panicatthedisco.com	own-title	kind:band,links-rank:101+	dev	panicatthedisco
+three days grace	site	threedaysgrace.com	own-title	kind:band,links-rank:101+	dev	threedaysgrace
+5 seconds of summer	site	5sos.com	own-title	kind:band,links-rank:101+	test	5secondsofsummer
+aespa	site	aespa-official.jp|aespa.com	own-title	kind:band,links-rank:101+	test	aespa
+arch enemy	site	archenemy.net	own-title	kind:band,links-rank:101+	dev	archenemy
+bring me the horizon	site	bmthofficial.com	own-title	kind:band,links-rank:101+	dev	bringmethehorizon
+ha*ash	site	ha-ash.com	own-title	kind:band,links-rank:101+	dev	haash
+little mix	site	little-mix.com	own-title	kind:band,links-rank:101+	dev	littlemix
+metropolitan opera	site	metopera.org	own-title	kind:band,links-rank:101+	test	metropolitanopera
+mötley crüe	site	motley.com	own-title	kind:band,links-rank:101+	test	mtleycre
+simple plan	site	officialsimpleplan.com	own-title	kind:band,links-rank:101+	dev	simpleplan
+the roop	site	theroop.com	own-title	kind:band,links-rank:101+	test	theroop
+x japan	site	xjapan.com	own-title	kind:band,links-rank:101+	test	xjapan
+arcade fire	site	arcadefire.com	own-title	kind:band,links-rank:101+	test	arcadefire
+faith no more	site	fnm.com	own-title	kind:band,links-rank:101+	dev	faithnomore
+kings of leon	site	kingsofleon.com	own-title	kind:band,links-rank:101+	dev	kingsofleon
+opeth	site	opeth.com	own-title	kind:band,links-rank:101+	dev	opeth
+eurythmics	site	eurythmics.com	own-title	kind:band,links-rank:101+	test	eurythmics
+good charlotte	site	goodcharlotte.com	own-title	kind:band,links-rank:101+	test	goodcharlotte
+inxs	site	inxs.com	own-title	kind:band,links-rank:101+	test	inxs
+in flames	site	inflames.com	own-title	kind:band,links-rank:101+	test	inflames
+korpiklaani	site	korpiklaani.com	own-title	kind:band,links-rank:101+	test	korpiklaani
+papa roach	site	paparoach.com	own-title	kind:band,links-rank:101+	test	paparoach
+queens of the stone age	site	qotsa.com	own-title	kind:band,links-rank:101+	dev	queensofthestoneage
+siouxsie and the banshees	site	siouxsieandthebanshees.co.uk	own-title	kind:band,links-rank:101+	dev	siouxsieandthebanshees
+the chainsmokers	site	thechainsmokers.com	own-title	kind:band,links-rank:101+	test	thechainsmokers
+whitesnake	site	whitesnake.com	own-title	kind:band,links-rank:101+	test	whitesnake
+boyzone	site	boyzone.net	own-title	kind:band,links-rank:101+	test	boyzone
+die antwoord	site	dieantwoord.com	own-title	kind:band,links-rank:101+	dev	dieantwoord
+earth, wind & fire	site	earthwindandfire.com	own-title	kind:band,links-rank:101+	dev	earthwindfire
+ricchi e poveri	site	ricchiepoveri.com	own-title	kind:band,links-rank:101+	dev	ricchiepoveri
+tears for fears	site	tearsforfears.com	own-title	kind:band,links-rank:101+	dev	tearsforfears
+the everly brothers	site	everlybrothers.net	own-title	kind:band,links-rank:101+	dev	theeverlybrothers
+the moody blues	site	moodybluestoday.com	own-title	kind:band,links-rank:101+	test	themoodyblues
+audioslave	site	audioslave.com	own-title	kind:band,links-rank:101+	test	audioslave
+cascada	site	cascada-music.de	own-title	kind:band,links-rank:101+	dev	cascada
+cradle of filth	site	cradleoffilth.com	own-title	kind:band,links-rank:101+	dev	cradleoffilth
+crosby, stills, nash & young	site	csny.com	own-title	kind:band,links-rank:101+	test	crosbystillsnashyoung
+dark tranquillity	site	darktranquillity.com	own-title	kind:band,links-rank:101+	test	darktranquillity
+fifth harmony	site	fifthharmony.com	own-title	kind:band,links-rank:101+	test	fifthharmony
+hoobastank	site	hoobastank.com	own-title	kind:band,links-rank:101+	test	hoobastank
+jamiroquai	site	jamiroquai.com	own-title	kind:band,links-rank:101+	dev	jamiroquai
+kreator	site	kreator-terrorzone.de	own-title	kind:band,links-rank:101+	test	kreator
+massive attack	site	massiveattack.co.uk	own-title	kind:band,links-rank:101+	test	massiveattack
+sonata arctica	site	sonataarctica.info	own-title	kind:band,links-rank:101+	test	sonataarctica
+stratovarius	site	stratovarius.com	own-title	kind:band,links-rank:101+	test	stratovarius
+the stooges	site	iggyandthestoogesmusic.com	own-title	kind:band,links-rank:101+	test	thestooges
+village people	site	villagepeople.com	own-title	kind:band,links-rank:101+	dev	villagepeople
+wham!	site	wham.world	own-title	kind:band,links-rank:101+	test	wham
+blind guardian	site	blind-guardian.com	own-title	kind:band,links-rank:101+	dev	blindguardian
+dragonforce	site	dragonforce.com	own-title	kind:band,links-rank:101+	dev	dragonforce
+gipsy kings	site	gipsykings.com	own-title	kind:band,links-rank:101+	dev	gipsykings
+peter, paul and mary	site	peterpaulandmary.com	own-title	kind:band,links-rank:101+	dev	peterpaulandmary
+the corrs	site	thecorrsofficial.com	own-title	kind:band,links-rank:101+	dev	thecorrs
+the mamas & the papas	site	themamasandthepapasofficial.com	own-title	kind:band,links-rank:101+	dev	themamasthepapas
+the monkees	site	monkees.com	own-title	kind:band,links-rank:101+	dev	themonkees
+the yardbirds	site	theyardbirds.com	own-title	kind:band,links-rank:101+	dev	theyardbirds
+amon amarth	site	amonamarth.com	own-title	kind:band,links-rank:101+	dev	amonamarth
+bad religion	site	badreligion.com	own-title	kind:band,links-rank:101+	dev	badreligion
+dead kennedys	site	deadkennedys.com	own-title	kind:band,links-rank:101+	dev	deadkennedys
+electric light orchestra	site	jefflynneselo.com	own-title	kind:band,links-rank:101+	test	electriclightorchestra
+emerson, lake & palmer	site	emersonlakeandpalmer.com	own-title	kind:band,links-rank:101+	test	emersonlakepalmer
+enhypen	site	enhypen-jp.weverse.io	own-title	kind:band,links-rank:101+	dev	enhypen
+il volo	site	ilvolomusic.com	own-title	kind:band,links-rank:101+	dev	ilvolo
+lmfao	site	lmfaomusic.com	own-title	kind:band,links-rank:101+	dev	lmfao
+laibach	site	laibach.org	own-title	kind:band,links-rank:101+	dev	laibach
+paris opera	site	operadeparis.fr	own-title	kind:band,links-rank:101+	test	parisopera
+procol harum	site	procolharum.com	own-title	kind:band,links-rank:101+	test	procolharum
+sugababes	site	sugababes.com	own-title	kind:band,links-rank:101+	dev	sugababes
+the allman brothers band	site	allmanbrothersband.com	own-title	kind:band,links-rank:101+	test	theallmanbrothersband
+the cardigans	site	cardigans.com	own-title	kind:band,links-rank:101+	dev	thecardigans
+cypress hill	site	cypresshill.com	own-title	kind:band,links-rank:101+	test	cypresshill
+dead can dance	site	deadcandance.com	own-title	kind:band,links-rank:101+	test	deadcandance
+jedward	site	planetjedward.net	own-title	kind:band,links-rank:101+	test	jedward
+kaiser chiefs	site	kaiserchiefs.com	own-title	kind:band,links-rank:101+	dev	kaiserchiefs
+le sserafim	site	le-sserafim.com|le-sserafim.jp	own-title	kind:band,links-rank:101+	dev	lesserafim
+mumford & sons	site	mumfordandsons.com	own-title	kind:band,links-rank:101+	dev	mumfordsons
+newjeans	site	newjeans.jp|newjeans.kr	own-title	kind:band,links-rank:101+	test	newjeans
+tvxq	site	toho-jp.net	own-title	kind:band,links-rank:101+	dev	tvxq
+tenacious d	site	tenaciousd.com	own-title	kind:band,links-rank:101+	test	tenaciousd
+the bangles	site	thebangles.com	own-title	kind:band,links-rank:101+	dev	thebangles
+thin lizzy	site	thinlizzyofficial.com	own-title	kind:band,links-rank:101+	dev	thinlizzy
+3 doors down	site	3doorsdown.com	own-title	kind:band,links-rank:101+	dev	3doorsdown
+bananarama	site	bananarama.co.uk	own-title	kind:band,links-rank:101+	test	bananarama
+bloc party	site	blocparty.com	own-title	kind:band,links-rank:101+	test	blocparty
+godsmack	site	godsmack.com	own-title	kind:band,links-rank:101+	test	godsmack
+meshuggah	site	meshuggah.net	own-title	kind:band,links-rank:101+	test	meshuggah
+nofx	site	nofxofficialwebsite.com	own-title	kind:band,links-rank:101+	dev	nofx
+nsync	site	nsync.com	own-title	kind:band,links-rank:101+	dev	nsync
+napalm death	site	napalmdeath.org	own-title	kind:band,links-rank:101+	dev	napalmdeath
+outkast	site	outkast.com	own-title	kind:band,links-rank:101+	test	outkast
+owl city	site	owlcity.com	own-title	kind:band,links-rank:101+	dev	owlcity
+supertramp	site	supertramp.com	own-title	kind:band,links-rank:101+	dev	supertramp
+swedish house mafia	site	swedishhousemafia.com	own-title	kind:band,links-rank:101+	dev	swedishhousemafia
+tame impala	site	tameimpala.com	own-title	kind:band,links-rank:101+	dev	tameimpala
+the black keys	site	theblackkeys.com	own-title	kind:band,links-rank:101+	dev	theblackkeys
+the byrds	site	thebyrds.com	own-title	kind:band,links-rank:101+	dev	thebyrds
+the script	site	thescriptmusic.com	own-title	kind:band,links-rank:101+	dev	thescript
+type o negative	site	typeonegative.net	own-title	kind:band,links-rank:101+	test	typeonegative
+girls aloud	site	girlsaloud.com	own-title	kind:band,links-rank:101+	test	girlsaloud
+hammerfall	site	hammerfall.net	own-title	kind:band,links-rank:101+	dev	hammerfall
+i-dle	site	i-dle.cubeent.co.jp	own-title	kind:band,links-rank:101+	test	idle
+kasabian	site	kasabian.co.uk	own-title	kind:band,links-rank:101+	dev	kasabian
+katrina and the waves	site	katrinaandthewaves.com	own-title	kind:band,links-rank:101+	dev	katrinaandthewaves
+kool & the gang	site	koolandthegang.com	own-title	kind:band,links-rank:101+	dev	koolthegang
+manic street preachers	site	manicstreetpreachers.com	own-title	kind:band,links-rank:101+	dev	manicstreetpreachers
+olsen brothers	site	olsen-brothers.dk	own-title	kind:band,links-rank:101+	test	olsenbrothers
+roxy music	site	roxymusic.co.uk	own-title	kind:band,links-rank:101+	test	roxymusic
+röyksopp	site	royksopp.com	own-title	kind:band,links-rank:101+	test	ryksopp
+the chemical brothers	site	thechemicalbrothers.com	own-title	kind:band,links-rank:101+	dev	thechemicalbrothers
+ub40	site	ub40.global	own-title	kind:band,links-rank:101+	dev	ub40
+yeah yeah yeahs	site	yeahyeahyeahs.com	own-title	kind:band,links-rank:101+	dev	yeahyeahyeahs
+a perfect circle	site	aperfectcircle.com	own-title	kind:band,links-rank:101+	test	aperfectcircle
+billy talent	site	billytalent.com	own-title	kind:band,links-rank:101+	test	billytalent
+blue öyster cult	site	blueoystercult.com	own-title	kind:band,links-rank:101+	test	blueystercult
+breaking benjamin	site	breakingbenjamin.com	own-title	kind:band,links-rank:101+	dev	breakingbenjamin
+clean bandit	site	cleanbandit.co.uk	own-title	kind:band,links-rank:101+	test	cleanbandit
+d12	site	d12online.com	own-title	kind:band,links-rank:101+	dev	d12
+eluveitie	site	eluveitie.ch	own-title	kind:band,links-rank:101+	dev	eluveitie
+ensiferum	site	ensiferum.com	own-title	kind:band,links-rank:101+	test	ensiferum
+mgmt	site	whoismgmt.com	own-title	kind:band,links-rank:101+	dev	mgmt
+new kids on the block	site	nkotb.com	own-title	kind:band,links-rank:101+	dev	newkidsontheblock
+pentatonix	site	ptxofficial.com	own-title	kind:band,links-rank:101+	test	pentatonix
+porcupine tree	site	porcupinetree.com	own-title	kind:band,links-rank:101+	test	porcupinetree
+rbd	site	grupo-rbd.com	own-title	kind:band,links-rank:101+	dev	rbd
+run-dmc	site	rundmc.com	own-title	kind:band,links-rank:101+	dev	rundmc
+simple minds	site	simpleminds.com	own-title	kind:band,links-rank:101+	test	simpleminds
+atomic kitten	site	atomickitten.com	own-title	kind:band,links-rank:101+	dev	atomickitten
+bloodhound gang	site	bloodhoundgang.com	own-title	kind:band,links-rank:101+	dev	bloodhoundgang
+cartel de santa	site	carteldesanta.com	own-title	kind:band,links-rank:101+	test	carteldesanta
+die toten hosen	site	dietotenhosen.de	own-title	kind:band,links-rank:101+	test	dietotenhosen
+echo & the bunnymen	site	bunnymen.com	own-title	kind:band,links-rank:101+	dev	echothebunnymen
+fugees	site	thefugees.com	own-title	kind:band,links-rank:101+	dev	fugees
+morbid angel	site	morbidangel.com	own-title	kind:band,links-rank:101+	test	morbidangel
+okean elzy	site	okeanelzy.com	own-title	kind:band,links-rank:101+	dev	okeanelzy
+paul mccartney and wings	site	paulmccartney.com	own-title	kind:band,links-rank:101+	dev	paulmccartneyandwings
+rhapsody of fire	site	rhapsodyoffire.com	own-title	kind:band,links-rank:101+	test	rhapsodyoffire
+the pretenders	site	thepretenders.com	own-title	kind:band,links-rank:101+	test	thepretenders
+tomorrow x together	site	txt-official.jp|txt.ibighit.com	own-title	kind:band,links-rank:101+	dev	tomorrowxtogether
+vienna boys' choir	site	wsk.at	own-title	kind:band,links-rank:101+	test	viennaboyschoir
+wikipedia	site	wikipedia.org	own-title	kind:org,links-rank:1-100	test	wikipedia
+united nations	site	un.org	own-title	kind:org,links-rank:1-100	dev	unitednations
+true jesus church	site	members.tjc.org|tjc.org	own-title	kind:org,links-rank:1-100	dev	truejesuschurch
+facebook	site	facebook.com	own-title	kind:org,links-rank:1-100	test	facebook
+youtube	site	youtube.com	own-title	kind:org,links-rank:1-100	dev	youtube
+nato	site	nato.int	own-title	kind:org,links-rank:1-100	dev	nato
+unesco	site	ar.unesco.org|es.unesco.org|fr.unesco.org|ru.unesco.org|unesco.org|zh.unesco.org	own-title	kind:org,links-rank:1-100	dev	unesco
+wikimedia foundation	site	wikimediafoundation.org	own-title	kind:org,links-rank:1-100	dev	wikimediafoundation
+world health organization	site	who.int	own-title	kind:org,links-rank:1-100	dev	worldhealthorganization
+catholic church	site	vatican.va	own-title	kind:org,links-rank:1-100	test	catholicchurch
+nasa	site	nasa.gov	own-title	kind:org,links-rank:1-100	dev	nasa
+apple inc.	site	apple.com|apple.com.cn	own-title	kind:org,links-rank:1-100	test	appleinc
+wikimedia commons	site	commons.wikimedia.org	own-title	kind:org,links-rank:1-100	dev	wikimediacommons
+microsoft	site	microsoft.com	own-title	kind:org,links-rank:1-100	test	microsoft
+louvre	site	louvre.fr	own-title	kind:org,links-rank:1-100	dev	louvre
+instagram	site	instagram.com	own-title	kind:org,links-rank:1-100	dev	instagram
+fifa	site	fifa.com	own-title	kind:org,links-rank:1-100	dev	fifa
+firefox	site	firefox.com	own-title	kind:org,links-rank:1-100	test	firefox
+international monetary fund	site	imf.org	own-title	kind:org,links-rank:1-100	test	internationalmonetaryfund
+commonwealth of nations	site	thecommonwealth.org	own-title	kind:org,links-rank:1-100	test	commonwealthofnations
+wiktionary	site	wiktionary.org	own-title	kind:org,links-rank:1-100	dev	wiktionary
+world trade organization	site	wto.org	own-title	kind:org,links-rank:1-100	test	worldtradeorganization
+harvard university	site	harvard.edu	own-title	kind:org,links-rank:1-100	test	harvarduniversity
+real madrid cf	site	realmadrid.com	own-title	kind:org,links-rank:1-100	dev	realmadridcf
+wikidata	site	wikidata.org	own-title	kind:org,links-rank:1-100	test	wikidata
+wikisource	site	wikisource.org	own-title	kind:org,links-rank:1-100	dev	wikisource
+bbc	site	bbc.co.uk|bbc.com	own-title	kind:org,links-rank:1-100	dev	bbc
+hamas	site	hamasinfo.info	own-title	kind:org,links-rank:1-100	dev	hamas
+toyota	site	global.toyota	own-title	kind:org,links-rank:1-100	dev	toyota
+university of oxford	site	ox.ac.uk	own-title	kind:org,links-rank:1-100	test	universityofoxford
+manchester united f.c.	site	manutd.com	own-title	kind:org,links-rank:1-100	dev	manchesterunitedfc
+baháʼí faith	site	bahai.no|bahai.org	own-title	kind:org,links-rank:1-100	test	bahfaith
+world bank	site	worldbank.org	own-title	kind:org,links-rank:1-100	test	worldbank
+netflix	site	netflix.com	own-title	kind:org,links-rank:1-100	test	netflix
+taliban	site	alemarahenglish.af	own-title	kind:org,links-rank:1-100	dev	taliban
+international red cross and red crescent movement	site	icrc.org|ifrc.org	own-title	kind:org,links-rank:1-100	dev	internationalredcrossandredcrescentmovement
+opec	site	opec.org	own-title	kind:org,links-rank:1-100	dev	opec
+the walt disney company	site	disney.com|thewaltdisneycompany.com	own-title	kind:org,links-rank:1-100	dev	thewaltdisneycompany
+central intelligence agency	site	cia.gov	own-title	kind:org,links-rank:1-100	dev	centralintelligenceagency
+chatgpt	site	chatgpt.com	own-title	kind:org,links-rank:1-100	test	chatgpt
+wikileaks	site	wikileaks.org	own-title	kind:org,links-rank:1-100	test	wikileaks
+tiktok	site	tiktok.com	own-title	kind:org,links-rank:1-100	test	tiktok
+mcdonald's	site	mcdonalds.com	own-title	kind:org,links-rank:1-100	test	mcdonalds
+english wikipedia	site	en.wikipedia.org	own-title	kind:org,links-rank:1-100	dev	englishwikipedia
+european parliament	site	europarl.europa.eu	own-title	kind:org,links-rank:1-100	dev	europeanparliament
+mediawiki	site	mediawiki.org	own-title	kind:org,links-rank:1-100	dev	mediawiki
+university of cambridge	site	cam.ac.uk	own-title	kind:org,links-rank:1-100	test	universityofcambridge
+università degli studi niccolò cusano	site	unicusano.it	own-title	kind:org,links-rank:1-100	test	universitdeglistudiniccolcusano
+imdb	site	imdb.com	own-title	kind:org,links-rank:1-100	dev	imdb
+international court of justice	site	icj-cij.org	own-title	kind:org,links-rank:1-100	test	internationalcourtofjustice
+juventus fc	site	juventus.com	own-title	kind:org,links-rank:1-100	test	juventusfc
+liverpool f.c.	site	liverpoolfc.com	own-title	kind:org,links-rank:1-100	test	liverpoolfc
+whatsapp	site	whatsapp.com	own-title	kind:org,links-rank:1-100	test	whatsapp
+wikibooks	site	wikibooks.org	own-title	kind:org,links-rank:1-100	test	wikibooks
+wikiquote	site	wikiquote.org	own-title	kind:org,links-rank:1-100	dev	wikiquote
+samsung	site	samsung.com	own-title	kind:org,links-rank:1-100	dev	samsung
+council of europe	site	coe.int	own-title	kind:org,links-rank:1-100	test	councilofeurope
+jehovah's witnesses	site	jw.org	own-title	kind:org,links-rank:1-100	dev	jehovahswitnesses
+google search	site	google.be|google.ca|google.ch|google.co.in|google.co.jp|google.co.uk|google.com|google.com.bd|google.com.tr|google.es|google.fr|google.gl|google.ie|google.it|google.nl	own-title	kind:org,links-rank:1-100	test	googlesearch
+hezbollah	site	moqawama.org.lb	own-title	kind:org,links-rank:1-100	test	hezbollah
+chelsea f.c.	site	chelseafc.com	own-title	kind:org,links-rank:1-100	dev	chelseafc
+uefa	site	uefa.com	own-title	kind:org,links-rank:1-100	test	uefa
+ac milan	site	acmilan.com	own-title	kind:org,links-rank:1-100	test	acmilan
+coritiba foot ball club	site	coritiba.com.br	own-title	kind:org,links-rank:1-100	dev	coritibafootballclub
+arsenal f.c.	site	arsenal.com	own-title	kind:org,links-rank:1-100	dev	arsenalfc
+the new york times	site	nytimes.com	own-title	kind:org,links-rank:1-100	dev	thenewyorktimes
+yahoo	site	yahoo.com	own-title	kind:org,links-rank:1-100	test	yahoo
+fc bayern munich	site	fcbayern.cn|fcbayern.com	own-title	kind:org,links-rank:1-100	dev	fcbayernmunich
+google translate	site	translate.google.com	own-title	kind:org,links-rank:1-100	dev	googletranslate
+şalom	site	salom.com.tr	own-title	kind:org,links-rank:1-100	dev	alom
+inter milan	site	inter.it	own-title	kind:org,links-rank:1-100	dev	intermilan
+musée d'orsay	site	musee-orsay.fr	own-title	kind:org,links-rank:1-100	dev	musedorsay
+mercedes-benz	site	mercedes-benz.com	own-title	kind:org,links-rank:1-100	dev	mercedesbenz
+jesuits	site	jesuits.global	own-title	kind:org,links-rank:1-100	dev	jesuits
+puerto rican independence party	site	patrianuevapr.com	own-title	kind:org,links-rank:1-100	dev	puertoricanindependenceparty
+wayback machine	site	web.archive.org	own-title	kind:org,links-rank:1-100	test	waybackmachine
+bmw	site	bmw.com	own-title	kind:org,links-rank:1-100	test	bmw
+cnn	site	cnn.com	own-title	kind:org,links-rank:1-100	dev	cnn
+european space agency	site	esa.int	own-title	kind:org,links-rank:1-100	test	europeanspaceagency
+international union for conservation of nature	site	iucn.org	own-title	kind:org,links-rank:1-100	test	internationalunionforconservationofnature
+manchester city f.c.	site	mancity.com	own-title	kind:org,links-rank:1-100	test	manchestercityfc
+ssc napoli	site	sscnapoli.it	own-title	kind:org,links-rank:1-100	test	sscnapoli
+unicef	site	unicef.org	own-title	kind:org,links-rank:1-100	test	unicef
+united nations general assembly	site	un.org	own-title	kind:org,links-rank:1-100	test	unitednationsgeneralassembly
+baskin-robbins	site	baskinrobbins.com	own-title	kind:org,links-rank:1-100	dev	baskinrobbins
+spacex	site	spacex.com	own-title	kind:org,links-rank:1-100	dev	spacex
+audi	site	audi.co.za|audi.com|audi.de|audi.fr	own-title	kind:org,links-rank:1-100	dev	audi
+federal bureau of investigation	site	fbi.gov	own-title	kind:org,links-rank:1-100	dev	federalbureauofinvestigation
+ford motor company	site	ford.com	own-title	kind:org,links-rank:1-100	test	fordmotorcompany
+hubble space telescope	site	esahubble.org|hubble.nasa.gov	own-title	kind:org,links-rank:1-100	dev	hubblespacetelescope
+international criminal court	site	icc-cpi.int	own-title	kind:org,links-rank:1-100	dev	internationalcriminalcourt
+national basketball association	site	nba.com	own-title	kind:org,links-rank:1-100	dev	nationalbasketballassociation
+sony	site	sony.co.in|sony.com	own-title	kind:org,links-rank:1-100	dev	sony
+cannes film festival	site	festival-cannes.com	own-title	kind:org,links-rank:1-100	dev	cannesfilmfestival
+ibm	site	ibm.com	own-title	kind:org,links-rank:1-100	test	ibm
+premier league	site	premierleague.com	own-title	kind:org,links-rank:1-100	test	premierleague
+united states congress	site	congress.gov	own-title	kind:org,links-rank:1-100	test	unitedstatescongress
+burger king	site	bk.com	own-title	kind:org,links-rank:1-100	test	burgerking
+massachusetts institute of technology	site	mit.edu	own-title	kind:org,links-rank:1-100	test	massachusettsinstituteoftechnology
+nokia	site	nokia.com	own-title	kind:org,links-rank:1-100	dev	nokia
+skype	site	skype.com	own-title	kind:org,links-rank:101+	test	skype
+chinese communist party	site	12371.cn	own-title	kind:org,links-rank:101+	dev	chinesecommunistparty
+hec paris	site	hec.edu	own-title	kind:org,links-rank:101+	dev	hecparis
+international organization for standardization	site	iso.org	own-title	kind:org,links-rank:101+	dev	internationalorganizationforstandardization
+stanford university	site	stanford.edu	own-title	kind:org,links-rank:101+	test	stanforduniversity
+the guardian	site	theguardian.com	own-title	kind:org,links-rank:101+	dev	theguardian
+german wikipedia	site	de.wikipedia.org	own-title	kind:org,links-rank:101+	dev	germanwikipedia
+renault	site	renaultgroup.com	own-title	kind:org,links-rank:101+	test	renault
+wikinews	site	wikinews.org	own-title	kind:org,links-rank:101+	test	wikinews
+atlético madrid	site	atleticodemadrid.com	own-title	kind:org,links-rank:101+	test	atlticomadrid
+british museum	site	britishmuseum.org	own-title	kind:org,links-rank:101+	dev	britishmuseum
+g20	site	g20.org	own-title	kind:org,links-rank:101+	dev	g20
+international atomic energy agency	site	iaea.org	own-title	kind:org,links-rank:101+	dev	internationalatomicenergyagency
+masjid al-haram	site	gph.gov.sa	own-title	kind:org,links-rank:101+	dev	masjidalharam
+moscow state university	site	msu.ru	own-title	kind:org,links-rank:101+	dev	moscowstateuniversity
+palace of versailles	site	chateauversailles.fr|en.chateauversailles.fr	own-title	kind:org,links-rank:101+	test	palaceofversailles
+tesla, inc.	site	tesla.com	own-title	kind:org,links-rank:101+	test	teslainc
+amnesty international	site	amnesty.org	own-title	kind:org,links-rank:101+	test	amnestyinternational
+afc ajax	site	ajax.nl	own-title	kind:org,links-rank:101+	dev	afcajax
+adidas	site	adidas.com	own-title	kind:org,links-rank:101+	test	adidas
+spain national football team	site	sefutbol.com	own-title	kind:org,links-rank:101+	dev	spainnationalfootballteam
+boeing	site	boeing.com	own-title	kind:org,links-rank:101+	dev	boeing
+french wikipedia	site	fr.wikipedia.org	own-title	kind:org,links-rank:101+	test	frenchwikipedia
+yale university	site	yale.edu	own-title	kind:org,links-rank:101+	dev	yaleuniversity
+york university	site	yorku.ca	own-title	kind:org,links-rank:101+	dev	yorkuniversity
+creative commons	site	creativecommons.org	own-title	kind:org,links-rank:101+	test	creativecommons
+federal university of minas gerais	site	ufmg.br	own-title	kind:org,links-rank:101+	dev	federaluniversityofminasgerais
+forbidden city	site	dpm.org.cn|intl.dpm.org.cn	own-title	kind:org,links-rank:101+	test	forbiddencity
+hanshin tigers	site	hanshintigers.jp	own-title	kind:org,links-rank:101+	dev	hanshintigers
+honda	site	global.honda	own-title	kind:org,links-rank:101+	dev	honda
+james webb space telescope	site	esawebb.org|webb.nasa.gov|webbtelescope.org	own-title	kind:org,links-rank:101+	dev	jameswebbspacetelescope
+oecd	site	oecd.org	own-title	kind:org,links-rank:101+	test	oecd
+palermo fc	site	palermofc.com	own-title	kind:org,links-rank:101+	dev	palermofc
+televisa	site	televisa.com	own-title	kind:org,links-rank:101+	dev	televisa
+wikiversity	site	wikiversity.org	own-title	kind:org,links-rank:101+	test	wikiversity
+as roma	site	asroma.com	own-title	kind:org,links-rank:101+	test	asroma
+everton f.c.	site	evertonfc.com	own-title	kind:org,links-rank:101+	dev	evertonfc
+federal university of bahia	site	ufba.br	own-title	kind:org,links-rank:101+	test	federaluniversityofbahia
+federal university of science and innovation of minas gerais	site	cefetmg.br	own-title	kind:org,links-rank:101+	dev	federaluniversityofscienceandinnovationofminasgerais
+forbes	site	forbes.com	own-title	kind:org,links-rank:101+	dev	forbes
+sc corinthians paulista	site	corinthians.com.br	own-title	kind:org,links-rank:101+	dev	sccorinthianspaulista
+spotify	site	open.spotify.com|spotify.com	own-title	kind:org,links-rank:101+	test	spotify
+wikimania	site	wikimania.wikimedia.org	own-title	kind:org,links-rank:101+	dev	wikimania
+aston villa f.c.	site	avfc.co.uk	own-title	kind:org,links-rank:101+	dev	astonvillafc
+cern	site	home.cern	own-title	kind:org,links-rank:101+	dev	cern
+donkervoort	site	donkervoort.com	own-title	kind:org,links-rank:101+	dev	donkervoort
+eintracht frankfurt	site	eintracht.de	own-title	kind:org,links-rank:101+	test	eintrachtfrankfurt
+federal university of science and innovation of rio de janeiro	site	cefet-rj.br	own-title	kind:org,links-rank:101+	dev	federaluniversityofscienceandinnovationofriodejaneiro
+food and agriculture organization	site	fao.org	own-title	kind:org,links-rank:101+	dev	foodandagricultureorganization
+library of congress	site	loc.gov	own-title	kind:org,links-rank:101+	dev	libraryofcongress
+paris saint-germain fc	site	psg.fr	own-title	kind:org,links-rank:101+	dev	parissaintgermainfc
+state university of feira de santana	site	uefs.br	own-title	kind:org,links-rank:101+	dev	stateuniversityoffeiradesantana
+wikispecies	site	species.wikimedia.org	own-title	kind:org,links-rank:101+	test	wikispecies
+duolingo	site	en.duolingo.com	own-title	kind:org,links-rank:101+	dev	duolingo
+fc kuban krasnodar	site	fckuban.com	own-title	kind:org,links-rank:101+	test	fckubankrasnodar
+indian premier league	site	iplt20.com	own-title	kind:org,links-rank:101+	dev	indianpremierleague
+interpol	site	interpol.int	own-title	kind:org,links-rank:101+	test	interpol
+minas gerais state university	site	uemg.br	own-title	kind:org,links-rank:101+	test	minasgeraisstateuniversity
+tottenham hotspur f.c.	site	tottenhamhotspur.com	own-title	kind:org,links-rank:101+	dev	tottenhamhotspurfc
+united states senate	site	senate.gov	own-title	kind:org,links-rank:101+	dev	unitedstatessenate
+federal institute of bahia	site	ifba.edu.br	own-title	kind:org,links-rank:101+	test	federalinstituteofbahia
+ikea	site	ikea.com	own-title	kind:org,links-rank:101+	dev	ikea
+intel	site	intel.com	own-title	kind:org,links-rank:101+	test	intel
+lufthansa	site	lufthansa.com	own-title	kind:org,links-rank:101+	dev	lufthansa
+social democratic party of germany	site	spd.de	own-title	kind:org,links-rank:101+	dev	socialdemocraticpartyofgermany
+american broadcasting company	site	abc.com	own-title	kind:org,links-rank:101+	dev	americanbroadcastingcompany
+bundesliga	site	bundesliga.com	own-title	kind:org,links-rank:101+	dev	bundesliga
+ss lazio	site	sslazio.it	own-title	kind:org,links-rank:101+	test	sslazio
+united states house of representatives	site	house.gov	own-title	kind:org,links-rank:101+	test	unitedstateshouseofrepresentatives
+borussia dortmund	site	bvb.de	own-title	kind:org,links-rank:101+	dev	borussiadortmund
+christian democratic union of germany	site	cdu.de	own-title	kind:org,links-rank:101+	dev	christiandemocraticunionofgermany
+princeton university	site	princeton.edu	own-title	kind:org,links-rank:101+	test	princetonuniversity
+warner bros. entertainment	site	warnerbros.com	own-title	kind:org,links-rank:101+	test	warnerbrosentertainment
+cbs	site	cbs.com	own-title	kind:org,links-rank:101+	test	cbs
+cartoon network	site	cartoonnetwork.com	own-title	kind:org,links-rank:101+	test	cartoonnetwork
+charlie hebdo	site	charliehebdo.fr	own-title	kind:org,links-rank:101+	test	charliehebdo
+european commission	site	commission.europa.eu	own-title	kind:org,links-rank:101+	dev	europeancommission
+indian national congress	site	inc.in	own-title	kind:org,links-rank:101+	test	indiannationalcongress
+kfc	site	kfc.com	own-title	kind:org,links-rank:101+	dev	kfc
+openai	site	openai.com	own-title	kind:org,links-rank:101+	dev	openai
+openstreetmap	site	openstreetmap.org	own-title	kind:org,links-rank:101+	dev	openstreetmap
+cornell university	site	cornell.edu	own-title	kind:org,links-rank:101+	test	cornelluniversity
+ferrari	site	ferrari.com	own-title	kind:org,links-rank:101+	test	ferrari
+mossad	site	mossad.gov.il	own-title	kind:org,links-rank:101+	dev	mossad
+newcastle united f.c.	site	newcastleunited.com	own-title	kind:org,links-rank:101+	dev	newcastleunitedfc
+spanish wikipedia	site	es.wikipedia.org	own-title	kind:org,links-rank:101+	dev	spanishwikipedia
+the washington post	site	washingtonpost.com	own-title	kind:org,links-rank:101+	test	thewashingtonpost
+acf fiorentina	site	acffiorentina.com	own-title	kind:org,links-rank:101+	dev	acffiorentina
+arabic wikipedia	site	ar.wikipedia.org	own-title	kind:org,links-rank:101+	dev	arabicwikipedia
+azerbaijani wikipedia	site	az.wikipedia.org	own-title	kind:org,links-rank:101+	dev	azerbaijaniwikipedia
+columbia university	site	columbia.edu	own-title	kind:org,links-rank:101+	dev	columbiauniversity
+federal university of recôncavo da bahia	site	ufrb.edu.br	own-title	kind:org,links-rank:101+	dev	federaluniversityofrecncavodabahia
+international labour organization	site	ilo.org	own-title	kind:org,links-rank:101+	dev	internationallabourorganization
+pizza hut	site	pizzahut.com	own-title	kind:org,links-rank:101+	test	pizzahut
+pontifical catholic university of minas gerais	site	pucminas.br	own-title	kind:org,links-rank:101+	dev	pontificalcatholicuniversityofminasgerais
+russian wikipedia	site	ru.wikipedia.org	own-title	kind:org,links-rank:101+	test	russianwikipedia
+the church of jesus christ of latter-day saints	site	churchofjesuschrist.org	own-title	kind:org,links-rank:101+	dev	thechurchofjesuschristoflatterdaysaints
+auckland grammar school	site	ags.school.nz	own-title	kind:org,links-rank:101+	dev	aucklandgrammarschool
+huawei	site	huawei.com	own-title	kind:org,links-rank:101+	dev	huawei
+latex	site	latex-project.org	own-title	kind:org,links-rank:101+	test	latex
+leicester city f.c.	site	lcfc.com	own-title	kind:org,links-rank:101+	test	leicestercityfc
+mtv	site	mtv.com	own-title	kind:org,links-rank:101+	dev	mtv
+nbc	site	nbc.com	own-title	kind:org,links-rank:101+	dev	nbc
+netherlands national football team	site	onsoranje.nl	own-title	kind:org,links-rank:101+	test	netherlandsnationalfootballteam
+são paulo fc	site	saopaulofc.net	own-title	kind:org,links-rank:101+	test	sopaulofc
+church of england	site	churchofengland.org	own-title	kind:org,links-rank:101+	test	churchofengland
+fc porto	site	fcporto.pt	own-title	kind:org,links-rank:101+	test	fcporto
+non-aligned movement	site	nam.go.ug	own-title	kind:org,links-rank:101+	test	nonalignedmovement
+palestinian authority	site	minfo.gov.ps	own-title	kind:org,links-rank:101+	dev	palestinianauthority
+paypal	site	paypal.com	own-title	kind:org,links-rank:101+	test	paypal
+pixar	site	pixar.com	own-title	kind:org,links-rank:101+	dev	pixar
+universal pictures	site	universalpictures.com	own-title	kind:org,links-rank:101+	dev	universalpictures
+world wildlife fund	site	wwf.org	own-title	kind:org,links-rank:101+	test	worldwildlifefund
+yamaha motor company	site	global.yamaha-motor.com	own-title	kind:org,links-rank:101+	dev	yamahamotorcompany
+bundestag	site	bundestag.de	own-title	kind:org,links-rank:101+	dev	bundestag
+dutch wikipedia	site	nl.wikipedia.org	own-title	kind:org,links-rank:101+	dev	dutchwikipedia
+marx brothers	site	marx-brothers.org	own-title	kind:org,links-rank:101+	dev	marxbrothers
+nickelodeon	site	nick.com	own-title	kind:org,links-rank:101+	dev	nickelodeon
+organization for security and co-operation in europe	site	osce.org	own-title	kind:org,links-rank:101+	test	organizationforsecurityandcooperationineurope
+starbucks	site	starbucks.com	own-title	kind:org,links-rank:101+	test	starbucks
+swedish wikipedia	site	sv.wikipedia.org	own-title	kind:org,links-rank:101+	test	swedishwikipedia
+tv globo	site	redeglobo.globo.com	own-title	kind:org,links-rank:101+	dev	tvglobo
+valencia cf	site	valenciacf.com	own-title	kind:org,links-rank:101+	dev	valenciacf
+bibliothèque nationale de france	site	bnf.fr	own-title	kind:org,links-rank:101+	test	bibliothquenationaledefrance
+fox broadcasting company	site	fox.com	own-title	kind:org,links-rank:101+	dev	foxbroadcastingcompany
+international astronomical union	site	iau.org	own-title	kind:org,links-rank:101+	dev	internationalastronomicalunion
+japanese wikipedia	site	ja.wikipedia.org	own-title	kind:org,links-rank:101+	test	japanesewikipedia
+knesset	site	main.knesset.gov.il	own-title	kind:org,links-rank:101+	dev	knesset
+kuomintang	site	kmt.org.tw	own-title	kind:org,links-rank:101+	dev	kuomintang
+marvel comics	site	marvel.com	own-title	kind:org,links-rank:101+	test	marvelcomics
+monero	site	getmonero.org|monerotoruzizulg5ttgat2emf4d6fbmiea25detrmmy7erypseyteyd.onion	own-title	kind:org,links-rank:101+	dev	monero
+muslim brotherhood	site	ikhwanonline.com	own-title	kind:org,links-rank:101+	test	muslimbrotherhood
+nasdaq	site	nasdaq.com	own-title	kind:org,links-rank:101+	dev	nasdaq
+reddit	site	reddit.com	own-title	kind:org,links-rank:101+	dev	reddit
+s.l. benfica	site	slbenfica.pt	own-title	kind:org,links-rank:101+	dev	slbenfica
+shanghai cooperation organisation	site	sectsco.org	own-title	kind:org,links-rank:101+	test	shanghaicooperationorganisation
+belgium national football team	site	belgianfootball.be	own-title	kind:org,links-rank:101+	test	belgiumnationalfootballteam
+cr flamengo	site	flamengo.com.br	own-title	kind:org,links-rank:101+	test	crflamengo
+colo-colo	site	colocolo.cl	own-title	kind:org,links-rank:101+	test	colocolo
+ebay	site	ebay.com	own-title	kind:org,links-rank:101+	dev	ebay
+european council	site	consilium.europa.eu	own-title	kind:org,links-rank:101+	test	europeancouncil
+gimp	site	gimp.org	own-title	kind:org,links-rank:101+	dev	gimp
+google earth	site	earth.google.com	own-title	kind:org,links-rank:101+	test	googleearth
+google play	site	play.google.com	own-title	kind:org,links-rank:101+	dev	googleplay
+nestlé	site	nestle.com	own-title	kind:org,links-rank:101+	dev	nestl
+organization of american states	site	oas.org	own-title	kind:org,links-rank:101+	test	organizationofamericanstates
+porsche	site	porsche.com	own-title	kind:org,links-rank:101+	test	porsche
+university of bologna	site	unibo.it	own-title	kind:org,links-rank:101+	test	universityofbologna
+wwe	site	wwe.com	own-title	kind:org,links-rank:101+	test	wwe
+asia-pacific economic cooperation	site	apec.org	own-title	kind:org,links-rank:101+	dev	asiapacificeconomiccooperation
+asian football confederation	site	the-afc.com	own-title	kind:org,links-rank:101+	dev	asianfootballconfederation
+general motors	site	gm.com	own-title	kind:org,links-rank:101+	dev	generalmotors
+israel museum	site	imj.org.il	own-title	kind:org,links-rank:101+	test	israelmuseum
+italian wikipedia	site	it.wikipedia.org	own-title	kind:org,links-rank:101+	test	italianwikipedia
+japan national football team	site	jfa.jp	own-title	kind:org,links-rank:101+	test	japannationalfootballteam
+mexico national football team	site	miseleccion.mx	own-title	kind:org,links-rank:101+	dev	mexiconationalfootballteam
+nissan	site	nissan-global.com	own-title	kind:org,links-rank:101+	test	nissan
+palestine liberation organization	site	plo.ps	own-title	kind:org,links-rank:101+	dev	palestineliberationorganization
+poland national football team	site	pzpn.pl	own-title	kind:org,links-rank:101+	test	polandnationalfootballteam
+reuters	site	reuters.com	own-title	kind:org,links-rank:101+	test	reuters
+russia national football team	site	rufoot.ru	own-title	kind:org,links-rank:101+	test	russianationalfootballteam
+university of edinburgh	site	ed.ac.uk	own-title	kind:org,links-rank:101+	dev	universityofedinburgh
+african national congress	site	anc1912.org.za	own-title	kind:org,links-rank:101+	dev	africannationalcongress
+al jazeera arabic	site	aljazeera.com|aljazeera.com.tr|aljazeera.net|chinese.aljazeera.net	own-title	kind:org,links-rank:101+	dev	aljazeeraarabic
+alternative for germany	site	afd.de	own-title	kind:org,links-rank:101+	test	alternativeforgermany
+bayer 04 leverkusen	site	bayer04.de	own-title	kind:org,links-rank:101+	dev	bayer04leverkusen
+european central bank	site	ecb.europa.eu	own-title	kind:org,links-rank:101+	dev	europeancentralbank
+microsoft word	site	word.cloud.microsoft	own-title	kind:org,links-rank:101+	test	microsoftword
+myspace	site	myspace.com	own-title	kind:org,links-rank:101+	dev	myspace
+nea salamis famagusta fc	site	neasalamina.com	own-title	kind:org,links-rank:101+	dev	neasalamisfamagustafc
+nike, inc.	site	nike.com	own-title	kind:org,links-rank:101+	dev	nikeinc
+organisation of islamic cooperation	site	new.oic-oci.org	own-title	kind:org,links-rank:101+	test	organisationofislamiccooperation
+portuguese wikipedia	site	pt.wikipedia.org	own-title	kind:org,links-rank:101+	dev	portuguesewikipedia
+royal society	site	royalsociety.org	own-title	kind:org,links-rank:101+	test	royalsociety
+turkish airlines	site	turkishairlines.com	own-title	kind:org,links-rank:101+	test	turkishairlines
+20th century studios	site	20thcenturystudios.com	own-title	kind:org,links-rank:101+	test	20thcenturystudios
+al-azhar university	site	azhar.edu.eg	own-title	kind:org,links-rank:101+	test	alazharuniversity
+atalanta bc	site	atalanta.it	own-title	kind:org,links-rank:101+	dev	atalantabc
+athletic bilbao	site	athletic-club.eus	own-title	kind:org,links-rank:101+	test	athleticbilbao
+black lives matter	site	blacklivesmatter.com	own-title	kind:org,links-rank:101+	dev	blacklivesmatter
+european court of human rights	site	echr.coe.int	own-title	kind:org,links-rank:101+	test	europeancourtofhumanrights
+fc schalke 04	site	schalke04.de	own-title	kind:org,links-rank:101+	dev	fcschalke04
+israel defense forces	site	idf.il	own-title	kind:org,links-rank:101+	test	israeldefenseforces
+metropolitan museum of art	site	metmuseum.org	own-title	kind:org,links-rank:101+	test	metropolitanmuseumofart
+médecins sans frontières	site	msf.org	own-title	kind:org,links-rank:101+	dev	mdecinssansfrontires
+new york stock exchange	site	nyse.com	own-title	kind:org,links-rank:101+	test	newyorkstockexchange
+opel	site	opel.com	own-title	kind:org,links-rank:101+	test	opel
+oxford english dictionary	site	oed.com	own-title	kind:org,links-rank:101+	dev	oxfordenglishdictionary
+supreme court of the united states	site	supremecourt.gov	own-title	kind:org,links-rank:101+	test	supremecourtoftheunitedstates
+the times	site	thetimes.com	own-title	kind:org,links-rank:101+	test	thetimes
+university of vienna	site	univie.ac.at	own-title	kind:org,links-rank:101+	test	universityofvienna
+xiaomi	site	mi.com	own-title	kind:org,links-rank:101+	test	xiaomi
+école nationale de l'aviation civile	site	enac.fr	own-title	kind:org,links-rank:101+	dev	colenationaledelaviationcivile
+adobe inc.	site	adobe.com	own-title	kind:org,links-rank:101+	test	adobeinc
+air france	site	airfrance.com	own-title	kind:org,links-rank:101+	dev	airfrance
+bologna fc 1909	site	bolognafc.it	own-title	kind:org,links-rank:101+	dev	bolognafc1909
+chinese wikipedia	site	zh.wikipedia.org	own-title	kind:org,links-rank:101+	dev	chinesewikipedia
+fiat	site	fiat.com|fiat.com.ar	own-title	kind:org,links-rank:101+	dev	fiat
+meta platforms	site	meta.com	own-title	kind:org,links-rank:101+	dev	metaplatforms
+paramount pictures	site	paramount.com	own-title	kind:org,links-rank:101+	test	paramountpictures
+france	site	service-public.fr	own-title	kind:place,links-rank:1-100	dev	france
+turkey	site	turkiye.gov.tr	own-title	kind:place,links-rank:1-100	dev	turkey
+russia	site	gov.ru	own-title	kind:place,links-rank:1-100	dev	russia
+italy	site	italia.it	own-title	kind:place,links-rank:1-100	test	italy
+germany	site	verwaltung.bund.de	own-title	kind:place,links-rank:1-100	dev	germany
+finland	site	finland.fi	own-title	kind:place,links-rank:1-100	dev	finland
+india	site	india.gov.in	own-title	kind:place,links-rank:1-100	test	india
+australia	site	australia.gov.au	own-title	kind:place,links-rank:1-100	test	australia
+china	site	english.www.gov.cn|gov.cn	own-title	kind:place,links-rank:1-100	dev	china
+canada	site	canada.ca	own-title	kind:place,links-rank:1-100	dev	canada
+spain	site	administracion.gob.es	own-title	kind:place,links-rank:1-100	test	spain
+united kingdom	site	gov.uk	own-title	kind:place,links-rank:1-100	test	unitedkingdom
+norway	site	norway.no	own-title	kind:place,links-rank:1-100	dev	norway
+ukraine	site	ukraine.ua	own-title	kind:place,links-rank:1-100	test	ukraine
+albania	site	kryeministria.al	own-title	kind:place,links-rank:1-100	test	albania
+brazil	site	gov.br	own-title	kind:place,links-rank:1-100	test	brazil
+switzerland	site	admin.ch	own-title	kind:place,links-rank:1-100	dev	switzerland
+belgium	site	belgium.be	own-title	kind:place,links-rank:1-100	dev	belgium
+chile	site	gob.cl	own-title	kind:place,links-rank:1-100	test	chile
+israel	site	gov.il	own-title	kind:place,links-rank:1-100	dev	israel
+greece	site	government.gov.gr	own-title	kind:place,links-rank:1-100	test	greece
+iran	site	president.ir	own-title	kind:place,links-rank:1-100	test	iran
+argentina	site	argentina.gob.ar	own-title	kind:place,links-rank:1-100	dev	argentina
+austria	site	oesterreich.gv.at	own-title	kind:place,links-rank:1-100	dev	austria
+portugal	site	portugal.gov.pt	own-title	kind:place,links-rank:1-100	dev	portugal
+sweden	site	sweden.se	own-title	kind:place,links-rank:1-100	test	sweden
+denmark	site	denmark.dk	own-title	kind:place,links-rank:1-100	dev	denmark
+vietnam	site	chinhphu.vn|vietnam.gov.vn	own-title	kind:place,links-rank:1-100	test	vietnam
+south africa	site	gov.za	own-title	kind:place,links-rank:1-100	dev	southafrica
+colombia	site	gov.co	own-title	kind:place,links-rank:1-100	dev	colombia
+indonesia	site	indonesia.go.id	own-title	kind:place,links-rank:1-100	test	indonesia
+paris	site	paris.fr	own-title	kind:place,links-rank:1-100	test	paris
+afghanistan	site	alemarahenglish.af	own-title	kind:place,links-rank:1-100	test	afghanistan
+azerbaijan	site	mfa.gov.az	own-title	kind:place,links-rank:1-100	dev	azerbaijan
+bulgaria	site	government.bg	own-title	kind:place,links-rank:1-100	dev	bulgaria
+belarus	site	belarus.by	own-title	kind:place,links-rank:1-100	dev	belarus
+hungary	site	kormany.hu	own-title	kind:place,links-rank:1-100	test	hungary
+croatia	site	vlada.gov.hr|vlada.hr	own-title	kind:place,links-rank:1-100	test	croatia
+london	site	london.gov.uk	own-title	kind:place,links-rank:1-100	dev	london
+south korea	site	korea.net	own-title	kind:place,links-rank:1-100	test	southkorea
+czech republic	site	czechia.eu	own-title	kind:place,links-rank:1-100	dev	czechrepublic
+iceland	site	iceland.is	own-title	kind:place,links-rank:1-100	dev	iceland
+pakistan	site	pakistan.gov.pk	own-title	kind:place,links-rank:1-100	dev	pakistan
+thailand	site	thaigov.go.th	own-title	kind:place,links-rank:1-100	dev	thailand
+estonia	site	valitsus.ee	own-title	kind:place,links-rank:1-100	test	estonia
+armenia	site	e-gov.am	own-title	kind:place,links-rank:1-100	test	armenia
+lithuania	site	lietuva.lt	own-title	kind:place,links-rank:1-100	test	lithuania
+serbia	site	srbija.gov.rs	own-title	kind:place,links-rank:1-100	test	serbia
+kazakhstan	site	gov.kz	own-title	kind:place,links-rank:1-100	dev	kazakhstan
+saudi arabia	site	saudi.gov.sa	own-title	kind:place,links-rank:1-100	dev	saudiarabia
+new zealand	site	govt.nz	own-title	kind:place,links-rank:1-100	test	newzealand
+nigeria	site	nigeria.gov.ng	own-title	kind:place,links-rank:1-100	test	nigeria
+bangladesh	site	bangladesh.gov.bd	own-title	kind:place,links-rank:1-100	dev	bangladesh
+rome	site	comune.roma.it	own-title	kind:place,links-rank:1-100	test	rome
+venezuela	site	mppre.gob.ve	own-title	kind:place,links-rank:1-100	test	venezuela
+republic of ireland	site	gov.ie|ireland.ie	own-title	kind:place,links-rank:1-100	dev	republicofireland
+vatican city	site	vaticanstate.va	own-title	kind:place,links-rank:1-100	test	vaticancity
+malaysia	site	malaysia.gov.my	own-title	kind:place,links-rank:1-100	test	malaysia
+kenya	site	president.go.ke	own-title	kind:place,links-rank:1-100	test	kenya
+moscow	site	visit-moscow-city.ru	own-title	kind:place,links-rank:1-100	test	moscow
+latvia	site	mk.gov.lv|president.lv	own-title	kind:place,links-rank:1-100	dev	latvia
+luxembourg	site	luxembourg.public.lu	own-title	kind:place,links-rank:1-100	dev	luxembourg
+berlin	site	berlin.de	own-title	kind:place,links-rank:1-100	test	berlin
+morocco	site	maroc.ma	own-title	kind:place,links-rank:1-100	dev	morocco
+philippines	site	gov.ph	own-title	kind:place,links-rank:1-100	test	philippines
+sudan	site	sudan.gov.sd	own-title	kind:place,links-rank:1-100	test	sudan
+andorra	site	govern.ad	own-title	kind:place,links-rank:1-100	test	andorra
+peru	site	gob.pe	own-title	kind:place,links-rank:1-100	test	peru
+singapore	site	gov.sg	own-title	kind:place,links-rank:1-100	dev	singapore
+moldova	site	moldova.md	own-title	kind:place,links-rank:1-100	dev	moldova
+slovenia	site	gov.si	own-title	kind:place,links-rank:1-100	dev	slovenia
+england	site	visitengland.com	own-title	kind:place,links-rank:1-100	dev	england
+malta	site	gov.mt	own-title	kind:place,links-rank:1-100	dev	malta
+north macedonia	site	vlada.mk	own-title	kind:place,links-rank:1-100	test	northmacedonia
+cyprus	site	cyprus.gov.cy	own-title	kind:place,links-rank:1-100	test	cyprus
+ghana	site	ghana.gov.gh	own-title	kind:place,links-rank:1-100	test	ghana
+uruguay	site	gub.uy	own-title	kind:place,links-rank:1-100	test	uruguay
+angola	site	governo.gov.ao	own-title	kind:place,links-rank:1-100	test	angola
+montenegro	site	gov.me	own-title	kind:place,links-rank:1-100	dev	montenegro
+nepal	site	nepal.gov.np	own-title	kind:place,links-rank:1-100	test	nepal
+monaco	site	gouv.mc|mairie.mc	own-title	kind:place,links-rank:1-100	dev	monaco
+mongolia	site	gov.mn	own-title	kind:place,links-rank:1-100	dev	mongolia
+tanzania	site	tanzania.go.tz	own-title	kind:place,links-rank:1-100	test	tanzania
+zimbabwe	site	zim.gov.zw	own-title	kind:place,links-rank:1-100	test	zimbabwe
+kyrgyzstan	site	gov.kg	own-title	kind:place,links-rank:1-100	dev	kyrgyzstan
+united arab emirates	site	u.ae	own-title	kind:place,links-rank:1-100	test	unitedarabemirates
+myanmar	site	myanmar.gov.mm	own-title	kind:place,links-rank:1-100	dev	myanmar
+liechtenstein	site	liechtenstein.li	own-title	kind:place,links-rank:1-100	test	liechtenstein
+yemen	site	yemen.gov.ye	own-title	kind:place,links-rank:1-100	dev	yemen
+ecuador	site	cancilleria.gob.ec|gob.ec|presidencia.gob.ec	own-title	kind:place,links-rank:1-100	dev	ecuador
+laos	site	tourismlaos.org	own-title	kind:place,links-rank:1-100	test	laos
+namibia	site	gov.na	own-title	kind:place,links-rank:1-100	test	namibia
+botswana	site	gov.bw	own-title	kind:place,links-rank:1-100	dev	botswana
+cameroon	site	prc.cm	own-title	kind:place,links-rank:1-100	test	cameroon
+san marino	site	gov.sm	own-title	kind:place,links-rank:1-100	test	sanmarino
+taiwan	site	gov.tw|taiwan.gov.tw	own-title	kind:place,links-rank:1-100	test	taiwan
+cuba	site	cuba.cu	own-title	kind:place,links-rank:1-100	test	cuba
+ivory coast	site	gouv.ci	own-title	kind:place,links-rank:1-100	test	ivorycoast
+mali	site	primature.gov.ml	own-title	kind:place,links-rank:1-100	dev	mali
+uganda	site	statehouse.go.ug	own-title	kind:place,links-rank:1-100	dev	uganda
+paraguay	site	paraguay.gov.py	own-title	kind:place,links-rank:101+	test	paraguay
+senegal	site	sec.gouv.sn	own-title	kind:place,links-rank:101+	dev	senegal
+benin	site	gouv.bj	own-title	kind:place,links-rank:101+	dev	benin
+sri lanka	site	gov.lk	own-title	kind:place,links-rank:101+	test	srilanka
+uzbekistan	site	gov.uz	own-title	kind:place,links-rank:101+	dev	uzbekistan
+eritrea	site	shabait.com	own-title	kind:place,links-rank:101+	dev	eritrea
+bahrain	site	bahrain.bh	own-title	kind:place,links-rank:101+	test	bahrain
+beijing	site	beijing.gov.cn	own-title	kind:place,links-rank:101+	test	beijing
+kuwait	site	e.gov.kw	own-title	kind:place,links-rank:101+	dev	kuwait
+madrid	site	madrid.es	own-title	kind:place,links-rank:101+	dev	madrid
+bhutan	site	bhutan.gov.bt	own-title	kind:place,links-rank:101+	test	bhutan
+hong kong	site	gov.hk	own-title	kind:place,links-rank:101+	test	hongkong
+rwanda	site	gov.rw	own-title	kind:place,links-rank:101+	test	rwanda
+burundi	site	presidence.gov.bi	own-title	kind:place,links-rank:101+	dev	burundi
+costa rica	site	presidencia.go.cr	own-title	kind:place,links-rank:101+	dev	costarica
+togo	site	republicoftogo.com	own-title	kind:place,links-rank:101+	dev	togo
+tokyo	site	english.metro.tokyo.lg.jp|metro.tokyo.lg.jp	own-title	kind:place,links-rank:101+	test	tokyo
+guinea	site	presidence.gov.gn	own-title	kind:place,links-rank:101+	test	guinea
+mozambique	site	portaldogoverno.gov.mz	own-title	kind:place,links-rank:101+	test	mozambique
+djibouti	site	presidence.dj	own-title	kind:place,links-rank:101+	dev	djibouti
+republic of the congo	site	gouvernement.cg	own-title	kind:place,links-rank:101+	test	republicofthecongo
+turkmenistan	site	turkmenistan.gov.tm	own-title	kind:place,links-rank:101+	test	turkmenistan
+washington, d.c.	site	dc.gov	own-title	kind:place,links-rank:101+	test	washingtondc
+guinea-bissau	site	gov.gw	own-title	kind:place,links-rank:101+	dev	guineabissau
+honduras	site	honduras.travel	own-title	kind:place,links-rank:101+	dev	honduras
+malawi	site	malawi.gov.mw	own-title	kind:place,links-rank:101+	dev	malawi
+oman	site	oman.om	own-title	kind:place,links-rank:101+	test	oman
+gabon	site	gouvernement.ga	own-title	kind:place,links-rank:101+	dev	gabon
+sierra leone	site	statehouse.gov.sl	own-title	kind:place,links-rank:101+	dev	sierraleone
+vienna	site	wien.gv.at	own-title	kind:place,links-rank:101+	dev	vienna
+helsinki	site	hel.fi|helsinki.fi	own-title	kind:place,links-rank:101+	test	helsinki
+european union	site	european-union.europa.eu	own-title	kind:place,links-rank:101+	test	europeanunion
+haiti	site	primature.gouv.ht	own-title	kind:place,links-rank:101+	dev	haiti
+timor-leste	site	timor-leste.gov.tl	own-title	kind:place,links-rank:101+	dev	timorleste
+cape verde	site	governo.cv	own-title	kind:place,links-rank:101+	dev	capeverde
+istanbul	site	istanbul.gov.tr	own-title	kind:place,links-rank:101+	test	istanbul
+qatar	site	diwan.gov.qa	own-title	kind:place,links-rank:101+	test	qatar
+athens	site	cityofathens.gr	own-title	kind:place,links-rank:101+	test	athens
+maldives	site	visitmaldives.com	own-title	kind:place,links-rank:101+	test	maldives
+suriname	site	gov.sr	own-title	kind:place,links-rank:101+	dev	suriname
+warsaw	site	um.warszawa.pl	own-title	kind:place,links-rank:101+	test	warsaw
+california	site	ca.gov	own-title	kind:place,links-rank:101+	test	california
+el salvador	site	elsalvador.travel	own-title	kind:place,links-rank:101+	test	elsalvador
+eswatini	site	gov.sz	own-title	kind:place,links-rank:101+	test	eswatini
+guyana	site	parliament.gov.gy	own-title	kind:place,links-rank:101+	dev	guyana
+papua new guinea	site	papuanewguinea.travel	own-title	kind:place,links-rank:101+	dev	papuanewguinea
+comoros	site	beit-salam.km	own-title	kind:place,links-rank:101+	dev	comoros
+edirne	site	edirne.bel.tr	own-title	kind:place,links-rank:101+	test	edirne
+equatorial guinea	site	guineaecuatorialpress.com	own-title	kind:place,links-rank:101+	test	equatorialguinea
+amsterdam	site	amsterdam.nl	own-title	kind:place,links-rank:101+	dev	amsterdam
+kosovo	site	rks-gov.net	own-title	kind:place,links-rank:101+	dev	kosovo
+mauritius	site	govmu.org	own-title	kind:place,links-rank:101+	dev	mauritius
+nicaragua	site	visitnicaragua.us	own-title	kind:place,links-rank:101+	test	nicaragua
+belize	site	belize.gov.bz	own-title	kind:place,links-rank:101+	dev	belize
+guatemala	site	guatemala.gob.gt	own-title	kind:place,links-rank:101+	test	guatemala
+jamaica	site	gov.jm	own-title	kind:place,links-rank:101+	test	jamaica
+dominican republic	site	dominicanrepublic.com	own-title	kind:place,links-rank:101+	test	dominicanrepublic
+fiji	site	fiji.gov.fj	own-title	kind:place,links-rank:101+	test	fiji
+lesotho	site	gov.ls	own-title	kind:place,links-rank:101+	test	lesotho
+the bahamas	site	bahamas.gov.bs	own-title	kind:place,links-rank:101+	dev	thebahamas
+tirana	site	tirana.al	own-title	kind:place,links-rank:101+	dev	tirana
+bogotá	site	bogota.gov.co	own-title	kind:place,links-rank:101+	test	bogot
+stockholm	site	start.stockholm	own-title	kind:place,links-rank:101+	test	stockholm
+scotland	site	gov.scot	own-title	kind:place,links-rank:101+	dev	scotland
+seychelles	site	egov.sc	own-title	kind:place,links-rank:101+	test	seychelles
+kyiv	site	kyivcity.gov.ua	own-title	kind:place,links-rank:101+	dev	kyiv
+barbados	site	gov.bb	own-title	kind:place,links-rank:101+	test	barbados
+buenos aires	site	buenosaires.gob.ar	own-title	kind:place,links-rank:101+	dev	buenosaires
+santiago	site	gobiernosantiago.cl	own-title	kind:place,links-rank:101+	dev	santiago
+saint petersburg	site	kvs.gov.spb.ru	own-title	kind:place,links-rank:101+	dev	saintpetersburg
+são tomé and príncipe	site	saotome.st	own-title	kind:place,links-rank:101+	dev	sotomandprncipe
+hawaii	site	portal.ehawaii.gov	own-title	kind:place,links-rank:101+	dev	hawaii
+lisbon	site	lisboa.pt	own-title	kind:place,links-rank:101+	test	lisbon
+prague	site	praha.eu	own-title	kind:place,links-rank:101+	test	prague
+antigua and barbuda	site	ab.gov.ag	own-title	kind:place,links-rank:101+	test	antiguaandbarbuda
+sydney	site	cityofsydney.nsw.gov.au	own-title	kind:place,links-rank:101+	dev	sydney
+dominica	site	dominica.gov.dm	own-title	kind:place,links-rank:101+	dev	dominica
+vanuatu	site	gov.vu	own-title	kind:place,links-rank:101+	dev	vanuatu
+alaska	site	alaska.gov	own-title	kind:place,links-rank:101+	test	alaska
+bangkok	site	bangkok.go.th	own-title	kind:place,links-rank:101+	test	bangkok
+cairo	site	cairo.gov.eg	own-title	kind:place,links-rank:101+	dev	cairo
+samoa	site	samoagovt.ws	own-title	kind:place,links-rank:101+	test	samoa
+curitiba	site	curitiba.pr.gov.br	own-title	kind:place,links-rank:101+	dev	curitiba
+kyoto	site	city.kyoto.lg.jp	own-title	kind:place,links-rank:101+	dev	kyoto
+mexico city	site	mexicocity.cdmx.gob.mx	own-title	kind:place,links-rank:101+	dev	mexicocity
+seoul	site	english.seoul.go.kr	own-title	kind:place,links-rank:101+	dev	seoul
+tonga	site	mic.gov.to	own-title	kind:place,links-rank:101+	dev	tonga
+budapest	site	budapest.hu	own-title	kind:place,links-rank:101+	dev	budapest
+texas	site	texas.gov	own-title	kind:place,links-rank:101+	dev	texas
+ho chi minh city	site	hochiminhcity.gov.vn	own-title	kind:place,links-rank:101+	dev	hochiminhcity
+palau	site	palaugov.pw	own-title	kind:place,links-rank:101+	dev	palau
+são paulo	site	prefeitura.sp.gov.br	own-title	kind:place,links-rank:101+	test	sopaulo
+greenland	site	naalakkersuisut.gl	own-title	kind:place,links-rank:101+	test	greenland
+baghdad	site	amanatbaghdad.gov.iq	own-title	kind:place,links-rank:101+	test	baghdad
+grenada	site	gov.gd	own-title	kind:place,links-rank:101+	test	grenada
+jakarta	site	jakarta.go.id	own-title	kind:place,links-rank:101+	dev	jakarta
+shanghai	site	shanghai.gov.cn	own-title	kind:place,links-rank:101+	dev	shanghai
+trinidad and tobago	site	gov.tt	own-title	kind:place,links-rank:101+	test	trinidadandtobago
+kiribati	site	kiribati.gov.ki	own-title	kind:place,links-rank:101+	test	kiribati
+baku	site	baku-ih.gov.az	own-title	kind:place,links-rank:101+	test	baku
+barcelona	site	barcelona.cat	own-title	kind:place,links-rank:101+	dev	barcelona
+copenhagen	site	kk.dk	own-title	kind:place,links-rank:101+	dev	copenhagen
+arizona	site	az.gov	own-title	kind:place,links-rank:101+	test	arizona
+oslo	site	oslo.kommune.no	own-title	kind:place,links-rank:101+	test	oslo
+solomon islands	site	solomons.gov.sb	own-title	kind:place,links-rank:101+	test	solomonislands
+damascus	site	damascus.gov.sy	own-title	kind:place,links-rank:101+	dev	damascus
+alabama	site	alabama.gov	own-title	kind:place,links-rank:101+	dev	alabama
+ankara	site	ankara.bel.tr	own-title	kind:place,links-rank:101+	test	ankara
+city of brussels	site	brussel.be|brussels.be|bruxelles.be	own-title	kind:place,links-rank:101+	test	cityofbrussels
+tehran	site	tehran.ir	own-title	kind:place,links-rank:101+	test	tehran
+saint kitts and nevis	site	gov.kn	own-title	kind:place,links-rank:101+	dev	saintkittsandnevis
+dublin	site	dublincity.ie	own-title	kind:place,links-rank:101+	test	dublin
+illinois	site	illinois.gov	own-title	kind:place,links-rank:101+	test	illinois
+nairobi	site	nairobi.go.ke	own-title	kind:place,links-rank:101+	dev	nairobi
+saint vincent and the grenadines	site	gov.vc	own-title	kind:place,links-rank:101+	dev	saintvincentandthegrenadines
+san francisco	site	sf.gov	own-title	kind:place,links-rank:101+	dev	sanfrancisco
+valparaíso	site	municipalidaddevalparaiso.cl	own-title	kind:place,links-rank:101+	test	valparaso
+bucharest	site	pmb.ro	own-title	kind:place,links-rank:101+	test	bucharest
+kurów	site	kurow.eu	own-title	kind:place,links-rank:101+	test	kurw
+ohio	site	ohio.gov	own-title	kind:place,links-rank:101+	dev	ohio
+pennsylvania	site	state.pa.us	own-title	kind:place,links-rank:101+	dev	pennsylvania
+saint lucia	site	govt.lc	own-title	kind:place,links-rank:101+	test	saintlucia
+mecca	site	hmm.gov.sa	own-title	kind:place,links-rank:101+	dev	mecca
+virginia	site	virginia.gov	own-title	kind:place,links-rank:101+	test	virginia
+minsk	site	minsk.gov.by	own-title	kind:place,links-rank:101+	dev	minsk
+nevada	site	nv.gov	own-title	kind:place,links-rank:101+	dev	nevada
+new jersey	site	nj.gov	own-title	kind:place,links-rank:101+	test	newjersey
+ottawa	site	ottawa.ca	own-title	kind:place,links-rank:101+	test	ottawa
+belgrade	site	beograd.rs	own-title	kind:place,links-rank:101+	test	belgrade
+hamburg	site	hamburg.com|hamburg.de	own-title	kind:place,links-rank:101+	test	hamburg
+mumbai	site	portal.mcgm.gov.in	own-title	kind:place,links-rank:101+	test	mumbai
+tallinn	site	tallinn.ee	own-title	kind:place,links-rank:101+	dev	tallinn
+venice	site	comune.venezia.it	own-title	kind:place,links-rank:101+	dev	venice
+maryland	site	maryland.gov	own-title	kind:place,links-rank:101+	test	maryland
+massachusetts	site	mass.gov	own-title	kind:place,links-rank:101+	test	massachusetts
+vilnius	site	vilnius.lt	own-title	kind:place,links-rank:101+	dev	vilnius
+concepción, chile	site	concepcion.cl	own-title	kind:place,links-rank:101+	test	concepcinchile
+sofia	site	sofia.bg	own-title	kind:place,links-rank:101+	test	sofia
+tbilisi	site	my.tbilisi.gov.ge	own-title	kind:place,links-rank:101+	test	tbilisi
+utah	site	utah.gov	own-title	kind:place,links-rank:101+	dev	utah
+brasília	site	brasilia.df.gov.br	own-title	kind:place,links-rank:101+	test	braslia
+bratislava	site	bratislava.sk	own-title	kind:place,links-rank:101+	dev	bratislava
+krasnodar	site	krd.ru	own-title	kind:place,links-rank:101+	dev	krasnodar
+milan	site	comune.milano.it	own-title	kind:place,links-rank:101+	test	milan
+uetersen	site	uetersen.de	own-title	kind:place,links-rank:101+	dev	uetersen
+indiana	site	in.gov	own-title	kind:place,links-rank:101+	dev	indiana
+kansas	site	kansas.gov	own-title	kind:place,links-rank:101+	test	kansas
+macau	site	gov.mo	own-title	kind:place,links-rank:101+	dev	macau
+michigan	site	michigan.gov	own-title	kind:place,links-rank:101+	test	michigan
+palestine	site	president.ps	own-title	kind:place,links-rank:101+	dev	palestine
+riga	site	riga.lv	own-title	kind:place,links-rank:101+	dev	riga
+wisconsin	site	wisconsin.gov	own-title	kind:place,links-rank:101+	test	wisconsin
+louisiana	site	louisiana.gov	own-title	kind:place,links-rank:101+	test	louisiana
+toronto	site	toronto.ca	own-title	kind:place,links-rank:101+	test	toronto
+arkansas	site	portal.arkansas.gov	own-title	kind:place,links-rank:101+	test	arkansas
+minnesota	site	mn.gov	own-title	kind:place,links-rank:101+	test	minnesota
+missouri	site	mo.gov	own-title	kind:place,links-rank:101+	test	missouri
+new mexico	site	newmexico.gov	own-title	kind:place,links-rank:101+	test	newmexico
+connecticut	site	portal.ct.gov	own-title	kind:place,links-rank:101+	test	connecticut
+dhaka	site	dhaka.gov.bd	own-title	kind:place,links-rank:101+	dev	dhaka
+federated states of micronesia	site	gov.fm	own-title	kind:place,links-rank:101+	test	federatedstatesofmicronesia
+french guiana	site	ctguyane.fr	own-title	kind:place,links-rank:101+	test	frenchguiana
+gibraltar	site	gibraltar.gov.gi	own-title	kind:place,links-rank:101+	test	gibraltar
+idaho	site	idaho.gov	own-title	kind:place,links-rank:101+	dev	idaho
+new delhi	site	ndmc.gov.in	own-title	kind:place,links-rank:101+	dev	newdelhi
+delaware	site	delaware.gov	own-title	kind:place,links-rank:101+	dev	delaware
+mississippi	site	ms.gov	own-title	kind:place,links-rank:101+	test	mississippi
+dubai	site	dm.gov.ae	own-title	kind:place,links-rank:101+	test	dubai
+vermont	site	vermont.gov	own-title	kind:place,links-rank:101+	dev	vermont
+catalonia	site	web.gencat.cat	own-title	kind:place,links-rank:101+	test	catalonia
+sarajevo	site	sarajevo.ba	own-title	kind:place,links-rank:101+	test	sarajevo
+zagreb	site	zagreb.hr	own-title	kind:place,links-rank:101+	dev	zagreb
+cape town	site	capetown.gov.za	own-title	kind:place,links-rank:101+	test	capetown
+reykjavík	site	reykjavik.is	own-title	kind:place,links-rank:101+	test	reykjavk
+south carolina	site	sc.gov	own-title	kind:place,links-rank:101+	test	southcarolina
+wyoming	site	wyoming.gov	own-title	kind:place,links-rank:101+	dev	wyoming
+boston	site	boston.gov	own-title	kind:place,links-rank:101+	dev	boston
+caracas	site	caracas.gob.ve	own-title	kind:place,links-rank:101+	dev	caracas
+maine	site	maine.gov	own-title	kind:place,links-rank:101+	dev	maine
+montana	site	mt.gov	own-title	kind:place,links-rank:101+	dev	montana
+new hampshire	site	nh.gov	own-title	kind:place,links-rank:101+	test	newhampshire
+north carolina	site	nc.gov	own-title	kind:place,links-rank:101+	dev	northcarolina
+osasco	site	osasco.sp.gov.br	own-title	kind:place,links-rank:101+	test	osasco
+west virginia	site	wv.gov	own-title	kind:place,links-rank:101+	dev	westvirginia
+florence	site	comune.fi.it	own-title	kind:place,links-rank:101+	dev	florence
+rhode island	site	ri.gov	own-title	kind:place,links-rank:101+	dev	rhodeisland
+algiers	site	alger.mta.gov.dz	own-title	kind:place,links-rank:101+	test	algiers
+beirut	site	beirut.gov.lb	own-title	kind:place,links-rank:101+	dev	beirut
+canberra	site	act.gov.au	own-title	kind:place,links-rank:101+	test	canberra
+kuala lumpur	site	dbkl.gov.my	own-title	kind:place,links-rank:101+	test	kualalumpur
+yerevan	site	yerevan.am	own-title	kind:place,links-rank:101+	test	yerevan
+frankfurt	site	frankfurt.de	own-title	kind:place,links-rank:101+	test	frankfurt
+north dakota	site	nd.gov	own-title	kind:place,links-rank:101+	dev	northdakota
+melbourne	site	visitmelbourne.com	own-title	kind:place,links-rank:101+	test	melbourne
+atlanta	site	discoveratlanta.com	own-title	kind:place,links-rank:101+	test	atlanta
+kinshasa	site	kinshasa.cd	own-title	kind:place,links-rank:101+	test	kinshasa
+naples	site	comune.napoli.it	own-title	kind:place,links-rank:101+	dev	naples
+bavaria	site	bayern.de	own-title	kind:place,links-rank:101+	dev	bavaria
+ljubljana	site	ljubljana.si	own-title	kind:place,links-rank:101+	test	ljubljana
+manila	site	manila.gov.ph	own-title	kind:place,links-rank:101+	test	manila

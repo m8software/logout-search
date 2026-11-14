@@ -1,0 +1,999 @@
+query	category	expected	set	stratum	split	entity	source
+who wrote odyssey	judged	-	judged-info	template:wrote,views-rank:1-30	dev	odyssey	Q35160
+who wrote the backrooms	judged	-	judged-info	template:wrote,views-rank:1-30	test	thebackrooms	Q110904767
+who wrote iliad	judged	-	judged-info	template:wrote,views-rank:1-30	dev	iliad	Q8275
+who wrote nineteen eighty-four	judged	-	judged-info	template:wrote,views-rank:1-30	test	nineteeneightyfour	Q208460
+who wrote sense and sensibility	judged	-	judged-info	template:wrote,views-rank:1-30	test	senseandsensibility	Q274744
+who wrote the count of monte cristo	judged	-	judged-info	template:wrote,views-rank:1-30	dev	thecountofmontecristo	Q191838
+who wrote wuthering heights	judged	-	judged-info	template:wrote,views-rank:1-30	test	wutheringheights	Q202975
+who wrote one hundred years of solitude	judged	-	judged-info	template:wrote,views-rank:1-30	dev	onehundredyearsofsolitude	Q178869
+who wrote the lord of the rings	judged	-	judged-info	template:wrote,views-rank:1-30	dev	thelordoftherings	Q15228
+who wrote pride and prejudice	judged	-	judged-info	template:wrote,views-rank:1-30	dev	prideandprejudice	Q170583
+who wrote don quixote	judged	-	judged-info	template:wrote,views-rank:1-30	dev	donquixote	Q480
+who wrote a tale of two cities	judged	-	judged-info	template:wrote,views-rank:1-30	test	ataleoftwocities	Q308918
+who wrote lolita	judged	-	judged-info	template:wrote,views-rank:1-30	test	lolita	Q127149
+who wrote historia augusta	judged	-	judged-info	template:wrote,views-rank:1-30	test	historiaaugusta	Q722678
+who wrote frankenstein	judged	-	judged-info	template:wrote,views-rank:1-30	test	frankenstein	Q150827
+who wrote a game of thrones	judged	-	judged-info	template:wrote,views-rank:1-30	test	agameofthrones	Q1751870
+who wrote kama sutra	judged	-	judged-info	template:wrote,views-rank:1-30	test	kamasutra	Q47228
+who wrote crime and punishment	judged	-	judged-info	template:wrote,views-rank:1-30	test	crimeandpunishment	Q165318
+who wrote moby-dick	judged	-	judged-info	template:wrote,views-rank:1-30	dev	mobydick	Q174596
+who wrote the great gatsby	judged	-	judged-info	template:wrote,views-rank:1-30	dev	thegreatgatsby	Q214371
+who wrote to kill a mockingbird	judged	-	judged-info	template:wrote,views-rank:1-30	dev	tokillamockingbird	Q212340
+who wrote animal farm	judged	-	judged-info	template:wrote,views-rank:1-30	test	animalfarm	Q1396889
+who wrote dracula	judged	-	judged-info	template:wrote,views-rank:1-30	dev	dracula	Q41542
+who wrote fahrenheit 451	judged	-	judged-info	template:wrote,views-rank:1-30	dev	fahrenheit451	Q202009
+who wrote brave new world	judged	-	judged-info	template:wrote,views-rank:1-30	test	bravenewworld	Q191949
+who wrote and then there were none	judged	-	judged-info	template:wrote,views-rank:1-30	dev	andthentherewerenone	Q214132
+who wrote jane eyre	judged	-	judged-info	template:wrote,views-rank:1-30	dev	janeeyre	Q182961
+who wrote ramayana	judged	-	judged-info	template:wrote,views-rank:1-30	dev	ramayana	Q37293
+who wrote lord of the flies	judged	-	judged-info	template:wrote,views-rank:1-30	dev	lordoftheflies	Q271764
+who wrote the catcher in the rye	judged	-	judged-info	template:wrote,views-rank:1-30	dev	thecatcherintherye	Q183883
+who wrote of mice and men	judged	-	judged-info	template:wrote,views-rank:31-60	test	ofmiceandmen	Q457977
+who wrote divine comedy	judged	-	judged-info	template:wrote,views-rank:31-60	test	divinecomedy	Q40185
+who wrote paradise lost	judged	-	judged-info	template:wrote,views-rank:31-60	dev	paradiselost	Q28754
+who wrote the picture of dorian gray	judged	-	judged-info	template:wrote,views-rank:31-60	dev	thepictureofdoriangray	Q82464
+who wrote harry potter and the philosopher's stone	judged	-	judged-info	template:wrote,views-rank:31-60	dev	harrypotterandthephilosophersstone	Q43361
+who wrote les misérables	judged	-	judged-info	template:wrote,views-rank:31-60	test	lesmisrables	Q180736
+who wrote the three musketeers	judged	-	judged-info	template:wrote,views-rank:31-60	dev	thethreemusketeers	Q140527
+who wrote the hobbit	judged	-	judged-info	template:wrote,views-rank:31-60	dev	thehobbit	Q74287
+who wrote alice's adventures in wonderland	judged	-	judged-info	template:wrote,views-rank:31-60	test	alicesadventuresinwonderland	Q92640
+who wrote the metamorphosis	judged	-	judged-info	template:wrote,views-rank:31-60	test	themetamorphosis	Q184222
+who wrote the little prince	judged	-	judged-info	template:wrote,views-rank:31-60	test	thelittleprince	Q25338
+who wrote bhagavad gita	judged	-	judged-info	template:wrote,views-rank:31-60	test	bhagavadgita	Q46802
+who wrote mahabharata	judged	-	judged-info	template:wrote,views-rank:31-60	dev	mahabharata	Q8276
+who wrote mein kampf	judged	-	judged-info	template:wrote,views-rank:31-60	test	meinkampf	Q48244
+who wrote the brothers karamazov	judged	-	judged-info	template:wrote,views-rank:31-60	test	thebrotherskaramazov	Q183157
+who wrote the grapes of wrath	judged	-	judged-info	template:wrote,views-rank:31-60	dev	thegrapesofwrath	Q215983
+who wrote one thousand and one nights	judged	-	judged-info	template:wrote,views-rank:31-60	dev	onethousandandonenights	Q8258
+who wrote book of revelation	judged	-	judged-info	template:wrote,views-rank:31-60	dev	bookofrevelation	Q42040
+who wrote anne of green gables	judged	-	judged-info	template:wrote,views-rank:31-60	test	anneofgreengables	Q565911
+who wrote catch-22	judged	-	judged-info	template:wrote,views-rank:31-60	dev	catch22	Q278208
+who wrote talmud	judged	-	judged-info	template:wrote,views-rank:31-60	dev	talmud	Q43290
+who wrote aeneid	judged	-	judged-info	template:wrote,views-rank:31-60	test	aeneid	Q60220
+who wrote allegory of the cave	judged	-	judged-info	template:wrote,views-rank:31-60	dev	allegoryofthecave	Q22738
+who wrote anna karenina	judged	-	judged-info	template:wrote,views-rank:31-60	test	annakarenina	Q147787
+who wrote treasure island	judged	-	judged-info	template:wrote,views-rank:31-60	test	treasureisland	Q185118
+who wrote slaughterhouse-five	judged	-	judged-info	template:wrote,views-rank:31-60	test	slaughterhousefive	Q265954
+who wrote waiting for godot	judged	-	judged-info	template:wrote,views-rank:31-60	test	waitingforgodot	Q19871
+who wrote rumpelstiltskin	judged	-	judged-info	template:wrote,views-rank:31-60	test	rumpelstiltskin	Q322188
+who wrote heart of darkness	judged	-	judged-info	template:wrote,views-rank:31-60	dev	heartofdarkness	Q129778
+who wrote war and peace	judged	-	judged-info	template:wrote,views-rank:31-60	test	warandpeace	Q161531
+who wrote journey to the west	judged	-	judged-info	template:wrote,views-rank:61+	dev	journeytothewest	Q70784
+who wrote little women	judged	-	judged-info	template:wrote,views-rank:61+	dev	littlewomen	Q523076
+who wrote torah	judged	-	judged-info	template:wrote,views-rank:61+	dev	torah	Q34990
+who wrote all quiet on the western front	judged	-	judged-info	template:wrote,views-rank:61+	test	allquietonthewesternfront	Q207332
+who wrote the war of the worlds	judged	-	judged-info	template:wrote,views-rank:61+	test	thewaroftheworlds	Q213019
+who wrote in search of lost time	judged	-	judged-info	template:wrote,views-rank:61+	test	insearchoflosttime	Q464928
+who wrote the canterbury tales	judged	-	judged-info	template:wrote,views-rank:61+	test	thecanterburytales	Q191663
+who wrote watchmen	judged	-	judged-info	template:wrote,views-rank:61+	test	watchmen	Q128444
+who wrote the myth of sisyphus	judged	-	judged-info	template:wrote,views-rank:61+	test	themythofsisyphus	Q1125903
+who wrote great expectations	judged	-	judged-info	template:wrote,views-rank:61+	test	greatexpectations	Q219552
+who wrote the master and margarita	judged	-	judged-info	template:wrote,views-rank:61+	test	themasterandmargarita	Q188538
+who wrote i ching	judged	-	judged-info	template:wrote,views-rank:61+	dev	iching	Q181937
+who wrote the silmarillion	judged	-	judged-info	template:wrote,views-rank:61+	dev	thesilmarillion	Q79762
+who wrote the satanic verses	judged	-	judged-info	template:wrote,views-rank:61+	dev	thesatanicverses	Q191288
+who wrote hansel and gretel	judged	-	judged-info	template:wrote,views-rank:61+	test	hanselandgretel	Q11829
+who wrote david copperfield	judged	-	judged-info	template:wrote,views-rank:61+	test	davidcopperfield	Q189811
+who wrote book of genesis	judged	-	judged-info	template:wrote,views-rank:61+	test	bookofgenesis	Q9184
+who wrote the old man and the sea	judged	-	judged-info	template:wrote,views-rank:61+	test	theoldmanandthesea	Q26505
+who wrote charlie and the chocolate factory	judged	-	judged-info	template:wrote,views-rank:61+	dev	charlieandthechocolatefactory	Q466605
+who wrote for whom the bell tolls	judged	-	judged-info	template:wrote,views-rank:61+	dev	forwhomthebelltolls	Q200920
+who wrote the hunchback of notre-dame	judged	-	judged-info	template:wrote,views-rank:61+	test	thehunchbackofnotredame	Q191380
+who wrote robinson crusoe	judged	-	judged-info	template:wrote,views-rank:61+	dev	robinsoncrusoe	Q483034
+who wrote oliver twist	judged	-	judged-info	template:wrote,views-rank:61+	dev	olivertwist	Q164974
+who wrote old testament	judged	-	judged-info	template:wrote,views-rank:61+	dev	oldtestament	Q19786
+who wrote the wonderful wizard of oz	judged	-	judged-info	template:wrote,views-rank:61+	dev	thewonderfulwizardofoz	Q130295
+who wrote the prince	judged	-	judged-info	template:wrote,views-rank:61+	test	theprince	Q131719
+who wrote adventures of huckleberry finn	judged	-	judged-info	template:wrote,views-rank:61+	test	adventuresofhuckleberryfinn	Q215410
+who wrote life of pi	judged	-	judged-info	template:wrote,views-rank:61+	dev	lifeofpi	Q374204
+who wrote the kite runner	judged	-	judged-info	template:wrote,views-rank:61+	dev	thekiterunner	Q637839
+who wrote fifty shades of grey	judged	-	judged-info	template:wrote,views-rank:61+	test	fiftyshadesofgrey	Q557867
+capital of united states	judged	-	judged-info	template:capital,views-rank:1-30	dev	unitedstates	Q30
+capital of united kingdom	judged	-	judged-info	template:capital,views-rank:1-30	test	unitedkingdom	Q145
+capital of india	judged	-	judged-info	template:capital,views-rank:1-30	test	india	Q668
+capital of china	judged	-	judged-info	template:capital,views-rank:1-30	dev	china	Q148
+capital of canada	judged	-	judged-info	template:capital,views-rank:1-30	dev	canada	Q16
+capital of israel	judged	-	judged-info	template:capital,views-rank:1-30	dev	israel	Q801
+capital of russia	judged	-	judged-info	template:capital,views-rank:1-30	dev	russia	Q159
+capital of germany	judged	-	judged-info	template:capital,views-rank:1-30	dev	germany	Q183
+capital of australia	judged	-	judged-info	template:capital,views-rank:1-30	test	australia	Q408
+capital of yemen	judged	-	judged-info	template:capital,views-rank:1-30	dev	yemen	Q805
+capital of japan	judged	-	judged-info	template:capital,views-rank:1-30	dev	japan	Q17
+capital of singapore	judged	-	judged-info	template:capital,views-rank:1-30	dev	singapore	Q334
+capital of brazil	judged	-	judged-info	template:capital,views-rank:1-30	test	brazil	Q155
+capital of kazakhstan	judged	-	judged-info	template:capital,views-rank:1-30	dev	kazakhstan	Q232
+capital of france	judged	-	judged-info	template:capital,views-rank:1-30	dev	france	Q142
+capital of turkey	judged	-	judged-info	template:capital,views-rank:1-30	dev	turkey	Q43
+capital of iran	judged	-	judged-info	template:capital,views-rank:1-30	test	iran	Q794
+capital of philippines	judged	-	judged-info	template:capital,views-rank:1-30	test	philippines	Q928
+capital of saudi arabia	judged	-	judged-info	template:capital,views-rank:1-30	dev	saudiarabia	Q851
+capital of mexico	judged	-	judged-info	template:capital,views-rank:1-30	dev	mexico	Q96
+capital of azerbaijan	judged	-	judged-info	template:capital,views-rank:1-30	dev	azerbaijan	Q227
+capital of taiwan	judged	-	judged-info	template:capital,views-rank:1-30	test	taiwan	Q865
+capital of indonesia	judged	-	judged-info	template:capital,views-rank:1-30	test	indonesia	Q252
+capital of united arab emirates	judged	-	judged-info	template:capital,views-rank:1-30	test	unitedarabemirates	Q878
+capital of spain	judged	-	judged-info	template:capital,views-rank:1-30	test	spain	Q29
+capital of afghanistan	judged	-	judged-info	template:capital,views-rank:1-30	test	afghanistan	Q889
+capital of pakistan	judged	-	judged-info	template:capital,views-rank:1-30	dev	pakistan	Q843
+capital of new zealand	judged	-	judged-info	template:capital,views-rank:1-30	test	newzealand	Q664
+capital of netherlands	judged	-	judged-info	template:capital,views-rank:1-30	test	netherlands	Q55
+capital of italy	judged	-	judged-info	template:capital,views-rank:1-30	test	italy	Q38
+capital of nepal	judged	-	judged-info	template:capital,views-rank:31-60	test	nepal	Q837
+capital of south africa	judged	-	judged-info	template:capital,views-rank:31-60	dev	southafrica	Q258
+capital of portugal	judged	-	judged-info	template:capital,views-rank:31-60	dev	portugal	Q45
+capital of malaysia	judged	-	judged-info	template:capital,views-rank:31-60	test	malaysia	Q833
+capital of poland	judged	-	judged-info	template:capital,views-rank:31-60	dev	poland	Q36
+capital of czech republic	judged	-	judged-info	template:capital,views-rank:31-60	dev	czechrepublic	Q213
+capital of myanmar	judged	-	judged-info	template:capital,views-rank:31-60	dev	myanmar	Q836
+capital of argentina	judged	-	judged-info	template:capital,views-rank:31-60	dev	argentina	Q414
+capital of belarus	judged	-	judged-info	template:capital,views-rank:31-60	dev	belarus	Q184
+capital of north korea	judged	-	judged-info	template:capital,views-rank:31-60	test	northkorea	Q423
+capital of sweden	judged	-	judged-info	template:capital,views-rank:31-60	test	sweden	Q34
+capital of vietnam	judged	-	judged-info	template:capital,views-rank:31-60	test	vietnam	Q881
+capital of switzerland	judged	-	judged-info	template:capital,views-rank:31-60	dev	switzerland	Q39
+capital of malta	judged	-	judged-info	template:capital,views-rank:31-60	dev	malta	Q233
+capital of kyrgyzstan	judged	-	judged-info	template:capital,views-rank:31-60	dev	kyrgyzstan	Q813
+capital of norway	judged	-	judged-info	template:capital,views-rank:31-60	dev	norway	Q20
+capital of ukraine	judged	-	judged-info	template:capital,views-rank:31-60	test	ukraine	Q212
+capital of armenia	judged	-	judged-info	template:capital,views-rank:31-60	test	armenia	Q399
+capital of sri lanka	judged	-	judged-info	template:capital,views-rank:31-60	test	srilanka	Q854
+capital of cyprus	judged	-	judged-info	template:capital,views-rank:31-60	test	cyprus	Q229
+capital of bangladesh	judged	-	judged-info	template:capital,views-rank:31-60	dev	bangladesh	Q902
+capital of ethiopia	judged	-	judged-info	template:capital,views-rank:31-60	test	ethiopia	Q115
+capital of south korea	judged	-	judged-info	template:capital,views-rank:31-60	test	southkorea	Q884
+capital of monaco	judged	-	judged-info	template:capital,views-rank:31-60	dev	monaco	Q235
+capital of serbia	judged	-	judged-info	template:capital,views-rank:31-60	test	serbia	Q403
+capital of uzbekistan	judged	-	judged-info	template:capital,views-rank:31-60	dev	uzbekistan	Q265
+capital of albania	judged	-	judged-info	template:capital,views-rank:31-60	test	albania	Q222
+capital of thailand	judged	-	judged-info	template:capital,views-rank:31-60	dev	thailand	Q869
+capital of egypt	judged	-	judged-info	template:capital,views-rank:31-60	test	egypt	Q79
+capital of liechtenstein	judged	-	judged-info	template:capital,views-rank:31-60	test	liechtenstein	Q347
+capital of morocco	judged	-	judged-info	template:capital,views-rank:61+	dev	morocco	Q1028
+capital of iceland	judged	-	judged-info	template:capital,views-rank:61+	dev	iceland	Q189
+capital of greece	judged	-	judged-info	template:capital,views-rank:61+	test	greece	Q41
+capital of croatia	judged	-	judged-info	template:capital,views-rank:61+	test	croatia	Q224
+capital of nigeria	judged	-	judged-info	template:capital,views-rank:61+	test	nigeria	Q1033
+capital of democratic republic of the congo	judged	-	judged-info	template:capital,views-rank:61+	dev	democraticrepublicofthecongo	Q974
+capital of montenegro	judged	-	judged-info	template:capital,views-rank:61+	dev	montenegro	Q236
+capital of republic of ireland	judged	-	judged-info	template:capital,views-rank:61+	dev	republicofireland	Q27
+capital of bosnia and herzegovina	judged	-	judged-info	template:capital,views-rank:61+	dev	bosniaandherzegovina	Q225
+capital of lithuania	judged	-	judged-info	template:capital,views-rank:61+	test	lithuania	Q37
+capital of belgium	judged	-	judged-info	template:capital,views-rank:61+	dev	belgium	Q31
+capital of syria	judged	-	judged-info	template:capital,views-rank:61+	test	syria	Q858
+capital of denmark	judged	-	judged-info	template:capital,views-rank:61+	dev	denmark	Q35
+capital of slovenia	judged	-	judged-info	template:capital,views-rank:61+	dev	slovenia	Q215
+capital of romania	judged	-	judged-info	template:capital,views-rank:61+	dev	romania	Q218
+capital of finland	judged	-	judged-info	template:capital,views-rank:61+	dev	finland	Q33
+capital of austria	judged	-	judged-info	template:capital,views-rank:61+	dev	austria	Q40
+capital of eritrea	judged	-	judged-info	template:capital,views-rank:61+	dev	eritrea	Q986
+capital of mongolia	judged	-	judged-info	template:capital,views-rank:61+	dev	mongolia	Q711
+capital of algeria	judged	-	judged-info	template:capital,views-rank:61+	dev	algeria	Q262
+capital of luxembourg	judged	-	judged-info	template:capital,views-rank:61+	dev	luxembourg	Q32
+capital of colombia	judged	-	judged-info	template:capital,views-rank:61+	dev	colombia	Q739
+capital of zimbabwe	judged	-	judged-info	template:capital,views-rank:61+	test	zimbabwe	Q954
+capital of andorra	judged	-	judged-info	template:capital,views-rank:61+	test	andorra	Q228
+capital of lebanon	judged	-	judged-info	template:capital,views-rank:61+	dev	lebanon	Q822
+capital of slovakia	judged	-	judged-info	template:capital,views-rank:61+	dev	slovakia	Q214
+capital of cuba	judged	-	judged-info	template:capital,views-rank:61+	test	cuba	Q241
+capital of bulgaria	judged	-	judged-info	template:capital,views-rank:61+	dev	bulgaria	Q219
+capital of madagascar	judged	-	judged-info	template:capital,views-rank:61+	test	madagascar	Q1019
+capital of burkina faso	judged	-	judged-info	template:capital,views-rank:61+	dev	burkinafaso	Q965
+when was alternative for germany founded	judged	-	judged-info	template:founded,views-rank:1-30	test	alternativeforgermany	Q6721203
+when was houthis founded	judged	-	judged-info	template:founded,views-rank:1-30	test	houthis	Q3042087
+when was manchester city f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	test	manchestercityfc	Q50602
+when was brics founded	judged	-	judged-info	template:founded,views-rank:1-30	test	brics	Q243630
+when was openai founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	openai	Q21708200
+when was manchester united f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	manchesterunitedfc	Q18656
+when was apple inc. founded	judged	-	judged-info	template:founded,views-rank:1-30	test	appleinc	Q312
+when was real madrid cf founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	realmadridcf	Q8682
+when was microsoft founded	judged	-	judged-info	template:founded,views-rank:1-30	test	microsoft	Q2283
+when was tottenham hotspur f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	tottenhamhotspurfc	Q18741
+when was yandex founded	judged	-	judged-info	template:founded,views-rank:1-30	test	yandex	Q5281
+when was nvidia founded	judged	-	judged-info	template:founded,views-rank:1-30	test	nvidia	Q182477
+when was aston villa f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	astonvillafc	Q18711
+when was juventus fc founded	judged	-	judged-info	template:founded,views-rank:1-30	test	juventusfc	Q1422
+when was inter milan founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	intermilan	Q631
+when was wwe founded	judged	-	judged-info	template:founded,views-rank:1-30	test	wwe	Q35339
+when was die linke founded	judged	-	judged-info	template:founded,views-rank:1-30	test	dielinke	Q49764
+when was paris saint-germain fc founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	parissaintgermainfc	Q483020
+when was west ham united f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	test	westhamunitedfc	Q18747
+when was taliban founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	taliban	Q42418
+when was fc bayern munich founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	fcbayernmunich	Q15789
+when was atlético madrid founded	judged	-	judged-info	template:founded,views-rank:1-30	test	atlticomadrid	Q8701
+when was crystal palace f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	crystalpalacefc	Q19467
+when was social democratic party of germany founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	socialdemocraticpartyofgermany	Q49768
+when was sunderland a.f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	sunderlandafc	Q18739
+when was rangers f.c. founded	judged	-	judged-info	template:founded,views-rank:1-30	test	rangersfc	Q19597
+when was the walt disney company founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	thewaltdisneycompany	Q7414
+when was east india company founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	eastindiacompany	Q83164
+when was christian democratic union of germany founded	judged	-	judged-info	template:founded,views-rank:1-30	dev	christiandemocraticunionofgermany	Q49762
+when was as roma founded	judged	-	judged-info	template:founded,views-rank:1-30	test	asroma	Q2739
+when was al-nassr fc founded	judged	-	judged-info	template:founded,views-rank:31-60	test	alnassrfc	Q482764
+when was indian national congress founded	judged	-	judged-info	template:founded,views-rank:31-60	test	indiannationalcongress	Q10225
+when was fulham f.c. founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	fulhamfc	Q18708
+when was brentford f.c. founded	judged	-	judged-info	template:founded,views-rank:31-60	test	brentfordfc	Q19571
+when was alphabet inc. founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	alphabetinc	Q20800404
+when was pixar founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	pixar	Q127552
+when was major league soccer founded	judged	-	judged-info	template:founded,views-rank:31-60	test	majorleaguesoccer	Q18543
+when was spacex founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	spacex	Q193701
+when was afc bournemouth founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	afcbournemouth	Q19568
+when was deportivo de a coruña founded	judged	-	judged-info	template:founded,views-rank:31-60	test	deportivodeacorua	Q8760
+when was ssc napoli founded	judged	-	judged-info	template:founded,views-rank:31-60	test	sscnapoli	Q2641
+when was nike, inc. founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	nikeinc	Q483915
+when was g20 founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	g20	Q19771
+when was feyenoord founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	feyenoord	Q134241
+when was afc ajax founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	afcajax	Q81888
+when was as monaco fc founded	judged	-	judged-info	template:founded,views-rank:31-60	test	asmonacofc	Q180305
+when was the guardian founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	theguardian	Q11148
+when was nickelodeon founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	nickelodeon	Q154958
+when was wolverhampton wanderers f.c. founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	wolverhamptonwanderersfc	Q19500
+when was toyota founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	toyota	Q53268
+when was rotten tomatoes founded	judged	-	judged-info	template:founded,views-rank:31-60	test	rottentomatoes	Q105584
+when was valve corporation founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	valvecorporation	Q193559
+when was valencia cf founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	valenciacf	Q10333
+when was general motors founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	generalmotors	Q81965
+when was adidas founded	judged	-	judged-info	template:founded,views-rank:31-60	test	adidas	Q3895
+when was g7 founded	judged	-	judged-info	template:founded,views-rank:31-60	test	g7	Q1764511
+when was sporting cp founded	judged	-	judged-info	template:founded,views-rank:31-60	test	sportingcp	Q75729
+when was nestlé founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	nestl	Q160746
+when was s.l. benfica founded	judged	-	judged-info	template:founded,views-rank:31-60	dev	slbenfica	Q131499
+when was marvel comics founded	judged	-	judged-info	template:founded,views-rank:31-60	test	marvelcomics	Q173496
+when was boeing founded	judged	-	judged-info	template:founded,views-rank:61+	dev	boeing	Q66
+when was volkswagen group founded	judged	-	judged-info	template:founded,views-rank:61+	dev	volkswagengroup	Q156578
+when was nokia founded	judged	-	judged-info	template:founded,views-rank:61+	dev	nokia	Q1418
+when was metro-goldwyn-mayer founded	judged	-	judged-info	template:founded,views-rank:61+	dev	metrogoldwynmayer	Q179200
+when was ebay founded	judged	-	judged-info	template:founded,views-rank:61+	dev	ebay	Q58024
+when was lockheed martin founded	judged	-	judged-info	template:founded,views-rank:61+	test	lockheedmartin	Q7240
+when was dutch east india company founded	judged	-	judged-info	template:founded,views-rank:61+	test	dutcheastindiacompany	Q159766
+when was ibm founded	judged	-	judged-info	template:founded,views-rank:61+	test	ibm	Q37156
+when was uefa founded	judged	-	judged-info	template:founded,views-rank:61+	test	uefa	Q35572
+when was fc schalke 04 founded	judged	-	judged-info	template:founded,views-rank:61+	dev	fcschalke04	Q32494
+when was olympique de marseille founded	judged	-	judged-info	template:founded,views-rank:61+	dev	olympiquedemarseille	Q132885
+when was psv eindhoven founded	judged	-	judged-info	template:founded,views-rank:61+	test	psveindhoven	Q11938
+when was olympique lyonnais founded	judged	-	judged-info	template:founded,views-rank:61+	test	olympiquelyonnais	Q704
+when was swansea city a.f.c. founded	judged	-	judged-info	template:founded,views-rank:61+	test	swanseacityafc	Q18659
+when was lille osc founded	judged	-	judged-info	template:founded,views-rank:61+	test	lilleosc	Q19516
+when was american broadcasting company founded	judged	-	judged-info	template:founded,views-rank:61+	dev	americanbroadcastingcompany	Q169889
+when was tokugawa shogunate founded	judged	-	judged-info	template:founded,views-rank:61+	dev	tokugawashogunate	Q205662
+when was uber founded	judged	-	judged-info	template:founded,views-rank:61+	test	uber	Q780442
+when was kfc founded	judged	-	judged-info	template:founded,views-rank:61+	dev	kfc	Q524757
+when was oecd founded	judged	-	judged-info	template:founded,views-rank:61+	test	oecd	Q41550
+when was porsche founded	judged	-	judged-info	template:founded,views-rank:61+	test	porsche	Q40993
+when was alliance 90/the greens founded	judged	-	judged-info	template:founded,views-rank:61+	test	alliance90thegreens	Q49766
+when was villarreal cf founded	judged	-	judged-info	template:founded,views-rank:61+	dev	villarrealcf	Q12297
+when was bolton wanderers f.c. founded	judged	-	judged-info	template:founded,views-rank:61+	test	boltonwanderersfc	Q19451
+when was rayo vallecano founded	judged	-	judged-info	template:founded,views-rank:61+	dev	rayovallecano	Q10300
+when was škoda auto founded	judged	-	judged-info	template:founded,views-rank:61+	test	kodaauto	Q29637
+when was stoke city f.c. founded	judged	-	judged-info	template:founded,views-rank:61+	test	stokecityfc	Q18736
+when was league of nations founded	judged	-	judged-info	template:founded,views-rank:61+	test	leagueofnations	Q38130
+when was electronic arts founded	judged	-	judged-info	template:founded,views-rank:61+	test	electronicarts	Q173941
+when was xiaomi founded	judged	-	judged-info	template:founded,views-rank:61+	test	xiaomi	Q1636958
+what does google do	judged	-	judged-info	template:does,views-rank:1-30	dev	google	Q95
+what does arsenal f.c. do	judged	-	judged-info	template:does,views-rank:1-30	dev	arsenalfc	Q9617
+what does liverpool f.c. do	judged	-	judged-info	template:does,views-rank:1-30	test	liverpoolfc	Q1130849
+what does netflix do	judged	-	judged-info	template:does,views-rank:1-30	test	netflix	Q907311
+what does brighton & hove albion f.c. do	judged	-	judged-info	template:does,views-rank:1-30	dev	brightonhovealbionfc	Q19453
+what does everton f.c. do	judged	-	judged-info	template:does,views-rank:1-30	dev	evertonfc	Q5794
+what does united nations do	judged	-	judged-info	template:does,views-rank:1-30	dev	unitednations	Q1065
+what does ku klux klan do	judged	-	judged-info	template:does,views-rank:1-30	dev	kukluxklan	Q47131
+what does hull city a.f.c. do	judged	-	judged-info	template:does,views-rank:1-30	dev	hullcityafc	Q19477
+what does hamas do	judged	-	judged-info	template:does,views-rank:1-30	dev	hamas	Q38799
+what does newcastle united f.c. do	judged	-	judged-info	template:does,views-rank:1-30	dev	newcastleunitedfc	Q18716
+what does ac milan do	judged	-	judged-info	template:does,views-rank:1-30	test	acmilan	Q1543
+what does leicester city f.c. do	judged	-	judged-info	template:does,views-rank:1-30	test	leicestercityfc	Q19481
+what does nato do	judged	-	judged-info	template:does,views-rank:1-30	dev	nato	Q7184
+what does leeds united f.c. do	judged	-	judged-info	template:does,views-rank:1-30	test	leedsunitedfc	Q1128631
+what does mcdonald's do	judged	-	judged-info	template:does,views-rank:1-30	test	mcdonalds	Q38076
+what does wikimedia foundation do	judged	-	judged-info	template:does,views-rank:1-30	dev	wikimediafoundation	Q180
+what does meta platforms do	judged	-	judged-info	template:does,views-rank:1-30	dev	metaplatforms	Q380
+what does real betis do	judged	-	judged-info	template:does,views-rank:1-30	test	realbetis	Q8723
+what does sinn féin do	judged	-	judged-info	template:does,views-rank:1-30	dev	sinnfin	Q76382
+what does bharatiya janata party do	judged	-	judged-info	template:does,views-rank:1-30	test	bharatiyajanataparty	Q10230
+what does nintendo do	judged	-	judged-info	template:does,views-rank:1-30	test	nintendo	Q8093
+what does celtic f.c. do	judged	-	judged-info	template:does,views-rank:1-30	test	celticfc	Q19593
+what does walmart do	judged	-	judged-info	template:does,views-rank:1-30	test	walmart	Q483551
+what does borussia dortmund do	judged	-	judged-info	template:does,views-rank:1-30	dev	borussiadortmund	Q41420
+what does oracle corporation do	judged	-	judged-info	template:does,views-rank:1-30	dev	oraclecorporation	Q19900
+what does united russia do	judged	-	judged-info	template:does,views-rank:1-30	dev	unitedrussia	Q151469
+what does united airlines do	judged	-	judged-info	template:does,views-rank:1-30	test	unitedairlines	Q174769
+what does nottingham forest f.c. do	judged	-	judged-info	template:does,views-rank:1-30	dev	nottinghamforestfc	Q19490
+what does burnley f.c. do	judged	-	judged-info	template:does,views-rank:1-30	dev	burnleyfc	Q19458
+what does tesla, inc. do	judged	-	judged-info	template:does,views-rank:31-60	test	teslainc	Q478214
+what does bmw do	judged	-	judged-info	template:does,views-rank:31-60	test	bmw	Q26678
+what does university of oxford do	judged	-	judged-info	template:does,views-rank:31-60	test	universityofoxford	Q34433
+what does chinese communist party do	judged	-	judged-info	template:does,views-rank:31-60	dev	chinesecommunistparty	Q17427
+what does hezbollah do	judged	-	judged-info	template:does,views-rank:31-60	test	hezbollah	Q41053
+what does american airlines do	judged	-	judged-info	template:does,views-rank:31-60	test	americanairlines	Q32396
+what does blackburn rovers f.c. do	judged	-	judged-info	template:does,views-rank:31-60	test	blackburnroversfc	Q19446
+what does delta air lines do	judged	-	judged-info	template:does,views-rank:31-60	dev	deltaairlines	Q188920
+what does ford motor company do	judged	-	judged-info	template:does,views-rank:31-60	test	fordmotorcompany	Q44294
+what does sony do	judged	-	judged-info	template:does,views-rank:31-60	dev	sony	Q41187
+what does kuomintang do	judged	-	judged-info	template:does,views-rank:31-60	dev	kuomintang	Q31113
+what does fifa do	judged	-	judged-info	template:does,views-rank:31-60	dev	fifa	Q253414
+what does ryanair do	judged	-	judged-info	template:does,views-rank:31-60	dev	ryanair	Q170614
+what does likud do	judged	-	judged-info	template:does,views-rank:31-60	test	likud	Q187009
+what does fc porto do	judged	-	judged-info	template:does,views-rank:31-60	test	fcporto	Q128446
+what does acf fiorentina do	judged	-	judged-info	template:does,views-rank:31-60	dev	acffiorentina	Q2052
+what does mercedes-benz do	judged	-	judged-info	template:does,views-rank:31-60	dev	mercedesbenz	Q36008
+what does real sociedad do	judged	-	judged-info	template:does,views-rank:31-60	test	realsociedad	Q10315
+what does massachusetts institute of technology do	judged	-	judged-info	template:does,views-rank:31-60	test	massachusettsinstituteoftechnology	Q49108
+what does southampton f.c. do	judged	-	judged-info	template:does,views-rank:31-60	test	southamptonfc	Q18732
+what does queens park rangers f.c. do	judged	-	judged-info	template:does,views-rank:31-60	dev	queensparkrangersfc	Q18723
+what does athletic bilbao do	judged	-	judged-info	template:does,views-rank:31-60	test	athleticbilbao	Q8687
+what does lufthansa do	judged	-	judged-info	template:does,views-rank:31-60	dev	lufthansa	Q9325
+what does rb leipzig do	judged	-	judged-info	template:does,views-rank:31-60	test	rbleipzig	Q702455
+what does bayer 04 leverkusen do	judged	-	judged-info	template:does,views-rank:31-60	dev	bayer04leverkusen	Q104761
+what does ss lazio do	judged	-	judged-info	template:does,views-rank:31-60	test	sslazio	Q2609
+what does ferrari do	judged	-	judged-info	template:does,views-rank:31-60	test	ferrari	Q27586
+what does warsaw pact do	judged	-	judged-info	template:does,views-rank:31-60	dev	warsawpact	Q41644
+what does middlesbrough f.c. do	judged	-	judged-info	template:does,views-rank:31-60	test	middlesbroughfc	Q18661
+what does sega do	judged	-	judged-info	template:does,views-rank:31-60	test	sega	Q122741
+what does beşiktaş j.k. do	judged	-	judged-info	template:does,views-rank:61+	dev	beiktajk	Q172567
+what does sevilla fc do	judged	-	judged-info	template:does,views-rank:61+	test	sevillafc	Q10329
+what does lamborghini do	judged	-	judged-info	template:does,views-rank:61+	dev	lamborghini	Q35886
+what does wikileaks do	judged	-	judged-info	template:does,views-rank:61+	test	wikileaks	Q359
+what does honda do	judged	-	judged-info	template:does,views-rank:61+	dev	honda	Q9584
+what does commonwealth of independent states do	judged	-	judged-info	template:does,views-rank:61+	dev	commonwealthofindependentstates	Q7779
+what does national rally do	judged	-	judged-info	template:does,views-rank:61+	dev	nationalrally	Q205150
+what does internet archive do	judged	-	judged-info	template:does,views-rank:61+	test	internetarchive	Q461
+what does sturmabteilung do	judged	-	judged-info	template:does,views-rank:61+	dev	sturmabteilung	Q150793
+what does west bromwich albion f.c. do	judged	-	judged-info	template:does,views-rank:61+	test	westbromwichalbionfc	Q18744
+what does panathinaikos f.c. do	judged	-	judged-info	template:does,views-rank:61+	test	panathinaikosfc	Q4122219
+what does imdb do	judged	-	judged-info	template:does,views-rank:61+	dev	imdb	Q37312
+what does amd do	judged	-	judged-info	template:does,views-rank:61+	dev	amd	Q128896
+what does birmingham city f.c. do	judged	-	judged-info	template:does,views-rank:61+	dev	birminghamcityfc	Q19444
+what does muslim brotherhood do	judged	-	judged-info	template:does,views-rank:61+	test	muslimbrotherhood	Q133207
+what does motorola do	judged	-	judged-info	template:does,views-rank:61+	dev	motorola	Q259011
+what does the coca-cola company do	judged	-	judged-info	template:does,views-rank:61+	test	thecocacolacompany	Q3295867
+what does british airways do	judged	-	judged-info	template:does,views-rank:61+	test	britishairways	Q8766
+what does santos fc do	judged	-	judged-info	template:does,views-rank:61+	dev	santosfc	Q80955
+what does norwich city f.c. do	judged	-	judged-info	template:does,views-rank:61+	test	norwichcityfc	Q18721
+what does atalanta bc do	judged	-	judged-info	template:does,views-rank:61+	dev	atalantabc	Q1886
+what does fc shakhtar donetsk do	judged	-	judged-info	template:does,views-rank:61+	test	fcshakhtardonetsk	Q172969
+what does audi do	judged	-	judged-info	template:does,views-rank:61+	dev	audi	Q23317
+what does non-aligned movement do	judged	-	judged-info	template:does,views-rank:61+	test	nonalignedmovement	Q83201
+what does sun microsystems do	judged	-	judged-info	template:does,views-rank:61+	dev	sunmicrosystems	Q14647
+what does hyundai motor company do	judged	-	judged-info	template:does,views-rank:61+	test	hyundaimotorcompany	Q55931
+what does cern do	judged	-	judged-info	template:does,views-rank:61+	dev	cern	Q42944
+what does kia do	judged	-	judged-info	template:does,views-rank:61+	dev	kia	Q35349
+what does at&t do	judged	-	judged-info	template:does,views-rank:61+	test	att	Q35476
+what does philips do	judged	-	judged-info	template:does,views-rank:61+	test	philips	Q170416
+who directed avengers: endgame	judged	-	judged-info	template:directed,views-rank:1-30	test	avengersendgame	Q23781155
+who directed once upon a time in hollywood	judged	-	judged-info	template:directed,views-rank:1-30	test	onceuponatimeinhollywood	Q47300912
+who directed eyes wide shut	judged	-	judged-info	template:directed,views-rank:1-30	test	eyeswideshut	Q209481
+who directed the godfather	judged	-	judged-info	template:directed,views-rank:1-30	test	thegodfather	Q47703
+who directed spider-man: no way home	judged	-	judged-info	template:directed,views-rank:1-30	dev	spidermannowayhome	Q68934496
+who directed the sixth sense	judged	-	judged-info	template:directed,views-rank:1-30	test	thesixthsense	Q183063
+who directed the shawshank redemption	judged	-	judged-info	template:directed,views-rank:1-30	dev	theshawshankredemption	Q172241
+who directed no country for old men	judged	-	judged-info	template:directed,views-rank:1-30	test	nocountryforoldmen	Q183081
+who directed the dark knight	judged	-	judged-info	template:directed,views-rank:1-30	test	thedarkknight	Q163872
+who directed the truman show	judged	-	judged-info	template:directed,views-rank:1-30	test	thetrumanshow	Q214801
+who directed the terminator	judged	-	judged-info	template:directed,views-rank:1-30	dev	theterminator	Q162255
+who directed 2001: a space odyssey	judged	-	judged-info	template:directed,views-rank:1-30	test	2001aspaceodyssey	Q103474
+who directed the matrix	judged	-	judged-info	template:directed,views-rank:1-30	test	thematrix	Q83495
+who directed the dark knight rises	judged	-	judged-info	template:directed,views-rank:1-30	test	thedarkknightrises	Q189330
+who directed the prestige	judged	-	judged-info	template:directed,views-rank:1-30	test	theprestige	Q46551
+who directed inglourious basterds	judged	-	judged-info	template:directed,views-rank:1-30	test	inglouriousbasterds	Q153723
+who directed 10 things i hate about you	judged	-	judged-info	template:directed,views-rank:1-30	test	10thingsihateaboutyou	Q169082
+who directed the departed	judged	-	judged-info	template:directed,views-rank:1-30	dev	thedeparted	Q172975
+who directed avengers: infinity war	judged	-	judged-info	template:directed,views-rank:1-30	test	avengersinfinitywar	Q23780914
+who directed spider-man: homecoming	judged	-	judged-info	template:directed,views-rank:1-30	dev	spidermanhomecoming	Q23010088
+who directed good will hunting	judged	-	judged-info	template:directed,views-rank:1-30	test	goodwillhunting	Q193835
+who directed blade runner	judged	-	judged-info	template:directed,views-rank:1-30	test	bladerunner	Q184843
+who directed the social network	judged	-	judged-info	template:directed,views-rank:1-30	test	thesocialnetwork	Q185888
+who directed terminator 2: judgment day	judged	-	judged-info	template:directed,views-rank:1-30	test	terminator2judgmentday	Q170564
+who directed inception	judged	-	judged-info	template:directed,views-rank:1-30	test	inception	Q25188
+who directed goodfellas	judged	-	judged-info	template:directed,views-rank:1-30	test	goodfellas	Q42047
+who directed blade runner 2049	judged	-	judged-info	template:directed,views-rank:1-30	test	bladerunner2049	Q21500755
+who directed jurassic park	judged	-	judged-info	template:directed,views-rank:1-30	dev	jurassicpark	Q167726
+who directed pulp fiction	judged	-	judged-info	template:directed,views-rank:1-30	dev	pulpfiction	Q104123
+who directed full metal jacket	judged	-	judged-info	template:directed,views-rank:1-30	test	fullmetaljacket	Q243439
+who directed 12 angry men	judged	-	judged-info	template:directed,views-rank:31-60	dev	12angrymen	Q2345
+who directed spider-man: across the spider-verse	judged	-	judged-info	template:directed,views-rank:31-60	test	spidermanacrossthespiderverse	Q76448600
+who directed spider-man: far from home	judged	-	judged-info	template:directed,views-rank:31-60	test	spidermanfarfromhome	Q27985819
+who directed the godfather part ii	judged	-	judged-info	template:directed,views-rank:31-60	dev	thegodfatherpartii	Q184768
+who directed forrest gump	judged	-	judged-info	template:directed,views-rank:31-60	test	forrestgump	Q134773
+who directed captain america: civil war	judged	-	judged-info	template:directed,views-rank:31-60	test	captainamericacivilwar	Q18407657
+who directed spider-man: into the spider-verse	judged	-	judged-info	template:directed,views-rank:31-60	test	spidermanintothespiderverse	Q29588607
+who directed rocky	judged	-	judged-info	template:directed,views-rank:31-60	dev	rocky	Q188652
+who directed eternal sunshine of the spotless mind	judged	-	judged-info	template:directed,views-rank:31-60	dev	eternalsunshineofthespotlessmind	Q208269
+who directed donnie darko	judged	-	judged-info	template:directed,views-rank:31-60	dev	donniedarko	Q426828
+who directed zootopia 2	judged	-	judged-info	template:directed,views-rank:31-60	dev	zootopia2	Q116764712
+who directed avengers: age of ultron	judged	-	judged-info	template:directed,views-rank:31-60	dev	avengersageofultron	Q14171368
+who directed apocalypse now	judged	-	judged-info	template:directed,views-rank:31-60	test	apocalypsenow	Q182692
+who directed back to the future	judged	-	judged-info	template:directed,views-rank:31-60	dev	backtothefuture	Q91540
+who directed batman begins	judged	-	judged-info	template:directed,views-rank:31-60	dev	batmanbegins	Q166262
+who directed fight club	judged	-	judged-info	template:directed,views-rank:31-60	test	fightclub	Q190050
+who directed the deer hunter	judged	-	judged-info	template:directed,views-rank:31-60	test	thedeerhunter	Q201674
+who directed apocalypto	judged	-	judged-info	template:directed,views-rank:31-60	dev	apocalypto	Q188035
+who directed toy story	judged	-	judged-info	template:directed,views-rank:31-60	test	toystory	Q171048
+who directed dead poets society	judged	-	judged-info	template:directed,views-rank:31-60	test	deadpoetssociety	Q106316
+who directed star wars: the force awakens	judged	-	judged-info	template:directed,views-rank:31-60	test	starwarstheforceawakens	Q6074
+who directed léon: the professional	judged	-	judged-info	template:directed,views-rank:31-60	dev	lontheprofessional	Q484675
+who directed top gun	judged	-	judged-info	template:directed,views-rank:31-60	test	topgun	Q110138
+who directed catch me if you can	judged	-	judged-info	template:directed,views-rank:31-60	dev	catchmeifyoucan	Q208108
+who directed gangs of new york	judged	-	judged-info	template:directed,views-rank:31-60	dev	gangsofnewyork	Q154581
+who directed taxi driver	judged	-	judged-info	template:directed,views-rank:31-60	test	taxidriver	Q47221
+who directed the wizard of oz	judged	-	judged-info	template:directed,views-rank:31-60	dev	thewizardofoz	Q193695
+who directed schindler's list	judged	-	judged-info	template:directed,views-rank:31-60	dev	schindlerslist	Q483941
+who directed saving private ryan	judged	-	judged-info	template:directed,views-rank:31-60	dev	savingprivateryan	Q165817
+who directed the fifth element	judged	-	judged-info	template:directed,views-rank:31-60	dev	thefifthelement	Q106506
+who directed the lion king	judged	-	judged-info	template:directed,views-rank:61+	test	thelionking	Q36479
+who directed requiem for a dream	judged	-	judged-info	template:directed,views-rank:61+	test	requiemforadream	Q487181
+who directed django unchained	judged	-	judged-info	template:directed,views-rank:61+	test	djangounchained	Q571032
+who directed the godfather part iii	judged	-	judged-info	template:directed,views-rank:61+	dev	thegodfatherpartiii	Q202326
+who directed avatar: the way of water	judged	-	judged-info	template:directed,views-rank:61+	dev	avatarthewayofwater	Q3604746
+who directed la la land	judged	-	judged-info	template:directed,views-rank:61+	test	lalaland	Q20856802
+who directed jurassic world	judged	-	judged-info	template:directed,views-rank:61+	test	jurassicworld	Q3512046
+who directed citizen kane	judged	-	judged-info	template:directed,views-rank:61+	dev	citizenkane	Q24815
+who directed the usual suspects	judged	-	judged-info	template:directed,views-rank:61+	test	theusualsuspects	Q132351
+who directed the exorcist	judged	-	judged-info	template:directed,views-rank:61+	test	theexorcist	Q274167
+who directed shrek	judged	-	judged-info	template:directed,views-rank:61+	dev	shrek	Q483815
+who directed borat	judged	-	judged-info	template:directed,views-rank:61+	dev	borat	Q186323
+who directed batman v superman: dawn of justice	judged	-	judged-info	template:directed,views-rank:61+	dev	batmanvsupermandawnofjustice	Q14772351
+who directed raiders of the lost ark	judged	-	judged-info	template:directed,views-rank:61+	dev	raidersofthelostark	Q174284
+who directed the nightmare before christmas	judged	-	judged-info	template:directed,views-rank:61+	test	thenightmarebeforechristmas	Q322328
+who directed toy story 4	judged	-	judged-info	template:directed,views-rank:61+	test	toystory4	Q18517638
+who directed brokeback mountain	judged	-	judged-info	template:directed,views-rank:61+	test	brokebackmountain	Q160618
+who directed captain america: the winter soldier	judged	-	judged-info	template:directed,views-rank:61+	test	captainamericathewintersoldier	Q1765358
+who directed the last samurai	judged	-	judged-info	template:directed,views-rank:61+	test	thelastsamurai	Q207130
+who directed once upon a time in america	judged	-	judged-info	template:directed,views-rank:61+	test	onceuponatimeinamerica	Q206388
+who directed the prince of egypt	judged	-	judged-info	template:directed,views-rank:61+	test	theprinceofegypt	Q245227
+who directed a beautiful mind	judged	-	judged-info	template:directed,views-rank:61+	dev	abeautifulmind	Q164103
+who directed thor: ragnarok	judged	-	judged-info	template:directed,views-rank:61+	dev	thorragnarok	Q22665878
+who directed slumdog millionaire	judged	-	judged-info	template:directed,views-rank:61+	dev	slumdogmillionaire	Q125076
+who directed iron man 3	judged	-	judged-info	template:directed,views-rank:61+	test	ironman3	Q209538
+who directed the bridge on the river kwai	judged	-	judged-info	template:directed,views-rank:61+	dev	thebridgeontheriverkwai	Q188718
+who directed dr. strangelove	judged	-	judged-info	template:directed,views-rank:61+	test	drstrangelove	Q105702
+who directed captain america: the first avenger	judged	-	judged-info	template:directed,views-rank:61+	dev	captainamericathefirstavenger	Q275120
+who directed spider-man 3	judged	-	judged-info	template:directed,views-rank:61+	test	spiderman3	Q182212
+who directed furious 7	judged	-	judged-info	template:directed,views-rank:61+	test	furious7	Q14650496
+what is black hole	judged	-	judged-info	template:what-is,views-rank:1-30	dev	blackhole	Q589
+what is photography	judged	-	judged-info	template:what-is,views-rank:1-30	dev	photography	Q11633
+what is zionism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	zionism	Q42388
+what is philosophy	judged	-	judged-info	template:what-is,views-rank:1-30	dev	philosophy	Q5891
+what is zoroastrianism	judged	-	judged-info	template:what-is,views-rank:1-30	test	zoroastrianism	Q9601
+what is fascism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	fascism	Q6223
+what is christianity	judged	-	judged-info	template:what-is,views-rank:1-30	test	christianity	Q5043
+what is baháʼí faith	judged	-	judged-info	template:what-is,views-rank:1-30	test	bahfaith	Q22679
+what is buddhism	judged	-	judged-info	template:what-is,views-rank:1-30	test	buddhism	Q748
+what is history	judged	-	judged-info	template:what-is,views-rank:1-30	dev	history	Q309
+what is hinduism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	hinduism	Q9089
+what is mathematics	judged	-	judged-info	template:what-is,views-rank:1-30	test	mathematics	Q395
+what is communism	judged	-	judged-info	template:what-is,views-rank:1-30	test	communism	Q6186
+what is socialism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	socialism	Q7272
+what is knowledge	judged	-	judged-info	template:what-is,views-rank:1-30	test	knowledge	Q9081
+what is judaism	judged	-	judged-info	template:what-is,views-rank:1-30	test	judaism	Q9268
+what is psychology	judged	-	judged-info	template:what-is,views-rank:1-30	test	psychology	Q9418
+what is science	judged	-	judged-info	template:what-is,views-rank:1-30	dev	science	Q336
+what is music	judged	-	judged-info	template:what-is,views-rank:1-30	test	music	Q638
+what is jainism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	jainism	Q9232
+what is taoism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	taoism	Q9598
+what is gold	judged	-	judged-info	template:what-is,views-rank:1-30	test	gold	Q897
+what is nazism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	nazism	Q7310
+what is communication	judged	-	judged-info	template:what-is,views-rank:1-30	test	communication	Q11024
+what is javascript	judged	-	judged-info	template:what-is,views-rank:1-30	dev	javascript	Q2005
+what is sharia	judged	-	judged-info	template:what-is,views-rank:1-30	test	sharia	Q482752
+what is marxism	judged	-	judged-info	template:what-is,views-rank:1-30	dev	marxism	Q7264
+what is physics	judged	-	judged-info	template:what-is,views-rank:1-30	test	physics	Q413
+what is c++	judged	-	judged-info	template:what-is,views-rank:1-30	test	c	Q2407
+what is shinto	judged	-	judged-info	template:what-is,views-rank:1-30	test	shinto	Q812767
+what is hiv/aids	judged	-	judged-info	template:what-is,views-rank:31-60	test	hivaids	Q12199
+what is persian language	judged	-	judged-info	template:what-is,views-rank:31-60	dev	persianlanguage	Q9168
+what is antisemitism	judged	-	judged-info	template:what-is,views-rank:31-60	dev	antisemitism	Q22649
+what is aluminium	judged	-	judged-info	template:what-is,views-rank:31-60	dev	aluminium	Q663
+what is liberalism	judged	-	judged-info	template:what-is,views-rank:31-60	test	liberalism	Q6216
+what is religion	judged	-	judged-info	template:what-is,views-rank:31-60	dev	religion	Q9174
+what is silver	judged	-	judged-info	template:what-is,views-rank:31-60	test	silver	Q1090
+what is anarchism	judged	-	judged-info	template:what-is,views-rank:31-60	dev	anarchism	Q6199
+what is natural science	judged	-	judged-info	template:what-is,views-rank:31-60	test	naturalscience	Q7991
+what is hydrogen	judged	-	judged-info	template:what-is,views-rank:31-60	dev	hydrogen	Q556
+what is tungsten	judged	-	judged-info	template:what-is,views-rank:31-60	test	tungsten	Q743
+what is copper	judged	-	judged-info	template:what-is,views-rank:31-60	dev	copper	Q753
+what is metaphysics	judged	-	judged-info	template:what-is,views-rank:31-60	test	metaphysics	Q35277
+what is plutonium	judged	-	judged-info	template:what-is,views-rank:31-60	dev	plutonium	Q1102
+what is oxygen	judged	-	judged-info	template:what-is,views-rank:31-60	dev	oxygen	Q629
+what is sulfur	judged	-	judged-info	template:what-is,views-rank:31-60	test	sulfur	Q682
+what is cancer	judged	-	judged-info	template:what-is,views-rank:31-60	dev	cancer	Q12078
+what is anthropology	judged	-	judged-info	template:what-is,views-rank:31-60	dev	anthropology	Q23404
+what is iron	judged	-	judged-info	template:what-is,views-rank:31-60	dev	iron	Q677
+what is biology	judged	-	judged-info	template:what-is,views-rank:31-60	test	biology	Q420
+what is confucianism	judged	-	judged-info	template:what-is,views-rank:31-60	dev	confucianism	Q9581
+what is unix	judged	-	judged-info	template:what-is,views-rank:31-60	dev	unix	Q11368
+what is technology	judged	-	judged-info	template:what-is,views-rank:31-60	test	technology	Q11016
+what is carbon	judged	-	judged-info	template:what-is,views-rank:31-60	dev	carbon	Q623
+what is uranium	judged	-	judged-info	template:what-is,views-rank:31-60	test	uranium	Q1098
+what is lead	judged	-	judged-info	template:what-is,views-rank:31-60	dev	lead	Q708
+what is democracy	judged	-	judged-info	template:what-is,views-rank:31-60	test	democracy	Q7174
+what is ethics	judged	-	judged-info	template:what-is,views-rank:31-60	test	ethics	Q9465
+what is computer science	judged	-	judged-info	template:what-is,views-rank:31-60	test	computerscience	Q21198
+what is oganesson	judged	-	judged-info	template:what-is,views-rank:31-60	test	oganesson	Q1307
+what is star	judged	-	judged-info	template:what-is,views-rank:61+	test	star	Q523
+what is planet	judged	-	judged-info	template:what-is,views-rank:61+	dev	planet	Q634
+what is chemistry	judged	-	judged-info	template:what-is,views-rank:61+	test	chemistry	Q2329
+what is economics	judged	-	judged-info	template:what-is,views-rank:61+	dev	economics	Q8134
+what is potassium	judged	-	judged-info	template:what-is,views-rank:61+	test	potassium	Q703
+what is galaxy	judged	-	judged-info	template:what-is,views-rank:61+	test	galaxy	Q318
+what is geography	judged	-	judged-info	template:what-is,views-rank:61+	dev	geography	Q1071
+what is silicon	judged	-	judged-info	template:what-is,views-rank:61+	dev	silicon	Q670
+what is business	judged	-	judged-info	template:what-is,views-rank:61+	test	business	Q4830453
+what is lithium	judged	-	judged-info	template:what-is,views-rank:61+	test	lithium	Q568
+what is platinum	judged	-	judged-info	template:what-is,views-rank:61+	test	platinum	Q880
+what is nitrogen	judged	-	judged-info	template:what-is,views-rank:61+	test	nitrogen	Q627
+what is bismuth	judged	-	judged-info	template:what-is,views-rank:61+	test	bismuth	Q942
+what is education	judged	-	judged-info	template:what-is,views-rank:61+	test	education	Q8434
+what is sodium	judged	-	judged-info	template:what-is,views-rank:61+	dev	sodium	Q658
+what is tin	judged	-	judged-info	template:what-is,views-rank:61+	dev	tin	Q1096
+what is krypton	judged	-	judged-info	template:what-is,views-rank:61+	dev	krypton	Q888
+what is helium	judged	-	judged-info	template:what-is,views-rank:61+	dev	helium	Q560
+what is antimony	judged	-	judged-info	template:what-is,views-rank:61+	dev	antimony	Q1099
+what is copyright	judged	-	judged-info	template:what-is,views-rank:61+	dev	copyright	Q1297822
+what is information technology	judged	-	judged-info	template:what-is,views-rank:61+	test	informationtechnology	Q11661
+what is sociology	judged	-	judged-info	template:what-is,views-rank:61+	test	sociology	Q21201
+what is number	judged	-	judged-info	template:what-is,views-rank:61+	test	number	Q11563
+what is art	judged	-	judged-info	template:what-is,views-rank:61+	dev	art	Q735
+what is cobalt	judged	-	judged-info	template:what-is,views-rank:61+	test	cobalt	Q740
+what is energy	judged	-	judged-info	template:what-is,views-rank:61+	dev	energy	Q11379
+what is titanium	judged	-	judged-info	template:what-is,views-rank:61+	dev	titanium	Q716
+what is politics	judged	-	judged-info	template:what-is,views-rank:61+	test	politics	Q7163
+what is conservatism	judged	-	judged-info	template:what-is,views-rank:61+	dev	conservatism	Q7169
+what is health	judged	-	judged-info	template:what-is,views-rank:61+	test	health	Q12147
+how does erection work	judged	-	judged-info	template:how-does,views-rank:1-30	test	erection	Q133993
+how does ejaculation work	judged	-	judged-info	template:how-does,views-rank:1-30	test	ejaculation	Q14820885
+how does computer work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	computer	Q68
+how does weather work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	weather	Q11663
+how does female ejaculation work	judged	-	judged-info	template:how-does,views-rank:1-30	test	femaleejaculation	Q212379
+how does life work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	life	Q3
+how does pomodoro technique work	judged	-	judged-info	template:how-does,views-rank:1-30	test	pomodorotechnique	Q2091716
+how does photosynthesis work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	photosynthesis	Q11982
+how does imax work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	imax	Q188575
+how does petroleum work	judged	-	judged-info	template:how-does,views-rank:1-30	test	petroleum	Q22656
+how does pagerank work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	pagerank	Q184316
+how does printing press work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	printingpress	Q144334
+how does iphone air work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	iphoneair	Q136193414
+how does cognition work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	cognition	Q2200417
+how does waze work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	waze	Q942327
+how does airplane work	judged	-	judged-info	template:how-does,views-rank:1-30	test	airplane	Q197
+how does sexual reproduction work	judged	-	judged-info	template:how-does,views-rank:1-30	test	sexualreproduction	Q182353
+how does dijkstra's algorithm work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	dijkstrasalgorithm	Q8548
+how does kalman filter work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	kalmanfilter	Q846780
+how does internet of things work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	internetofthings	Q251212
+how does rubber duck debugging work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	rubberduckdebugging	Q3341
+how does citric acid cycle work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	citricacidcycle	Q133895
+how does sleep work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	sleep	Q35831
+how does socratic method work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	socraticmethod	Q839475
+how does swot analysis work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	swotanalysis	Q175096
+how does sugarcane work	judged	-	judged-info	template:how-does,views-rank:1-30	test	sugarcane	Q36940
+how does cocoa bean work	judged	-	judged-info	template:how-does,views-rank:1-30	test	cocoabean	Q208008
+how does menstruation work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	menstruation	Q12171
+how does urination work	judged	-	judged-info	template:how-does,views-rank:1-30	dev	urination	Q105726
+how does haber process work	judged	-	judged-info	template:how-does,views-rank:1-30	test	haberprocess	Q213669
+how does automation work	judged	-	judged-info	template:how-does,views-rank:31-60	test	automation	Q184199
+how does vomiting work	judged	-	judged-info	template:how-does,views-rank:31-60	test	vomiting	Q127076
+how does mechanical turk work	judged	-	judged-info	template:how-does,views-rank:31-60	test	mechanicalturk	Q275924
+how does iron dome work	judged	-	judged-info	template:how-does,views-rank:31-60	test	irondome	Q81231
+how does malt work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	malt	Q152024
+how does wd-40 work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	wd40	Q898762
+how does levenshtein distance work	judged	-	judged-info	template:how-does,views-rank:31-60	test	levenshteindistance	Q496939
+how does johnnie walker work	judged	-	judged-info	template:how-does,views-rank:31-60	test	johnniewalker	Q502268
+how does radio work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	radio	Q872
+how does mnemonic work	judged	-	judged-info	template:how-does,views-rank:31-60	test	mnemonic	Q191062
+how does circadian rhythm work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	circadianrhythm	Q208353
+how does menstrual cycle work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	menstrualcycle	Q83864
+how does augmented reality work	judged	-	judged-info	template:how-does,views-rank:31-60	test	augmentedreality	Q254183
+how does metabolism work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	metabolism	Q1057
+how does power over ethernet work	judged	-	judged-info	template:how-does,views-rank:31-60	test	poweroverethernet	Q831858
+how does prompt engineering work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	promptengineering	Q108941486
+how does cellular respiration work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	cellularrespiration	Q912751
+how does proprioception work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	proprioception	Q1129066
+how does menopause work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	menopause	Q177708
+how does heat pump work	judged	-	judged-info	template:how-does,views-rank:31-60	test	heatpump	Q131313
+how does expansion of the universe work	judged	-	judged-info	template:how-does,views-rank:31-60	test	expansionoftheuniverse	Q1129469
+how does voronoi diagram work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	voronoidiagram	Q757267
+how does mitosis work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	mitosis	Q14763008
+how does minimax work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	minimax	Q751319
+how does luhn algorithm work	judged	-	judged-info	template:how-does,views-rank:31-60	test	luhnalgorithm	Q915402
+how does euclidean algorithm work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	euclideanalgorithm	Q230848
+how does johari window work	judged	-	judged-info	template:how-does,views-rank:31-60	test	johariwindow	Q652675
+how does hibernation work	judged	-	judged-info	template:how-does,views-rank:31-60	dev	hibernation	Q159408
+how does osmosis work	judged	-	judged-info	template:how-does,views-rank:31-60	test	osmosis	Q54237
+how does perfume work	judged	-	judged-info	template:how-does,views-rank:31-60	test	perfume	Q131746
+how does big mac work	judged	-	judged-info	template:how-does,views-rank:61+	dev	bigmac	Q506796
+how does torpor work	judged	-	judged-info	template:how-does,views-rank:61+	test	torpor	Q1651205
+how does tumbleweed work	judged	-	judged-info	template:how-does,views-rank:61+	dev	tumbleweed	Q1060486
+how does menarche work	judged	-	judged-info	template:how-does,views-rank:61+	dev	menarche	Q492514
+how does autophagy work	judged	-	judged-info	template:how-does,views-rank:61+	dev	autophagy	Q288322
+how does aposematism work	judged	-	judged-info	template:how-does,views-rank:61+	dev	aposematism	Q619751
+how does ozone depletion work	judged	-	judged-info	template:how-does,views-rank:61+	dev	ozonedepletion	Q183140
+how does perceptron work	judged	-	judged-info	template:how-does,views-rank:61+	test	perceptron	Q690207
+how does mycorrhiza work	judged	-	judged-info	template:how-does,views-rank:61+	test	mycorrhiza	Q99974
+how does action potential work	judged	-	judged-info	template:how-does,views-rank:61+	test	actionpotential	Q194277
+how does bioluminescence work	judged	-	judged-info	template:how-does,views-rank:61+	dev	bioluminescence	Q179924
+how does positron emission tomography work	judged	-	judged-info	template:how-does,views-rank:61+	dev	positronemissiontomography	Q208376
+how does reproduction work	judged	-	judged-info	template:how-does,views-rank:61+	dev	reproduction	Q11990
+how does estrous cycle work	judged	-	judged-info	template:how-does,views-rank:61+	dev	estrouscycle	Q388121
+how does whopper work	judged	-	judged-info	template:how-does,views-rank:61+	test	whopper	Q1135327
+how does apoptosis work	judged	-	judged-info	template:how-does,views-rank:61+	test	apoptosis	Q14599311
+how does oil work	judged	-	judged-info	template:how-does,views-rank:61+	test	oil	Q42962
+how does crochet work	judged	-	judged-info	template:how-does,views-rank:61+	test	crochet	Q208386
+how does defecation work	judged	-	judged-info	template:how-does,views-rank:61+	test	defecation	Q204015
+how does glycolysis work	judged	-	judged-info	template:how-does,views-rank:61+	dev	glycolysis	Q162643
+how does operant conditioning work	judged	-	judged-info	template:how-does,views-rank:61+	dev	operantconditioning	Q847079
+how does loom work	judged	-	judged-info	template:how-does,views-rank:61+	dev	loom	Q173056
+how does sonar work	judged	-	judged-info	template:how-does,views-rank:61+	test	sonar	Q133220
+how does embalming work	judged	-	judged-info	template:how-does,views-rank:61+	test	embalming	Q332997
+how does voice over ip work	judged	-	judged-info	template:how-does,views-rank:61+	test	voiceoverip	Q81945
+how does electrolysis work	judged	-	judged-info	template:how-does,views-rank:61+	dev	electrolysis	Q64403
+how does streaming television work	judged	-	judged-info	template:how-does,views-rank:61+	dev	streamingtelevision	Q841645
+how does asexual reproduction work	judged	-	judged-info	template:how-does,views-rank:61+	test	asexualreproduction	Q173432
+how does fermentation work	judged	-	judged-info	template:how-does,views-rank:61+	test	fermentation	Q41760
+how does traffic light work	judged	-	judged-info	template:how-does,views-rank:61+	dev	trafficlight	Q8004
+free email service	judged	-	judged-info	template:descriptive	dev	freeemailservice	descriptive-sites.txt:4
+email provider with privacy	judged	-	judged-info	template:descriptive	test	emailproviderwithprivacy	descriptive-sites.txt:5
+online photo editor	judged	-	judged-info	template:descriptive	dev	onlinephotoeditor	descriptive-sites.txt:6
+edit pdf online free	judged	-	judged-info	template:descriptive	test	editpdfonlinefree	descriptive-sites.txt:7
+merge pdf files online	judged	-	judged-info	template:descriptive	dev	mergepdffilesonline	descriptive-sites.txt:8
+convert video to mp3	judged	-	judged-info	template:descriptive	test	convertvideotomp3	descriptive-sites.txt:9
+free file sharing site	judged	-	judged-info	template:descriptive	dev	freefilesharingsite	descriptive-sites.txt:10
+send large files online	judged	-	judged-info	template:descriptive	test	sendlargefilesonline	descriptive-sites.txt:11
+cloud storage service	judged	-	judged-info	template:descriptive	dev	cloudstorageservice	descriptive-sites.txt:12
+online backup service	judged	-	judged-info	template:descriptive	test	onlinebackupservice	descriptive-sites.txt:13
+video calling app	judged	-	judged-info	template:descriptive	dev	videocallingapp	descriptive-sites.txt:14
+video conferencing software	judged	-	judged-info	template:descriptive	test	videoconferencingsoftware	descriptive-sites.txt:15
+team chat app	judged	-	judged-info	template:descriptive	dev	teamchatapp	descriptive-sites.txt:16
+project management tool	judged	-	judged-info	template:descriptive	test	projectmanagementtool	descriptive-sites.txt:17
+kanban board online	judged	-	judged-info	template:descriptive	dev	kanbanboardonline	descriptive-sites.txt:18
+online whiteboard	judged	-	judged-info	template:descriptive	test	onlinewhiteboard	descriptive-sites.txt:19
+free website builder	judged	-	judged-info	template:descriptive	dev	freewebsitebuilder	descriptive-sites.txt:20
+blog hosting platform	judged	-	judged-info	template:descriptive	test	bloghostingplatform	descriptive-sites.txt:21
+domain name registrar	judged	-	judged-info	template:descriptive	dev	domainnameregistrar	descriptive-sites.txt:22
+web hosting company	judged	-	judged-info	template:descriptive	test	webhostingcompany	descriptive-sites.txt:23
+online code editor	judged	-	judged-info	template:descriptive	dev	onlinecodeeditor	descriptive-sites.txt:24
+learn to code online	judged	-	judged-info	template:descriptive	test	learntocodeonline	descriptive-sites.txt:25
+coding practice site	judged	-	judged-info	template:descriptive	dev	codingpracticesite	descriptive-sites.txt:26
+online course platform	judged	-	judged-info	template:descriptive	test	onlinecourseplatform	descriptive-sites.txt:27
+flashcard app	judged	-	judged-info	template:descriptive	dev	flashcardapp	descriptive-sites.txt:28
+math homework help site	judged	-	judged-info	template:descriptive	test	mathhomeworkhelpsite	descriptive-sites.txt:29
+online graphing calculator	judged	-	judged-info	template:descriptive	dev	onlinegraphingcalculator	descriptive-sites.txt:30
+translate text online	judged	-	judged-info	template:descriptive	test	translatetextonline	descriptive-sites.txt:31
+grammar checker	judged	-	judged-info	template:descriptive	dev	grammarchecker	descriptive-sites.txt:32
+online thesaurus	judged	-	judged-info	template:descriptive	test	onlinethesaurus	descriptive-sites.txt:33
+free ebook library	judged	-	judged-info	template:descriptive	dev	freeebooklibrary	descriptive-sites.txt:34
+audiobook app	judged	-	judged-info	template:descriptive	test	audiobookapp	descriptive-sites.txt:35
+podcast app	judged	-	judged-info	template:descriptive	dev	podcastapp	descriptive-sites.txt:36
+music streaming app	judged	-	judged-info	template:descriptive	test	musicstreamingapp	descriptive-sites.txt:37
+internet radio streaming	judged	-	judged-info	template:descriptive	dev	internetradiostreaming	descriptive-sites.txt:38
+live streaming platform for gamers	judged	-	judged-info	template:descriptive	test	livestreamingplatformforgamers	descriptive-sites.txt:39
+short video app	judged	-	judged-info	template:descriptive	dev	shortvideoapp	descriptive-sites.txt:40
+meme site	judged	-	judged-info	template:descriptive	test	memesite	descriptive-sites.txt:41
+image hosting site	judged	-	judged-info	template:descriptive	dev	imagehostingsite	descriptive-sites.txt:42
+stock photos free	judged	-	judged-info	template:descriptive	test	stockphotosfree	descriptive-sites.txt:43
+free icons website	judged	-	judged-info	template:descriptive	dev	freeiconswebsite	descriptive-sites.txt:44
+font download site	judged	-	judged-info	template:descriptive	test	fontdownloadsite	descriptive-sites.txt:45
+graphic design tool online	judged	-	judged-info	template:descriptive	dev	graphicdesigntoolonline	descriptive-sites.txt:46
+3d modeling software free	judged	-	judged-info	template:descriptive	test	3dmodelingsoftwarefree	descriptive-sites.txt:47
+diagram maker online	judged	-	judged-info	template:descriptive	dev	diagrammakeronline	descriptive-sites.txt:48
+mind map tool	judged	-	judged-info	template:descriptive	test	mindmaptool	descriptive-sites.txt:49
+survey maker	judged	-	judged-info	template:descriptive	dev	surveymaker	descriptive-sites.txt:50
+online form builder	judged	-	judged-info	template:descriptive	test	onlineformbuilder	descriptive-sites.txt:51
+e-signature service	judged	-	judged-info	template:descriptive	dev	esignatureservice	descriptive-sites.txt:52
+invoice software for small business	judged	-	judged-info	template:descriptive	test	invoicesoftwareforsmallbusiness	descriptive-sites.txt:53
+accounting software online	judged	-	judged-info	template:descriptive	dev	accountingsoftwareonline	descriptive-sites.txt:54
+budgeting app	judged	-	judged-info	template:descriptive	test	budgetingapp	descriptive-sites.txt:55
+personal finance tracker	judged	-	judged-info	template:descriptive	dev	personalfinancetracker	descriptive-sites.txt:56
+stock trading app	judged	-	judged-info	template:descriptive	test	stocktradingapp	descriptive-sites.txt:57
+cryptocurrency exchange	judged	-	judged-info	template:descriptive	dev	cryptocurrencyexchange	descriptive-sites.txt:58
+online bank	judged	-	judged-info	template:descriptive	test	onlinebank	descriptive-sites.txt:59
+mortgage calculator site	judged	-	judged-info	template:descriptive	dev	mortgagecalculatorsite	descriptive-sites.txt:60
+tax filing software	judged	-	judged-info	template:descriptive	test	taxfilingsoftware	descriptive-sites.txt:61
+credit card comparison site	judged	-	judged-info	template:descriptive	dev	creditcardcomparisonsite	descriptive-sites.txt:62
+price comparison website	judged	-	judged-info	template:descriptive	test	pricecomparisonwebsite	descriptive-sites.txt:63
+coupon codes site	judged	-	judged-info	template:descriptive	dev	couponcodessite	descriptive-sites.txt:64
+cashback website	judged	-	judged-info	template:descriptive	test	cashbackwebsite	descriptive-sites.txt:65
+online grocery delivery	judged	-	judged-info	template:descriptive	dev	onlinegrocerydelivery	descriptive-sites.txt:66
+food delivery app	judged	-	judged-info	template:descriptive	test	fooddeliveryapp	descriptive-sites.txt:67
+meal kit delivery	judged	-	judged-info	template:descriptive	dev	mealkitdelivery	descriptive-sites.txt:68
+restaurant reservation app	judged	-	judged-info	template:descriptive	test	restaurantreservationapp	descriptive-sites.txt:69
+recipe app	judged	-	judged-info	template:descriptive	dev	recipeapp	descriptive-sites.txt:70
+calorie counter app	judged	-	judged-info	template:descriptive	test	caloriecounterapp	descriptive-sites.txt:71
+workout tracking app	judged	-	judged-info	template:descriptive	dev	workouttrackingapp	descriptive-sites.txt:72
+running app	judged	-	judged-info	template:descriptive	test	runningapp	descriptive-sites.txt:73
+meditation app	judged	-	judged-info	template:descriptive	dev	meditationapp	descriptive-sites.txt:74
+sleep tracking app	judged	-	judged-info	template:descriptive	test	sleeptrackingapp	descriptive-sites.txt:75
+telehealth service	judged	-	judged-info	template:descriptive	dev	telehealthservice	descriptive-sites.txt:76
+online pharmacy	judged	-	judged-info	template:descriptive	test	onlinepharmacy	descriptive-sites.txt:77
+symptom checker	judged	-	judged-info	template:descriptive	dev	symptomchecker	descriptive-sites.txt:78
+doctor reviews site	judged	-	judged-info	template:descriptive	test	doctorreviewssite	descriptive-sites.txt:79
+dating app	judged	-	judged-info	template:descriptive	dev	datingapp	descriptive-sites.txt:80
+social network for professionals	judged	-	judged-info	template:descriptive	test	socialnetworkforprofessionals	descriptive-sites.txt:81
+anonymous forum	judged	-	judged-info	template:descriptive	dev	anonymousforum	descriptive-sites.txt:82
+question and answer site	judged	-	judged-info	template:descriptive	test	questionandanswersite	descriptive-sites.txt:83
+online forum for car enthusiasts	judged	-	judged-info	template:descriptive	dev	onlineforumforcarenthusiasts	descriptive-sites.txt:84
+neighborhood social network	judged	-	judged-info	template:descriptive	test	neighborhoodsocialnetwork	descriptive-sites.txt:85
+event ticketing site	judged	-	judged-info	template:descriptive	dev	eventticketingsite	descriptive-sites.txt:86
+concert tickets	judged	-	judged-info	template:descriptive	test	concerttickets	descriptive-sites.txt:87
+movie showtimes site	judged	-	judged-info	template:descriptive	dev	movieshowtimessite	descriptive-sites.txt:88
+streaming service for movies	judged	-	judged-info	template:descriptive	test	streamingserviceformovies	descriptive-sites.txt:89
+free movie streaming legal	judged	-	judged-info	template:descriptive	dev	freemoviestreaminglegal	descriptive-sites.txt:90
+tv show tracker	judged	-	judged-info	template:descriptive	test	tvshowtracker	descriptive-sites.txt:91
+book reviews site	judged	-	judged-info	template:descriptive	dev	bookreviewssite	descriptive-sites.txt:92
+reading tracker app	judged	-	judged-info	template:descriptive	test	readingtrackerapp	descriptive-sites.txt:93
+online library catalog	judged	-	judged-info	template:descriptive	dev	onlinelibrarycatalog	descriptive-sites.txt:94
+online encyclopedia	judged	-	judged-info	template:descriptive	test	onlineencyclopedia	descriptive-sites.txt:95
+dictionary website	judged	-	judged-info	template:descriptive	dev	dictionarywebsite	descriptive-sites.txt:96
+map website	judged	-	judged-info	template:descriptive	test	mapwebsite	descriptive-sites.txt:97
+driving directions	judged	-	judged-info	template:descriptive	dev	drivingdirections	descriptive-sites.txt:98
+public transit app	judged	-	judged-info	template:descriptive	test	publictransitapp	descriptive-sites.txt:99
+flight tracker	judged	-	judged-info	template:descriptive	dev	flighttracker	descriptive-sites.txt:100
+airline tickets booking	judged	-	judged-info	template:descriptive	test	airlineticketsbooking	descriptive-sites.txt:101
+train tickets online	judged	-	judged-info	template:descriptive	dev	trainticketsonline	descriptive-sites.txt:102
+car rental comparison	judged	-	judged-info	template:descriptive	test	carrentalcomparison	descriptive-sites.txt:103
+rideshare app	judged	-	judged-info	template:descriptive	dev	rideshareapp	descriptive-sites.txt:104
+bike sharing app	judged	-	judged-info	template:descriptive	test	bikesharingapp	descriptive-sites.txt:105
+travel guide website	judged	-	judged-info	template:descriptive	dev	travelguidewebsite	descriptive-sites.txt:106
+travel reviews site	judged	-	judged-info	template:descriptive	test	travelreviewssite	descriptive-sites.txt:107
+hotel price comparison	judged	-	judged-info	template:descriptive	dev	hotelpricecomparison	descriptive-sites.txt:108
+home swap site	judged	-	judged-info	template:descriptive	test	homeswapsite	descriptive-sites.txt:109
+apartment rental listings	judged	-	judged-info	template:descriptive	dev	apartmentrentallistings	descriptive-sites.txt:110
+real estate listings site	judged	-	judged-info	template:descriptive	test	realestatelistingssite	descriptive-sites.txt:111
+home value estimate	judged	-	judged-info	template:descriptive	dev	homevalueestimate	descriptive-sites.txt:112
+roommate finder	judged	-	judged-info	template:descriptive	test	roommatefinder	descriptive-sites.txt:113
+moving company quotes	judged	-	judged-info	template:descriptive	dev	movingcompanyquotes	descriptive-sites.txt:114
+home services marketplace	judged	-	judged-info	template:descriptive	test	homeservicesmarketplace	descriptive-sites.txt:115
+handyman booking app	judged	-	judged-info	template:descriptive	dev	handymanbookingapp	descriptive-sites.txt:116
+freelance marketplace	judged	-	judged-info	template:descriptive	test	freelancemarketplace	descriptive-sites.txt:117
+remote job board	judged	-	judged-info	template:descriptive	dev	remotejobboard	descriptive-sites.txt:118
+tech job board	judged	-	judged-info	template:descriptive	test	techjobboard	descriptive-sites.txt:119
+resume builder	judged	-	judged-info	template:descriptive	dev	resumebuilder	descriptive-sites.txt:120
+salary comparison site	judged	-	judged-info	template:descriptive	test	salarycomparisonsite	descriptive-sites.txt:121
+company reviews by employees	judged	-	judged-info	template:descriptive	dev	companyreviewsbyemployees	descriptive-sites.txt:122
+online marketplace for local buying and selling	judged	-	judged-info	template:descriptive	test	onlinemarketplaceforlocalbuyingandselling	descriptive-sites.txt:123
+sell used electronics	judged	-	judged-info	template:descriptive	dev	sellusedelectronics	descriptive-sites.txt:124
+buy refurbished phones	judged	-	judged-info	template:descriptive	test	buyrefurbishedphones	descriptive-sites.txt:125
+online auction site	judged	-	judged-info	template:descriptive	dev	onlineauctionsite	descriptive-sites.txt:126
+vintage clothing marketplace	judged	-	judged-info	template:descriptive	test	vintageclothingmarketplace	descriptive-sites.txt:127
+sneaker resale site	judged	-	judged-info	template:descriptive	dev	sneakerresalesite	descriptive-sites.txt:128
+furniture store online	judged	-	judged-info	template:descriptive	test	furniturestoreonline	descriptive-sites.txt:129
+print on demand service	judged	-	judged-info	template:descriptive	dev	printondemandservice	descriptive-sites.txt:130
+custom t-shirt printing	judged	-	judged-info	template:descriptive	test	customtshirtprinting	descriptive-sites.txt:131
+photo printing service	judged	-	judged-info	template:descriptive	dev	photoprintingservice	descriptive-sites.txt:132
+online florist	judged	-	judged-info	template:descriptive	test	onlineflorist	descriptive-sites.txt:133
+gift ideas site	judged	-	judged-info	template:descriptive	dev	giftideassite	descriptive-sites.txt:134
+pet supplies online	judged	-	judged-info	template:descriptive	test	petsuppliesonline	descriptive-sites.txt:135
+adopt a pet website	judged	-	judged-info	template:descriptive	dev	adoptapetwebsite	descriptive-sites.txt:136
+vet telehealth	judged	-	judged-info	template:descriptive	test	vettelehealth	descriptive-sites.txt:137
+genealogy website	judged	-	judged-info	template:descriptive	dev	genealogywebsite	descriptive-sites.txt:138
+dna testing service	judged	-	judged-info	template:descriptive	test	dnatestingservice	descriptive-sites.txt:139
+crossword puzzle online	judged	-	judged-info	template:descriptive	dev	crosswordpuzzleonline	descriptive-sites.txt:140
+online chess	judged	-	judged-info	template:descriptive	test	onlinechess	descriptive-sites.txt:141
+play board games online	judged	-	judged-info	template:descriptive	dev	playboardgamesonline	descriptive-sites.txt:142
+free online games	judged	-	judged-info	template:descriptive	test	freeonlinegames	descriptive-sites.txt:143
+game store for pc	judged	-	judged-info	template:descriptive	dev	gamestoreforpc	descriptive-sites.txt:144
+game reviews site	judged	-	judged-info	template:descriptive	test	gamereviewssite	descriptive-sites.txt:145
+video game wiki	judged	-	judged-info	template:descriptive	dev	videogamewiki	descriptive-sites.txt:146
+speedrun leaderboards	judged	-	judged-info	template:descriptive	test	speedrunleaderboards	descriptive-sites.txt:147
+esports news	judged	-	judged-info	template:descriptive	dev	esportsnews	descriptive-sites.txt:148
+fantasy football app	judged	-	judged-info	template:descriptive	test	fantasyfootballapp	descriptive-sites.txt:149
+sports betting site	judged	-	judged-info	template:descriptive	dev	sportsbettingsite	descriptive-sites.txt:150
+sports news app	judged	-	judged-info	template:descriptive	test	sportsnewsapp	descriptive-sites.txt:151
+weather radar site	judged	-	judged-info	template:descriptive	dev	weatherradarsite	descriptive-sites.txt:152
+earthquake tracker	judged	-	judged-info	template:descriptive	test	earthquaketracker	descriptive-sites.txt:153
+air quality map	judged	-	judged-info	template:descriptive	dev	airqualitymap	descriptive-sites.txt:154
+news aggregator	judged	-	judged-info	template:descriptive	test	newsaggregator	descriptive-sites.txt:155
+fact checking website	judged	-	judged-info	template:descriptive	dev	factcheckingwebsite	descriptive-sites.txt:156
+open source code hosting	judged	-	judged-info	template:descriptive	test	opensourcecodehosting	descriptive-sites.txt:157
+package registry for javascript	judged	-	judged-info	template:descriptive	dev	packageregistryforjavascript	descriptive-sites.txt:158
+developer documentation site	judged	-	judged-info	template:descriptive	test	developerdocumentationsite	descriptive-sites.txt:159
+api testing tool	judged	-	judged-info	template:descriptive	dev	apitestingtool	descriptive-sites.txt:160
+website speed test	judged	-	judged-info	template:descriptive	test	websitespeedtest	descriptive-sites.txt:161
+dns lookup tool	judged	-	judged-info	template:descriptive	dev	dnslookuptool	descriptive-sites.txt:162
+what is my ip	judged	-	judged-info	template:descriptive	test	whatismyip	descriptive-sites.txt:163
+url shortener	judged	-	judged-info	template:descriptive	dev	urlshortener	descriptive-sites.txt:164
+password generator	judged	-	judged-info	template:descriptive	test	passwordgenerator	descriptive-sites.txt:165
+two factor authentication app	judged	-	judged-info	template:descriptive	dev	twofactorauthenticationapp	descriptive-sites.txt:166
+encrypted messaging app	judged	-	judged-info	template:descriptive	test	encryptedmessagingapp	descriptive-sites.txt:167
+secure email	judged	-	judged-info	template:descriptive	dev	secureemail	descriptive-sites.txt:168
+ad blocker	judged	-	judged-info	template:descriptive	test	adblocker	descriptive-sites.txt:169
+browser extension store	judged	-	judged-info	template:descriptive	dev	browserextensionstore	descriptive-sites.txt:170
+software download site	judged	-	judged-info	template:descriptive	test	softwaredownloadsite	descriptive-sites.txt:171
+linux distribution	judged	-	judged-info	template:descriptive	dev	linuxdistribution	descriptive-sites.txt:172
+open source office suite	judged	-	judged-info	template:descriptive	test	opensourceofficesuite	descriptive-sites.txt:173
+note taking app with markdown	judged	-	judged-info	template:descriptive	dev	notetakingappwithmarkdown	descriptive-sites.txt:174
+todo list app	judged	-	judged-info	template:descriptive	test	todolistapp	descriptive-sites.txt:175
+calendar app	judged	-	judged-info	template:descriptive	dev	calendarapp	descriptive-sites.txt:176
+habit tracker	judged	-	judged-info	template:descriptive	test	habittracker	descriptive-sites.txt:177
+time tracking software	judged	-	judged-info	template:descriptive	dev	timetrackingsoftware	descriptive-sites.txt:178
+screen recording software	judged	-	judged-info	template:descriptive	test	screenrecordingsoftware	descriptive-sites.txt:179
+remote desktop software	judged	-	judged-info	template:descriptive	dev	remotedesktopsoftware	descriptive-sites.txt:180
+online paste bin	judged	-	judged-info	template:descriptive	test	onlinepastebin	descriptive-sites.txt:181
+file converter online	judged	-	judged-info	template:descriptive	dev	fileconverteronline	descriptive-sites.txt:182
+unit converter	judged	-	judged-info	template:descriptive	test	unitconverter	descriptive-sites.txt:183
+currency converter	judged	-	judged-info	template:descriptive	dev	currencyconverter	descriptive-sites.txt:184
+timezone converter	judged	-	judged-info	template:descriptive	test	timezoneconverter	descriptive-sites.txt:185
+online stopwatch	judged	-	judged-info	template:descriptive	dev	onlinestopwatch	descriptive-sites.txt:186
+random name picker	judged	-	judged-info	template:descriptive	test	randomnamepicker	descriptive-sites.txt:187
+qr code generator	judged	-	judged-info	template:descriptive	dev	qrcodegenerator	descriptive-sites.txt:188
+logo maker	judged	-	judged-info	template:descriptive	test	logomaker	descriptive-sites.txt:189
+color palette generator	judged	-	judged-info	template:descriptive	dev	colorpalettegenerator	descriptive-sites.txt:190
+ai image generator	judged	-	judged-info	template:descriptive	test	aiimagegenerator	descriptive-sites.txt:191
+ai chatbot	judged	-	judged-info	template:descriptive	dev	aichatbot	descriptive-sites.txt:192
+speech to text online	judged	-	judged-info	template:descriptive	test	speechtotextonline	descriptive-sites.txt:193
+text to speech	judged	-	judged-info	template:descriptive	dev	texttospeech	descriptive-sites.txt:194
+online dictionary for slang	judged	-	judged-info	template:descriptive	test	onlinedictionaryforslang	descriptive-sites.txt:195
+lyrics website	judged	-	judged-info	template:descriptive	dev	lyricswebsite	descriptive-sites.txt:196
+guitar tabs site	judged	-	judged-info	template:descriptive	test	guitartabssite	descriptive-sites.txt:197
+sheet music site	judged	-	judged-info	template:descriptive	dev	sheetmusicsite	descriptive-sites.txt:198
+music production software	judged	-	judged-info	template:descriptive	test	musicproductionsoftware	descriptive-sites.txt:199
+royalty free music	judged	-	judged-info	template:descriptive	dev	royaltyfreemusic	descriptive-sites.txt:200
+sound effects library	judged	-	judged-info	template:descriptive	test	soundeffectslibrary	descriptive-sites.txt:201
+radio station finder	judged	-	judged-info	template:descriptive	dev	radiostationfinder	descriptive-sites.txt:202
+film database	judged	-	judged-info	template:descriptive	test	filmdatabase	descriptive-sites.txt:203
+tv guide	judged	-	judged-info	template:descriptive	dev	tvguide	descriptive-sites.txt:204
+anime streaming	judged	-	judged-info	template:descriptive	test	animestreaming	descriptive-sites.txt:205
+manga reader	judged	-	judged-info	template:descriptive	dev	mangareader	descriptive-sites.txt:206
+webcomics site	judged	-	judged-info	template:descriptive	test	webcomicssite	descriptive-sites.txt:207
+fan wiki hosting	judged	-	judged-info	template:descriptive	dev	fanwikihosting	descriptive-sites.txt:208
+crowdsourced travel photos	judged	-	judged-info	template:descriptive	test	crowdsourcedtravelphotos	descriptive-sites.txt:209
+citizen science projects	judged	-	judged-info	template:descriptive	dev	citizenscienceprojects	descriptive-sites.txt:210
+volunteer opportunities site	judged	-	judged-info	template:descriptive	test	volunteeropportunitiessite	descriptive-sites.txt:211
+charity evaluator	judged	-	judged-info	template:descriptive	dev	charityevaluator	descriptive-sites.txt:212
+petition website	judged	-	judged-info	template:descriptive	test	petitionwebsite	descriptive-sites.txt:213
+government benefits site	judged	-	judged-info	template:descriptive	dev	governmentbenefitssite	descriptive-sites.txt:214
+passport application	judged	-	judged-info	template:descriptive	test	passportapplication	descriptive-sites.txt:215
+car history report	judged	-	judged-info	template:descriptive	dev	carhistoryreport	descriptive-sites.txt:216
+car value estimate	judged	-	judged-info	template:descriptive	test	carvalueestimate	descriptive-sites.txt:217
+auto parts store online	judged	-	judged-info	template:descriptive	dev	autopartsstoreonline	descriptive-sites.txt:218
+gas prices near me app	judged	-	judged-info	template:descriptive	test	gaspricesnearmeapp	descriptive-sites.txt:219
+electric vehicle charging map	judged	-	judged-info	template:descriptive	dev	electricvehiclechargingmap	descriptive-sites.txt:220
+parking reservation app	judged	-	judged-info	template:descriptive	test	parkingreservationapp	descriptive-sites.txt:221
+package tracking site	judged	-	judged-info	template:descriptive	dev	packagetrackingsite	descriptive-sites.txt:222
+shipping rates comparison	judged	-	judged-info	template:descriptive	test	shippingratescomparison	descriptive-sites.txt:223
+postage online	judged	-	judged-info	template:descriptive	dev	postageonline	descriptive-sites.txt:224
+small business loans marketplace	judged	-	judged-info	template:descriptive	test	smallbusinessloansmarketplace	descriptive-sites.txt:225
+crowdfunding for creators	judged	-	judged-info	template:descriptive	dev	crowdfundingforcreators	descriptive-sites.txt:226
+tip jar for creators	judged	-	judged-info	template:descriptive	test	tipjarforcreators	descriptive-sites.txt:227
+newsletter platform	judged	-	judged-info	template:descriptive	dev	newsletterplatform	descriptive-sites.txt:228
+link in bio tool	judged	-	judged-info	template:descriptive	test	linkinbiotool	descriptive-sites.txt:229
+social media scheduler	judged	-	judged-info	template:descriptive	dev	socialmediascheduler	descriptive-sites.txt:230
+website analytics	judged	-	judged-info	template:descriptive	test	websiteanalytics	descriptive-sites.txt:231
+email marketing service	judged	-	judged-info	template:descriptive	dev	emailmarketingservice	descriptive-sites.txt:232
+online store builder	judged	-	judged-info	template:descriptive	test	onlinestorebuilder	descriptive-sites.txt:233
+payment processor for websites	judged	-	judged-info	template:descriptive	dev	paymentprocessorforwebsites	descriptive-sites.txt:234
+peer to peer payments app	judged	-	judged-info	template:descriptive	test	peertopeerpaymentsapp	descriptive-sites.txt:235
+money transfer abroad	judged	-	judged-info	template:descriptive	dev	moneytransferabroad	descriptive-sites.txt:236
+investment research site	judged	-	judged-info	template:descriptive	test	investmentresearchsite	descriptive-sites.txt:237
+retirement calculator	judged	-	judged-info	template:descriptive	dev	retirementcalculator	descriptive-sites.txt:238
+insurance quotes comparison	judged	-	judged-info	template:descriptive	test	insurancequotescomparison	descriptive-sites.txt:239
+student loan help	judged	-	judged-info	template:descriptive	dev	studentloanhelp	descriptive-sites.txt:240
+scholarship search	judged	-	judged-info	template:descriptive	test	scholarshipsearch	descriptive-sites.txt:241
+college search site	judged	-	judged-info	template:descriptive	dev	collegesearchsite	descriptive-sites.txt:242
+textbook rental	judged	-	judged-info	template:descriptive	test	textbookrental	descriptive-sites.txt:243
+online tutoring	judged	-	judged-info	template:descriptive	dev	onlinetutoring	descriptive-sites.txt:244
+language exchange app	judged	-	judged-info	template:descriptive	test	languageexchangeapp	descriptive-sites.txt:245
+typing practice	judged	-	judged-info	template:descriptive	dev	typingpractice	descriptive-sites.txt:246
+kids learning games	judged	-	judged-info	template:descriptive	test	kidslearninggames	descriptive-sites.txt:247
+parenting forum	judged	-	judged-info	template:descriptive	dev	parentingforum	descriptive-sites.txt:248
+baby registry	judged	-	judged-info	template:descriptive	test	babyregistry	descriptive-sites.txt:249
+wedding planning site	judged	-	judged-info	template:descriptive	dev	weddingplanningsite	descriptive-sites.txt:250
+gardening guide site	judged	-	judged-info	template:descriptive	test	gardeningguidesite	descriptive-sites.txt:251
+plant identification app	judged	-	judged-info	template:descriptive	dev	plantidentificationapp	descriptive-sites.txt:252
+bird identification app	judged	-	judged-info	template:descriptive	test	birdidentificationapp	descriptive-sites.txt:253
+star map app	judged	-	judged-info	template:descriptive	dev	starmapapp	descriptive-sites.txt:254
+astronomy news	judged	-	judged-info	template:descriptive	test	astronomynews	descriptive-sites.txt:255
+diy projects site	judged	-	judged-info	template:descriptive	dev	diyprojectssite	descriptive-sites.txt:256
+woodworking plans	judged	-	judged-info	template:descriptive	test	woodworkingplans	descriptive-sites.txt:257
+knitting patterns	judged	-	judged-info	template:descriptive	dev	knittingpatterns	descriptive-sites.txt:258
+home decor ideas	judged	-	judged-info	template:descriptive	test	homedecorideas	descriptive-sites.txt:259
+paint color visualizer	judged	-	judged-info	template:descriptive	dev	paintcolorvisualizer	descriptive-sites.txt:260
+interior design app	judged	-	judged-info	template:descriptive	test	interiordesignapp	descriptive-sites.txt:261
+how does a password manager work	judged	-	judged-info	template:control	dev	howdoesapasswordmanagerwork	descriptive-controls.txt:4
+history of social media	judged	-	judged-info	template:control	test	historyofsocialmedia	descriptive-controls.txt:5
+what is a vpn	judged	-	judged-info	template:control	dev	whatisavpn	descriptive-controls.txt:6
+how does video streaming work	judged	-	judged-info	template:control	test	howdoesvideostreamingwork	descriptive-controls.txt:7
+what is cloud computing	judged	-	judged-info	template:control	dev	whatiscloudcomputing	descriptive-controls.txt:8
+history of online dating	judged	-	judged-info	template:control	test	historyofonlinedating	descriptive-controls.txt:9
+what is a cryptocurrency exchange	judged	-	judged-info	template:control	dev	whatisacryptocurrencyexchange	descriptive-controls.txt:10
+how do search engines work	judged	-	judged-info	template:control	test	howdosearchengineswork	descriptive-controls.txt:11
+what is web hosting	judged	-	judged-info	template:control	dev	whatiswebhosting	descriptive-controls.txt:12
+history of the world wide web	judged	-	judged-info	template:control	test	historyoftheworldwideweb	descriptive-controls.txt:13
+how does email encryption work	judged	-	judged-info	template:control	dev	howdoesemailencryptionwork	descriptive-controls.txt:14
+what is two factor authentication	judged	-	judged-info	template:control	test	whatistwofactorauthentication	descriptive-controls.txt:15
+peer to peer file sharing history	judged	-	judged-info	template:control	dev	peertopeerfilesharinghistory	descriptive-controls.txt:16
+what is a content delivery network	judged	-	judged-info	template:control	test	whatisacontentdeliverynetwork	descriptive-controls.txt:17
+how do podcasts make money	judged	-	judged-info	template:control	dev	howdopodcastsmakemoney	descriptive-controls.txt:18
+what is a url shortener	judged	-	judged-info	template:control	test	whatisaurlshortener	descriptive-controls.txt:19
+what is open source software	judged	-	judged-info	template:control	dev	whatisopensourcesoftware	descriptive-controls.txt:20
+how does gps navigation work	judged	-	judged-info	template:control	test	howdoesgpsnavigationwork	descriptive-controls.txt:21
+history of video games	judged	-	judged-info	template:control	dev	historyofvideogames	descriptive-controls.txt:22
+what is a crowdfunding campaign	judged	-	judged-info	template:control	test	whatisacrowdfundingcampaign	descriptive-controls.txt:23
+how does ride sharing work	judged	-	judged-info	template:control	dev	howdoesridesharingwork	descriptive-controls.txt:24
+what is telehealth	judged	-	judged-info	template:control	test	whatistelehealth	descriptive-controls.txt:25
+effects of social media on teenagers	judged	-	judged-info	template:control	dev	effectsofsocialmediaonteenagers	descriptive-controls.txt:26
+what is a mind map	judged	-	judged-info	template:control	test	whatisamindmap	descriptive-controls.txt:27
+how does text to speech work	judged	-	judged-info	template:control	dev	howdoestexttospeechwork	descriptive-controls.txt:28
+history of the smartphone	judged	-	judged-info	template:control	test	historyofthesmartphone	descriptive-controls.txt:29
+what is machine translation	judged	-	judged-info	template:control	dev	whatismachinetranslation	descriptive-controls.txt:30
+how do recommendation algorithms work	judged	-	judged-info	template:control	test	howdorecommendationalgorithmswork	descriptive-controls.txt:31
+what is a wiki	judged	-	judged-info	template:control	dev	whatisawiki	descriptive-controls.txt:32
+history of online shopping	judged	-	judged-info	template:control	test	historyofonlineshopping	descriptive-controls.txt:33
+what is a blog	judged	-	judged-info	template:control	dev	whatisablog	descriptive-controls.txt:34
+what is an ad blocker	judged	-	judged-info	template:control	test	whatisanadblocker	descriptive-controls.txt:35
+how does dns work	judged	-	judged-info	template:control	dev	howdoesdnswork	descriptive-controls.txt:36
+what is a qr code	judged	-	judged-info	template:control	test	whatisaqrcode	descriptive-controls.txt:37
+how do dating apps match people	judged	-	judged-info	template:control	dev	howdodatingappsmatchpeople	descriptive-controls.txt:38
+what is a freelance worker	judged	-	judged-info	template:control	test	whatisafreelanceworker	descriptive-controls.txt:39
+history of e-books	judged	-	judged-info	template:control	dev	historyofebooks	descriptive-controls.txt:40
+what is a meal kit	judged	-	judged-info	template:control	test	whatisamealkit	descriptive-controls.txt:41
+what is an online auction	judged	-	judged-info	template:control	dev	whatisanonlineauction	descriptive-controls.txt:42
+how does a price comparison site make money	judged	-	judged-info	template:control	test	howdoesapricecomparisonsitemakemoney	descriptive-controls.txt:43
+ok medicaid application	judged	-	judged-info	template:gov,form:code	dev	gov:OK-medicaid	gov-services.tsv:OK-medicaid-code
+ohio state parks camping reservations	judged	-	judged-info	template:gov,form:name	dev	gov:OH-state-parks	gov-services.tsv:OH-state-parks-name
+ma real id requirements	judged	-	judged-info	template:gov,form:code	test	gov:MA-real-id	gov-services.tsv:MA-real-id-code
+az marriage license	judged	-	judged-info	template:gov,form:code	dev	gov:AZ-marriage-license	gov-services.tsv:AZ-marriage-license-code
+pay traffic ticket rhode island	judged	-	judged-info	template:gov,form:name	dev	gov:RI-traffic-ticket	gov-services.tsv:RI-traffic-ticket-name
+wisconsin state tax refund status	judged	-	judged-info	template:gov,form:name	test	gov:WI-tax-refund	gov-services.tsv:WI-tax-refund-name
+florida unemployment benefits apply	judged	-	judged-info	template:gov,form:name	dev	gov:FL-unemployment	gov-services.tsv:FL-unemployment-name
+mn state tax refund status	judged	-	judged-info	template:gov,form:code	test	gov:MN-tax-refund	gov-services.tsv:MN-tax-refund-code
+renew car registration alabama	judged	-	judged-info	template:gov,form:name	test	gov:AL-vehicle-registration	gov-services.tsv:AL-vehicle-registration-name
+iowa child support payment	judged	-	judged-info	template:gov,form:name	test	gov:IA-child-support	gov-services.tsv:IA-child-support-name
+vermont state tax refund status	judged	-	judged-info	template:gov,form:name	test	gov:VT-tax-refund	gov-services.tsv:VT-tax-refund-name
+north carolina nursing license lookup	judged	-	judged-info	template:gov,form:name	dev	gov:NC-nursing-license	gov-services.tsv:NC-nursing-license-name
+wi unemployment benefits apply	judged	-	judged-info	template:gov,form:code	test	gov:WI-unemployment	gov-services.tsv:WI-unemployment-code
+wy state parks camping reservations	judged	-	judged-info	template:gov,form:code	dev	gov:WY-state-parks	gov-services.tsv:WY-state-parks-code
+become a notary in oh	judged	-	judged-info	template:gov,form:code	dev	gov:OH-notary	gov-services.tsv:OH-notary-code
+id jury duty	judged	-	judged-info	template:gov,form:code	dev	gov:ID-jury-duty	gov-services.tsv:ID-jury-duty-code
+ar state tax refund status	judged	-	judged-info	template:gov,form:code	test	gov:AR-tax-refund	gov-services.tsv:AR-tax-refund-code
+virginia firearms permit	judged	-	judged-info	template:gov,form:name	test	gov:VA-firearms-permit	gov-services.tsv:VA-firearms-permit-name
+kentucky child support payment	judged	-	judged-info	template:gov,form:name	dev	gov:KY-child-support	gov-services.tsv:KY-child-support-name
+tn birth certificate copy	judged	-	judged-info	template:gov,form:code	dev	gov:TN-birth-certificate	gov-services.tsv:TN-birth-certificate-code
+become a notary in idaho	judged	-	judged-info	template:gov,form:name	test	gov:ID-notary	gov-services.tsv:ID-notary-name
+register to vote in al	judged	-	judged-info	template:gov,form:code	dev	gov:AL-voter-registration	gov-services.tsv:AL-voter-registration-code
+pay traffic ticket vermont	judged	-	judged-info	template:gov,form:name	dev	gov:VT-traffic-ticket	gov-services.tsv:VT-traffic-ticket-name
+nebraska unclaimed property	judged	-	judged-info	template:gov,form:name	dev	gov:NE-unclaimed-property	gov-services.tsv:NE-unclaimed-property-name
+idaho jury duty	judged	-	judged-info	template:gov,form:name	dev	gov:ID-jury-duty	gov-services.tsv:ID-jury-duty-name
+al drivers license renewal	judged	-	judged-info	template:gov,form:code	test	gov:AL-drivers-license	gov-services.tsv:AL-drivers-license-code
+register an llc in wyoming	judged	-	judged-info	template:gov,form:name	test	gov:WY-business-registration	gov-services.tsv:WY-business-registration-name
+kansas real id requirements	judged	-	judged-info	template:gov,form:name	dev	gov:KS-real-id	gov-services.tsv:KS-real-id-name
+colorado medicaid application	judged	-	judged-info	template:gov,form:name	test	gov:CO-medicaid	gov-services.tsv:CO-medicaid-name
+wa jury duty	judged	-	judged-info	template:gov,form:code	dev	gov:WA-jury-duty	gov-services.tsv:WA-jury-duty-code
+louisiana real id requirements	judged	-	judged-info	template:gov,form:name	dev	gov:LA-real-id	gov-services.tsv:LA-real-id-name
+pay traffic ticket va	judged	-	judged-info	template:gov,form:code	dev	gov:VA-traffic-ticket	gov-services.tsv:VA-traffic-ticket-code
+register an llc in washington	judged	-	judged-info	template:gov,form:name	test	gov:WA-business-registration	gov-services.tsv:WA-business-registration-name
+al nursing license lookup	judged	-	judged-info	template:gov,form:code	dev	gov:AL-nursing-license	gov-services.tsv:AL-nursing-license-code
+become a notary in va	judged	-	judged-info	template:gov,form:code	test	gov:VA-notary	gov-services.tsv:VA-notary-code
+rhode island medicaid application	judged	-	judged-info	template:gov,form:name	test	gov:RI-medicaid	gov-services.tsv:RI-medicaid-name
+idaho state parks camping reservations	judged	-	judged-info	template:gov,form:name	dev	gov:ID-state-parks	gov-services.tsv:ID-state-parks-name
+maine firearms permit	judged	-	judged-info	template:gov,form:name	dev	gov:ME-firearms-permit	gov-services.tsv:ME-firearms-permit-name
+pay traffic ticket pa	judged	-	judged-info	template:gov,form:code	dev	gov:PA-traffic-ticket	gov-services.tsv:PA-traffic-ticket-code
+ne jury duty	judged	-	judged-info	template:gov,form:code	dev	gov:NE-jury-duty	gov-services.tsv:NE-jury-duty-code
+indiana firearms permit	judged	-	judged-info	template:gov,form:name	test	gov:IN-firearms-permit	gov-services.tsv:IN-firearms-permit-name
+nv child support payment	judged	-	judged-info	template:gov,form:code	dev	gov:NV-child-support	gov-services.tsv:NV-child-support-code
+ohio marriage license	judged	-	judged-info	template:gov,form:name	dev	gov:OH-marriage-license	gov-services.tsv:OH-marriage-license-name
+co jury duty	judged	-	judged-info	template:gov,form:code	dev	gov:CO-jury-duty	gov-services.tsv:CO-jury-duty-code
+va nursing license lookup	judged	-	judged-info	template:gov,form:code	dev	gov:VA-nursing-license	gov-services.tsv:VA-nursing-license-code
+sd medicaid application	judged	-	judged-info	template:gov,form:code	test	gov:SD-medicaid	gov-services.tsv:SD-medicaid-code
+pa fishing license	judged	-	judged-info	template:gov,form:code	test	gov:PA-fishing-license	gov-services.tsv:PA-fishing-license-code
+become a notary in ar	judged	-	judged-info	template:gov,form:code	dev	gov:AR-notary	gov-services.tsv:AR-notary-code
+arkansas unemployment benefits apply	judged	-	judged-info	template:gov,form:name	dev	gov:AR-unemployment	gov-services.tsv:AR-unemployment-name
+renew car registration oregon	judged	-	judged-info	template:gov,form:name	test	gov:OR-vehicle-registration	gov-services.tsv:OR-vehicle-registration-name
+iowa birth certificate copy	judged	-	judged-info	template:gov,form:name	test	gov:IA-birth-certificate	gov-services.tsv:IA-birth-certificate-name
+massachusetts drivers license renewal	judged	-	judged-info	template:gov,form:name	dev	gov:MA-drivers-license	gov-services.tsv:MA-drivers-license-name
+florida drivers license renewal	judged	-	judged-info	template:gov,form:name	dev	gov:FL-drivers-license	gov-services.tsv:FL-drivers-license-name
+renew car registration nebraska	judged	-	judged-info	template:gov,form:name	dev	gov:NE-vehicle-registration	gov-services.tsv:NE-vehicle-registration-name
+ne state parks camping reservations	judged	-	judged-info	template:gov,form:code	dev	gov:NE-state-parks	gov-services.tsv:NE-state-parks-code
+tennessee nursing license lookup	judged	-	judged-info	template:gov,form:name	test	gov:TN-nursing-license	gov-services.tsv:TN-nursing-license-name
+apply for food stamps arizona	judged	-	judged-info	template:gov,form:name	dev	gov:AZ-food-assistance	gov-services.tsv:AZ-food-assistance-name
+apply for food stamps wy	judged	-	judged-info	template:gov,form:code	dev	gov:WY-food-assistance	gov-services.tsv:WY-food-assistance-code
+become a notary in michigan	judged	-	judged-info	template:gov,form:name	dev	gov:MI-notary	gov-services.tsv:MI-notary-name
+hawaii birth certificate copy	judged	-	judged-info	template:gov,form:name	dev	gov:HI-birth-certificate	gov-services.tsv:HI-birth-certificate-name
+register an llc in kentucky	judged	-	judged-info	template:gov,form:name	dev	gov:KY-business-registration	gov-services.tsv:KY-business-registration-name
+vt state parks camping reservations	judged	-	judged-info	template:gov,form:code	test	gov:VT-state-parks	gov-services.tsv:VT-state-parks-code
+become a notary in oregon	judged	-	judged-info	template:gov,form:name	dev	gov:OR-notary	gov-services.tsv:OR-notary-name
+indiana unemployment benefits apply	judged	-	judged-info	template:gov,form:name	dev	gov:IN-unemployment	gov-services.tsv:IN-unemployment-name
+idaho nursing license lookup	judged	-	judged-info	template:gov,form:name	dev	gov:ID-nursing-license	gov-services.tsv:ID-nursing-license-name
+kansas drivers license renewal	judged	-	judged-info	template:gov,form:name	test	gov:KS-drivers-license	gov-services.tsv:KS-drivers-license-name
+massachusetts child support payment	judged	-	judged-info	template:gov,form:name	test	gov:MA-child-support	gov-services.tsv:MA-child-support-name
+register an llc in az	judged	-	judged-info	template:gov,form:code	test	gov:AZ-business-registration	gov-services.tsv:AZ-business-registration-code
+north carolina unclaimed property	judged	-	judged-info	template:gov,form:name	test	gov:NC-unclaimed-property	gov-services.tsv:NC-unclaimed-property-name
+register an llc in new mexico	judged	-	judged-info	template:gov,form:name	dev	gov:NM-business-registration	gov-services.tsv:NM-business-registration-name
