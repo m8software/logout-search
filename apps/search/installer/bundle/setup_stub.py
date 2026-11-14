@@ -38,6 +38,10 @@ def main(argv=None) -> int:
     base = os.path.abspath(argv[argv.index("--dest") + 1]) if "--dest" in argv else default_base()
     app = os.path.join(base, "app")
     payload = os.path.join(getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))), PAYLOAD)
+    if os.name == "nt" and "--no-run" not in argv:
+        # an older copy that is running holds its files open: close it (the tray and the engine) before replacing it
+        for image in ("logout-search-tray.exe", "logout-search.exe"):
+            subprocess.run(["taskkill", "/F", "/T", "/IM", image], capture_output=True, creationflags=0x08000000)
     print(f"logout search: unpacking the program to {app}", flush=True)
     try:
         os.makedirs(base, exist_ok=True)

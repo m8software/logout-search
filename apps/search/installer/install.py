@@ -1248,9 +1248,10 @@ def main():
     try:
         if a.cmd == "install":
             r = install(a)
-            print(json.dumps(r, sort_keys=True))
-            if r.get("installed"):
-                say(after_install_help(os.path.abspath(a.dest)))
+            if os.environ.get("LOGOUT_INSTALL_QUIET") != "1":     # the program's own setup says what comes next itself
+                print(json.dumps(r, sort_keys=True))
+                if r.get("installed"):
+                    say(after_install_help(os.path.abspath(a.dest)))
         elif a.cmd == "start":
             start(a)
         elif a.cmd == "addon":

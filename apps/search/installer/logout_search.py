@@ -227,8 +227,8 @@ def setup_plan(base: str, port: int) -> list:
     if FROZEN and os.path.normcase(os.path.realpath(here)) != os.path.normcase(os.path.realpath(app)):
         steps.append(("copy", f"this program -> {app}"))
     steps += [("data", f"{DATA_SOURCE} -> {data}  (about 11 GB to download, 18 GB on disk; checked against {DATA_PUBKEY})"),
-              ("autostart", f"the engine starts now and at logon, answering only on http://127.0.0.1:{port}"),
-              ("browser", "the logout browser extension is connected, where a supported browser is found"),
+              ("autostart", ("a tray icon runs the engine now and at each sign-in; Start menu entries to open and uninstall it"
+                             if PLATFORM == "win32" else f"the engine starts now and at logon, answering only on http://127.0.0.1:{port}")),
               ("devices", "phones and other computers on this network can pair at https://search.logout.cloud")]
     return steps
 
@@ -272,26 +272,35 @@ def setup(a) -> int:
         rc = subprocess.call([os.path.join(app, exe_name()), "setup", "--dest", base, "--port", str(a.port), "--copied"])
         return rc
     say(f"2/5  downloading the search data to {data}\n     about 11 GB; it is safe to stop and run this again, it carries on where it stopped")
+    os.environ["LOGOUT_INSTALL_QUIET"] = "1"
     try:
         run_install(["install", "--source", DATA_SOURCE, "--pubkey", DATA_PUBKEY, "--dest", data])
     except SystemExit as e:
         if e.code not in (0, None):
             say("the data was not installed; run this again to carry on")
             return int(e.code) if isinstance(e.code, int) else 1
-    say("3/5  starting the engine now and at logon")
-    auto = argparse.Namespace(state="on", dest=data, port=a.port, print=False)
-    started = autostart(auto) == 0
-    if started and PLATFORM == "win32":
-        started = subprocess.run(["schtasks", "/Run", "/TN", TASK_NAME], capture_output=True).returncode == 0   # a logon task does not run by being made
-    if not started:
-        # no systemd user session, no Task Scheduler: start it for this session at least
-        say("     it could not be set to start by itself here; starting it for now")
-        kw = {"creationflags": 0x00000008 | 0x00000200} if os.name == "nt" else {"start_new_session": True}
-        os.makedirs(os.path.join(data, "state"), exist_ok=True)
-        log = open(os.path.join(data, "state", "engine.log"), "ab")
-        subprocess.Popen(start_cmd(data, a.port), stdout=log, stderr=log, stdin=subprocess.DEVNULL, **kw)
-    say("4/5  connecting the browser extension")
-    host_register(argparse.Namespace(action="register", dest=data, port=a.port, print=False))
+    say("3/5  starting the engine now and at each sign-in")
+    if PLATFORM == "win32":
+        # a tray icon that runs the engine with no window and restarts it; started at sign-in from the user's own Run
+        # key, with a Start menu folder (open, uninstall) and an entry in Settings > Apps. Per user: no administrator
+        # (Task Scheduler needed one: the owner's first install got "Access is denied")
+        import tray_win
+        for line in tray_win.register(base, a.port):
+            say(f"     could not set up {line}")
+        tray = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), "logout-search-tray.exe")
+        subprocess.Popen([tray, "--dest", base, "--port", str(a.port)], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL, creationflags=0x00000008 | 0x00000200)   # detached: it outlives this window
+        say("     the logout search icon is in the taskbar's corner (it may be under the ^ arrow); the Start menu has it too")
+    else:
+        auto = argparse.Namespace(state="on", dest=data, port=a.port, print=False)
+        if autostart(auto) != 0:
+            # no systemd user session: start it for this session at least
+            say("     it could not be set to start by itself here; starting it for now")
+            os.makedirs(os.path.join(data, "state"), exist_ok=True)
+            log = open(os.path.join(data, "state", "engine.log"), "ab")
+            subprocess.Popen(start_cmd(data, a.port), stdout=log, stderr=log, stdin=subprocess.DEVNULL, start_new_session=True)
+    # no browser extension any more: the page reaches this engine the way a phone does, through the pairing peer
+    say("4/5  letting this computer's browser and your other devices use it")
     say("5/5  waiting for the engine to answer (the first start reads the index into memory)")
     ready = install.wait_ready(a.port, lambda: True, timeout=600.0) == "ready"
     say("")

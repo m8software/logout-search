@@ -38,6 +38,7 @@ ENGINE_DIRS = ["licenses"]
 # analysed with the launcher so every library and standard-library module they import is in the bundle
 ANALYSED = [os.path.join(INSTALLER, "logout_search.py"), os.path.join(ENGINE, "search_api.py"), os.path.join(ENGINE, "native_host.py"),
             os.path.join(ENGINE, "rtc_peer.py"), os.path.join(ENGINE, "av_absent.py"), os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py")]
+ICON = os.path.join(HERE, "logout-search.ico")
 COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary",
                "aiortc", "aioice", "pylibsrtp", "google_crc32c", "qrcode"]      # the peer (other devices pair through it)
 
@@ -73,7 +74,7 @@ def pyinstaller(stage: str, work: str, dist: str) -> None:
     if importlib.util.find_spec("av") is not None:
         raise SystemExit("build: PyAV (`av`) is installed here and would be bundled: run `pip uninstall -y av` first "
                          "(it is FFmpeg with GPL codecs; the peer uses serve/api/av_absent.py in its place)")
-    args = ["--noconfirm", "--clean", "--onedir", "--name", "logout-search", "--console",
+    args = ["--noconfirm", "--clean", "--onedir", "--name", "logout-search", "--console", "--icon", ICON,
             "--workpath", work, "--distpath", dist, "--specpath", work,
             "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
             "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
@@ -95,7 +96,7 @@ def setup_exe(archive: str, work: str, out: str) -> str:
     payload = os.path.join(w, "logout-search.zip")
     shutil.copyfile(archive, payload)
     r = subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onefile", "--console",
-                        "--name", "logout-search-setup", "--workpath", os.path.join(w, "work"), "--distpath", out,
+                        "--name", "logout-search-setup", "--icon", ICON, "--workpath", os.path.join(w, "work"), "--distpath", out,
                         "--specpath", w, "--add-data", f"{payload}{os.pathsep}.", os.path.join(HERE, "setup_stub.py")])
     exe = os.path.join(out, "logout-search-setup.exe" if sys.platform == "win32" else "logout-search-setup")
     if r.returncode or not os.path.isfile(exe):
@@ -111,6 +112,17 @@ def setup_exe(archive: str, work: str, out: str) -> str:
         v = subprocess.run([got, "version"], capture_output=True, text=True, timeout=300)
         assert v.returncode == 0 and json.loads(v.stdout)["frozen"] is True, (v.stdout, v.stderr)
     return exe
+
+
+def tray_exe(folder: str, work: str) -> None:
+    """Windows: logout-search-tray.exe beside the program, windowed (no console): the tray icon that runs the engine, the
+    target of the Start menu entries and of start-at-sign-in (installer/tray_win.py, standard library only)."""
+    r = subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onefile", "--windowed",
+                        "--name", "logout-search-tray", "--icon", ICON, "--workpath", os.path.join(work, "tray"),
+                        "--distpath", folder, "--specpath", os.path.join(work, "tray"), os.path.join(INSTALLER, "tray_win.py")])
+    if r.returncode or not os.path.isfile(os.path.join(folder, "logout-search-tray.exe")):
+        raise SystemExit("build: logout-search-tray.exe was not produced")
+    shutil.copyfile(ICON, os.path.join(folder, "logout-search.ico"))
 
 
 def exe_in(folder: str) -> str:
@@ -137,6 +149,11 @@ def smoke(folder: str) -> None:
     peer = json.loads(run("peer", "--check"))            # the peer's libraries load, without PyAV
     assert peer.get("aiortc") and peer.get("qr") is True, peer
     plan = run("setup", "--print", "--dest", os.path.join(tempfile.gettempdir(), "logout-search-smoke"))
+    if sys.platform == "win32":                           # the tray icon appears, and goes, on this machine
+        t = subprocess.run([os.path.join(folder, "logout-search-tray.exe"), "--selftest"], capture_output=True, text=True, timeout=120)
+        print(f"  $ logout-search-tray --selftest -> {t.returncode}")
+        if t.returncode:
+            raise SystemExit(f"smoke: the tray icon failed: {t.stdout[-800:]} {t.stderr[-800:]}")
     assert "copy" in plan and "hf:logoutsearch/logout-search" in plan and "pair" in plan, plan
     with tempfile.TemporaryDirectory() as t:
         base = os.path.join(t, "base")
@@ -179,6 +196,8 @@ def main() -> int:
     folder = os.path.join(dist, "logout-search")
     if not os.path.isfile(exe_in(folder)):
         raise SystemExit(f"build: {exe_in(folder)} was not produced")
+    if sys.platform == "win32":
+        tray_exe(folder, work)
     with open(os.path.join(folder, "README.txt"), "w", encoding="utf-8", newline="\n") as f:
         f.write("logout search: a web search engine that runs on your own computer.\n\n"
                 "  logout-search install --source hf:logoutsearch/logout-search --pubkey ed25519:<key from the dataset page> --dest <folder>\n"

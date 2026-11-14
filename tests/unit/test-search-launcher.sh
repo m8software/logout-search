@@ -64,11 +64,11 @@ out=$(run engine --check-imports 2>"$tmp/check-imports.err"); rc=$?
 # setup: what a double-click runs. --print shows the steps and changes nothing
 out=$(on linux setup --print 2>&1); rc=$?
 if [[ $rc -eq 0 ]] && grep -q "^data .*hf:logoutsearch/logout-search -> $H/.local/share/logout-search/data" <<<"$out" && grep -q "ed25519:40502f68" <<<"$out" \
-    && grep -q "^autostart " <<<"$out" && grep -q "^browser " <<<"$out" && grep -q "^devices .*pair" <<<"$out" && [[ ! -e "$H/.local/share/logout-search" ]]; then
-    ok "setup --print (linux): data from the published dataset with the pinned key, start at logon, browser, other devices; nothing written"
+    && grep -q "^autostart " <<<"$out" && ! grep -q "^browser " <<<"$out" && grep -q "^devices .*pair" <<<"$out" && [[ ! -e "$H/.local/share/logout-search" ]]; then
+    ok "setup --print (linux): data from the published dataset with the pinned key, start at logon, other devices (no browser extension); nothing written"
 else bad "setup --print linux" "rc=$rc" "$out"; fi
 out=$(XDG_DATA_HOME='' on win32 setup --print 2>&1)
-grep -q -- "-> $H/AppData/Local/logout-search/data" <<<"$out" && ok "setup on Windows puts everything under %LOCALAPPDATA%\\logout-search" || bad "setup win32" "$out"
+grep -q -- "-> $H/AppData/Local/logout-search/data" <<<"$out" && grep -q "tray icon" <<<"$out" && grep -q "Start menu" <<<"$out" && ok "setup on Windows puts everything under %LOCALAPPDATA%\\logout-search" || bad "setup win32" "$out"
 out=$(XDG_DATA_HOME='' on darwin setup --print 2>&1)
 grep -q -- "-> $H/Library/Application Support/logout-search/data" <<<"$out" && ok "setup on macOS puts everything under ~/Library/Application Support/logout-search" || bad "setup darwin" "$out"
 grep -q 'if not argv and FROZEN:' "$L" && grep -q 'rc = main(\["setup"\])' "$L" && ok "the bundled program run with nothing typed (a double-click) runs setup" || bad "double-click runs setup"
