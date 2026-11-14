@@ -292,6 +292,16 @@ def friendly_name() -> str:
             pass
     if not name:
         name = (platform.node() or "").split(".")[0]
+    # a hostname that is an address, or a system default, is nobody's name for their computer (2026-11-14: a Fedora
+    # laptop's was "10-8-0-106", its DHCP address): "<user>'s computer" instead
+    if not name or re.fullmatch(r"(\d{1,3}[-.]){3}\d{1,3}|ip(-\d+){4}|localhost(\..*)?|fedora|ubuntu|debian|linux|"
+                                r"raspberrypi|desktop-[a-z0-9]{7}|[0-9a-f]{12}", name.lower()):
+        import getpass
+        try:
+            user = getpass.getuser()
+        except Exception:  # noqa: BLE001
+            user = ""
+        name = f"{user}'s computer" if user else "my computer"
     return name[:40] or "my computer"
 
 

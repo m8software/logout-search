@@ -199,6 +199,12 @@ try:
         check("name: the hostname without its domain", nh.friendly_name() == "desktop-k3j", nh.friendly_name())
     _pf.node = lambda: ""
     check("name: never empty", nh.friendly_name() not in ("",), nh.friendly_name())
+    for raw in ("10-8-0-106", "DESKTOP-K3J9QX2", "localhost.localdomain", "fedora", "3f2a9c1b7d4e"):
+        _pf.node = (lambda r=raw: r)
+        if sys.platform.startswith("linux") and not os.path.exists("/etc/machine-info"):
+            check(f"name: a default or address hostname ({raw}) becomes the user's computer", nh.friendly_name().endswith("'s computer"), nh.friendly_name())
+    _pf.node = lambda: "living-room-pc"
+    check("name: a real hostname is kept", nh.friendly_name() == "living-room-pc" or os.path.exists("/etc/machine-info"), nh.friendly_name())
 finally:
     _pf.node = real_node
     for k, v in saved.items():

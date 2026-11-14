@@ -513,6 +513,9 @@ def admin_handler(data: str):
         u = au.load(data)
         eff = hs.effective(data)
         return {"pin_set": adminpin.is_set(data), "unlocked": unlocked, "locked_for": adminpin.locked_for(data),
+                # how to set it on this computer, for the page's line (Linux and macOS have no tray)
+                "pin_how": ("its tray menu > Admin PIN" if PLATFORM == "win32" else
+                            f"in a terminal there: logout-search admin pin set 1234 --dest {data}"),
                 "collectors": dict(hs.load(data), **({} if eff["profile"] == "custom" or eff["applied"] == "search"
                                                      else hs._custom_from(eff["applied"]))),
                 "data_use": {"profile": eff["profile"], "in_force": eff["applied"], "metered": eff["metered"],
