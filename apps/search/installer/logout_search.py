@@ -84,6 +84,42 @@ def engine_dir() -> str:
     return os.path.normpath(os.path.join(HERE, "..", "serve", "api"))
 
 
+# Where this system keeps the certificates HTTPS is checked against (2026-11-14: on Fedora the Linux program refused every
+# download, "certificate verify failed": it carries the OpenSSL of the Ubuntu machine it is built on, which looks in
+# /usr/lib/ssl, a Debian/Ubuntu path). When that place holds nothing, the first of these that exists is used, else the
+# bundled certifi list. SSL_CERT_FILE set by the person wins; Windows uses its own certificate store.
+CA_FILES = ("/etc/ssl/certs/ca-certificates.crt",                 # Debian, Ubuntu, Arch, Fedora (a link)
+            "/etc/pki/tls/certs/ca-bundle.crt",                   # Fedora, RHEL, CentOS
+            "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",  # Fedora, RHEL (the file itself)
+            "/etc/ssl/ca-bundle.pem",                             # openSUSE
+            "/etc/ssl/cert.pem",                                  # Alpine, macOS
+            "/opt/homebrew/etc/openssl@3/cert.pem", "/usr/local/etc/openssl@3/cert.pem")
+
+
+def use_system_certificates(platform: str = PLATFORM, files=CA_FILES) -> str | None:
+    """Point HTTPS at this system's certificates when the built-in place is empty; -> the file chosen, or None."""
+    if platform == "win32" or os.environ.get("SSL_CERT_FILE"):
+        return None
+    import ssl
+    p = ssl.get_default_verify_paths()
+    if (p.cafile and os.path.isfile(p.cafile)) or (p.capath and os.path.isdir(p.capath) and any(
+            n.endswith((".0", ".pem", ".crt")) for n in os.listdir(p.capath))):
+        return None
+    chosen = next((f for f in files if os.path.isfile(f)), None)
+    if chosen is None:
+        try:
+            import certifi
+            chosen = certifi.where()
+        except ImportError:
+            return None
+    os.environ["SSL_CERT_FILE"] = chosen                  # this process and every one it starts (the engine, the collectors)
+    return chosen
+
+
+if FROZEN:
+    use_system_certificates()
+
+
 def news_dir() -> str:
     """The news, sports and weather collectors (apps/search/news): the bundle's `news/`, or the checkout's."""
     return os.path.join(bundle_dir(), "news") if FROZEN else os.path.normpath(os.path.join(HERE, "..", "news"))
@@ -992,8 +1028,23 @@ def run_update_apply(argv: list) -> None:
     update_apply.main()
 
 
+def net_check() -> int:
+    """`net-check`: one HTTPS request to where the data comes from, certificates checked (the build's own test)."""
+    import urllib.request
+    url = "https://huggingface.co/api/datasets/logoutsearch/logout-search"
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "logout-search-net-check"}), timeout=30) as r:
+            print(json.dumps({"https": True, "status": r.status, "certificates": os.environ.get("SSL_CERT_FILE") or "built-in"}))
+            return 0
+    except Exception as e:  # noqa: BLE001
+        print(json.dumps({"https": False, "error": f"{type(e).__name__}: {e}"[:300],
+                          "certificates": os.environ.get("SSL_CERT_FILE") or "built-in"}))
+        return 1
+
+
 def version(a) -> None:
     info = {"launcher": VERSION, "platform": PLATFORM, "frozen": FROZEN, "python": platform.python_version(),
+            "certificates": os.environ.get("SSL_CERT_FILE") or "built-in",
             "engine_dir": engine_dir(), "program": program()}
     if a.dest:
         b = os.path.abspath(a.dest)
@@ -1055,6 +1106,7 @@ def main(argv=None) -> int:
     se.add_argument("--port", type=int, default=8090)
     se.add_argument("--print", action="store_true", help="show the steps; change nothing")
     se.add_argument("--copied", action="store_true", help=argparse.SUPPRESS)
+    sp.add_parser("net-check", help="one HTTPS request to where the data comes from (is this system's certificate list found?)")
     sp.add_parser("engine", add_help=False)             # internal: run search_api.py (what `start` spawns)
     sp.add_parser("_update-apply", add_help=False)      # internal: update_apply.py's main (what `update` spawns)
     argv = sys.argv[1:] if argv is None else argv
@@ -1085,6 +1137,8 @@ def main(argv=None) -> int:
         return autostart(a)
     elif a.cmd == "collectors":
         return collectors_command(a.action, a.args, os.path.abspath(a.dest))
+    elif a.cmd == "net-check":
+        return net_check()
     elif a.cmd == "admin":
         return admin_command(a.action, a.value, os.path.abspath(a.dest))
     elif a.cmd == "autoupdate":

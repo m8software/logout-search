@@ -101,7 +101,8 @@ def pyinstaller(stage: str, work: str, dist: str) -> None:
             "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
             "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
             "--add-data", f"{os.path.join(stage, 'news')}{os.pathsep}news", "--paths", NEWS,
-            "--hidden-import", "feedparser", "--hidden-import", "defusedxml.ElementTree",
+            "--hidden-import", "feedparser", "--hidden-import", "defusedxml.ElementTree", "--hidden-import", "certifi",
+            "--collect-data", "certifi",
             "--add-data", f"{os.path.join(stage, 'version.txt')}{os.pathsep}.",
             "--hidden-import", "numpy", "--hidden-import", "psycopg", "--hidden-import", "websockets",
             "--exclude-module", "av"]               # PyAV is FFmpeg (GPL codecs): never in the bundle, av_absent.py stands in
@@ -191,6 +192,9 @@ def smoke(folder: str) -> None:
     with tempfile.TemporaryDirectory() as t:              # the updater is in the bundle and answers
         au = json.loads(run("autoupdate", "status", "--dest", t))
         assert au["enabled"] is True, au
+    net = json.loads(run("net-check"))                   # HTTPS with certificates checked, as setup and the updater need
+    assert net["https"] is True, net
+    print(f"  https: ok (certificates: {net['certificates']})")
     for c in ("news", "sports", "weather"):              # each collector and its libraries load (they run beside the engine)
         assert json.loads(run("collect", c, "--check"))["ok"] is True
     peer = json.loads(run("peer", "--check"))            # the peer's libraries load, without PyAV
