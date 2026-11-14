@@ -430,9 +430,22 @@ class Fetched:
         self.status, self.body, self.etag, self.modified, self.retry = status, body, etag, modified, retry
 
 
+def gunzip_capped(body: bytes, cap: int) -> bytes | None:
+    """A gzip body unpacked to at most cap bytes; None when it would be larger (or is not gzip)."""
+    import zlib
+    try:
+        d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+        out = d.decompress(body, cap + 1)
+    except zlib.error:
+        return None
+    return None if len(out) > cap or d.unconsumed_tail else out
+
+
 def fetch(url: str, etag: str | None = None, modified: str | None = None) -> Fetched:
+    # gzip (2026-11-14): feeds are text and compress about six times; asking for them plain was most of the ~600 MB a
+    # day the public site's poller downloaded. The size cap applies to the unpacked feed.
     headers = {"User-Agent": user_agent_for(url), "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, application/feed+json, */*;q=0.5",
-               "Accept-Encoding": "identity"}
+               "Accept-Encoding": "gzip"}
     if etag:
         headers["If-None-Match"] = etag
     if modified:
@@ -443,6 +456,10 @@ def fetch(url: str, etag: str | None = None, modified: str | None = None) -> Fet
             body = r.read(MAX_BYTES + 1)
             if len(body) > MAX_BYTES:
                 return Fetched(413)
+            if (r.headers.get("Content-Encoding") or "").lower() == "gzip":
+                body = gunzip_capped(body, MAX_BYTES)
+                if body is None:
+                    return Fetched(413)
             return Fetched(r.status, body, r.headers.get("ETag"), r.headers.get("Last-Modified"))
     except urllib.error.HTTPError as e:
         return Fetched(e.code, retry=retry_after(e.headers.get("Retry-After") if e.headers else None))

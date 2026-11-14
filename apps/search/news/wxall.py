@@ -86,9 +86,14 @@ def log(msg: str) -> None:
 
 
 def fetch(url: str, accept: str = "*/*") -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": accept})
+    # gzip (2026-11-14): the national alerts file is 2.0 MB plain and 131 KB gzipped, and is asked for every 5 minutes:
+    # ~580 MB a day plain, ~38 MB gzipped. A server that sends it plain anyway is read as before.
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": accept, "Accept-Encoding": "gzip"})
     with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:
-        return r.read(200 * 1024 * 1024)
+        body = r.read(200 * 1024 * 1024)
+        if (r.headers.get("Content-Encoding") or "").lower() == "gzip":
+            body = gzip.decompress(body)
+        return body
 
 
 def c_to_f(c) -> int | None:
