@@ -123,6 +123,13 @@ def check_imports() -> int:
         except Exception as e:  # noqa: BLE001
             out[name] = f"MISSING ({type(e).__name__})"
     out["python"] = platform.python_version()
+    import sqlite3                                       # the release's place index needs 3.43+ (FTS5 contentless_delete)
+    out["sqlite"] = sqlite3.sqlite_version
+    try:
+        sqlite3.connect(":memory:").execute("CREATE VIRTUAL TABLE t USING fts5(a, content='', contentless_delete=1)")
+        out["fts5_contentless_delete"] = True
+    except sqlite3.Error:
+        out["fts5_contentless_delete"] = False
     out["engine_dir"] = engine_dir()
     out["engine_files"] = sorted(f for f in os.listdir(engine_dir()) if f.endswith((".py", ".json"))) if os.path.isdir(engine_dir()) else []
     print(json.dumps(out, indent=1, sort_keys=True))

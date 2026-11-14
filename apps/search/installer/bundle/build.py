@@ -160,6 +160,9 @@ def smoke(folder: str) -> None:
     assert v["launcher"] == release_version(), (v["launcher"], release_version())   # the tag reached the program
     print(f"  version: {v['launcher']}")
     imp = json.loads(run("engine", "--check-imports"))
+    sv = tuple(int(x) for x in imp["sqlite"].split("."))
+    if sv < (3, 43) or not imp.get("fts5_contentless_delete"):
+        raise SystemExit(f"smoke: the bundle's SQLite {imp['sqlite']} cannot read the release's place index (needs 3.43+)")
     assert "search_api.py" in imp["engine_files"] and "ranker.json" in imp["engine_files"], imp
     print("  libraries: " + ", ".join(f"{k} {imp[k]}" for k in ("numpy", "tantivy", "onnxruntime", "tokenizers", "psycopg")))
     with tempfile.TemporaryDirectory() as t:              # the updater is in the bundle and answers
@@ -215,6 +218,13 @@ def main() -> int:
     folder = os.path.join(dist, "logout-search")
     if not os.path.isfile(exe_in(folder)):
         raise SystemExit(f"build: {exe_in(folder)} was not produced")
+    so = os.environ.get("LOGOUT_SQLITE_SO", "")
+    if so:                                                # Linux: the current SQLite built in bundle.yml, over the system's old one
+        dest = os.path.join(folder, "_internal", "libsqlite3.so.0")
+        if not os.path.isfile(dest):
+            raise SystemExit(f"build: {dest} is not where the bundle keeps SQLite: cannot replace it")
+        shutil.copyfile(so, dest)
+        print(f"  SQLite: {so} -> {dest}")
     if sys.platform == "win32":
         tray_exe(folder, work)
     with open(os.path.join(folder, "README.txt"), "w", encoding="utf-8", newline="\n") as f:

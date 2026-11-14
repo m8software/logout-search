@@ -38,6 +38,22 @@ jobs:
         run: |
           pip install -r apps/search/installer/bundle/requirements.txt
           pip uninstall -y av
+      # Ubuntu 22.04's SQLite is 3.37: the release's place index needs 3.43 or newer (FTS5 contentless_delete), so the
+      # Linux program could not search places by name and every search with a position failed (2026-11-14). The program
+      # carries this one instead, built from SQLite's own source (public domain), checked against the pinned SHA-256.
+      - name: Build a current SQLite (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sfL -o /tmp/sqlite.zip https://www.sqlite.org/2024/sqlite-amalgamation-3470200.zip
+          echo "aa73d8748095808471deaa8e6f34aa700e37f2f787f4425744f53fdd15a89c40  /tmp/sqlite.zip" | sha256sum -c -
+          unzip -q /tmp/sqlite.zip -d /tmp
+          mkdir -p /tmp/sqlite-lib
+          gcc -shared -fPIC -O2 -DSQLITE_ENABLE_FTS5 -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE -DSQLITE_ENABLE_MATH_FUNCTIONS \
+              -DSQLITE_ENABLE_DBSTAT_VTAB -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_THREADSAFE=1 -Wl,-soname,libsqlite3.so.0 \
+              -o /tmp/sqlite-lib/libsqlite3.so.0 /tmp/sqlite-amalgamation-3470200/sqlite3.c -ldl -lpthread -lm
+          echo "LOGOUT_SQLITE_SO=/tmp/sqlite-lib/libsqlite3.so.0" >> "$GITHUB_ENV"
       - name: Build and smoke-test the bundle
         env:
           ORT_DISABLE_TELEMETRY: "1"
