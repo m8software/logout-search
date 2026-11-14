@@ -88,6 +88,7 @@ wxall.parse_nbm = lambda text, keep: {"KZZX": {"valid": [iso(h) for h in range(1
                                       if keep == wxall.KEEP["nbhtx"] else
                                       {"valid": [(d0 + dt.timedelta(hours=h)).isoformat() for h in (24, 36, 48, 60, 72)], "rows": {"TXN": [52, 68, 50, 71, 55], "P12": [10, 20, 70, 5, 0], "SKY": [40, 20, 90, 10, 10], "T12": [0, 0, 40, 0, 0]}}}
 wxall.compact = lambda st, labels: st
+wxall.NBM_MIN_STATIONS = 1               # the stubbed bulletin holds one station; the real guard wants over 1,000
 wxall.parse_alerts = lambda data: [{"id": "al1", "event": "Coastal Flood Warning", "severity": "Severe", "headline": "Flooding at high tide",
                                     "ends": None, "same": ["34991"], "poly": None},
                                    {"id": "al2", "event": "Heat Advisory", "severity": "Moderate", "headline": "Hot", "ends": None,
