@@ -128,6 +128,7 @@ else ok "search_api.py has no direct Index.open left"; fi
 out=$(SEARCH_WIKI_BACKEND=tantivy-release SEARCH_WIKI_INDEX="$tmp/ro-wiki" "$PY" - "$API_DIR/search_api.py" "$tmp" <<'PY' 2>&1
 import importlib.util, os, sys, types
 sys.modules["psycopg"] = types.ModuleType("psycopg")
+sys.path.insert(0, __import__("os").path.dirname(__import__("os").path.abspath(sys.argv[1])))   # search_api imports its neighbours
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1])
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 import tantivy

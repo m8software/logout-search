@@ -35,7 +35,14 @@ jobs:
       - name: Build and smoke-test the bundle
         env:
           ORT_DISABLE_TELEMETRY: "1"
-        run: python apps/search/installer/bundle/build.py --out dist
+        shell: bash
+        # a failure's last lines are repeated as an error note, so the cause can be read from the run's summary
+        run: |
+          set -o pipefail
+          python apps/search/installer/bundle/build.py --out dist 2>&1 | tee build.log || {
+            echo "::error::$(tail -30 build.log | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')"
+            exit 1
+          }
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: bundle-${{ matrix.os }}

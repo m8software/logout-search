@@ -32,6 +32,7 @@ tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 out=$(SEARCH_WIKI_BACKEND=tantivy-release SEARCH_WIKI_INDEX="$tmp/idx" "$PY" - "$API" "$tmp" <<'PY' 2>&1
 import importlib.util, sys, types, os
 psycopg = types.ModuleType("psycopg"); sys.modules["psycopg"] = psycopg
+sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[1])))   # search_api imports its neighbours (gov_state.py)
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1])
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 import tantivy

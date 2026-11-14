@@ -238,7 +238,9 @@ assert "CELL, NLON, SEQ_BITS = 0.5, 720, 20" in src
 open(os.path.join(t6, "build.py"), "w").write(src.replace("CELL, NLON, SEQ_BITS = 0.5, 720, 20", "CELL, NLON, SEQ_BITS = 0.5, 720, 4"))
 r = subprocess.run([sys.executable, os.path.join(t6, "build.py"), os.path.join(tmp, "o6"), "--stage", os.path.join(tmpb, "r2-stage.sqlite"),
                     "--registry", os.path.join(R2, "registry.sqlite"), "--places-dir", os.path.join(tmpb, "r2-places"), "--release-id", "fx-2",
-                    "--previous", R1], capture_output=True, text=True)
+                    "--previous", R1], capture_output=True, text=True,
+                   # the copy is outside the repo: its "../../release" does not exist, so name the real one
+                   env=dict(os.environ, PYTHONPATH=os.path.join(repo, "apps", "search", "release")))
 P("a cell that would overflow SEQ_BITS refuses the build", r.returncode != 0 and "overflow SEQ_BITS" in r.stderr + r.stdout, (r.stderr + r.stdout)[-400:])
 PY
 drv=$?

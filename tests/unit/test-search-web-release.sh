@@ -233,7 +233,7 @@ expect "anchor row True" "an anchor row carries its site's title and description
 expect "anchor popularity beats a higher bm25 True" "the popular site's single 'shop' outranks the unpopular site's three"
 expect "stopwords [] [] []" "a query of only stopwords matches nothing, in all three lists"
 expect "exact_anchor refused True" "exact_anchor raises: the release has no phrase -> sources index (never an empty answer)"
-if grep -q "^call sites \['anchors', 'exact_anchor', 'gov_pages', 'pages', 'sites'\] True" <<<"$out"; then ok "every web.<method> search_api calls exists on the class (sites, pages, gov_pages, anchors, exact_anchor)"; else bad "call sites" "$(grep '^call sites' <<<"$out")"; fi
+if grep -q "^call sites \['anchors', 'exact_anchor', 'gov_pages', 'local_pages', 'pages', 'sites'\] True" <<<"$out"; then ok "every web.<method> search_api calls exists on the class (sites, pages, gov_pages, local_pages, anchors, exact_anchor)"; else bad "call sites" "$(grep '^call sites' <<<"$out")"; fi
 expect "no lookups refused" "without SEARCH_LOOKUP_BACKEND=release the backend fails loudly"
 expect "selected 'tantivy-release' 'postgres' tantivy-release" "SEARCH_WEB_BACKEND selects the backend"
 expect "selected '' 'tantivy-release' tantivy-release" "SEARCH_SITES_BACKEND=tantivy-release selects it too"
