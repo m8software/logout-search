@@ -162,6 +162,48 @@ msgs2, clean2 = unframe(p.stdout)
 check("stray print + fd-1 write stay off the channel", clean2 and msgs2 == [{"id": "x", "ok": True}], p.stdout[:120])
 check("...and go to stderr", b"stray print" in p.stderr and b"C-level" in p.stderr, p.stderr[:120])
 
+# a SearchSilo has no Postgres: the details come from its release and its open indexes (2026-11-14: "not available")
+import tempfile, types
+rd = tempfile.mkdtemp()
+with open(os.path.join(rd, "manifest.json"), "w") as f:
+    json.dump({"release": "rc-x", "total_bytes": 11_400_000_000}, f)
+fake = types.ModuleType("search_api"); fake.POSTGRES = "off"
+fake._web_text = types.SimpleNamespace(num_docs={"sites": 1200000, "pages": 3400000, "anchor_docs": 5})
+fake._wiki_text = types.SimpleNamespace(num_docs=6800000)
+def no_db(): raise AssertionError("asked Postgres")
+fake._conn = no_db
+real_sa = sys.modules.get("search_api"); sys.modules["search_api"] = fake
+os.environ.update(SEARCH_RELEASE_ID="rc-x", SEARCH_RELEASE_DIR=rd, LOGOUT_ENGINE_NAME="indexhost")
+try:
+    d = nh.engine_info()
+    check("silo details: name, release, size and counts, no Postgres",
+          d.get("engine") == "indexhost" and d.get("release") == "rc-x" and d.get("data_gb") == 11.4
+          and d.get("sites") == 1200000 and d.get("pages") == 3400000 and d.get("articles") == 6800000 and "postgres" not in d, d)
+    fake._web_text = fake._wiki_text = None
+    d = nh.engine_info()
+    check("...an index not opened yet is left out, never opened by asking", "sites" not in d and "articles" not in d and d.get("release") == "rc-x", d)
+finally:
+    if real_sa is not None: sys.modules["search_api"] = real_sa
+    else: sys.modules.pop("search_api", None)
+
+# the engine's name is the computer's friendly name (2026-11-14)
+import platform as _pf
+saved = {k: os.environ.pop(k, None) for k in ("LOGOUT_ENGINE_NAME",)}
+real_node, real_open = _pf.node, open
+try:
+    os.environ["LOGOUT_ENGINE_NAME"] = "  Living room  "
+    check("name: LOGOUT_ENGINE_NAME wins", nh.friendly_name() == "Living room", nh.friendly_name())
+    del os.environ["LOGOUT_ENGINE_NAME"]
+    _pf.node = lambda: "desktop-k3j.home.lan"
+    if sys.platform.startswith("linux") and not os.path.exists("/etc/machine-info"):
+        check("name: the hostname without its domain", nh.friendly_name() == "desktop-k3j", nh.friendly_name())
+    _pf.node = lambda: ""
+    check("name: never empty", nh.friendly_name() not in ("",), nh.friendly_name())
+finally:
+    _pf.node = real_node
+    for k, v in saved.items():
+        if v is not None: os.environ[k] = v
+
 print(f"\nTotal: {checks}  PASS: {checks - fails}  FAIL: {fails}")
 sys.exit(1 if fails else 0)
 PY

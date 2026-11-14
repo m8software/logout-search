@@ -50,7 +50,7 @@ engine signs its answer to any validly signed offer; an unsigned same-network of
 device, an older page) is answered unsigned, as before.
 
 Env: RV_URL (wss://search.logout.cloud/rv), STUN_URL (stun:search.logout.cloud:3478),
-LOGOUT_ENGINE_NAME (defaults to the hostname), RTC_STATE (/state/engine.json),
+LOGOUT_ENGINE_NAME (defaults to the computer's friendly name, native_host.friendly_name), RTC_STATE (/state/engine.json),
 PAIR_BASE (https://search.logout.cloud/), plus search_api's PG* settings.
 """
 from __future__ import annotations
@@ -62,7 +62,6 @@ import hmac
 import ipaddress
 import json
 import os
-import platform
 import secrets
 import socket
 import sys
@@ -75,7 +74,7 @@ import native_host
 
 RV_URL = os.environ.get("RV_URL", "wss://search.logout.cloud/rv")
 STUN_URL = os.environ.get("STUN_URL", "stun:search.logout.cloud:3478")
-NAME = os.environ.get("LOGOUT_ENGINE_NAME") or platform.node()
+NAME = native_host.friendly_name()     # the computer's own name, as its owner set it
 MAX_PEERS = 16
 STATE = os.environ.get("RTC_STATE", "/state/engine.json")
 PAIR_BASE = os.environ.get("PAIR_BASE", "https://search.logout.cloud/")

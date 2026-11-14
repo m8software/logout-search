@@ -371,9 +371,15 @@ def wait_idle(api: str = API, limit: float = IDLE_WAIT_S) -> None:
         time.sleep(0.2)
 
 
+# The warmer files a FINISHED answer for each name (2026-11-14, owner: "yes switch the warmer to finished answers"):
+# keyed by release, so a deploy no longer empties what it built, and today's names (searched here, sports, weather,
+# headlines, trending) join the answers the home builder files. WARM_FIN=0: rows under the fingerprint only, as before.
+FIN = os.environ.get("WARM_FIN", "1") != "0"
+
+
 def ask(api: str, q: str, audit: bool = False) -> dict:
     """One warm request; the engine's note on how it was answered: cache hit|miss|disk, audit same|diff."""
-    qs = {"q": q, "full": "1", "warm": "1", **({"audit": "1"} if audit else {})}
+    qs = {"q": q, "full": "1", "warm": "1", **({"audit": "1"} if audit else {"fin": "1"} if FIN else {})}
     d = json.load(urllib.request.urlopen(f"{api}/instant?" + urllib.parse.urlencode(qs), timeout=60))
     return d.get("store") or {}
 

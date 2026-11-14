@@ -108,7 +108,7 @@ fi
 docker run -d --name search-rtc-dev --network host --restart unless-stopped -v \$ST:/state -v ${NEWS_STORE}:/news \
   \${rel:+-v "\$rel:/rel:ro"} \${pgip:+-e PGHOST="\$pgip"} \
   --env-file <(docker inspect search-api --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -vE '^(PGHOST|SEARCH_STORE)=') \
-  -e SEARCH_NEWS_DB=news -e SEARCH_NEWS_SQLITE_EXTRA=/state/news-mine.sqlite -e SEARCH_TYPO_NAMES=links,places -e SEARCH_ANSWER_DEAD=1 -e SEARCH_PLACE_UNDER_THING=-40 -e SEARCH_TYPO_WORD_DF=3000 -e SEARCH_LINK_SITE_MIN_SITELINKS=1 -e SEARCH_LINK_SITE_LOW_GUARD=1 -e LOGOUT_ENGINE_NAME=Silo -e LOGOUT_ENGINE_IP=${INDEXHOST_IP} \
+  -e SEARCH_NEWS_DB=news -e SEARCH_NEWS_SQLITE_EXTRA=/state/news-mine.sqlite -e SEARCH_TYPO_NAMES=links,places -e SEARCH_ANSWER_DEAD=1 -e SEARCH_PLACE_UNDER_THING=-40 -e SEARCH_TYPO_WORD_DF=3000 -e SEARCH_LINK_SITE_MIN_SITELINKS=1 -e SEARCH_LINK_SITE_LOW_GUARD=1 -e LOGOUT_ENGINE_NAME=indexhost -e LOGOUT_ENGINE_IP=${INDEXHOST_IP} \
   -e LOGOUT_ENGINE_VIA="WebRTC (dev)" -e ENGINE_QUERY_LOG=/state/queries.jsonl -e ENGINE_QUERY_SRC=rtc \
   -e SEARCH_STORE=/state/results.sqlite -e WARM_HEAD=2000 -e WARM_REL=/rel -e WARM_NEWS_DB=/news/news.sqlite \
   -v ${TWIN_SHARED}:/twin:ro -e WARM_EXTRA_LIST=/twin/list.txt \
@@ -129,7 +129,7 @@ ip=\$(ip -4 route get 192.0.2.1 | awk '{for (i = 1; i < NF; i++) if (\$i == "src
 rel=\$(docker inspect search-api --format '{{range .Mounts}}{{if eq .Destination "/rel"}}{{.Source}}{{end}}{{end}}')
 exec docker run --rm -i --network container:search-api \${rel:+-v "\$rel:/rel:ro"} \
   --env-file <(docker inspect search-api --format '{{range .Config.Env}}{{println .}}{{end}}' | grep -v '^SEARCH_STORE=') \
-  -e SEARCH_STORE=/state/results.sqlite -e SEARCH_NEWS_DB=news -e SEARCH_NEWS_SQLITE_EXTRA=/state/news-mine.sqlite -e SEARCH_TYPO_NAMES=links,places -e SEARCH_ANSWER_DEAD=1 -e SEARCH_PLACE_UNDER_THING=-40 -e SEARCH_TYPO_WORD_DF=3000 -e SEARCH_LINK_SITE_MIN_SITELINKS=1 -e SEARCH_LINK_SITE_LOW_GUARD=1 -e LOGOUT_ENGINE_NAME=Silo -e LOGOUT_ENGINE_IP="\$ip" -e LOGOUT_ENGINE_VIA="dev relay over ssh" -e ENGINE_QUERY_LOG=/state/queries.jsonl -e ENGINE_QUERY_SRC=extension \
+  -e SEARCH_STORE=/state/results.sqlite -e SEARCH_NEWS_DB=news -e SEARCH_NEWS_SQLITE_EXTRA=/state/news-mine.sqlite -e SEARCH_TYPO_NAMES=links,places -e SEARCH_ANSWER_DEAD=1 -e SEARCH_PLACE_UNDER_THING=-40 -e SEARCH_TYPO_WORD_DF=3000 -e SEARCH_LINK_SITE_MIN_SITELINKS=1 -e SEARCH_LINK_SITE_LOW_GUARD=1 -e LOGOUT_ENGINE_NAME=indexhost -e LOGOUT_ENGINE_IP="\$ip" -e LOGOUT_ENGINE_VIA="dev relay over ssh" -e ENGINE_QUERY_LOG=/state/queries.jsonl -e ENGINE_QUERY_SRC=extension \
   -v /mnt/nas/logout/search/bench/jobs/rtc/state:/state -v ${NEWS_STORE}:/news \
   -v /mnt/nas/logout/search/sitenav:/sitenav:ro -e SEARCH_SITENAV=/sitenav/sitenav.jsonl \
   -v /mnt/nas/logout/search/cardlinks:/cardlinks:ro -e SEARCH_CARDLINKS=/cardlinks/cardlinks.sqlite \

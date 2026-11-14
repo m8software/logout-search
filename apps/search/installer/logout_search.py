@@ -177,6 +177,15 @@ def peer_check() -> int:
     return 1 if "error" in out else 0
 
 
+def data_gb(base: str) -> float | None:
+    """The installed release's size from its manifest, for the engine pill's details."""
+    try:
+        with open(os.path.join(base, "current", "manifest.json"), encoding="utf-8") as f:
+            return round(json.load(f).get("total_bytes", 0) / 1e9, 1) or None
+    except (OSError, ValueError, TypeError, AttributeError):
+        return None
+
+
 def peer_run(a) -> int:
     import asyncio
     base = os.path.abspath(a.dest)
@@ -194,8 +203,9 @@ def peer_run(a) -> int:
     import native_host as nh
 
     def details() -> dict:
-        return {"engine": os.environ.get("LOGOUT_ENGINE_NAME") or platform.node(), "ip": nh.lan_ip(), "via": "",
-                "host_version": nh.VERSION, "release": release_ptr.current_id(base), "engine_up": install._readyz(a.port) == 200}
+        return {"engine": nh.friendly_name(), "ip": nh.lan_ip(), "via": "",
+                "host_version": nh.VERSION, "release": release_ptr.current_id(base), "data_gb": data_gb(base),
+                "engine_up": install._readyz(a.port) == 200}
 
     say("other devices on this network can now pair: open https://search.logout.cloud on one and tap Pair")
     try:
@@ -564,8 +574,9 @@ def host_run(a) -> None:
     out = nh.private_stdout()
 
     def details() -> dict:
-        return {"engine": os.environ.get("LOGOUT_ENGINE_NAME") or platform.node(), "ip": nh.lan_ip(), "via": "",
-                "host_version": nh.VERSION, "release": release_ptr.current_id(base), "engine_up": install._readyz(a.port) == 200}
+        return {"engine": nh.friendly_name(), "ip": nh.lan_ip(), "via": "",
+                "host_version": nh.VERSION, "release": release_ptr.current_id(base), "data_gb": data_gb(base),
+                "engine_up": install._readyz(a.port) == 200}
 
     nh.serve(sys.stdin.buffer, out, http_answer(a.port, nh), info=details)
 

@@ -267,22 +267,68 @@ def engine_kind() -> dict:
     return {"via": os.environ.get("LOGOUT_ENGINE_VIA") or "", "host_version": VERSION}
 
 
+def friendly_name() -> str:
+    """The name a person gave this computer, for the engine pill and the Prefer list (2026-11-14, owner: "the silo
+    should be the friendly name of the computer its running on"). LOGOUT_ENGINE_NAME wins; then the Mac's Computer
+    Name ("Seke's MacBook Air"), Linux's pretty hostname (/etc/machine-info), and the device name (Windows,
+    Settings > System > About) or hostname, without a ".local" or domain part."""
+    import platform
+    import subprocess
+    name = os.environ.get("LOGOUT_ENGINE_NAME", "").strip()
+    if name:
+        return name
+    if sys.platform == "darwin":
+        try:
+            name = subprocess.run(["scutil", "--get", "ComputerName"], capture_output=True, text=True, timeout=3).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            name = ""
+    elif sys.platform.startswith("linux"):
+        try:
+            with open("/etc/machine-info", encoding="utf-8") as f:
+                for ln in f:
+                    if ln.startswith("PRETTY_HOSTNAME="):
+                        name = ln.split("=", 1)[1].strip().strip('"').strip("'")
+        except OSError:
+            pass
+    if not name:
+        name = (platform.node() or "").split(".")[0]
+    return name[:40] or "my computer"
+
+
 def engine_info() -> dict:
     """{details: true} — what the badge shows once the person asks: where the engine runs and what it holds.
     Row counts are the planner's estimates (instant; an exact count(*) of 6.8M articles is not)."""
-    import os
-    import platform
     import search_api
-    info = {"engine": os.environ.get("LOGOUT_ENGINE_NAME") or platform.node(),
+    info = {"engine": friendly_name(),
             "ip": os.environ.get("LOGOUT_ENGINE_IP") or lan_ip(),
             "via": os.environ.get("LOGOUT_ENGINE_VIA") or "", "host_version": VERSION}
-    with search_api._conn() as c:
-        info["postgres"] = c.execute("SHOW server_version").fetchone()[0]
-        info["database_gb"] = round(c.execute("SELECT pg_database_size(current_database())").fetchone()[0] / 1e9, 1)
-        for name, table in (("sites", "docs"), ("articles", "wiki_docs"), ("pages", "page_docs"), ("places", "places")):
-            row = c.execute("SELECT reltuples::bigint FROM pg_class WHERE oid = to_regclass(%s)", (table,)).fetchone()
-            if row and row[0] and row[0] > 0:
-                info[name] = row[0]
+    if getattr(search_api, "POSTGRES", "on") != "off":
+        with search_api._conn() as c:
+            info["postgres"] = c.execute("SHOW server_version").fetchone()[0]
+            info["database_gb"] = round(c.execute("SELECT pg_database_size(current_database())").fetchone()[0] / 1e9, 1)
+            for name, table in (("sites", "docs"), ("articles", "wiki_docs"), ("pages", "page_docs"), ("places", "places")):
+                row = c.execute("SELECT reltuples::bigint FROM pg_class WHERE oid = to_regclass(%s)", (table,)).fetchone()
+                if row and row[0] and row[0] > 0:
+                    info[name] = row[0]
+        return info
+    # A SearchSilo has no database (ADR-063): the release it answers from, its size, and what its indexes hold
+    # (2026-11-14, owner: the badge said "not available"; this asked Postgres and failed). Only indexes already
+    # open are counted, so asking never loads one.
+    info["release"] = os.environ.get("SEARCH_RELEASE_ID") or ""
+    try:
+        import json
+        rel = os.path.realpath(os.environ.get("SEARCH_RELEASE_DIR") or "")
+        info["data_gb"] = round(json.load(open(os.path.join(rel, "manifest.json"))).get("total_bytes", 0) / 1e9, 1)
+    except (OSError, ValueError, TypeError):
+        pass
+    web, wiki = getattr(search_api, "_web_text", None), getattr(search_api, "_wiki_text", None)
+    nd = getattr(web, "num_docs", None) if web is not None else None
+    if isinstance(nd, dict):
+        for name in ("sites", "pages"):
+            if nd.get(name):
+                info[name] = int(nd[name])
+    if wiki is not None and getattr(wiki, "num_docs", 0):
+        info["articles"] = int(wiki.num_docs)
     return info
 
 
