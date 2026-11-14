@@ -48,12 +48,13 @@ POP = "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/cities
 GNIS = "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_National_Text.zip"
 GNIS_KIND = "populated place"
 EVERY = {"alerts": 300, "metars": 600, "nbh": 3600, "nbe": 6 * 3600, "towns": 7 * 86400, "radar": 600}
-# A home computer (installer/logout_search.py's collectors) fetches the hourly bulletin (~28 MB) every 3 hours instead of
-# every hour: about 310 MB a day instead of 750. WX_EVERY_<PART>_S sets any part's interval in seconds.
+# A home computer (installer/logout_search.py's collectors, homesettings.py's Data use) sets how often each part is
+# fetched: WX_EVERY_<PART>_S in seconds; 0 = never (the Light setting skips the 28 MB hourly bulletin and keeps the
+# 8-day one). Anything else unparseable keeps the default.
 for _k in EVERY:
     _v = os.environ.get(f"WX_EVERY_{_k.upper()}_S", "")
-    if _v.isdigit() and int(_v) > 0:
-        EVERY[_k] = int(_v)
+    if _v.isdigit():
+        EVERY[_k] = int(_v) if int(_v) > 0 else float("inf")
 # Radar pictures. Unset = no radar: this file also runs on home boxes, which must not each pull 2 GB a day.
 RADAR_DIR = os.environ.get("WX_RADAR_DIR", "")
 RADAR = "https://radar.weather.gov/ridge/standard"
@@ -605,7 +606,7 @@ def load_alerts(conn) -> None:
 
 
 def run(once: bool = False) -> None:
-    due = {k: 0.0 for k in EVERY}
+    due = {k: (float("inf") if EVERY[k] == float("inf") else 0.0) for k in EVERY}   # a part set to never is never fetched
     seen: dict = {}
     radar: dict = {}
     if not RADAR_DIR:

@@ -11,7 +11,8 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search autostart on|off --dest BASE [--port 8090] [--print]
     logout-search autoupdate status|on|off|now|at HOUR|addons on|off --dest BASE   (the daily update, its time, the add-ons)
     logout-search collectors status|on|off [news|sports|weather] --dest BASE   (what `start` runs beside the engine)
-    logout-search collectors set news_every 1|2|4 | weather_every_h 1|3|6 --dest BASE   (how often; homesettings.py)
+    logout-search collectors set profile auto|full|balanced|light|search|custom --dest BASE   (Data use; homesettings.py)
+    logout-search collectors set news_every 1|2|4 | weather_every_h 1|3|6 --dest BASE   (custom: how often)
     logout-search collect   news|sports|weather [--once|--check]   (one collector; what `start` runs)
     logout-search admin     pin show|set PIN|clear --dest BASE     (the admin PIN: on this computer only; adminpin.py)
     logout-search host      register|unregister --dest BASE [--port 8090] [--print]
@@ -257,7 +258,8 @@ def start_updater(data: str, engine):
 # three write DATA/state/news.sqlite, which the engine reads (install.engine_env). Each runs as `logout-search collect
 # NAME` at low priority, is started again if it stops (never stopping the engine), and stops with `start`.
 COLLECTORS = {"news": "poller.py", "sports": "sports.py", "weather": "wxall.py"}
-OWN_SETTINGS = {"news": ("NEWS_POLL_SCALE",), "sports": (), "weather": ("WX_EVERY_NBH_S", "WX_EVERY_NBE_S")}   # a change restarts only that one
+OWN_SETTINGS = {"news": ("NEWS_POLL_SCALE",), "sports": (),                  # a change restarts only that one
+                "weather": ("WX_EVERY_NBH_S", "WX_EVERY_NBE_S", "WX_EVERY_METARS_S", "WX_EVERY_ALERTS_S")}
 # The shipped headline list: search.logout.cloud's own (feeds-public.tsv, ADR-062). Owner 2026-11-14: "ship the public
 # feed list too" -- an installed engine reads the same list as the public site, plus the feeds its user adds.
 HOME_FEED_LIST = "feeds-public.tsv"
@@ -417,12 +419,15 @@ def collectors_command(action: str, args: list, data: str) -> int:
                 hs.set_value(data, k, action == "on")
         elif action == "set":
             if len(args) != 2:
-                raise ValueError("collectors set KEY VALUE (news_every 1|2|4, weather_every_h 1|3|6)")
+                raise ValueError("collectors set KEY VALUE (profile auto|full|balanced|light|search|custom, "
+                                 "news_every 1|2|4, weather_every_h 1|3|6)")
             hs.set_value(data, args[0], args[1])
     except ValueError as e:
         say(f"collectors: {e}")
         return 2
-    print(json.dumps(hs.load(data), indent=1, sort_keys=True))
+    eff = hs.effective(data)
+    print(json.dumps({**hs.load(data), "in_force": eff["applied"], "metered": eff["metered"], "running": eff["on"]},
+                     indent=1, sort_keys=True))
     return 0
 
 
@@ -437,8 +442,13 @@ def admin_handler(data: str):
 
     def status(unlocked: bool) -> dict:
         u = au.load(data)
+        eff = hs.effective(data)
         return {"pin_set": adminpin.is_set(data), "unlocked": unlocked, "locked_for": adminpin.locked_for(data),
-                "collectors": hs.load(data), "choices": {"news_every": list(hs.NEWS_EVERY), "weather_every_h": list(hs.WEATHER_EVERY_H)},
+                "collectors": dict(hs.load(data), **({} if eff["profile"] == "custom" or eff["applied"] == "search"
+                                                     else hs._custom_from(eff["applied"]))),
+                "data_use": {"profile": eff["profile"], "in_force": eff["applied"], "metered": eff["metered"],
+                             "choices": [[p, *hs.PROFILE_TEXT[p]] for p in hs.PROFILES]},
+                "choices": {"news_every": list(hs.NEWS_EVERY), "weather_every_h": list(hs.WEATHER_EVERY_H)},
                 "updates": {"auto": au.enabled(u), "at_hour": au.at_hour(u), "addons": u.get("addons", True) is not False,
                             "last_result": u.get("last_result"), "last_check": u.get("last_check"), "requested": bool(u.get("requested"))}}
 

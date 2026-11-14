@@ -227,6 +227,7 @@ NEWS_IDS = {11: 1, 12: 2, 13: 4}                           # news_every
 WEATHER_IDS = {21: 1, 22: 3, 23: 6}                        # weather_every_h
 WINDOW_IDS = {50: 1, 51: 3, 52: 5, 53: 12, 54: 19, 55: 23}  # at_hour: the start of the daily check's two hours
 ID_PIN_SET, ID_PIN_CLEAR = 61, 62                          # the admin PIN (adminpin.py): set or remove, no PIN asked here
+PROFILE_IDS = {70: "auto", 71: "full", 72: "balanced", 73: "light", 74: "search"}   # Data use (homesettings.PROFILES)
 WINDOW_TEXT = {1: "1 to 3 a.m.", 3: "3 to 5 a.m.", 5: "5 to 7 a.m.", 12: "noon to 2 p.m.", 19: "7 to 9 p.m.", 23: "11 p.m. to 1 a.m."}
 MB_YESNO, MB_ICONQUESTION, MB_OK, MB_ICONINFO, IDYES = 0x4, 0x20, 0x0, 0x40, 6
 
@@ -362,18 +363,29 @@ class Tray:
 
 def settings_menus(data: str) -> list:
     """[(submenu title, [(flags, id, text)])]: what the collectors fetch and how often (homesettings.py), and the daily
-    update (autoupdate.py). The figures are what one install downloads a day, measured or worked out on 2026-11-14."""
+    update (autoupdate.py). The figures are what one install downloads a day: measured on testbox on 2026-11-14 with
+    v0.4.6 (gzip on), 470 MB a day for everything but NOAA's forecast bulletins, which are 28 MB an hourly run and 21 MB
+    a six-hourly one."""
     c, u = hs.load(data), au.load(data)
+    eff = hs.effective(data)
+    if eff["profile"] != "custom":                         # Customize shows what the preset in force does
+        c = dict(c, **({"news": False, "sports": False, "weather": False} if eff["applied"] == "search" else hs._custom_from(eff["applied"])))
     tick = lambda on: MF_CHECKED if on else 0
     off_grey = lambda on: 0 if on else MF_GRAYED
+    use = [(MF_STRING | tick(eff["profile"] == p), i, f"{hs.PROFILE_TEXT[p][0]}  ({hs.PROFILE_TEXT[p][1]})") for i, p in PROFILE_IDS.items()]
+    if eff["profile"] == "custom":
+        use.append((MF_STRING | MF_CHECKED | MF_GRAYED, 0, "Custom (Customize, below)"))
+    if eff["profile"] == "auto":
+        use += [(MF_SEPARATOR, 0, None), (MF_STRING | MF_GRAYED, 0, "Now: " + hs.PROFILE_TEXT[eff["applied"]][0]
+                 + (", this connection is metered" if eff["metered"] else ""))]
     news = [(MF_STRING | tick(c["news"]), ID_NEWS, "Headlines and your own feeds"), (MF_SEPARATOR, 0, None)]
     news += [(MF_STRING | tick(c["news_every"] == v) | off_grey(c["news"]), i, t) for i, v, t in (
-        (11, 1, "Every feed at its own pace (about 600 MB a day)"), (12, 2, "Half as often (about 300 MB a day)"),
-        (13, 4, "A quarter as often (about 150 MB a day)"))]
+        (11, 1, "Every feed at its own pace (about 330 MB a day)"), (12, 2, "Half as often (about 170 MB a day)"),
+        (13, 4, "A quarter as often (about 85 MB a day)"))]
     weather = [(MF_STRING | tick(c["weather"]), ID_WEATHER, "US weather from NOAA"), (MF_SEPARATOR, 0, None)]
     weather += [(MF_STRING | tick(c["weather_every_h"] == v) | off_grey(c["weather"]), i, t) for i, v, t in (
-        (21, 1, "Forecast every hour (about 750 MB a day)"), (22, 3, "Forecast every 3 hours (about 310 MB a day)"),
-        (23, 6, "Forecast every 6 hours (about 200 MB a day)"))]
+        (21, 1, "Forecast every hour (about 830 MB a day)"), (22, 3, "Forecast every 3 hours (about 390 MB a day)"),
+        (23, 6, "Forecast every 6 hours (about 270 MB a day)"))]
     sports = [(MF_STRING | tick(c["sports"]), ID_SPORTS, "Scores and standings (about 55 MB a day)")]
     upd = [(MF_STRING | MF_GRAYED, 0, "Last check: " + ("checking\u2026" if u.get("requested") else (u.get("last_result") or "not yet"))),
            (MF_STRING, ID_UPDATE_NOW, "Check for updates now"), (MF_SEPARATOR, 0, None),
@@ -387,7 +399,9 @@ def settings_menus(data: str) -> list:
              (MF_STRING | MF_GRAYED, 0, "With it, a paired device changes these settings"),
              (MF_SEPARATOR, 0, None), (MF_STRING, ID_PIN_SET, "Set a new PIN\u2026"),
              (MF_STRING | (0 if pin else MF_GRAYED), ID_PIN_CLEAR, "Remove the PIN")]
-    return [("News", news), ("Weather", weather), ("Sports", sports), ("Updates", upd), ("Admin PIN", admin)]
+    custom = [(MF_STRING | MF_GRAYED, 0, "News")] + news + [(MF_SEPARATOR, 0, None), (MF_STRING | MF_GRAYED, 0, "Weather")] + weather \
+        + [(MF_SEPARATOR, 0, None)] + sports
+    return [("Data use", use), ("Customize", custom), ("Updates", upd), ("Admin PIN", admin)]
 
 
 def set_pin_from_tray(data: str) -> None:
@@ -398,9 +412,11 @@ def set_pin_from_tray(data: str) -> None:
 def choose(data: str, cmd: int) -> None:
     """A settings choice from the tray: written at once; the engine's process applies it within a minute."""
     c, u = hs.load(data), au.load(data)
-    if cmd in (ID_NEWS, ID_WEATHER, ID_SPORTS):
+    if cmd in PROFILE_IDS:
+        hs.set_value(data, "profile", PROFILE_IDS[cmd])
+    elif cmd in (ID_NEWS, ID_WEATHER, ID_SPORTS):
         key = {ID_NEWS: "news", ID_WEATHER: "weather", ID_SPORTS: "sports"}[cmd]
-        hs.set_value(data, key, not c[key])
+        hs.set_value(data, key, not hs.effective(data)["on"][key])     # what runs now, not what a preset left in the file
     elif cmd in NEWS_IDS:
         hs.set_value(data, "news_every", NEWS_IDS[cmd])
     elif cmd in WEATHER_IDS:
