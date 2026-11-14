@@ -616,8 +616,14 @@ def install(a) -> dict:
         os.makedirs(stage, exist_ok=True)
         for d, _dirs, fs in os.walk(stage):
             for f in fs:
+                fp = os.path.join(d, f)
+                # a run that stopped after its files were made read-only (step 5) left them so: Windows then refuses to
+                # remove, replace or rewrite them (owner, 2026-11-14: "Access is denied" on the stage's manifest.json).
+                # They are made read-only again once the release is complete.
+                if not os.access(fp, os.W_OK):
+                    os.chmod(fp, 0o644)
                 if f.endswith(".tmp"):
-                    os.remove(os.path.join(d, f))
+                    os.remove(fp)
         done = skipped = fetched = 0
         try:
             todo = []
