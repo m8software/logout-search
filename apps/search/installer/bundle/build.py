@@ -86,6 +86,33 @@ def pyinstaller(stage: str, work: str, dist: str) -> None:
     pim.run(args)
 
 
+def setup_exe(archive: str, work: str, out: str) -> str:
+    """Windows: logout-search-setup.exe, one file that holds the bundle's zip, unpacks it once and runs the program's
+    setup (setup_stub.py). What a person downloads: nothing to unzip, nothing to type."""
+    w = os.path.join(work, "setup")
+    shutil.rmtree(w, ignore_errors=True)
+    os.makedirs(w)
+    payload = os.path.join(w, "logout-search.zip")
+    shutil.copyfile(archive, payload)
+    r = subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onefile", "--console",
+                        "--name", "logout-search-setup", "--workpath", os.path.join(w, "work"), "--distpath", out,
+                        "--specpath", w, "--add-data", f"{payload}{os.pathsep}.", os.path.join(HERE, "setup_stub.py")])
+    exe = os.path.join(out, "logout-search-setup.exe" if sys.platform == "win32" else "logout-search-setup")
+    if r.returncode or not os.path.isfile(exe):
+        raise SystemExit("build: the one-file setup program was not produced")
+    # its own test: unpack to a throwaway folder (no setup run) and start the program that came out
+    with tempfile.TemporaryDirectory() as t:
+        u = subprocess.run([exe, "--dest", os.path.join(t, "ls"), "--no-run"], capture_output=True, text=True, timeout=600)
+        got = exe_in(os.path.join(t, "ls", "app"))
+        print(f"  $ logout-search-setup --no-run -> {u.returncode}")
+        if u.returncode or not os.path.isfile(got):
+            print(u.stdout[-1500:], u.stderr[-1500:])
+            raise SystemExit("smoke: the setup program did not unpack the bundle")
+        v = subprocess.run([got, "version"], capture_output=True, text=True, timeout=300)
+        assert v.returncode == 0 and json.loads(v.stdout)["frozen"] is True, (v.stdout, v.stderr)
+    return exe
+
+
 def exe_in(folder: str) -> str:
     return os.path.join(folder, "logout-search.exe" if sys.platform == "win32" else "logout-search")
 
@@ -178,9 +205,13 @@ def main() -> int:
         archive = final + ".tar.gz"
         with tarfile.open(archive, "w:gz") as t:
             t.add(final, arcname=name)
+    made = [archive]
+    if sys.platform == "win32" and not a.no_smoke:
+        made.append(setup_exe(archive, work, a.out))
     sums = os.path.join(a.out, "SHA256SUMS")
-    lines = [ln for ln in (open(sums).read().splitlines() if os.path.isfile(sums) else []) if not ln.endswith(os.path.basename(archive))]
-    lines.append(f"{sha256(archive)}  {os.path.basename(archive)}")
+    names = {os.path.basename(p) for p in made}
+    lines = [ln for ln in (open(sums).read().splitlines() if os.path.isfile(sums) else []) if ln.split("  ")[-1] not in names]
+    lines += [f"{sha256(p)}  {os.path.basename(p)}" for p in made]
     with open(sums, "w", newline="\n") as f:
         f.write("\n".join(lines) + "\n")
     size = sum(os.path.getsize(os.path.join(d, fn)) for d, _x, fs in os.walk(final) for fn in fs)
