@@ -13,6 +13,7 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search collectors status|on|off [news|sports|weather] --dest BASE   (what `start` runs beside the engine)
     logout-search collectors set news_every 1|2|4 | weather_every_h 1|3|6 --dest BASE   (how often; homesettings.py)
     logout-search collect   news|sports|weather [--once|--check]   (one collector; what `start` runs)
+    logout-search admin     pin show|set PIN|clear --dest BASE     (the admin PIN: on this computer only; adminpin.py)
     logout-search host      register|unregister --dest BASE [--port 8090] [--print]
     logout-search host      run --dest BASE [--port 8090]              (what the browser starts; see `host register`)
     logout-search peer      --dest BASE [--port 8090]                  (what `start` runs beside the engine; see below)
@@ -425,6 +426,82 @@ def collectors_command(action: str, args: list, data: str) -> int:
     return 0
 
 
+# ================================================================================================ admin (from a paired device)
+def admin_handler(data: str):
+    """What a paired device may do to this install's settings from the search.logout.cloud page, once it has unlocked
+    them with the admin PIN (adminpin.py; rtc_peer.py keeps the unlock per connection and checks every signature).
+    handle(op, unlocked) -> reply. No reply ever carries the PIN."""
+    import adminpin
+    import autoupdate as au
+    import homesettings as hs
+
+    def status(unlocked: bool) -> dict:
+        u = au.load(data)
+        return {"pin_set": adminpin.is_set(data), "unlocked": unlocked, "locked_for": adminpin.locked_for(data),
+                "collectors": hs.load(data), "choices": {"news_every": list(hs.NEWS_EVERY), "weather_every_h": list(hs.WEATHER_EVERY_H)},
+                "updates": {"auto": au.enabled(u), "at_hour": au.at_hour(u), "addons": u.get("addons", True) is not False,
+                            "last_result": u.get("last_result"), "last_check": u.get("last_check"), "requested": bool(u.get("requested"))}}
+
+    def handle(op: dict, unlocked: bool) -> dict:
+        what = op.get("op") if isinstance(op, dict) else None
+        if what == "status":
+            return status(unlocked)
+        if what == "unlock":
+            got = adminpin.check(data, op.get("pin"))
+            if got == "ok":
+                say("the admin settings were unlocked from a paired device")
+                return {"unlocked": True}
+            if got == "none":
+                return {"error": "no admin PIN is set: set one on the computer the engine runs on (tray menu > Admin PIN)"}
+            if got == "locked":
+                return {"error": "too many wrong PINs", "locked_for": adminpin.locked_for(data)}
+            return {"error": "wrong PIN"}
+        if not unlocked:
+            return {"error": "locked: enter the admin PIN"}
+        try:
+            if what == "set":
+                key, value = op.get("key"), op.get("value")
+                if key in hs.DEFAULTS:
+                    hs.set_value(data, key, value)
+                elif key == "auto":
+                    au.command("on" if value else "off", data)
+                elif key == "at_hour":
+                    if au.command("at", data, value):
+                        raise ValueError("at_hour: 0-23")
+                elif key == "addons":
+                    au.command("addons", data, "on" if value else "off")
+                else:
+                    raise ValueError(f"no setting {key!r}")
+            elif what == "check_now":
+                au.command("now", data)
+            else:
+                return {"error": "unknown op"}
+        except (ValueError, TypeError) as e:
+            return {"error": str(e)[:200]}
+        return status(True)
+    return handle
+
+
+def admin_command(action: str, value, data: str) -> int:
+    """`admin pin show|set PIN|clear`: on this computer, no PIN asked (its user owns the files anyway)."""
+    import adminpin
+    if action == "show":
+        pin = adminpin.get(data)
+        print(pin if pin else "no admin PIN is set")
+        return 0
+    if action == "set":
+        try:
+            adminpin.set_pin(data, value or "")
+        except ValueError as e:
+            say(f"admin pin: {e}")
+            return 2
+        print("admin PIN set")
+        return 0
+    adminpin.clear(data)
+    print("admin PIN removed: admin settings can be changed only on this computer")
+    return 0
+
+
 # ================================================================================================ peer (other devices)
 def load_peer():
     """rtc_peer, with the stand-in for PyAV in place: aiortc imports `av` (FFmpeg) for audio and video this peer never
@@ -483,9 +560,15 @@ def peer_run(a) -> int:
                 "host_version": nh.VERSION, "release": release_ptr.current_id(base), "data_gb": data_gb(base),
                 "engine_up": install._readyz(a.port) == 200}
 
+    try:
+        admin = admin_handler(base)
+        os.environ.setdefault("LOGOUT_ADMIN", "1")      # native_host: the page then shows the admin section (can.admin)
+    except Exception as e:  # noqa: BLE001 - pairing and searching work without it
+        say(f"admin settings from paired devices: off ({type(e).__name__}: {e})")
+        admin = None
     say("other devices on this network can now pair: open https://search.logout.cloud on one and tap Pair")
     try:
-        asyncio.run(rp.main(answer=http_answer(a.port, nh), info=details))
+        asyncio.run(rp.main(answer=http_answer(a.port, nh), info=details, admin=admin))
     except KeyboardInterrupt:
         pass
     return 0
@@ -913,6 +996,11 @@ def main(argv=None) -> int:
     co.add_argument("args", nargs="*", help="on/off: a collector (default all); set: KEY VALUE")
     co.add_argument("--dest", required=True, help="the data folder (BASE/data)")
     sp.add_parser("collect", add_help=False)             # internal: one collector (what `start` runs)
+    adm = sp.add_parser("admin")
+    adm.add_argument("what", choices=["pin"])
+    adm.add_argument("action", choices=["show", "set", "clear"])
+    adm.add_argument("value", nargs="?", help="set: the new PIN, 4 to 8 digits")
+    adm.add_argument("--dest", required=True, help="the data folder (BASE/data)")
     upd = sp.add_parser("autoupdate")
     upd.add_argument("action", choices=["status", "on", "off", "now", "at", "addons"])
     upd.add_argument("value", nargs="?", help="at: the hour (0-23) the two-hour window starts; addons: on|off")
@@ -968,6 +1056,8 @@ def main(argv=None) -> int:
         return autostart(a)
     elif a.cmd == "collectors":
         return collectors_command(a.action, a.args, os.path.abspath(a.dest))
+    elif a.cmd == "admin":
+        return admin_command(a.action, a.value, os.path.abspath(a.dest))
     elif a.cmd == "autoupdate":
         import autoupdate as au
         return au.command(a.action, os.path.abspath(a.dest), a.value)

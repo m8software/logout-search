@@ -404,7 +404,9 @@ def handle(msg: dict, answer, info=None) -> dict:
                 "sources": {"leagues": SOURCE_LEAGUES, "formats": SOURCE_FORMATS, "league_format": SOURCE_LEAGUE_FORMAT}, "status": settings_status(),
                 # what this engine can do with the settings: one with no feed fetcher beside it (LOGOUT_FEEDS=0, the
                 # downloaded program) says so, and the page then offers no sources to add
-                "can": {"feeds": __import__("os").environ.get("LOGOUT_FEEDS", "1") != "0"}}
+                "can": {"feeds": __import__("os").environ.get("LOGOUT_FEEDS", "1") != "0",
+                        # the downloaded program's peer takes admin ops (installer/logout_search.py admin_handler)
+                        "admin": __import__("os").environ.get("LOGOUT_ADMIN", "") == "1"}}
     if "set_settings_json" in msg:           # signed form (rtc_peer checks the signature first)
         try:
             msg = dict(msg, set_settings=json.loads(str(msg["set_settings_json"])))

@@ -24,6 +24,7 @@ import webbrowser
 from ctypes import wintypes
 
 import autoupdate as au                                   # imported here so the build's --selftest proves it is bundled
+import adminpin
 import homesettings as hs
 
 APP = "logout search"
@@ -192,6 +193,7 @@ ID_NEWS, ID_WEATHER, ID_SPORTS, ID_ADDONS = 10, 20, 30, 42
 NEWS_IDS = {11: 1, 12: 2, 13: 4}                           # news_every
 WEATHER_IDS = {21: 1, 22: 3, 23: 6}                        # weather_every_h
 WINDOW_IDS = {50: 1, 51: 3, 52: 5, 53: 12, 54: 19, 55: 23}  # at_hour: the start of the daily check's two hours
+ID_PIN_SET, ID_PIN_CLEAR = 61, 62                          # the admin PIN (adminpin.py): set or remove, no PIN asked here
 WINDOW_TEXT = {1: "1 to 3 a.m.", 3: "3 to 5 a.m.", 5: "5 to 7 a.m.", 12: "noon to 2 p.m.", 19: "7 to 9 p.m.", 23: "11 p.m. to 1 a.m."}
 MB_YESNO, MB_ICONQUESTION, MB_OK, MB_ICONINFO, IDYES = 0x4, 0x20, 0x0, 0x40, 6
 
@@ -249,6 +251,11 @@ class Tray:
             shell32.Shell_NotifyIconW(NIM_MODIFY, ctypes.byref(self.nid))
 
     def menu(self) -> None:
+        m = self.build_menu(self.engine.data if self.engine else None)
+        self.show_menu(m)
+
+    def build_menu(self, data):
+        """The whole menu, its submenus included (the build's --selftest builds it too, without showing it)."""
         m = user32.CreatePopupMenu()
         st = self.engine.state() if self.engine else "ready"
         add = user32.AppendMenuW
@@ -256,9 +263,9 @@ class Tray:
         add(m, MF_SEPARATOR, 0, None)
         add(m, MF_STRING, ID_OPEN, "Open search")
         add(m, MF_STRING, ID_RESTART, "Restart the engine")
-        if self.engine:
+        if data:
             add(m, MF_SEPARATOR, 0, None)
-            for title, items in settings_menus(self.engine.data):
+            for title, items in settings_menus(data):
                 sub = user32.CreatePopupMenu()              # destroyed with m (DestroyMenu takes its submenus)
                 for flags, cid, text in items:
                     add(sub, flags, cid, text)
@@ -266,6 +273,9 @@ class Tray:
             add(m, MF_SEPARATOR, 0, None)
         add(m, MF_STRING, ID_UNINSTALL, "Uninstall…")
         user32.AppendMenuW(m, MF_STRING, ID_QUIT, "Quit (until the next sign-in)")
+        return m
+
+    def show_menu(self, m) -> None:
         pt = wintypes.POINT()
         user32.GetCursorPos(ctypes.byref(pt))
         user32.SetForegroundWindow(self.hwnd)
@@ -339,7 +349,34 @@ def settings_menus(data: str) -> list:
             "Add-ons: Wikipedia links and how-to answers (6 GB)"),
            (MF_SEPARATOR, 0, None), (MF_STRING | MF_GRAYED, 0, "Check once a day between")]
     upd += [(MF_STRING | tick(au.at_hour(u) == h) | off_grey(au.enabled(u)), i, WINDOW_TEXT[h]) for i, h in WINDOW_IDS.items()]
-    return [("News", news), ("Weather", weather), ("Sports", sports), ("Updates", upd)]
+    pin = adminpin.get(data)
+    admin = [(MF_STRING | MF_GRAYED, 0, f"PIN: {pin}" if pin else "No PIN set: settings change only on this computer"),
+             (MF_STRING | MF_GRAYED, 0, "With it, a paired device changes these settings"),
+             (MF_SEPARATOR, 0, None), (MF_STRING, ID_PIN_SET, "Set a new PIN\u2026"),
+             (MF_STRING | (0 if pin else MF_GRAYED), ID_PIN_CLEAR, "Remove the PIN")]
+    return [("News", news), ("Weather", weather), ("Sports", sports), ("Updates", upd), ("Admin PIN", admin)]
+
+
+def ask_pin() -> str | None:
+    """A small input box (PowerShell's, present on every Windows 10 and 11): the new PIN, or None when cancelled."""
+    ps = ("[void][Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic');"
+          "[Microsoft.VisualBasic.Interaction]::InputBox('New admin PIN, 4 to 8 digits. A paired device uses it to change "
+          "these settings from search.logout.cloud.', 'logout search')")
+    r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", ps],
+                       capture_output=True, text=True, creationflags=CREATE_NO_WINDOW)
+    got = (r.stdout or "").strip()
+    return got or None
+
+
+def set_pin_from_tray(data: str) -> None:
+    pin = ask_pin()
+    if pin is None:
+        return
+    try:
+        adminpin.set_pin(data, pin)
+        tell(f"Admin PIN set: {pin}\n\nIt is shown again under Admin PIN in this menu.")
+    except ValueError as e:
+        tell(f"Not set: {e}.")
 
 
 def choose(data: str, cmd: int) -> None:
@@ -360,6 +397,10 @@ def choose(data: str, cmd: int) -> None:
         au.command("addons", data, "off" if u.get("addons", True) is not False else "on")
     elif cmd in WINDOW_IDS:
         au.command("at", data, WINDOW_IDS[cmd])
+    elif cmd == ID_PIN_SET:
+        threading.Thread(target=set_pin_from_tray, args=(data,), daemon=True).start()   # the box must not hold the icon
+    elif cmd == ID_PIN_CLEAR:
+        adminpin.clear(data)
 
 
 def confirm(text: str) -> bool:
@@ -401,6 +442,9 @@ def main() -> int:
         return 2
     if "--selftest" in sys.argv:
         t = Tray(None, selftest=True)
+        import tempfile                                    # the full menu with its submenus, built and destroyed unseen
+        with tempfile.TemporaryDirectory() as d:
+            user32.DestroyMenu(t.build_menu(d))
         user32.SetTimer(t.hwnd, 2, 1500, None)
         t.loop()
         out("tray ok")

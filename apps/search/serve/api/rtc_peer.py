@@ -87,6 +87,8 @@ RATE_BURST = float(os.environ.get("RTC_RATE_BURST", "40"))
 
 _answer = None
 _info = None                  # how the engine is reached, for {details}; None = native_host.engine_info (in-process engine)
+_admin = None                 # the downloaded program's admin_handler: settings a paired device changes with the admin PIN
+ADMIN_UNLOCK_S = 600          # an unlock lasts this long, on its own connection only
 _pcs: set = set()
 _turn_waiters: dict = {}      # websocket -> future for the next {"t": "turn"} reply
 
@@ -335,8 +337,9 @@ def say(msg: str) -> None:
     print(f"rtc_peer: {msg}", flush=True)       # connection-level events only, never a search
 
 
-async def reply(channel, raw, via: str, lan=None) -> None:
-    """lan: a call that says whether the far end is on the engine's own LAN (peer_on_lan); None = not known."""
+async def reply(channel, raw, via: str, lan=None, conn: dict | None = None) -> None:
+    """lan: a call that says whether the far end is on the engine's own LAN (peer_on_lan); None = not known.
+    conn: this connection's own state (the admin unlock), kept by on_datachannel."""
     try:
         msg = json.loads(raw)
     except (ValueError, TypeError):
@@ -372,6 +375,27 @@ async def reply(channel, raw, via: str, lan=None) -> None:
     if isinstance(msg, dict) and "op_json" in msg:
         # a paired device's own business (invite, devices, revoke, rename): signed wherever it is
         out = device_op(msg) if signed_by_paired_device(msg, "op_json", "op") else {"error": "pair this device first"}
+        if channel.readyState == "open":
+            channel.send(json.dumps(dict(out, id=msg.get("id"))))
+        return
+    if isinstance(msg, dict) and "admin_json" in msg:
+        # the admin settings (owner 2026-11-14): signed by a paired device, then unlocked with the admin PIN for this
+        # connection only. The PIN is set and read only on the engine's own computer (installer/adminpin.py).
+        if _admin is None:
+            out = {"error": "this engine has no admin settings"}
+        elif not signed_by_paired_device(msg, "admin_json", "admin"):
+            out = {"error": "pair this device first"}
+        else:
+            conn = conn if conn is not None else {}
+            try:
+                op = json.loads(msg["admin_json"])
+            except (ValueError, TypeError):
+                op = {}
+            unlocked = float(conn.get("admin_until") or 0) > time.time()
+            loop = asyncio.get_running_loop()
+            out = await loop.run_in_executor(None, _admin, op, unlocked)
+            if isinstance(op, dict) and op.get("op") == "unlock" and out.get("unlocked"):
+                conn["admin_until"] = time.time() + ADMIN_UNLOCK_S
         if channel.readyState == "open":
             channel.send(json.dumps(dict(out, id=msg.get("id"))))
         return
@@ -483,11 +507,12 @@ async def on_offer(ws, m: dict) -> None:
     @pc.on("datachannel")
     def on_datachannel(channel):
         bucket = Bucket()
+        conn = {}                                   # this connection's own state: the admin unlock
 
         @channel.on("message")
         def on_message(raw):
             if bucket.allow():
-                asyncio.ensure_future(reply(channel, raw, via, lambda: peer_on_lan(pc)))
+                asyncio.ensure_future(reply(channel, raw, via, lambda: peer_on_lan(pc), conn))
             elif channel.readyState == "open":
                 channel.send(json.dumps(too_many(raw)))
 
@@ -537,13 +562,13 @@ async def rendezvous(family: int, label: str) -> None:
         delay = min(delay * 2, 300)       # no IPv6 at home: settle at one attempt per 5 minutes
 
 
-async def main(answer=None, info=None) -> None:
+async def main(answer=None, info=None, admin=None) -> None:
     """answer: where searches go. None (the servers' own peer): the engine is loaded into this process. Given (the
     downloaded program, `logout-search peer`): a call that asks an engine already running on this computer, so this
     process holds no index and the two can be started and stopped apart."""
-    global _answer, _info
+    global _answer, _info, _admin
     if answer is not None:
-        _answer, _info = answer, info
+        _answer, _info, _admin = answer, info, admin
         await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"))
         return
     _answer = native_host.search_api_answer()

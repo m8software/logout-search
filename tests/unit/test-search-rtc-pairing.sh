@@ -163,7 +163,7 @@ check("idle time never saves up more than the burst", [b.allow(500.0)] + [b.allo
 check("the defaults let a person type and stop a script", rp.RATE_PER_S == 20 and rp.RATE_BURST == 40)
 check("the refusal carries the request's id", rp.too_many(json.dumps({"id": "q7", "q": "x"})) == {"id": "q7", "error": "too many requests"} and rp.too_many("not json") == {"id": None, "error": "too many requests"})
 src = open(os.environ["API"] + "/rtc_peer.py").read()
-check("every channel message goes through its bucket", "if bucket.allow():\n                asyncio.ensure_future(reply(channel, raw, via, lambda: peer_on_lan(pc)))" in src and src.count("asyncio.ensure_future(reply(") == 1, "")
+check("every channel message goes through its bucket", "if bucket.allow():\n                asyncio.ensure_future(reply(channel, raw, via, lambda: peer_on_lan(pc), conn))" in src and src.count("asyncio.ensure_future(reply(") == 1, "")
 r = paired
 
 async def settings_via(via):
@@ -325,6 +325,45 @@ check("revoke: the device is gone from the engine and can do nothing more",
       r.get("revoked") is True and link["d"] not in rp.load_state()["devices"] and "error" in op({"op": "devices"}, link["d"], link["s"]), r)
 check("revoke of an unknown device says so", op({"op": "revoke", "device": "nope"}).get("revoked") is False)
 check("an unknown op is an error", op({"op": "format-disk"}).get("error") == "unknown op")
+# --- the admin settings (2026-11-14): signed by a paired device, unlocked with the admin PIN per connection
+sys.path.insert(0, os.path.join(os.environ["API"], "..", "..", "installer"))
+import logout_search as _ls, adminpin as _ap, homesettings as _hs
+_data = os.path.dirname(os.path.dirname(rp.STATE))
+rp._admin = _ls.admin_handler(_data)
+def adm(body, conn, dev=None, secret=None, signed=True):
+    raw = json.dumps(body)
+    dev, secret = dev or owner["d"], secret or owner["s"]
+    m = {"id": "a", "admin_json": raw, "auth": {"device": dev, "mac": _hm0.new(secret.encode(), f"admin|{raw}".encode(), _h0.sha256).hexdigest() if signed else "0" * 64}}
+    ch = FakeChannel(); asyncio.run(rp.reply(ch, json.dumps(m), "room", None, conn)); return ch.out[0]
+A, B = {}, {}
+check("admin: unsigned is refused", adm({"op": "status"}, A, signed=False).get("error") == "pair this device first")
+st0 = adm({"op": "status"}, A)
+check("admin: status says no PIN and locked", st0.get("pin_set") is False and st0.get("unlocked") is False and "collectors" in st0, st0)
+check("admin: no PIN set, nothing unlocks", "no admin PIN" in adm({"op": "unlock", "pin": "1234"}, A).get("error", ""))
+check("admin: locked, a change is refused", adm({"op": "set", "key": "weather", "value": False}, A).get("error", "").startswith("locked")
+      and _hs.load(_data)["weather"] is True)
+_ap.set_pin(_data, "4821")
+check("admin: a wrong PIN does not unlock", adm({"op": "unlock", "pin": "0000"}, A).get("error") == "wrong PIN" and "admin_until" not in A)
+check("admin: the right PIN unlocks this connection", adm({"op": "unlock", "pin": "4821"}, A).get("unlocked") is True and A.get("admin_until"))
+r = adm({"op": "set", "key": "weather", "value": False}, A)
+check("admin: ...which may then change a setting", r.get("collectors", {}).get("weather") is False and _hs.load(_data)["weather"] is False, r)
+check("admin: another connection is still locked", adm({"op": "set", "key": "weather", "value": True}, B).get("error", "").startswith("locked"))
+check("admin: an unknown setting is refused", "no setting" in adm({"op": "set", "key": "radar", "value": 1}, A).get("error", ""))
+check("admin: a bad value is refused", "one of" in adm({"op": "set", "key": "news_every", "value": 3}, A).get("error", ""))
+r = adm({"op": "set", "key": "at_hour", "value": 19}, A)
+check("admin: the update time is set", r.get("updates", {}).get("at_hour") == 19, r)
+A["admin_until"] = 1
+check("admin: an unlock ends (10 minutes)", adm({"op": "set", "key": "weather", "value": True}, A).get("error", "").startswith("locked"))
+outs = [adm({"op": "unlock", "pin": "9999"}, B) for _ in range(5)]
+check("admin: five wrong PINs lock it, even the right one, for 15 minutes",
+      outs[-1].get("error") == "too many wrong PINs" and adm({"op": "unlock", "pin": "4821"}, B).get("error") == "too many wrong PINs"
+      and 800 < _ap.locked_for(_data) <= 900, outs[-1])
+seen = json.dumps([st0, r] + outs + [adm({"op": "status"}, A)])
+check("admin: no reply carries the PIN", "4821" not in seen)
+rp._admin = None
+check("admin: an engine without admin settings says so", adm({"op": "status"}, A).get("error") == "this engine has no admin settings")
+_ap.clear(_data)
+
 rp.save_state({"room": rp.load_state()["room"], "devices": {late["d"]: {"secret": "s", "name": "x", "added": "", "pending_until": 1}}})
 check("only stale invitations left: the engine is unclaimed again, and they are cleared", not rp.claimed() and devices() == 0)
 
