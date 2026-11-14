@@ -79,6 +79,6 @@ jobs:
         run: |
           set -o pipefail
           bash ci/run-unit-tests.sh 2>&1 | tee unit.log || {
-            echo "::error::$(grep -E 'FAILED|FAIL ' unit.log | tail -30 | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')"
+            echo "::error::$(awk '/===== FAILED/,0' unit.log | grep -v PASS | tail -45 | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')"
             exit 1
           }
