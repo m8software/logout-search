@@ -249,6 +249,12 @@ class ResultStore:
         self.stats["finished_hit"] += 1
         return json.loads(zlib.decompress(r[0]))
 
+    def finished_at(self, release: str, key: str):
+        """When the finished answer for (release, key) was built (epoch seconds), or None."""
+        with self.lock:
+            r = self.db.execute("SELECT at FROM finished WHERE release = ? AND key = ?", (release, key)).fetchone()
+        return float(r[0]) if r else None
+
     def put_finished(self, release: str, key: str, value: dict) -> bool:
         """Keep a finished answer; refused (False) when it does not come back from JSON exactly as it went in."""
         text = json.dumps(value, separators=(",", ":"), ensure_ascii=False)

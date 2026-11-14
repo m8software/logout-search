@@ -2100,9 +2100,29 @@ def org_first(out: list[dict], exact_titles: list[str], title: str, lead_of=None
         out.append(_wiki(title, lead_of(title), WIKI_EXACT_SCORE + 0.5))
 
 
-def org_blocks_namesake(org_rank) -> bool:
-    """A famous namesake does not take a query that names a top site's organisation."""
-    return org_rank is not None and org_rank <= CONFIDENT_RANK
+def org_blocks_namesake(org_rank, famous: str | None = None, org_lead: str | None = None) -> bool:
+    """A famous namesake does not take a query that names a top site's organisation ("chase" is Chase Bank, not Daveigh
+    Chase) -- unless the organisation is the person's own: its article's lead names them (2026-11-14: "trump" gave the
+    Trump Organization's card, "privately owned by Donald Trump", and the $Trump meme coin's site first, once trump.com
+    counted as a top site). Measured that day: no demand figure for either company's article, and their sites' ranks
+    2,470 (chase.com) and 2,506 (trump.com), so neither tells the two apart; the lead does."""
+    if org_rank is None or org_rank > CONFIDENT_RANK:
+        return False
+    if famous and org_lead:
+        name = re.sub(r"\s*\(.*\)$", "", famous)
+        if name and name.lower() in org_lead.lower():
+            return False
+    return True
+
+
+# A title that equals the query only once its leading symbol is dropped ("$Trump" for "trump", "#MeToo" for "metoo"):
+# the exact lookup keys on letters and digits. When a famous namesake takes the query, such a title and its official
+# site go to the end; with nothing else named so, it stays (a search for "metoo" still finds #MeToo).
+SIGILS = "$#@¥€£!+"
+
+
+def untyped_sigil(title: str, q: str) -> bool:
+    return bool(title) and title[0] in SIGILS and title[0] not in (q or "")
 
 
 def famous_namesake(key: str, rows) -> str | None:
@@ -5679,6 +5699,72 @@ def facts_card(q: str) -> dict | None:
     return _facts_store[0].answer(q, lk) if _facts_store[0] else None
 
 
+# The office a person holds now, and its own site (2026-11-14, owner: "whitehouse.gov should be up there" for "trump").
+# From the facts file: Wikidata's position held (P39), the ones with no end date that have begun; each position's
+# article and its official site from the release's cards ("President of the United States" -> whitehouse.gov). The
+# row goes just under the person's article when the card is that person. A former office gives nothing ("biden").
+# SEARCH_OFFICE_SITES=0 turns it off.
+OFFICE_SITES = os.environ.get("SEARCH_OFFICE_SITES", "1") == "1"
+OFFICE_MAX = 2
+
+
+def office_rows(t: str, today: dt.date | None = None) -> list[dict]:
+    """Rows for the official sites of the offices the article t's subject holds now (release backend only)."""
+    if not (OFFICE_SITES and FACTS_ON):
+        return []
+    lk = lookups()
+    if lk is None or lk.name != "release":
+        return []
+    if not _facts_store:
+        import facts
+        _facts_store.append(facts.Facts.open(lk.root))
+    fx = _facts_store[0]
+    if not fx:
+        return []
+    import lookups_release as lr
+    docs = lk.names1(t, lr.N_TITLE)[:1]
+    pid = fx.props and next((k for k, v in fx.props.items() if v["prop"] == "P39"), None)
+    if not docs or pid is None:
+        return []
+    today = today or dt.date.today()
+    out, seen = [], set()
+    for _v, _unit, _prec, at, until, vdoc in fx.facts_of(docs[0], pid):
+        if until or vdoc is None:
+            continue                                             # an office held before
+        if at and str(at)[:10] > today.isoformat():
+            continue                                             # elected, not yet in office
+        card = lk.card(vdoc) or {}
+        url = (card.get("o") or [None])[0]
+        office = lk.title(vdoc)
+        if not url or not office or url in seen or not official_ok(url):
+            continue
+        seen.add(url)
+        out.append({"url": url, "title": f"{office} — official site", "content": (card.get("l") or "")[:300],
+                    "source": "site", "office": True, "score": 0.0})
+        if len(out) >= OFFICE_MAX:
+            break
+    return out
+
+
+def with_office_rows(res: list[dict], card: dict | None) -> list[dict]:
+    """The offices' sites just under the card's article (or first, when the article is not listed); a site already in
+    the list moves up instead of showing twice."""
+    if not card or not card.get("title") or not res:
+        return res
+    try:
+        rows = cached(("office", card["title"]), lambda: office_rows(card["title"]), static=True)
+    except Exception:  # noqa: BLE001 - an office row is extra: never fail the answer
+        return res
+    if not rows:
+        return res
+    urls = {r["url"].rstrip("/") for r in rows}
+    rest = [r for r in res if (r.get("url") or "").rstrip("/") not in urls]
+    art = next((i for i, r in enumerate(rest) if r.get("source") == "wikipedia"
+                and r.get("title", "").rsplit(" — Wikipedia", 1)[0] == card["title"]), None)
+    at = (art + 1) if art is not None else 0
+    return rest[:at] + [dict(r) for r in rows] + rest[at:]
+
+
 # Where the older box and the facts file both answer and the older box's value is the build's weaker choice:
 # wiki_facts keeps ONE date or amount per fact and picks it without Wikidata's rank (importer/facts.py: the latest
 # "point in time", else the most precise, else the smallest), so a rescheduled release keeps its first announced
@@ -6849,6 +6935,39 @@ def shop_box(q: str, day: str | None = None) -> dict | None:
     if br:                                                  # the page floats that store's nearest shop to the top of Near you
         box["brand"], box["brand_sites"] = br[0], [host_of(s) for s in br[2]]
     return box
+
+
+# No store box over a person (2026-11-14, owner: "why does trump get a buying card piece but biden doesnt"; then "yeah i
+# think thats a good rule for now"). The department sorter calls "trump" shopped for (p 0.84, books: Amazon's own
+# suggestions are full of Trump books and merchandise) and "biden" not (0.40), but a bare name with a person's card is
+# a question about the person. The box and the store rows stay off then, unless the words ask to buy something or name
+# a thing one buys ("trump book", "taylor swift shirt", "buy ..."). PERSON_SHOP=1 turns the rule off.
+PERSON_SHOP = os.environ.get("SEARCH_PERSON_SHOP", "") == "1"
+_SHOP_THING = re.compile(r"\b(books?|novels?|hats?|caps?|shirts?|t-?shirts?|hoodies?|merch|merchandise|mugs?|posters?|flags?|"
+                         r"toys?|dolls?|figures?|figurines?|cards?|costumes?|masks?|stickers?|vinyl|albums?|cds?|dvds?|"
+                         r"perfume|cologne|shoes|sneakers|jerseys?|calendars?|signed|autographed|memorabilia|gifts?)\b")
+
+
+def card_is_person(card) -> bool:
+    """Is the card's subject a person (the release's "born" fact)? Remembered per title."""
+    t = (card or {}).get("title")
+    if not t:
+        return False
+    lk = lookups()
+    if lk is None or lk.name != "release":
+        return False
+    try:
+        return bool(cached(("person", t), lambda: [lk.card_parts(t, 0)[3]], static=True)[0])
+    except Exception:  # noqa: BLE001 - unknown: keep the box as it was
+        return False
+
+
+def shop_wanted_over(q: str, card) -> bool:
+    """False for a name whose card is a person, unless the words ask to buy or name a thing one buys."""
+    if PERSON_SHOP or not card_is_person(card):
+        return True
+    ql = (q or "").lower()
+    return bool(_SHOP.search(ql) or _SHOP_THING.search(ql))
 
 
 def shop_list(q: str, res: list[dict]) -> list[dict]:
@@ -8823,10 +8942,33 @@ def explain(q: str) -> dict:
         steps.append({"step": "junk", "dropped": len(res) - len(kept)})
     if web_only(q, kept) and (shop := web_rerank(q, kept)) is not kept:
         steps.append(dict(trace_rows(shop), step="web"))
-    body = {"steps": steps, "stages": {k: round(v, 1) for k, v in st.items()}, "ms": int((time.monotonic() - t0) * 1000)}
+    body = {"steps": steps, "stages": {k: round(v, 1) for k, v in st.items()}, "ms": int((time.monotonic() - t0) * 1000),
+            "origin": answer_origin(q)}
     if fixed:
         body["corrected"] = fixed
     return body
+
+
+def answer_origin(q: str) -> dict:
+    """Where the list shown for q comes from (2026-11-14, owner: "is the how this was ranked explanations accurate for
+    pre computed results"; it was not: the steps are the engine's live ranking, and a stored or hand-picked list was
+    shown instead). {"kind": "finished" (built ahead and stored; "curated": true when a hand-picked list is in it),
+    "curated" (a hand-picked list on the engine's own), or "live"; "at": when it was made, epoch seconds}."""
+    st = result_store() if CURATED_RELEASE else None
+    if st is None:
+        return {"kind": "live"}
+    try:
+        cur_at = st.curated_at(CURATED_RELEASE, curated_key(q))
+        if FINISHED:
+            for full in (True, False):
+                if fin_get(q, full) is not None:
+                    at = st.finished_at(CURATED_RELEASE, fin_key(q, full))
+                    return {"kind": "finished", "at": at, "curated": cur_at is not None}
+        if curated_rows(q):
+            return {"kind": "curated", "at": cur_at}
+    except Exception:  # noqa: BLE001 - the explanation is extra
+        pass
+    return {"kind": "live"}
 
 
 def exact_names(q: str, keys: list[str], dq: str | None) -> list[tuple]:
@@ -9704,6 +9846,7 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
         asked_name = site_ask(q)                               # "x official site": the name x, else None
         exact_titles: list[str] = []
         sited: set[str] = set()
+        sigil_titles: set[str] = set()                         # "$Trump" for "trump": see SIGILS
         if wiki and "wiki_aliases" in has and len(nq) >= 2:    # tier 2
             if "wiki_sites" in has:
                 rows2 = c.execute(pop_sql(WIKI_EXACT_SITE_SQL), {"nq": nq}).fetchall()
@@ -9715,6 +9858,8 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
                 for i, (title, lead, url, box, rank, visits, own) in enumerate(rows2):
                     out.append(_wiki(title, lead, WIKI_EXACT_SCORE - i))
                     exact_titles.append(title)
+                    if untyped_sigil(title, q):
+                        sigil_titles.add(title)
                     if url and is_popular(rank, visits):
                         sited.add(title)
                     if url and official_ok(url):
@@ -9722,6 +9867,7 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
                         o = _site(url, f"{title} — official site", (lead or "")[:300],
                                   official_score(box, i, url, bool(own) and pop, bool(own), asked and i == 0), pop)
                         o["official"] = True
+                        o["exact_of"] = title                  # the exact title it is the site of (SIGILS)
                         o["of_kind"] = box_kind(box)           # official_top: an organisation's link is not pinned
                                                                # (not "kind": that key marks a kinds-tier result)
                         if box_kind(box) == "place" and OFFICIAL_FIRST != "all" and not asked:
@@ -9746,8 +9892,12 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
                     if "wiki_facts" in has else None)
             org = org_lookup(c, nq) if "wiki_sites" in has else (None, None)
             org_rank = org[0]
-            if not team and famous and org_blocks_namesake(org_rank):
-                famous = None                              # "chase" is Chase Bank, not Daveigh Chase
+            if not team and famous and org_rank is not None and org_rank <= CONFIDENT_RANK:
+                org_lead = (c.execute(FAMOUS_LEAD_SQL, {"t": org[1]}).fetchone() or [""])[0] if org[1] else ""
+                if org_blocks_namesake(org_rank, famous, org_lead):
+                    famous = None                          # "chase" is Chase Bank, not Daveigh Chase
+                else:
+                    org = (None, None)                     # "trump" is Donald Trump, not his Trump Organization
             if org[1]:
                 org_first(out, exact_titles, org[1],
                           lambda t: (c.execute(FAMOUS_LEAD_SQL, {"t": t}).fetchone() or [""])[0])
@@ -9757,6 +9907,11 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
             if famous:
                 lift_famous(out, exact_titles, famous,
                             lambda t: (c.execute(FAMOUS_LEAD_SQL, {"t": t}).fetchone() or [""])[0])
+                for r in out:                              # "$Trump" and its site: behind the person "trump" means
+                    t = r["title"].rsplit(" — Wikipedia", 1)[0] if r.get("source") == "wikipedia" else r.get("exact_of")
+                    if t in sigil_titles and t != famous:
+                        r["score"], r["namesake"] = NAMESAKE_SCORE, True
+                        r.pop("official", None)
             if team:
                 site_over_article(out, team)
             if "wiki_sites" in has and not team and (len(q.split()) == 1 or PRODUCT_TIER_WIDE):
@@ -10648,7 +10803,8 @@ class Handler(BaseHTTPRequestHandler):
                 sig = dict(sig, store={"cache": _cache_state.get(), "note": note})
             # ms / stages / intent: the page's timing line and "why" tooltips (2026-09-26) —
             # names and numbers only, never the query
-            return self._send(200, json.dumps({"suggest": sug, "phrases": phrases, "results": shop_list(q, res), "shop": shop_box(q), "confident": conf, "card": card,
+            return self._send(200, json.dumps({"suggest": sug, "phrases": phrases, "results": shop_list(q, res) if shop_wanted_over(q, card) else res,
+                                              "shop": shop_box(q) if shop_wanted_over(q, card) else None, "confident": conf, "card": card,
                                               "news": latest, "news_hot": got_news["hot"], "news_more": got_news.get("more", False), "mine": got_news.get("mine") or [], "answer": ans,
                                               "games": games, "standings": table, "no_game": no_game, "espn": espn, "weather": wx, "place": place, "kinds": kinds,
                                               "ms": ms, "stages": st, "intent": intent, "local": local, **sig}).encode())
@@ -10736,6 +10892,7 @@ class Handler(BaseHTTPRequestHandler):
             res = curated_fill(top, usual(res), shown) if _cur_fill.get() else top
         else:
             res = usual(res)
+        res = with_office_rows(res, card)      # "trump": whitehouse.gov just under the card (after the list is final)
         sig = {}
         if web_only(q, res):           # on the shown list, after the Wikipedia mix: that is what the fit saw
             res = web_rerank(q, res)
