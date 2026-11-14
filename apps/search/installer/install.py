@@ -36,6 +36,7 @@ verified but there is no pointer, and the program says so (start the engine on B
 """
 import argparse
 import base64
+import concurrent.futures
 import fnmatch
 import hashlib
 import http.client
@@ -47,6 +48,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -60,6 +62,11 @@ for _p in (HERE, os.path.join(HERE, "..", "release")):      # a flat bundle, or 
 import release_check as rc  # noqa: E402  (stdlib + registry_idents)
 import release_ptr  # noqa: E402  (stdlib: the same pointer code update_apply.py uses)
 
+# Files handled at once (2026-11-14). Measured on a 16-thread laptop with a 400 Mbit line: the download ran at 49 MB/s,
+# unpacking xz at 50 MB/s on one core, and they ran one after the other, file by file, so 18 GB of unpacking took longer
+# than the 11 GB download. Several files at once puts the unpacking on several cores and under the downloading.
+WORKERS = max(1, int(os.environ.get("LOGOUT_INSTALL_WORKERS") or min(4, os.cpu_count() or 1)))
+_STOP = threading.Event()                                  # one file failed: the others stop at their next chunk
 FAIL_AFTER = os.environ.get("LOGOUT_INSTALL_FAIL_AFTER", "")      # test hook: kill -9 self after N files are staged
 FAKE_FREE = os.environ.get("LOGOUT_INSTALL_FAKE_FREE_BYTES", "")  # test hook: pretend the disk has this much room
 CHUNK = 1 << 20
@@ -81,7 +88,102 @@ class Fatal(InstallError):
 
 
 def say(msg: str) -> None:
+    if PROGRESS is not None:
+        PROGRESS.clear_line()
     print(msg, flush=True)
+
+
+class Progress:
+    """What the install is doing, said while it does it (owner 2026-11-14: one file's name sat on the screen for many
+    minutes while the 4.4 GB file after it downloaded, and nothing said whether it was stuck). On a terminal one line is
+    rewritten every second; elsewhere (a log, a pipe) a line is printed every 15 seconds. Counts are kept per file as
+    absolute numbers, so a retried or resumed download is never counted twice."""
+
+    def __init__(self, dl_total: int, out_total: int, out=None):
+        self.dl_total, self.out_total = max(dl_total, 1), max(out_total, 1)
+        self.dl, self.unp, self.now = {}, {}, {}
+        self.lock = threading.Lock()
+        self.out = out or sys.stdout
+        self.tty = bool(getattr(self.out, "isatty", lambda: False)())
+        self.t0 = time.monotonic()
+        self.base = None                 # bytes already there when the run began (a resumed install): not this run's speed
+        self.shown = False
+        self.stop = threading.Event()
+        self.thread = threading.Thread(target=self._tick, daemon=True, name="install-progress")
+
+    def start(self):
+        self.thread.start()
+        return self
+
+    def downloaded(self, rel: str, n: int, what: str = "") -> None:
+        with self.lock:
+            self.dl[rel] = n
+            if what:
+                self.now[what] = "downloading"
+
+    def unpacked(self, path: str, n: int) -> None:
+        with self.lock:
+            self.unp[path] = n
+            self.now[path] = "unpacking"
+
+    def phase(self, path: str, what) -> None:
+        with self.lock:
+            if what is None:
+                self.now.pop(path, None)
+            else:
+                self.now[path] = what
+
+    @staticmethod
+    def _gb(n: float) -> str:
+        return f"{n / 1e9:.1f}"
+
+    def line(self, now: float | None = None) -> str:
+        now = time.monotonic() if now is None else now
+        with self.lock:
+            dl, unp, doing = sum(self.dl.values()), sum(self.unp.values()), dict(self.now)
+        work, total = dl + unp, self.dl_total + self.out_total
+        if self.base is None:
+            self.base = work
+        frac = min(work / total, 1.0)
+        el = now - self.t0
+        fresh = work - self.base
+        left = ""
+        if el >= 10 and fresh > 0 and frac < 1:
+            secs = el * (total - work) / fresh
+            left = " · about " + (f"{secs / 60:.0f} min" if secs >= 90 else "a minute" if secs >= 45 else "less than a minute") + " left"
+        names = sorted(doing, key=lambda p: (doing[p] != "downloading", p))
+        cur = ""
+        if names:
+            first = names[0].rsplit("/", 1)[-1]
+            cur = f" · {doing[names[0]]} {first}" + (f" and {len(names) - 1} more" if len(names) > 1 else "")
+        return (f"  {frac * 100:3.0f}%  {self._gb(dl)} of {self._gb(self.dl_total)} GB downloaded, "
+                f"{self._gb(unp)} of {self._gb(self.out_total)} GB unpacked{left}{cur}")
+
+    def clear_line(self) -> None:
+        if self.tty and self.shown:
+            self.out.write("\r\033[K")
+            self.out.flush()
+            self.shown = False
+
+    def _tick(self) -> None:
+        every = 1.0 if self.tty else 15.0
+        while not self.stop.wait(every):
+            text = self.line()
+            if self.tty:
+                self.out.write("\r\033[K" + text[:max(20, shutil.get_terminal_size((100, 20)).columns - 1)])
+                self.shown = True
+            else:
+                self.out.write(text + "\n")
+            self.out.flush()
+
+    def finish(self) -> None:
+        self.stop.set()
+        if self.thread.is_alive():
+            self.thread.join(timeout=2)
+        self.clear_line()
+
+
+PROGRESS = None
 
 
 # ================================================================================================ ed25519 (RFC 8032), verify only
@@ -314,10 +416,16 @@ def zstd_decoder():
                        "nor the `zstd` command is available: install one of them (or use a release stored as xz)")
 
 
-def _stream_decode(dec, src, dst):
+def _stream_decode(dec, src, dst, on=None):
+    """on(bytes written so far): the install's progress line."""
+    n = 0
     with open(src, "rb") as fi, open(dst, "wb") as fo:
         for b in iter(lambda: fi.read(CHUNK), b""):
-            fo.write(dec.decompress(b))
+            o = dec.decompress(b)
+            fo.write(o)
+            n += len(o)
+            if on is not None:
+                on(n)
 
 
 def _zstandard_decode(zstandard, src, dst):
@@ -325,9 +433,9 @@ def _zstandard_decode(zstandard, src, dst):
         zstandard.ZstdDecompressor().copy_stream(fi, fo)
 
 
-def xz_decode(src, dst):
+def xz_decode(src, dst, on=None):
     try:
-        _stream_decode(lzma.LZMADecompressor(format=lzma.FORMAT_XZ), src, dst)
+        _stream_decode(lzma.LZMADecompressor(format=lzma.FORMAT_XZ), src, dst, on)
     except lzma.LZMAError as e:
         raise InstallError(f"{src}: not valid xz data ({e})")
 
@@ -420,12 +528,16 @@ def download(src: Source, rel: str, part: str, size: int, sha: str, what: str) -
                     out.seek(offset)
                     out.truncate()
                     while True:
+                        if _STOP.is_set():
+                            raise Fatal(f"{what}: stopped (another file failed)")
                         b = body.read(CHUNK)
                         if not b:
                             break
                         out.write(b)
                         h.update(b)
                         offset += len(b)
+                        if PROGRESS is not None:
+                            PROGRESS.downloaded(rel, offset, what)
                 if total is not None and offset < total:       # urllib returns a short body quietly when the host hangs up
                     raise ConnectionError(f"connection closed after {offset} of {total} bytes")
             break
@@ -492,13 +604,14 @@ def install(a) -> dict:
         # ---- 3. room
         transport = (m.get("transport") or {}).get("files", {})
         need = m["total_bytes"] if isinstance(m.get("total_bytes"), int) else sum(f["bytes"] for f in m["files"])
-        biggest = max((transport.get(f["path"], f)["bytes"] for f in m["files"]), default=0)
+        # room for the downloads in hand: one per worker, so the largest WORKERS of them
+        biggest = sum(sorted((transport.get(f["path"], f)["bytes"] for f in m["files"]), reverse=True)[:WORKERS])
         have_staged = sum(os.path.getsize(os.path.join(stage, *f["path"].split("/"))) for f in m["files"]
                           if os.path.isfile(os.path.join(stage, *f["path"].split("/"))))
         free = int(FAKE_FREE) if FAKE_FREE else shutil.disk_usage(base).free
         if free < need - have_staged + biggest:
             raise InstallError(f"not enough disk space in {base}: {free // (1 << 20)} MiB free, "
-                               f"{(need - have_staged + biggest) // (1 << 20)} MiB needed (release + the largest download). Nothing was written.")
+                               f"{(need - have_staged + biggest) // (1 << 20)} MiB needed (release + the largest downloads in hand at once). Nothing was written.")
         # ---- 4. the files
         os.makedirs(stage, exist_ok=True)
         for d, _dirs, fs in os.walk(stage):
@@ -506,39 +619,80 @@ def install(a) -> dict:
                 if f.endswith(".tmp"):
                     os.remove(os.path.join(d, f))
         done = skipped = fetched = 0
-        zdec = None
         try:
+            todo = []
             for f in m["files"]:
-                p, dst = f["path"], os.path.join(stage, *f["path"].split("/"))
+                dst = os.path.join(stage, *f["path"].split("/"))
                 if os.path.isfile(dst) and os.path.getsize(dst) == f["bytes"] and file_digest(dst)[0] == f["sha256"]:
                     skipped += 1
                     continue
+                todo.append(f)
+
+            def one(f) -> str:
+                """One file, start to finish: download (resumable, hashed), unpack, hash the result, move into place."""
+                p, dst = f["path"], os.path.join(stage, *f["path"].split("/"))
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 t = transport.get(p)
                 enc = t["encoding"] if t else "identity"
                 rel = "files/" + p + {"xz": ".xz", "zstd": ".zst", "identity": ""}[enc]
                 part = os.path.join(dl, *rel.split("/")) + ".part"
+                prog = PROGRESS
+                if prog is not None:
+                    prog.phase(p, "downloading")
                 download(src, rel, part, (t or f)["bytes"], (t or f)["sha256"], p)
-                fetched += 1
+                if prog is not None:
+                    prog.downloaded(rel, (t or f)["bytes"])         # all of it, however it got here (resumed, or already whole)
+                    prog.phase(p, "unpacking")
                 tmp = dst + ".tmp"
                 if enc == "identity":
                     os.replace(part, tmp)
                 elif enc == "xz":
-                    xz_decode(part, tmp)
+                    xz_decode(part, tmp, (lambda n: prog.unpacked(p, n)) if prog is not None else None)
                     os.remove(part)
                 else:
-                    zdec = zdec or zstd_decoder()
-                    zdec(part, tmp)
+                    zstd_decoder()(part, tmp)
                     os.remove(part)
+                if prog is not None:
+                    prog.unpacked(p, f["bytes"])
+                    prog.phase(p, "checking")
                 sha, n = file_digest(tmp)
                 if n != f["bytes"] or sha != f["sha256"]:
                     os.remove(tmp)
                     raise InstallError(f"{p}: after decoding, {n} bytes / sha256 {sha[:16]}..., the manifest says {f['bytes']} / {f['sha256'][:16]}...")
                 os.replace(tmp, dst)
-                done += 1
-                say(f"  {done + skipped:>4}/{len(m['files'])}  {p}")
-                if FAIL_AFTER and done == int(FAIL_AFTER):
-                    os.kill(os.getpid(), signal.SIGKILL)
+                if prog is not None:
+                    prog.phase(p, None)
+                return p
+
+            _STOP.clear()
+            global PROGRESS
+            if order_bytes := sum(transport.get(f["path"], f)["bytes"] for f in todo):
+                say(f"  to download: {order_bytes / 1e9:.1f} GB ({len(todo)} files; {skipped} already here), "
+                    f"{sum(f['bytes'] for f in todo) / 1e9:.1f} GB once unpacked")
+                PROGRESS = Progress(order_bytes, sum(f["bytes"] for f in todo)).start()
+            # the largest first: the longest job starts at once and the small ones fill in beside it
+            order = sorted(todo, key=lambda f: -(transport.get(f["path"], f)["bytes"]))
+            if WORKERS > 1 and len(order) > 1:
+                say(f"  {len(order)} files to fetch, {WORKERS} at a time")
+            with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
+                futs = [pool.submit(one, f) for f in order]
+                try:
+                    for fut in concurrent.futures.as_completed(futs):
+                        p = fut.result()
+                        fetched += 1
+                        done += 1
+                        say(f"  {done + skipped:>4}/{len(m['files'])}  {p}")
+                        if FAIL_AFTER and done == int(FAIL_AFTER):
+                            os.kill(os.getpid(), signal.SIGKILL)
+                except BaseException:
+                    _STOP.set()                            # the files in hand stop at their next chunk; none is half-trusted
+                    for x in futs:
+                        x.cancel()
+                    raise
+                finally:
+                    if PROGRESS is not None:
+                        PROGRESS.finish()
+                        PROGRESS = None
             # ---- 5. checks on the stage folder
             listed = {f["path"] for f in m["files"]}
             for d, _dirs, fs in os.walk(stage):
@@ -548,6 +702,7 @@ def install(a) -> dict:
                         os.remove(os.path.join(d, f))
             open(os.path.join(stage, "manifest.json"), "wb").write(body)
             open(os.path.join(stage, "manifest.json.sig"), "wb").write(sig)
+            say("  every file is here and matches the signed list; checking the release as the engine will read it (a minute or two)")
             errs = rc.check_release(stage)
             if errs:
                 raise InstallError("the release fails the engine's own checks: " + "; ".join(errs[:5]))
