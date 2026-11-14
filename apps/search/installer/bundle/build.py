@@ -17,6 +17,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -58,7 +59,19 @@ def sha256(path: str) -> str:
     return h.hexdigest()
 
 
+def release_version() -> str:
+    """The version this build carries (installer/autoupdate.py compares it with the latest release): the tag of a release
+    build (GITHUB_REF_NAME=v0.4.3 -> 0.4.3, or LOGOUT_VERSION), else "dev", which never updates itself."""
+    v = os.environ.get("LOGOUT_VERSION") or ""
+    ref = os.environ.get("GITHUB_REF_NAME") or ""
+    if not v and os.environ.get("GITHUB_REF_TYPE") == "tag" and re.fullmatch(r"v\d+\.\d+(\.\d+)?", ref):
+        v = ref[1:]
+    return v or "dev"
+
+
 def stage_engine(stage: str) -> str:
+    with open(os.path.join(stage, "version.txt"), "w", encoding="utf-8") as f:
+        f.write(release_version() + "\n")
     eng = os.path.join(stage, "engine")
     os.makedirs(eng)
     for f in ENGINE_FILES:
@@ -78,6 +91,7 @@ def pyinstaller(stage: str, work: str, dist: str) -> None:
             "--workpath", work, "--distpath", dist, "--specpath", work,
             "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
             "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
+            "--add-data", f"{os.path.join(stage, 'version.txt')}{os.pathsep}.",
             "--hidden-import", "numpy", "--hidden-import", "psycopg", "--hidden-import", "websockets",
             "--exclude-module", "av"]               # PyAV is FFmpeg (GPL codecs): never in the bundle, av_absent.py stands in
     for m in COLLECT_ALL:
@@ -143,9 +157,14 @@ def smoke(folder: str) -> None:
 
     v = json.loads(run("version"))
     assert v["frozen"] is True, v
+    assert v["launcher"] == release_version(), (v["launcher"], release_version())   # the tag reached the program
+    print(f"  version: {v['launcher']}")
     imp = json.loads(run("engine", "--check-imports"))
     assert "search_api.py" in imp["engine_files"] and "ranker.json" in imp["engine_files"], imp
     print("  libraries: " + ", ".join(f"{k} {imp[k]}" for k in ("numpy", "tantivy", "onnxruntime", "tokenizers", "psycopg")))
+    with tempfile.TemporaryDirectory() as t:              # the updater is in the bundle and answers
+        au = json.loads(run("autoupdate", "status", "--dest", t))
+        assert au["enabled"] is True, au
     peer = json.loads(run("peer", "--check"))            # the peer's libraries load, without PyAV
     assert peer.get("aiortc") and peer.get("qr") is True, peer
     plan = run("setup", "--print", "--dest", os.path.join(tempfile.gettempdir(), "logout-search-smoke"))

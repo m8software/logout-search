@@ -23,6 +23,8 @@ import urllib.request
 import webbrowser
 from ctypes import wintypes
 
+import autoupdate as au                                   # imported here so the build's --selftest proves it is bundled
+
 APP = "logout search"
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\logout-search"
@@ -180,9 +182,9 @@ WM_USER, WM_COMMAND, WM_DESTROY, WM_LBUTTONUP, WM_RBUTTONUP, WM_LBUTTONDBLCLK = 
 WM_TRAY, WM_TIMER = WM_USER + 1, 0x0113
 NIM_ADD, NIM_MODIFY, NIM_DELETE = 0, 1, 2
 NIF_MESSAGE, NIF_ICON, NIF_TIP = 1, 2, 4
-MF_STRING, MF_GRAYED, MF_SEPARATOR = 0, 1, 0x800
+MF_STRING, MF_GRAYED, MF_SEPARATOR, MF_CHECKED = 0, 1, 0x800, 0x8
 TPM_RIGHTBUTTON, TPM_RETURNCMD = 0x0002, 0x0100
-ID_OPEN, ID_RESTART, ID_UNINSTALL, ID_QUIT = 1, 2, 3, 4
+ID_OPEN, ID_RESTART, ID_UNINSTALL, ID_QUIT, ID_UPDATE_NOW, ID_UPDATE_AUTO = 1, 2, 3, 4, 5, 6
 MB_YESNO, MB_ICONQUESTION, MB_OK, MB_ICONINFO, IDYES = 0x4, 0x20, 0x0, 0x40, 6
 
 
@@ -236,6 +238,15 @@ class Tray:
         user32.AppendMenuW(m, MF_SEPARATOR, 0, None)
         user32.AppendMenuW(m, MF_STRING, ID_OPEN, "Open search")
         user32.AppendMenuW(m, MF_STRING, ID_RESTART, "Restart the engine")
+        if self.engine:
+            # the daily update (autoupdate.py, run by the engine's own process): its last result, check now, on/off
+            s = au.load(self.engine.data)
+            user32.AppendMenuW(m, MF_SEPARATOR, 0, None)
+            user32.AppendMenuW(m, MF_STRING | MF_GRAYED, 0, "Updates: " + (
+                "checking\u2026" if s.get("requested") else (s.get("last_result") or "not checked yet")))
+            user32.AppendMenuW(m, MF_STRING, ID_UPDATE_NOW, "Check for updates now")
+            user32.AppendMenuW(m, MF_STRING | (MF_CHECKED if au.enabled(s) else 0), ID_UPDATE_AUTO, "Update automatically")
+            user32.AppendMenuW(m, MF_SEPARATOR, 0, None)
         user32.AppendMenuW(m, MF_STRING, ID_UNINSTALL, "Uninstall…")
         user32.AppendMenuW(m, MF_STRING, ID_QUIT, "Quit (until the next sign-in)")
         pt = wintypes.POINT()
@@ -250,6 +261,8 @@ class Tray:
             webbrowser.open(SEARCH_URL)
         elif cmd == ID_RESTART and self.engine:
             threading.Thread(target=self.engine.restart, daemon=True).start()
+        elif cmd in (ID_UPDATE_NOW, ID_UPDATE_AUTO) and self.engine:
+            au.command("now" if cmd == ID_UPDATE_NOW else ("off" if au.enabled(au.load(self.engine.data)) else "on"), self.engine.data)
         elif cmd == ID_UNINSTALL:
             if uninstall(self.engine.data if self.engine else None, True, self.engine):
                 self.quit(stop_engine=False)

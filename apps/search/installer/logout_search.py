@@ -9,6 +9,7 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search addon     install|remove wikilinks|se-howto --dest BASE [--source hf:ORG/NAME --pubkey KEY]   |   addon list --dest BASE
     logout-search update    --dest BASE --source hf:ORG/NAME --pubkey KEY.pem [--check]
     logout-search autostart on|off --dest BASE [--port 8090] [--print]
+    logout-search autoupdate status|on|off|now --dest BASE        (the daily update of the program and the data)
     logout-search host      register|unregister --dest BASE [--port 8090] [--print]
     logout-search host      run --dest BASE [--port 8090]              (what the browser starts; see `host register`)
     logout-search peer      --dest BASE [--port 8090]                  (what `start` runs beside the engine; see below)
@@ -45,7 +46,7 @@ import shlex
 import subprocess
 import sys
 
-VERSION = "0.1"
+VERSION = "dev"                                       # a release build reads its tag from version.txt (bundle/build.py)
 HOST_NAME = "cloud.logout.search"
 CHROME_ID = "dgnaanjmpoeoecakbcfjmcnoliapkebo"       # fixed by the extension's "key" (apps/search/extension/manifest.json)
 FIREFOX_ID = "search@logout.cloud"
@@ -62,6 +63,13 @@ PLATFORM = os.environ.get("LOGOUT_SEARCH_PLATFORM") or ("win32" if os.name == "n
 
 def bundle_dir() -> str:
     return getattr(sys, "_MEIPASS", HERE)
+
+
+try:
+    with open(os.path.join(bundle_dir(), "version.txt"), encoding="utf-8") as _f:
+        VERSION = _f.read().strip() or VERSION
+except OSError:
+    pass
 
 
 def engine_dir() -> str:
@@ -132,8 +140,18 @@ def start(a) -> None:
     say(f"starting the engine on http://127.0.0.1:{a.port} from {os.path.realpath(os.path.join(base, 'current'))}")
     proc = subprocess.Popen(program() + ["engine"], env={**os.environ, **env})
     peer = None
+    # the daily update runs from the start, ready or not: a release whose engine cannot start must still be replaceable
+    restart = start_updater(base, proc)
     try:
         state = install.wait_ready(a.port, lambda: proc.poll() is None)
+        if state != "ready" and proc.poll() is not None:
+            act = rescue_update(base)
+            if act == "restart":
+                say("updated: starting again with the new version")
+                sys.exit(EXIT_RESTART)
+            if act == "handed-over":                     # Windows: the new setup program closes this one; wait for it
+                import time
+                time.sleep(300)
         if state == "ready" and not a.no_smoke and install.run_smoke(a.port, "SEARCH_SE_INDEX" in env):
             proc.terminate()
             proc.wait()
@@ -141,13 +159,72 @@ def start(a) -> None:
         if state == "ready" and not getattr(a, "no_peer", False):
             # the other devices' way in (see `peer`); it ends with the engine, and the engine runs on without it
             peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)])
-        sys.exit(proc.wait())
+        rc = proc.wait()
+        if restart is not None and restart.is_set():
+            say("updated: starting again with the new version")
+            sys.exit(EXIT_RESTART)
+        sys.exit(rc)
     except KeyboardInterrupt:
         proc.terminate()
         sys.exit(proc.wait())
     finally:
         if peer is not None and peer.poll() is None:
             peer.terminate()
+
+
+EXIT_RESTART = 75                                     # autoupdate.EXIT_RESTART: the service, launchd and the tray start it again
+
+
+def updater_context(data: str):
+    """(base, check function) for autoupdate, or None when this program does not update itself."""
+    import autoupdate as au
+    want = os.environ.get("LOGOUT_AUTOUPDATE", "")
+    if want == "0" or (want != "1" and not FROZEN):
+        return None
+    base = os.path.dirname(data) if os.path.basename(data) == "data" else data
+    app_dir = os.path.dirname(os.path.abspath(sys.executable)) if FROZEN else HERE
+
+    def run_check():
+        return au.check(base, data, platform=PLATFORM, mine=VERSION, app_dir=app_dir, program=program(),
+                        source=DATA_SOURCE, pubkey=DATA_PUBKEY)
+    return base, run_check
+
+
+def rescue_update(data: str):
+    """The engine stopped before it was ready: one update check (at most hourly). Never raises."""
+    try:
+        import autoupdate as au
+        ctx = updater_context(data)
+        return au.rescue(data, ctx[1]) if ctx else None
+    except Exception as e:  # noqa: BLE001 - the updater must never be why the engine does not run
+        say(f"update check failed: {type(e).__name__}: {e}")
+        return None
+
+
+def start_updater(data: str, engine):
+    """The daily update check (autoupdate.py), as a thread of `start`. Returns an Event set when an update needs the engine
+    to start again: the engine is stopped, and `start` exits EXIT_RESTART. Off for a program that is not installed in
+    BASE/app (a checkout, a test) unless LOGOUT_AUTOUPDATE=1; LOGOUT_AUTOUPDATE=0 turns it off everywhere."""
+    import threading
+    try:
+        import autoupdate as au
+        ctx = updater_context(data)
+    except Exception as e:  # noqa: BLE001 - the updater must never be why the engine does not run
+        say(f"automatic updates off: {type(e).__name__}: {e}")
+        return None
+    if ctx is None:
+        return None
+    _base, run_check = ctx
+    restart, stop = threading.Event(), threading.Event()
+
+    def on_action(act):
+        if act == "handed-over":
+            return                                       # Windows: the setup program closes this program itself
+        restart.set()
+        engine.terminate()
+
+    threading.Thread(target=au.loop, args=(data, stop, on_action, run_check), daemon=True).start()
+    return restart
 
 
 # ================================================================================================ peer (other devices)
@@ -632,6 +709,9 @@ def main(argv=None) -> int:
     u.add_argument("--source", required=True)
     u.add_argument("--pubkey", required=True, help="the PEM file of the pinned public key")
     u.add_argument("--check", action="store_true", help="say whether an update exists; download nothing")
+    upd = sp.add_parser("autoupdate")
+    upd.add_argument("action", choices=["status", "on", "off", "now"])
+    upd.add_argument("--dest", required=True, help="the data folder (BASE/data)")
     au = sp.add_parser("autostart")
     au.add_argument("state", choices=["on", "off"])
     au.add_argument("--dest", required=True)
@@ -679,6 +759,9 @@ def main(argv=None) -> int:
         return run_update(a, rest)
     elif a.cmd == "autostart":
         return autostart(a)
+    elif a.cmd == "autoupdate":
+        import autoupdate as au
+        return au.command(a.action, os.path.abspath(a.dest))
     elif a.cmd == "host":
         if a.action == "run":
             host_run(a)
