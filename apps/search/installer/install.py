@@ -50,6 +50,7 @@ import subprocess
 import sys
 import threading
 import time
+import types
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -307,8 +308,9 @@ class Source:
         with f:
             return f.read()
 
-    def open(self, rel: str, offset: int):
-        """(file object, total length or None, True when the bytes start at `offset`)."""
+    def open(self, rel: str, offset: int, end: int | None = None):
+        """(file object, total length or None, True when the bytes start at `offset`). end: the byte after the last one
+        wanted (a slice: Range bytes=offset-(end-1)); the caller still stops reading there, whatever the host sends."""
         self.requests.append((rel, offset))
         if self.kind == "dir":
             p = os.path.join(self.base, *rel.split("/"))
@@ -322,7 +324,8 @@ class Source:
             f.seek(offset)
             return f, total, True
         url = self.base + "/" + "/".join(urllib.parse.quote(x) for x in rel.split("/"))
-        req = urllib.request.Request(url, headers={"Range": f"bytes={offset}-"} if offset else {})
+        rng = f"bytes={offset}-{end - 1}" if end is not None else (f"bytes={offset}-" if offset else None)
+        req = urllib.request.Request(url, headers={"Range": rng} if rng else {})
         try:
             r = urllib.request.urlopen(req, timeout=30)
         except urllib.error.HTTPError as e:
@@ -501,6 +504,224 @@ def installed_ok(final: str, m: dict, quick: bool) -> list:
 
 RATE_SLEEP = time.sleep        # a test replaces it
 
+# Several connections per large file, unpacked as it arrives (2026-11-14, owner: "do all of this"). Measured on a Fedora
+# laptop: one connection to Hugging Face gave 35-46 MB/s from the start of a file but 2.3 MB/s on another stretch of the
+# same file, and the install ran at about 9 MB/s: one slow stretch held a whole file, and each file was unpacked (one
+# core) only after it had all arrived, then read a third time to hash it. Now a file of SEGMENT_MIN or more comes as
+# SEGMENTS slices at once, each kept in its own .part.N (so a stopped install resumes each where it stopped), and the
+# unpacker reads the slices in order as they fill, hashing what comes in and what goes out in the same pass.
+SEGMENTS = max(1, int(os.environ.get("LOGOUT_INSTALL_SEGMENTS") or 4))
+SEGMENT_MIN = int(os.environ.get("LOGOUT_INSTALL_SEGMENT_MIN") or 256 * 1024 * 1024)
+
+
+class RangesRefused(InstallError):
+    """The host sent the whole file to a request for a slice: fall back to one connection."""
+
+
+def slices(size: int, n: int | None = None) -> list:
+    n = n or (SEGMENTS if size >= SEGMENT_MIN else 1)
+    edges = [size * i // n for i in range(n + 1)]
+    return [(edges[i], edges[i + 1]) for i in range(n) if edges[i + 1] > edges[i]] or [(0, 0)]
+
+
+class Segmented:
+    """One file as slices downloading at once into part.0 .. part.N-1; chunks() gives its bytes in order as they arrive."""
+
+    def __init__(self, src: Source, rel: str, part: str, size: int, what: str, stop: threading.Event):
+        self.src, self.rel, self.size, self.what, self.stop = src, rel, size, what, stop
+        self.ranges = slices(size)
+        self.paths = [f"{part}.{i}" for i in range(len(self.ranges))]
+        self.have = []
+        for p, (a, b) in zip(self.paths, self.ranges):
+            n = os.path.getsize(p) if os.path.exists(p) else 0
+            if n > b - a:                                   # longer than its slice: not ours, start it again
+                os.remove(p)
+                n = 0
+            self.have.append(n)
+        self.err = None
+        self.cond = threading.Condition()
+        self.threads = []
+
+    def start(self) -> "Segmented":
+        for i, (a, b) in enumerate(self.ranges):
+            if self.have[i] < b - a:
+                t = threading.Thread(target=self._fetch, args=(i,), daemon=True, name=f"seg-{i}")
+                t.start()
+                self.threads.append(t)
+        return self
+
+    def _report(self) -> None:
+        if PROGRESS is not None:
+            PROGRESS.downloaded(self.rel, sum(self.have), self.what)
+
+    def _fetch(self, i: int) -> None:
+        a, b = self.ranges[i]
+        tries = 8
+        for attempt in range(tries):
+            if self.stop.is_set() or self.err is not None:
+                return
+            try:
+                start = a + self.have[i]
+                body, _total, ok = self.src.open(self.rel, start, b if len(self.ranges) > 1 or a else None)
+                if not ok:
+                    if start:
+                        body.close()
+                        raise RangesRefused(f"{self.what}: the host ignores byte ranges")
+                with body, open(self.paths[i], "ab") as out:
+                    while self.have[i] < b - a:
+                        if self.stop.is_set() or self.err is not None:
+                            return
+                        chunk = body.read(min(CHUNK, b - a - self.have[i]))
+                        if not chunk:
+                            break
+                        out.write(chunk)
+                        out.flush()
+                        with self.cond:
+                            self.have[i] += len(chunk)
+                            self.cond.notify_all()
+                        self._report()
+                if self.have[i] >= b - a:
+                    return
+                raise ConnectionError(f"connection closed after {self.have[i]} of {b - a} bytes of slice {i}")
+            except (RangesRefused, Fatal) as e:
+                self._fail(e)
+                return
+            except NetError as e:
+                if attempt == tries - 1:
+                    self._fail(NetError(f"{self.what}: download failed after {tries} tries ({e}); what was downloaded is kept, run again to resume"))
+                    return
+                if e.retry_after is not None or "HTTP 429" in str(e):
+                    wait = min(max(e.retry_after or 0, 30 * (attempt + 1)), 300)
+                    print(f"  the host asked us to slow down; waiting {wait} s (try {attempt + 1} of {tries})", flush=True)
+                    RATE_SLEEP(wait)
+                    continue
+            except (OSError, urllib.error.URLError, ConnectionError, http.client.HTTPException) as e:
+                if attempt == tries - 1:
+                    self._fail(NetError(f"{self.what}: download failed after {tries} tries ({e}); what was downloaded is kept, run again to resume"))
+                    return
+            time.sleep(min(2 ** attempt, 8) * (0 if self.src.kind == "dir" else 1))
+
+    def _fail(self, e: Exception) -> None:
+        with self.cond:
+            if self.err is None:
+                self.err = e
+            self.cond.notify_all()
+
+    def chunks(self):
+        """The file's bytes in order, as the slices fill; raises what a slice failed with."""
+        for i, (a, b) in enumerate(self.ranges):
+            want, pos = b - a, 0
+            f = None
+            try:
+                while pos < want:
+                    with self.cond:
+                        while self.have[i] <= pos and self.err is None and not self.stop.is_set():
+                            self.cond.wait(1.0)
+                        if self.err is not None:
+                            raise self.err
+                        if self.stop.is_set():
+                            raise Fatal(f"{self.what}: stopped (another file failed)")
+                        upto = self.have[i]
+                    if f is None:
+                        f = open(self.paths[i], "rb")
+                    f.seek(pos)
+                    while pos < upto:
+                        buf = f.read(min(CHUNK, upto - pos))
+                        if not buf:
+                            break
+                        pos += len(buf)
+                        yield buf
+            finally:
+                if f is not None:
+                    f.close()
+
+    def halt(self) -> None:
+        self._fail(Fatal(f"{self.what}: stopped"))
+        for t in self.threads:
+            t.join(timeout=5)
+
+    def remove(self) -> None:
+        for p in self.paths:
+            if os.path.exists(p):
+                os.remove(p)
+
+
+def stream_install(src: Source, rel: str, part: str, tsize: int, tsha: str, enc: str, dec, tmp: str, dst: str,
+                   out_bytes: int, out_sha: str, what: str, prog=None) -> bool:
+    """One file the new way: its slices downloading at once (Segmented), unpacked as they arrive, the bytes in and out
+    hashed in the same pass, then moved to dst. True when done; False when the host refused byte ranges (the caller
+    then takes one connection, the old way). An error leaves the downloaded slices for the next run, unless they are
+    wrong, then they are removed."""
+    if prog is not None:
+        prog.phase(what, "downloading")
+    seg = Segmented(src, rel, part, tsize, what, _STOP).start()
+    h_in, h_out, n_in, n_out = hashlib.sha256(), hashlib.sha256(), 0, 0
+    try:
+        with open(tmp, "wb") as fo:
+            for b in seg.chunks():
+                h_in.update(b)
+                n_in += len(b)
+                try:
+                    o = dec.decompress(b)
+                except Exception as e:  # noqa: BLE001 - any decoder's "not valid"
+                    seg.halt()
+                    seg.remove()
+                    raise InstallError(f"{rel}: not valid {enc} data ({e}); run again to download it afresh")
+                if o:
+                    fo.write(o)
+                    h_out.update(o)
+                    n_out += len(o)
+                    if prog is not None:
+                        prog.unpacked(what, n_out)
+    except RangesRefused:
+        seg.halt()
+        seg.remove()
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        return False
+    except BaseException:
+        seg.halt()
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+    if n_in != tsize or h_in.hexdigest() != tsha:
+        seg.remove()                                      # wrong bytes: never kept, the next run downloads afresh
+        os.remove(tmp)
+        raise InstallError(f"{rel}: downloaded {n_in} bytes / sha256 {h_in.hexdigest()[:16]}..., the manifest says "
+                           f"{tsize} / {tsha[:16]}...: run again to download it afresh")
+    if n_out != out_bytes or h_out.hexdigest() != out_sha:
+        seg.remove()
+        os.remove(tmp)
+        raise InstallError(f"{what}: after decoding, {n_out} bytes / sha256 {h_out.hexdigest()[:16]}..., the manifest "
+                           f"says {out_bytes} / {out_sha[:16]}...")
+    if prog is not None:
+        prog.downloaded(rel, tsize)
+        prog.unpacked(what, out_bytes)
+    os.replace(tmp, dst)
+    seg.remove()
+    if prog is not None:
+        prog.phase(what, None)
+    return True
+
+
+def stream_decoder(enc: str):
+    """A decoder with decompress(bytes) -> bytes for this transport encoding, or None when only a whole-file one exists
+    (zstd through the `zstd` command): that file then takes the old way, download first, then unpack."""
+    if enc == "identity":
+        return types.SimpleNamespace(decompress=lambda b: b)
+    if enc == "xz":
+        return lzma.LZMADecompressor(format=lzma.FORMAT_XZ)
+    try:
+        from compression import zstd                       # Python 3.14+
+        return zstd.ZstdDecompressor()
+    except ImportError:
+        pass
+    try:
+        import zstandard
+        return zstandard.ZstdDecompressor().decompressobj()
+    except ImportError:
+        return None
+
 
 def download(src: Source, rel: str, part: str, size: int, sha: str, what: str) -> None:
     """src/rel -> part (resumable); the stored bytes must be `size` long and hash to `sha`."""
@@ -643,13 +864,18 @@ def install(a) -> dict:
                 rel = "files/" + p + {"xz": ".xz", "zstd": ".zst", "identity": ""}[enc]
                 part = os.path.join(dl, *rel.split("/")) + ".part"
                 prog = PROGRESS
+                tsize, tsha = (t or f)["bytes"], (t or f)["sha256"]
+                tmp = dst + ".tmp"
+                dec = stream_decoder(enc)
+                if dec is not None and not os.path.exists(part) and \
+                        stream_install(src, rel, part, tsize, tsha, enc, dec, tmp, dst, f["bytes"], f["sha256"], p, prog):
+                    return p                                          # an old whole-file .part resumes the old way, below
                 if prog is not None:
                     prog.phase(p, "downloading")
-                download(src, rel, part, (t or f)["bytes"], (t or f)["sha256"], p)
+                download(src, rel, part, tsize, tsha, p)
                 if prog is not None:
                     prog.downloaded(rel, (t or f)["bytes"])         # all of it, however it got here (resumed, or already whole)
                     prog.phase(p, "unpacking")
-                tmp = dst + ".tmp"
                 if enc == "identity":
                     os.replace(part, tmp)
                 elif enc == "xz":

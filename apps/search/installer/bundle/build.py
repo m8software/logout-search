@@ -101,7 +101,7 @@ def pyinstaller(stage: str, work: str, dist: str) -> None:
             "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
             "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
             "--add-data", f"{os.path.join(stage, 'news')}{os.pathsep}news", "--paths", NEWS,
-            "--hidden-import", "feedparser", "--hidden-import", "defusedxml.ElementTree", "--hidden-import", "certifi",
+            "--hidden-import", "feedparser", "--hidden-import", "defusedxml.ElementTree", "--hidden-import", "certifi", "--hidden-import", "zstandard",
             "--collect-data", "certifi",
             "--add-data", f"{os.path.join(stage, 'version.txt')}{os.pathsep}.",
             "--hidden-import", "numpy", "--hidden-import", "psycopg", "--hidden-import", "websockets",
@@ -192,6 +192,8 @@ def smoke(folder: str) -> None:
     with tempfile.TemporaryDirectory() as t:              # the updater is in the bundle and answers
         au = json.loads(run("autoupdate", "status", "--dest", t))
         assert au["enabled"] is True, au
+    imp_z = json.loads(run("engine", "--check-imports"))
+    assert imp_z.get("zstd") is True, imp_z                 # a zstd release (the publisher's default) unpacks as it downloads
     net = json.loads(run("net-check"))                   # HTTPS with certificates checked, as setup and the updater need
     assert net["https"] is True, net
     print(f"  https: ok (certificates: {net['certificates']})")

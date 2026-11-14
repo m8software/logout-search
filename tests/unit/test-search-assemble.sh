@@ -73,7 +73,7 @@ print("engine stamps", m["engine"]["tantivy"], m["engine"]["registry"]["layout"]
 pm = json.load(open(pub + "/manifest.json"))
 print("published manifest is the release's", open(pub + "/manifest.json", "rb").read() == open(rel + "/manifest.json", "rb").read())
 t = pm["transport"]["files"]
-print("transport", "model.onnx stored as is:", "models/nomic-embed-text-v1.5/model.onnx" not in t, "something xz:", any(x["encoding"] == "xz" for x in t.values()))
+print("transport", "model.onnx stored as is:", "models/nomic-embed-text-v1.5/model.onnx" not in t, "something zstd:", any(x["encoding"] == "zstd" for x in t.values()))
 rr = "models/rerank-turbo"
 print("reranker files in the release", all(os.path.isfile(os.path.join(rel, rr, n)) for n in ("model_int8.onnx", "tokenizer.json")))
 print("reranker manifest stanza", m["engine"].get("reranker"))
@@ -82,7 +82,7 @@ print("reranker licence", next((k for k, v in lic.items() if rr + "/model_int8.o
 print("notice modification", "modified version of jinaai/jina-reranker-v1-turbo-en" in notice)
 print("notice credits Stack Exchange", "Stack Exchange, CC BY-SA 2.5/3.0/4.0" in notice, "archive.org/details/stackexchange" in notice)
 print("reranker stored as is", rr + "/model_int8.onnx" not in t)
-print("published files exist", all(os.path.exists(os.path.join(pub, "files", p + (".xz" if p in t else ""))) for p in paths))
+print("published files exist", all(os.path.exists(os.path.join(pub, "files", p + ({"xz": ".xz", "zstd": ".zst"}[t[p]["encoding"]] if p in t else ""))) for p in paths))
 PYEOF
 )
 chk() { if grep -qxF -- "$1" <<<"$out"; then ok "$2"; else bad "$2" "want: $1" "got:  $(head -c 1500 <<<"$out")"; fi; }
@@ -103,8 +103,8 @@ chk "licences list every file once True" "the per-licence file lists cover every
 chk "one sqlite per licence True" "one SQLite file per licence (registry, lookup, osm, overture, hours, pictures)"
 chk "notice names every file True True" "LICENSES/NOTICE.txt names every file and every licence"
 chk "published manifest is the release's True" "the published manifest.json is byte for byte the release's"
-chk "published files exist True" "every file is on the download side (as is or as .xz)"
-if grep -q "^transport model.onnx stored as is: True something xz: True" <<<"$out"; then ok "transport: the incompressible model is stored as is, compressible files as xz"; else bad "transport encodings" "$out"; fi
+chk "published files exist True" "every file is on the download side (as is, .zst or .xz)"
+if grep -q "^transport model.onnx stored as is: True something zstd: True" <<<"$out"; then ok "transport: the incompressible model is stored as is, compressible files as zstd (the default since 2026-11-14)"; else bad "transport encodings" "$out"; fi
 if grep -q "^engine stamps 0.26.2 3 logout-sem-ivf/1 3$" <<<"$out"; then ok "manifest carries the engine stamps (Tantivy, registry layout, IVF format, stop list)"; else bad "engine stamps" "$(grep '^engine' <<<"$out")"; fi
 
 echo ""; echo "=== check, sign, verify ==="

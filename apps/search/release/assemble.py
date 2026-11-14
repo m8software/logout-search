@@ -338,6 +338,9 @@ def encode_file(src: str, dst: str, encoding: str, preset: int) -> None:
                 fo.write(c.compress(b))
             fo.write(c.flush())
     elif encoding == "zstd":
+        if shutil.which("zstd") is None:
+            raise AssembleError("--compress zstd (the default) needs the `zstd` command on this machine: install it "
+                                "(apt install zstd / dnf install zstd), or publish with --compress xz")
         r = subprocess.run(["zstd", "-q", "-19", "-T1", "-f", "-o", dst, src], capture_output=True)
         if r.returncode:
             raise AssembleError(f"zstd failed on {src}: {r.stderr.decode()[:200]}")
@@ -694,7 +697,10 @@ def main():
     b.add_argument("--licence-text", action="append")
     b.add_argument("--mode", choices=["link", "move", "copy", "auto"], default="link")
     b.add_argument("--publish")
-    b.add_argument("--compress", choices=["xz", "zstd", "none"], default="xz")
+    # zstd by default (2026-11-14, owner: "do all of this"): about the size of xz but unpacked many times faster, and the
+    # installer unpacks it as it downloads (installer/install.py stream_decoder; the program carries zstandard). The
+    # `zstd` command must be on the machine that publishes (indexhost has 1.5.4); --compress xz for the old way.
+    b.add_argument("--compress", choices=["xz", "zstd", "none"], default="zstd")
     b.add_argument("--xz-preset", type=int, default=6)
     b.add_argument("--jobs", type=int, default=min(8, os.cpu_count() or 1), help="files encoded at once (the bytes do not depend on it)")
     b.add_argument("--reuse-publish", help="a previous release's publish folder: files with an unchanged sha256 take its stored bytes")

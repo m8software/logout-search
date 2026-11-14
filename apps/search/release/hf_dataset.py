@@ -109,8 +109,20 @@ def read_plain(pub: str, m: dict, path: str) -> bytes:
     enc = (((m.get("transport") or {}).get("files") or {}).get(path) or {}).get("encoding")
     if enc == "xz":
         return lzma.decompress(raw)
-    if enc == "zstd":
-        raise DatasetError(f"{path} is stored as zstd: decode the licence texts with an xz publish (assemble.py --compress xz)")
+    if enc == "zstd":                                      # zstd is the publisher's default since 2026-11-14
+        try:
+            import zstandard
+            return zstandard.ZstdDecompressor().decompressobj().decompress(raw)
+        except ImportError:
+            pass
+        import shutil
+        import subprocess
+        if shutil.which("zstd") is None:
+            raise DatasetError(f"{path} is stored as zstd: install the zstandard package or the zstd command to read it")
+        r = subprocess.run(["zstd", "-dc"], input=raw, capture_output=True)
+        if r.returncode:
+            raise DatasetError(f"{path}: zstd could not decode it ({r.stderr.decode(errors='replace')[:200]})")
+        return r.stdout
     return raw
 
 

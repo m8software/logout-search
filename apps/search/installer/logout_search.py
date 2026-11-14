@@ -176,6 +176,11 @@ def check_imports() -> int:
         out["fts5_contentless_delete"] = True
     except sqlite3.Error:
         out["fts5_contentless_delete"] = False
+    try:                                                  # zstd releases unpack as they download (install.stream_decoder)
+        import install as _i
+        out["zstd"] = _i.stream_decoder("zstd") is not None
+    except Exception:  # noqa: BLE001
+        out["zstd"] = False
     out["engine_dir"] = engine_dir()
     out["engine_files"] = sorted(f for f in os.listdir(engine_dir()) if f.endswith((".py", ".json"))) if os.path.isdir(engine_dir()) else []
     print(json.dumps(out, indent=1, sort_keys=True))
