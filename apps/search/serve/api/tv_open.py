@@ -11,6 +11,11 @@ per index file, so nothing is ever written into the release (its manifest hashes
 The overlay folder is named by the index's real path, so a restart reuses it; its links are
 refreshed on every open, so a release swapped in place is seen. Where the overlay lives:
 $LOGOUT_TV_OVERLAY_DIR, else <tmp>/logout-tv-overlay-<uid>.
+
+Windows (2026-11-14, the downloaded program never started: os.getuid does not exist there, and making a symlink
+needs administrator rights or developer mode): the folder is named by the user name, and an index file whose
+symlink is refused is hard-linked instead (no rights needed, same drive: the installer puts the overlay in the
+data folder, install.engine_env).
 """
 from __future__ import annotations
 
@@ -25,9 +30,16 @@ def _locks_writable(path: str) -> bool:
     return all(os.access(os.path.join(path, f), os.W_OK) and os.path.isfile(os.path.join(path, f)) for f in LOCKS)
 
 
+def _who() -> str:
+    if hasattr(os, "getuid"):
+        return str(os.getuid())
+    name = os.environ.get("USERNAME") or os.environ.get("USER") or "user"
+    return "".join(c for c in name if c.isalnum() or c in "-_") or "user"
+
+
 def overlay_dir(path: str) -> str:
     root = os.environ.get("LOGOUT_TV_OVERLAY_DIR") or os.path.join(
-        tempfile.gettempdir(), f"logout-tv-overlay-{os.getuid()}")
+        tempfile.gettempdir(), f"logout-tv-overlay-{_who()}")
     real = os.path.realpath(path)
     return os.path.join(root, hashlib.sha256(real.encode()).hexdigest()[:16])
 
@@ -43,10 +55,20 @@ def make_overlay(path: str) -> str:
             os.unlink(os.path.join(ov, n))                # an index file the release no longer has
     for n in sorted(want):
         link, target = os.path.join(ov, n), os.path.join(real, n)
-        if os.path.islink(link) and os.readlink(link) == target:
-            continue
+        if os.path.islink(link):
+            if os.readlink(link) == target:
+                continue
+        elif os.path.isfile(link) and os.path.isfile(target) and os.path.samefile(link, target):
+            continue                                       # a hard link (Windows) to this very file
         tmp = f"{link}.{os.getpid()}.tmp"
-        os.symlink(target, tmp)
+        if os.path.lexists(tmp):
+            os.unlink(tmp)
+        try:
+            os.symlink(target, tmp)
+        except OSError:
+            if not os.path.isfile(target):
+                raise
+            os.link(target, tmp)                           # symlinks refused (Windows without the right): a hard link
         os.replace(tmp, link)                              # atomic: a concurrent opener never sees a gap
     for f in LOCKS:
         with open(os.path.join(ov, f), "ab"):

@@ -1096,6 +1096,7 @@ def engine_env(base: str, port: int = 8090) -> dict:
         "SEARCH_RELEASE_ID": m["release"],                          # sem_ivf refuses a folder built for another release
         "SEARCH_API_PORT": str(port),
         "SEARCH_API_BIND": "127.0.0.1",                             # search_api.BIND: the browser is on this machine; nothing on the LAN may query it
+        "LOGOUT_TV_OVERLAY_DIR": os.path.join(base, "state", "tv-overlay"),   # tv_open: lock files beside the data, same drive (Windows hard links)
     }
     rr = (m.get("engine", {}).get("reranker") or {}).get("cpu")
     if rr:

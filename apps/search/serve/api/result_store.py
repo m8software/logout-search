@@ -6,7 +6,15 @@ settings, all frozen until a deploy, while news, scores, weather and answers sta
 
 Every row carries the engine's FINGERPRINT: the release manifest, the engine's code and models, and every SEARCH_*
 setting that changes results. A row with another fingerprint is never served, so a deploy can never serve the old
-code's results; the warmer then rebuilds the head first.
+code's results as its own; the warmer then rebuilds the head first.
+
+Between deploys (2026-11-14, owner: "fix deploy store issue"): every deploy retired every row, so until the warmer
+and the home twin had rebuilt them every visitor's search was computed afresh (public then held 3-4 new searches a
+second against 40 stored ones). A visitor's search with no row of this fingerprint is now served the PREVIOUS
+fingerprint's row (the newest other fingerprint in the file, chosen when the store opens, under the same snapshot
+key, younger than max_age). The warmer never reads them: it computes and writes under the new fingerprint, which
+replaces the old row for visitors. A deploy that must not show the old results (a results bug fixed) sets
+SEARCH_STORE_PREV=0 (search_api).
 
 Privacy: only the warmer's requests write (search_api: warm=1). A visitor's search is never written here.
 """
@@ -26,7 +34,7 @@ NOT_RESULTS = frozenset((
     "SEARCH_CE_THREADS", "SEARCH_API_ALLOW_FROM", "SEARCH_MEMSTAT", "SEARCH_SQLITE_CACHE_KB", "SEARCH_IVF_KERN",
     "SEARCH_IVF_KERN_LIB", "SEARCH_STORE", "SEARCH_STORE_MAX_AGE_S", "SEARCH_STORE_REFRESH_S", "SEARCH_BIND",
     "SEARCH_PORT", "SEARCH_LOG", "SEARCH_REQUIRE_KINDS_MODEL", "SEARCH_NEWS_FILL_EVERY_S", "SEARCH_NEWS_VEC_MAX",
-    "SEARCH_STORE_INBOX_EVERY_S", "SEARCH_RADAR_DIR", "SEARCH_SHOP_NAMES", "SEARCH_SHOP_MIN", "SEARCH_SHOP_BOX", "SEARCH_SITENAV", "SEARCH_CURATED", "SEARCH_CURATED_FILL", "SEARCH_CARDLINKS",      # the card's site tree: drawn per request, never stored
+    "SEARCH_STORE_INBOX_EVERY_S", "SEARCH_STORE_PREV", "SEARCH_RADAR_DIR", "SEARCH_SHOP_NAMES", "SEARCH_SHOP_MIN", "SEARCH_SHOP_BOX", "SEARCH_SITENAV", "SEARCH_CURATED", "SEARCH_CURATED_FILL", "SEARCH_CARDLINKS",      # the card's site tree: drawn per request, never stored
     "SEARCH_BREADTH", "SEARCH_BREADTH_FLOOR",                                                   # breadth_list shapes /instant after the store
     "SEARCH_WIKILINKS", "SEARCH_BREADTH_WIKI", "SEARCH_BREADTH_CITE", "SEARCH_BREADTH_WIKI_MIN", "SEARCH_BREADTH_WIKI_FROM",
     "SEARCH_SE_INDEX", "SEARCH_SE_ROWS", "SEARCH_SE_MIN", "SEARCH_SE_POOL", "SEARCH_SE_REUSE",                                           # the Stack Exchange how-to rows: after the store too  # W / C letters: same place, after the store
@@ -144,8 +152,11 @@ class ResultStore:
         # like the lists; keyed by the name alone: it does not depend on the release or on this engine's code.
         self.db.execute("CREATE TABLE IF NOT EXISTS dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, "
                         "at REAL NOT NULL) WITHOUT ROWID")
-        self.stats = {"hit": 0, "miss": 0, "put": 0, "skip": 0, "curated_hit": 0, "finished_hit": 0}
+        self.stats = {"hit": 0, "miss": 0, "put": 0, "skip": 0, "curated_hit": 0, "finished_hit": 0, "prev_hit": 0}
         self.opened = time.time()
+        # the fingerprint before this one: the other fingerprint with the newest row (none on a first start)
+        r = self.db.execute("SELECT fp FROM rows WHERE fp <> ? GROUP BY fp ORDER BY max(at) DESC LIMIT 1", (fp,)).fetchone()
+        self.prev_fp = r[0] if r else None
 
     def get(self, kind: str, key: str, max_age: float | None = None):
         """(value, age_s) of a row of this fingerprint younger than max_age, else None."""
@@ -157,6 +168,18 @@ class ResultStore:
             return None
         self.stats["hit"] += 1
         return json.loads(zlib.decompress(r[0])), age
+
+    def get_prev(self, kind: str, key: str):
+        """(value, age_s) of the previous fingerprint's row younger than max_age, else None: for a visitor while the
+        warmer has not rebuilt this row yet. A row of this fingerprint, once written, is always read first."""
+        if not self.prev_fp:
+            return None
+        with self.lock:
+            r = self.db.execute("SELECT body, at FROM rows WHERE fp = ? AND kind = ? AND key = ?", (self.prev_fp, kind, key)).fetchone()
+        if not r or time.time() - r[1] > self.max_age:
+            return None
+        self.stats["prev_hit"] += 1
+        return json.loads(zlib.decompress(r[0])), time.time() - r[1]
 
     def put(self, kind: str, key: str, value) -> bool:
         """Keep value; refused (False) when it does not come back from JSON exactly as it went in."""
@@ -351,7 +374,7 @@ class ResultStore:
         # fresh: searches of this fingerprint still servable; up_s: since this engine opened the store. The outside
         # check alerts when an engine up for an hour has few fresh rows (no rebuild after a deploy, or a dead warmer).
             cur = self.db.execute("SELECT release, count(*) FROM curated GROUP BY release").fetchall()
-        return {"fp": self.fp, "rows": dict(mine), "other_fp_rows": other, "fresh": fresh, "curated": dict(cur),
+        return {"fp": self.fp, "prev_fp": self.prev_fp, "rows": dict(mine), "other_fp_rows": other, "fresh": fresh, "curated": dict(cur),
                 "up_s": int(time.time() - self.opened), **self.stats}
 
     def prune(self, keep_other_s: float = 2 * 86400) -> int:

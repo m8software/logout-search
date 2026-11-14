@@ -3323,6 +3323,12 @@ def _scores(q: str, rows: list[dict], scorer=None):
 # wordings, but the score only decides what F cuts, never the order, and on mix-300 the filled score is 41%
 # relevant above -2.7 and 5% below it for exactly those rows.
 SCORE_ALL = os.environ.get("SEARCH_SCORE_ALL", "").strip() == "1"
+# SEARCH_SCORE_ALL_TOP=N (2026-11-14): with SCORE_ALL, only the list's first N rows are scored and kept; the rest go. A page
+# shows about 8 rows, and scoring every row was the costliest step of a new search on public (median 142 ms, slowest tenth
+# 1.8 s; new searches held fell from 4 to 2 a second). Simulated on the judged lists of 2026-11-13 (floor 0, first 8 shown):
+# N=10 -> everyday-100 pass 69 -> 71, relevant rows 426 -> 402, rows sent to the model -42%; mix-300 pass 185 -> 187,
+# relevant 950 -> 900, model rows -44%. 0 = every row, as before.
+SCORE_ALL_TOP = int(os.environ.get("SEARCH_SCORE_ALL_TOP", "0") or 0)
 _score_all: contextvars.ContextVar = contextvars.ContextVar("score_all", default=SCORE_ALL)
 
 
@@ -6592,10 +6598,14 @@ STORE_PATH = os.environ.get("SEARCH_STORE", "")
 STORE_MAX_AGE_S = float(os.environ.get("SEARCH_STORE_MAX_AGE_S", "86400"))
 STORE_REFRESH_S = float(os.environ.get("SEARCH_STORE_REFRESH_S", "43200"))
 STORE_INBOX_EVERY_S = float(os.environ.get("SEARCH_STORE_INBOX_EVERY_S", "60"))
+# After a deploy a visitor is served the previous fingerprint's row until the warmer rebuilds it (result_store.py,
+# 2026-11-14); 0 = never (a deploy that fixes what the old results got wrong).
+STORE_PREV = os.environ.get("SEARCH_STORE_PREV", "1") != "0"
 _store = [None, False]                      # the ResultStore, tried
 _store_lock = threading.Lock()
 _audit: contextvars.ContextVar = contextvars.ContextVar("audit", default=False)
-_store_note: contextvars.ContextVar = contextvars.ContextVar("store_note", default=None)   # "disk" / "same" / "diff"
+_store_note: contextvars.ContextVar = contextvars.ContextVar("store_note", default=None)   # "disk" / "prev" / "same" / "diff"
+_prev_served: contextvars.ContextVar = contextvars.ContextVar("prev_served", default=None)   # a [bool] cached() reads
 _busy = [0]                                 # visitors' /instant requests in flight (the warmer waits for 0)
 _busy_lock = threading.Lock()
 
@@ -7043,6 +7053,14 @@ def stored(kind: str, parts, compute):
             if kind == "search":
                 _store_note.set("disk")
             return val
+    if not warm and STORE_PREV:
+        got = st.get_prev(kind, key)
+        if got is not None:
+            _store_note.set("prev")
+            box = _prev_served.get()
+            if box is not None:
+                box[0] = True                   # cached() keeps it out of memory, so the rebuilt row shows at once
+            return got[0]
     val = compute()
     if warm:
         st.put(kind, key, val)
@@ -7061,7 +7079,17 @@ def cached(key, compute, static: bool = False):
         if hit and now - hit[0] < ttl and hit[1] == gen:
             _cache.move_to_end(key)
             return list(hit[2])
-    val = compute()
+    box = [False]
+    tok = _prev_served.set(box)
+    try:
+        val = compute()
+    finally:
+        _prev_served.reset(tok)
+    if box[0]:                                      # held the old build's row: not kept in memory (the warmer recomputes it)
+        outer = _prev_served.get()
+        if outer is not None:
+            outer[0] = True
+        return list(val)
     with _cache_lock:
         _cache[key] = (now, gen, val)
         _cache.move_to_end(key)
@@ -8646,7 +8674,7 @@ def search(q: str, k: int, semantic: bool = True, learned: bool = True, correct:
     skey = ((q.lower() if STORE_FOLD_CASE else q),) + ckey[1:]
     res = cached(ckey, lambda: computed.append(1) or stored("search", skey, lambda: _search_retry(q, k, semantic, learned, correct, ce)),
                  static=True)
-    _cache_state.set(("disk" if _store_note.get() == "disk" else "miss") if computed else "hit")
+    _cache_state.set((_store_note.get() if _store_note.get() in ("disk", "prev") else "miss") if computed else "hit")
     # after the cache: the cached list is the uncapped one, so ?pcap= needs no place in the key
     res = cap_profiles(drop_junk(res, q), _profile_cap.get())
     return [] if hands_off(q, res, quiet) else res
@@ -10697,7 +10725,7 @@ class Handler(BaseHTTPRequestHandler):
                 rows = card_gate(q, rows)                # off unless SEARCH_CARD_GATE or ?cg= (2026-11-05)
             if _score_all.get() and rows:                # off unless SEARCH_SCORE_ALL or ?sa=1
                 with stage("score_all"):
-                    rows = score_unscored(q, rows)
+                    rows = score_unscored(q, rows[:SCORE_ALL_TOP] if SCORE_ALL_TOP > 0 else rows)
             return breadth_list(q, rows, card, _breadth.get())   # off unless SEARCH_BREADTH or ?bl= (2026-11-07)
         if cur:
             # the offline list as chosen, in its order (no Wikipedia mix, no gate: the large model already decided);

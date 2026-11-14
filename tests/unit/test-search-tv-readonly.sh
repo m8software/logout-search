@@ -105,6 +105,21 @@ for f in os.listdir(rel):
 os.chmod(rel, 0o555)
 print("swapped release seen:", tv_open.open_index(tantivy, rel).searcher().num_docs)
 print("no dangling links after the swap:", all(os.path.exists(ov + "/" + f) for f in os.listdir(ov)))
+# Windows (2026-11-14): no os.getuid, and a symlink needs rights a person does not have: hard links instead
+real_symlink, real_getuid = os.symlink, os.getuid
+def refuse(*a, **k): raise OSError(1314, "A required privilege is not held by the client")
+os.symlink = refuse; del os.getuid
+os.environ.pop("LOGOUT_TV_OVERLAY_DIR")
+os.environ["TMPDIR"] = sys.argv[2] + "/wintmp"; os.makedirs(os.environ["TMPDIR"]); import tempfile; tempfile.tempdir = None
+os.environ["USERNAME"] = "lv"
+try:
+    wov = tv_open.overlay_dir(rel)
+    n = tv_open.open_index(tantivy, rel).searcher().num_docs
+    print("windows: opens with hard links:", n == 3 and "logout-tv-overlay-lv" in wov
+          and all(os.stat(wov + "/" + f).st_nlink > 1 for f in os.listdir(wov) if not f.startswith(".tantivy-")))
+    print("windows: second open:", tv_open.open_index(tantivy, rel).searcher().num_docs)
+finally:
+    os.symlink, os.getuid = real_symlink, real_getuid
 os.chmod(rel, 0o755)
 PY
 )
@@ -118,6 +133,8 @@ expect "second open: 2" "a second open reuses the overlay"
 expect "writable folder in place: True" "a folder with writable lock files is opened in place, no overlay made"
 expect "swapped release seen: 3" "a release replaced at the same path is seen on the next open"
 expect "no dangling links after the swap: True" "links to files the new release no longer has are removed"
+expect "windows: opens with hard links: True" "Windows (no os.getuid, symlinks refused): the overlay hard-links the index files"
+expect "windows: second open: 3" "... and a second open reuses it"
 
 echo ""; echo "=== search_api's wiki backends open through it ==="
 n=$(grep -c "_open_index(" "$API_DIR/search_api.py")
