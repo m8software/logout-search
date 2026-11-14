@@ -654,6 +654,7 @@ def stream_install(src: Source, rel: str, part: str, tsize: int, tsha: str, enc:
     wrong, then they are removed."""
     if prog is not None:
         prog.phase(what, "downloading")
+    os.makedirs(os.path.dirname(part), exist_ok=True)   # files/vectors/ivf/…: the slices' folder (2026-11-14: every file in a subfolder failed)
     seg = Segmented(src, rel, part, tsize, what, _STOP).start()
     h_in, h_out, n_in, n_out = hashlib.sha256(), hashlib.sha256(), 0, 0
     try:
