@@ -33,12 +33,13 @@ RELEASE = os.path.join(SEARCH, "release")
 # what the engine image copies (serve/api/Dockerfile), less the servers' own tools; shipped on disk so search_api.py runs as a file
 ENGINE_FILES = ["search_api.py", "lookups_sqlite.py", "lookups_release.py", "kinds_release.py", "tv_open.py", "release_root.py",
                 "sem_ivf.py", "site_pages.py", "product_table.py", "gov_state.py", "site_slots.py", "state_anchor.py", "result_store.py", "facts.py", "news_sqlite.py", "instant_answers.py", "ranker.json", "warm.py",
-                "native_host.py", "NOTICE"]
+                "native_host.py", "rtc_peer.py", "av_absent.py", "NOTICE"]
 ENGINE_DIRS = ["licenses"]
 # analysed with the launcher so every library and standard-library module they import is in the bundle
 ANALYSED = [os.path.join(INSTALLER, "logout_search.py"), os.path.join(ENGINE, "search_api.py"), os.path.join(ENGINE, "native_host.py"),
-            os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py")]
-COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary"]
+            os.path.join(ENGINE, "rtc_peer.py"), os.path.join(ENGINE, "av_absent.py"), os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py")]
+COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary",
+               "aiortc", "aioice", "pylibsrtp", "google_crc32c", "qrcode"]      # the peer (other devices pair through it)
 
 
 def system_name() -> str:
@@ -67,12 +68,17 @@ def stage_engine(stage: str) -> str:
 
 
 def pyinstaller(stage: str, work: str, dist: str) -> None:
+    import importlib.util
     import PyInstaller.__main__ as pim
+    if importlib.util.find_spec("av") is not None:
+        raise SystemExit("build: PyAV (`av`) is installed here and would be bundled: run `pip uninstall -y av` first "
+                         "(it is FFmpeg with GPL codecs; the peer uses serve/api/av_absent.py in its place)")
     args = ["--noconfirm", "--clean", "--onedir", "--name", "logout-search", "--console",
             "--workpath", work, "--distpath", dist, "--specpath", work,
             "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
             "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
-            "--hidden-import", "numpy", "--hidden-import", "psycopg"]
+            "--hidden-import", "numpy", "--hidden-import", "psycopg", "--hidden-import", "websockets",
+            "--exclude-module", "av"]               # PyAV is FFmpeg (GPL codecs): never in the bundle, av_absent.py stands in
     for m in COLLECT_ALL:
         args += ["--collect-all", m]
     args += ANALYSED
@@ -101,6 +107,10 @@ def smoke(folder: str) -> None:
     imp = json.loads(run("engine", "--check-imports"))
     assert "search_api.py" in imp["engine_files"] and "ranker.json" in imp["engine_files"], imp
     print("  libraries: " + ", ".join(f"{k} {imp[k]}" for k in ("numpy", "tantivy", "onnxruntime", "tokenizers", "psycopg")))
+    peer = json.loads(run("peer", "--check"))            # the peer's libraries load, without PyAV
+    assert peer.get("aiortc") and peer.get("qr") is True, peer
+    plan = run("setup", "--print", "--dest", os.path.join(tempfile.gettempdir(), "logout-search-smoke"))
+    assert "copy" in plan and "hf:logoutsearch/logout-search" in plan and "pair" in plan, plan
     with tempfile.TemporaryDirectory() as t:
         base = os.path.join(t, "base")
         rel = os.path.join(base, "releases", "fx-1")

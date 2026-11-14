@@ -33,7 +33,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install PyInstaller and the engine's libraries
-        run: pip install -r apps/search/installer/bundle/requirements.txt
+        # then PyAV out again: aiortc asks for it, the bundle must not carry it (see requirements.txt)
+        shell: bash
+        run: |
+          pip install -r apps/search/installer/bundle/requirements.txt
+          pip uninstall -y av
       - name: Build and smoke-test the bundle
         env:
           ORT_DISABLE_TELEMETRY: "1"

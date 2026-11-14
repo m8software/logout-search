@@ -60,6 +60,20 @@ out=$(run engine --check-imports 2>"$tmp/check-imports.err"); rc=$?
 "$PY" -c "import json,sys; d=json.loads(sys.argv[1]); assert 'search_api.py' in d['engine_files'] and 'ranker.json' in d['engine_files']" "$out" 2>/dev/null \
     && ok "engine --check-imports names the libraries and finds search_api.py + ranker.json in the engine folder (rc=$rc here: the libraries may be absent on this machine)" || bad "check-imports" "$out" "stderr: $(head -c 600 "$tmp/check-imports.err")"
 
+
+# setup: what a double-click runs. --print shows the steps and changes nothing
+out=$(on linux setup --print 2>&1); rc=$?
+if [[ $rc -eq 0 ]] && grep -q "^data .*hf:logoutsearch/logout-search -> $H/.local/share/logout-search/data" <<<"$out" && grep -q "ed25519:40502f68" <<<"$out" \
+    && grep -q "^autostart " <<<"$out" && grep -q "^browser " <<<"$out" && grep -q "^devices .*pair" <<<"$out" && [[ ! -e "$H/.local/share/logout-search" ]]; then
+    ok "setup --print (linux): data from the published dataset with the pinned key, start at logon, browser, other devices; nothing written"
+else bad "setup --print linux" "rc=$rc" "$out"; fi
+out=$(XDG_DATA_HOME='' on win32 setup --print 2>&1)
+grep -q -- "-> $H/AppData/Local/logout-search/data" <<<"$out" && ok "setup on Windows puts everything under %LOCALAPPDATA%\\logout-search" || bad "setup win32" "$out"
+out=$(XDG_DATA_HOME='' on darwin setup --print 2>&1)
+grep -q -- "-> $H/Library/Application Support/logout-search/data" <<<"$out" && ok "setup on macOS puts everything under ~/Library/Application Support/logout-search" || bad "setup darwin" "$out"
+grep -q 'if not argv and FROZEN:' "$L" && grep -q 'rc = main(\["setup"\])' "$L" && ok "the bundled program run with nothing typed (a double-click) runs setup" || bad "double-click runs setup"
+grep -q 'program() + \["peer", "--dest", base, "--port", str(a.port)\]' "$L" && grep -q 'os.environ.setdefault("RTC_STATE", os.path.join(state, "engine.json"))' "$L" \
+    && ok "start runs the peer beside the engine, its pairings kept with the data" || bad "start runs the peer"
 echo ""; echo "=== 2. autostart: one unit / agent / task per system, dry runs ==="
 out=$(on linux autostart on --dest "$B" --port 8123 --print 2>&1); rc=$?
 if [[ $rc -eq 0 ]] && grep -q "write  $H/.config/systemd/user/logout-search.service" <<<"$out" && grep -qE "^ +ExecStart=.*logout_search.py start --dest $B --port 8123$" <<<"$out" \

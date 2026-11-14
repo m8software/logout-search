@@ -2,6 +2,7 @@
 """logout search: the one program on a home computer. Installs the data, starts the engine, keeps it updated, starts it
 at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGINE-PLAN.md).
 
+    logout-search setup     [--print]            everything below in one go, with nothing to type: what a double-click runs
     logout-search install   --source hf:ORG/NAME --pubkey KEY --dest BASE [--quick] [--switch]      (install.py's options)
     logout-search start     --dest BASE [--port 8090] [--no-smoke] [--print-env [--format posix|cmd|powershell|json]]
     logout-search status    --dest BASE
@@ -10,6 +11,7 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search autostart on|off --dest BASE [--port 8090] [--print]
     logout-search host      register|unregister --dest BASE [--port 8090] [--print]
     logout-search host      run --dest BASE [--port 8090]              (what the browser starts; see `host register`)
+    logout-search peer      --dest BASE [--port 8090]                  (what `start` runs beside the engine; see below)
     logout-search version   [--dest BASE]
 
 Runs from this checkout (`python3 logout_search.py ...`) or as the bundle `bundle/build.py` makes with PyInstaller, where it
@@ -23,6 +25,14 @@ host        The native-messaging host the logout browser extension starts (name 
             forwarder: the browser talks to it over stdin/stdout, it asks the engine on 127.0.0.1:PORT. It is registered with
             every browser found on this machine (Chrome, Chromium, Brave, Edge, Vivaldi, Firefox): a JSON manifest in each
             browser's NativeMessagingHosts folder on Linux and macOS, a registry key under HKCU on Windows.
+
+setup       Copies this program to its own folder, downloads the search data (checked against the signed list; the source
+            and the public key are the ones below), starts the engine now and at logon, and connects the browser
+            extension. Everything goes under one folder in your home: BASE/app (the program) and BASE/data.
+peer        Lets your other devices use this engine: it keeps an outbound connection to the rendezvous at
+            search.logout.cloud, and a phone on the same network that opens that page and taps Pair talks to this
+            computer directly, encrypted (serve/api/rtc_peer.py). Searches never pass through the rendezvous. It asks the
+            engine on 127.0.0.1:PORT, holds no index itself, and opens no listening port.
 
 Test hooks: LOGOUT_SEARCH_PLATFORM=linux|darwin|win32 makes the file-writing commands behave as on that system (paths,
 file contents); HOME, APPDATA and LOCALAPPDATA are read from the environment.
@@ -40,6 +50,9 @@ HOST_NAME = "cloud.logout.search"
 CHROME_ID = "dgnaanjmpoeoecakbcfjmcnoliapkebo"       # fixed by the extension's "key" (apps/search/extension/manifest.json)
 FIREFOX_ID = "search@logout.cloud"
 SERVICE = "logout-search"
+# what `setup` installs: the published data, and the key every file of it is checked against (the dataset page shows both)
+DATA_SOURCE = "hf:logoutsearch/logout-search"
+DATA_PUBKEY = "ed25519:40502f6841e8644b8f193c10af27e5b148f74297bf6da7067115a60792d138bc"
 TASK_NAME = "logout search"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -118,16 +131,182 @@ def start(a) -> None:
         say("warning: this release ships no reranker: results will rank noticeably worse")
     say(f"starting the engine on http://127.0.0.1:{a.port} from {os.path.realpath(os.path.join(base, 'current'))}")
     proc = subprocess.Popen(program() + ["engine"], env={**os.environ, **env})
+    peer = None
     try:
         state = install.wait_ready(a.port, lambda: proc.poll() is None)
         if state == "ready" and not a.no_smoke and install.run_smoke(a.port, "SEARCH_SE_INDEX" in env):
             proc.terminate()
             proc.wait()
             sys.exit(1)
+        if state == "ready" and not getattr(a, "no_peer", False):
+            # the other devices' way in (see `peer`); it ends with the engine, and the engine runs on without it
+            peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)])
         sys.exit(proc.wait())
     except KeyboardInterrupt:
         proc.terminate()
         sys.exit(proc.wait())
+    finally:
+        if peer is not None and peer.poll() is None:
+            peer.terminate()
+
+
+# ================================================================================================ peer (other devices)
+def load_peer():
+    """rtc_peer, with the stand-in for PyAV in place: aiortc imports `av` (FFmpeg) for audio and video this peer never
+    opens, and the bundle does not carry it (serve/api/av_absent.py says why)."""
+    d = engine_dir()
+    if d not in sys.path:
+        sys.path.insert(0, d)
+    if "av" not in sys.modules:
+        import av_absent
+        sys.modules["av"] = av_absent
+    import rtc_peer
+    return rtc_peer
+
+
+def peer_check() -> int:
+    """The libraries the peer needs: proves a bundle carries them (the build's smoke test runs this)."""
+    out = {}
+    try:
+        rp = load_peer()
+        import aiortc
+        out = {"aiortc": aiortc.__version__, "qr": rp.qr_rows("https://search.logout.cloud/") is not None, "rendezvous": rp.RV_URL}
+    except Exception as e:  # noqa: BLE001
+        out = {"error": f"{type(e).__name__}: {e}"}
+    print(json.dumps(out, indent=1, sort_keys=True))
+    return 1 if "error" in out else 0
+
+
+def peer_run(a) -> int:
+    import asyncio
+    base = os.path.abspath(a.dest)
+    state = os.path.join(base, "state")
+    os.makedirs(state, exist_ok=True)
+    # read by rtc_peer and native_host when they are imported: this computer's pairings and the page's settings live with the data
+    os.environ.setdefault("RTC_STATE", os.path.join(state, "engine.json"))
+    os.environ.setdefault("LOGOUT_SETTINGS", os.path.join(state, "settings.json"))
+    os.environ.setdefault("LOGOUT_FEEDS", "0")          # no feed fetcher runs beside this engine: the page offers no sources
+    try:
+        rp = load_peer()
+    except ImportError as e:
+        say(f"peer: not started ({e}); other devices cannot pair with this engine, searches on this computer are unaffected")
+        return 1
+    import native_host as nh
+
+    def details() -> dict:
+        return {"engine": os.environ.get("LOGOUT_ENGINE_NAME") or platform.node(), "ip": nh.lan_ip(), "via": "",
+                "host_version": nh.VERSION, "release": release_ptr.current_id(base), "engine_up": install._readyz(a.port) == 200}
+
+    say("other devices on this network can now pair: open https://search.logout.cloud on one and tap Pair")
+    try:
+        asyncio.run(rp.main(answer=http_answer(a.port, nh), info=details))
+    except KeyboardInterrupt:
+        pass
+    return 0
+
+
+# ================================================================================================ setup (a double-click)
+def default_base() -> str:
+    """The one folder everything goes under, per system."""
+    if PLATFORM == "win32":
+        return os.path.join(os.environ.get("LOCALAPPDATA") or os.path.join(home(), "AppData", "Local"), "logout-search")
+    if PLATFORM == "darwin":
+        return os.path.join(home(), "Library", "Application Support", "logout-search")
+    return os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.join(home(), ".local", "share"), "logout-search")
+
+
+def exe_name() -> str:
+    return "logout-search.exe" if PLATFORM == "win32" else "logout-search"
+
+
+def setup_plan(base: str, port: int) -> list:
+    """The steps of `setup`, as lines to show: [(what, detail)]."""
+    app, data = os.path.join(base, "app"), os.path.join(base, "data")
+    here = os.path.dirname(os.path.abspath(sys.executable)) if FROZEN else HERE
+    steps = []
+    if FROZEN and os.path.normcase(os.path.realpath(here)) != os.path.normcase(os.path.realpath(app)):
+        steps.append(("copy", f"this program -> {app}"))
+    steps += [("data", f"{DATA_SOURCE} -> {data}  (about 11 GB to download, 18 GB on disk; checked against {DATA_PUBKEY})"),
+              ("autostart", f"the engine starts now and at logon, answering only on http://127.0.0.1:{port}"),
+              ("browser", "the logout browser extension is connected, where a supported browser is found"),
+              ("devices", "phones and other computers on this network can pair at https://search.logout.cloud")]
+    return steps
+
+
+def pause_if_double_clicked() -> None:
+    """On Windows a double-click opens a console that closes with the program: wait, so the last lines can be read."""
+    if PLATFORM == "win32" and FROZEN and sys.stdin and sys.stdin.isatty():
+        try:
+            input("\nPress Enter to close this window.")
+        except (EOFError, KeyboardInterrupt):
+            pass
+
+
+def setup(a) -> int:
+    import shutil
+    base = os.path.abspath(a.dest) if a.dest else default_base()
+    app, data = os.path.join(base, "app"), os.path.join(base, "data")
+    plan = setup_plan(base, a.port)
+    if a.print:
+        for what, detail in plan:
+            print(f"{what:10} {detail}")
+        return 0
+    say("logout search: setting up. Nothing needs typing; this window shows what is happening.\n")
+    if plan[0][0] == "copy":
+        # run from where it was unpacked (Downloads): the copy under BASE is the one that starts at logon, so the
+        # unpacked folder can be deleted afterwards
+        src = os.path.dirname(os.path.abspath(sys.executable))
+        say(f"1/5  copying the program to {app}")
+        os.makedirs(base, exist_ok=True)
+        try:
+            shutil.rmtree(app + ".new", ignore_errors=True)
+            shutil.copytree(src, app + ".new", symlinks=True)
+            if os.path.isdir(app):
+                shutil.rmtree(app + ".old", ignore_errors=True)
+                os.replace(app, app + ".old")
+            os.replace(app + ".new", app)
+            shutil.rmtree(app + ".old", ignore_errors=True)
+        except OSError as e:
+            say(f"could not copy the program to {app}: {e}\nIf logout search is already running, stop it (or sign out and in) and run this again.")
+            return 1
+        rc = subprocess.call([os.path.join(app, exe_name()), "setup", "--dest", base, "--port", str(a.port), "--copied"])
+        return rc
+    say(f"2/5  downloading the search data to {data}\n     about 11 GB; it is safe to stop and run this again, it carries on where it stopped")
+    try:
+        run_install(["install", "--source", DATA_SOURCE, "--pubkey", DATA_PUBKEY, "--dest", data])
+    except SystemExit as e:
+        if e.code not in (0, None):
+            say("the data was not installed; run this again to carry on")
+            return int(e.code) if isinstance(e.code, int) else 1
+    say("3/5  starting the engine now and at logon")
+    auto = argparse.Namespace(state="on", dest=data, port=a.port, print=False)
+    started = autostart(auto) == 0
+    if started and PLATFORM == "win32":
+        started = subprocess.run(["schtasks", "/Run", "/TN", TASK_NAME], capture_output=True).returncode == 0   # a logon task does not run by being made
+    if not started:
+        # no systemd user session, no Task Scheduler: start it for this session at least
+        say("     it could not be set to start by itself here; starting it for now")
+        kw = {"creationflags": 0x00000008 | 0x00000200} if os.name == "nt" else {"start_new_session": True}
+        os.makedirs(os.path.join(data, "state"), exist_ok=True)
+        log = open(os.path.join(data, "state", "engine.log"), "ab")
+        subprocess.Popen(start_cmd(data, a.port), stdout=log, stderr=log, stdin=subprocess.DEVNULL, **kw)
+    say("4/5  connecting the browser extension")
+    host_register(argparse.Namespace(action="register", dest=data, port=a.port, print=False))
+    say("5/5  waiting for the engine to answer (the first start reads the index into memory)")
+    ready = install.wait_ready(a.port, lambda: True, timeout=600.0) == "ready"
+    say("")
+    if ready:
+        say("Done. Open https://search.logout.cloud\n"
+            "  on this computer: it is answered here, by your own engine\n"
+            "  on your phone, on the same Wi-Fi: tap Pair, and it uses this computer from anywhere")
+        try:
+            import webbrowser
+            webbrowser.open("https://search.logout.cloud/")
+        except Exception:  # noqa: BLE001
+            pass
+    else:
+        say(f"Installed, but the engine has not answered yet. Its log: {os.path.join(data, 'state', 'engine.log')}")
+    return 0 if ready else 1
 
 
 # ================================================================================================ autostart
@@ -427,6 +606,7 @@ def main(argv=None) -> int:
     s.add_argument("--print-env", action="store_true")
     s.add_argument("--format", choices=["posix", "cmd", "powershell", "json"])
     s.add_argument("--no-smoke", action="store_true", help="skip the three fixed searches run once the engine reports ready")
+    s.add_argument("--no-peer", action="store_true", help="do not let other devices pair with this engine")
     u = sp.add_parser("update")
     u.add_argument("--dest", required=True)
     u.add_argument("--source", required=True)
@@ -444,9 +624,23 @@ def main(argv=None) -> int:
     h.add_argument("--print", action="store_true")
     v = sp.add_parser("version")
     v.add_argument("--dest")
+    pe = sp.add_parser("peer")
+    pe.add_argument("--dest")
+    pe.add_argument("--port", type=int, default=8090)
+    pe.add_argument("--check", action="store_true", help="say whether this program carries what the peer needs; connect to nothing")
+    se = sp.add_parser("setup")
+    se.add_argument("--dest", help="the one folder everything goes under (default: a logout-search folder in your home's application data)")
+    se.add_argument("--port", type=int, default=8090)
+    se.add_argument("--print", action="store_true", help="show the steps; change nothing")
+    se.add_argument("--copied", action="store_true", help=argparse.SUPPRESS)
     sp.add_parser("engine", add_help=False)             # internal: run search_api.py (what `start` spawns)
     sp.add_parser("_update-apply", add_help=False)      # internal: update_apply.py's main (what `update` spawns)
     argv = sys.argv[1:] if argv is None else argv
+    if not argv and FROZEN:
+        # a double-click: no terminal, nothing typed. Set everything up, and keep the window open at the end
+        rc = main(["setup"])
+        pause_if_double_clicked()
+        return rc
     if argv and argv[0] in ("install", "status", "addon", "engine", "_update-apply"):
         if argv[0] == "engine":
             if argv[1:] == ["--check-imports"]:
@@ -472,6 +666,14 @@ def main(argv=None) -> int:
             return host_register(a)
     elif a.cmd == "version":
         version(a)
+    elif a.cmd == "peer":
+        if a.check:
+            return peer_check()
+        if not a.dest:
+            ap.error("peer: --dest is needed")
+        return peer_run(a)
+    elif a.cmd == "setup":
+        return setup(a)
     return 0
 
 

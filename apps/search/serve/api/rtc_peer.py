@@ -87,6 +87,7 @@ RATE_PER_S = float(os.environ.get("RTC_RATE_PER_S", "20"))
 RATE_BURST = float(os.environ.get("RTC_RATE_BURST", "40"))
 
 _answer = None
+_info = None                  # how the engine is reached, for {details}; None = native_host.engine_info (in-process engine)
 _pcs: set = set()
 _turn_waiters: dict = {}      # websocket -> future for the next {"t": "turn"} reply
 
@@ -383,7 +384,7 @@ async def reply(channel, raw, via: str, lan=None) -> None:
             channel.send(json.dumps({"id": msg.get("id"), "error": "pair this device to change settings"}))
         return
     loop = asyncio.get_running_loop()
-    out = await loop.run_in_executor(None, native_host.handle, msg, _answer, native_host.engine_info)
+    out = await loop.run_in_executor(None, native_host.handle, msg, _answer, _info or native_host.engine_info)
     if channel.readyState == "open":
         channel.send(json.dumps(out))
 
@@ -537,8 +538,15 @@ async def rendezvous(family: int, label: str) -> None:
         delay = min(delay * 2, 300)       # no IPv6 at home: settle at one attempt per 5 minutes
 
 
-async def main() -> None:
-    global _answer
+async def main(answer=None, info=None) -> None:
+    """answer: where searches go. None (the servers' own peer): the engine is loaded into this process. Given (the
+    downloaded program, `logout-search peer`): a call that asks an engine already running on this computer, so this
+    process holds no index and the two can be started and stopped apart."""
+    global _answer, _info
+    if answer is not None:
+        _answer, _info = answer, info
+        await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"))
+        return
     _answer = native_host.search_api_answer()
     if os.environ.get("SEARCH_STORE") and int(os.environ.get("WARM_HEAD", "0") or 0) > 0:
         # precomputed results on disk for the home engine too (2026-11-04): the head warmer in this process
