@@ -55,9 +55,10 @@ out=$(on win32 start --dest "$B" --print-env 2>&1)
 grep -q '^set SEARCH_API_BIND=127.0.0.1$' <<<"$out" && ok "on Windows the default format is cmd" || bad "cmd format" "$out"
 grep -q 'SEARCH_API_BIND' "$REPO_ROOT/apps/search/serve/api/search_api.py" && grep -q 'ThreadingHTTPServer((BIND, PORT)' "$REPO_ROOT/apps/search/serve/api/search_api.py" \
     && ok "search_api.py reads SEARCH_API_BIND and binds it (the name the installer sets is one the engine reads)" || bad "engine does not read SEARCH_API_BIND"
-out=$(run engine --check-imports 2>&1); rc=$?
+# stdout only: a library may print a warning on stderr while it is imported (onnxruntime does on some machines), and the JSON is what is read
+out=$(run engine --check-imports 2>"$tmp/check-imports.err"); rc=$?
 "$PY" -c "import json,sys; d=json.loads(sys.argv[1]); assert 'search_api.py' in d['engine_files'] and 'ranker.json' in d['engine_files']" "$out" 2>/dev/null \
-    && ok "engine --check-imports names the libraries and finds search_api.py + ranker.json in the engine folder (rc=$rc here: the libraries may be absent on this machine)" || bad "check-imports" "$out"
+    && ok "engine --check-imports names the libraries and finds search_api.py + ranker.json in the engine folder (rc=$rc here: the libraries may be absent on this machine)" || bad "check-imports" "$out" "stderr: $(head -c 600 "$tmp/check-imports.err")"
 
 echo ""; echo "=== 2. autostart: one unit / agent / task per system, dry runs ==="
 out=$(on linux autostart on --dest "$B" --port 8123 --print 2>&1); rc=$?
