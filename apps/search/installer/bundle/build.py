@@ -141,12 +141,24 @@ def setup_exe(archive: str, work: str, out: str) -> str:
 
 def tray_exe(folder: str, work: str) -> None:
     """Windows: logout-search-tray.exe beside the program, windowed (no console): the tray icon that runs the engine, the
-    target of the Start menu entries and of start-at-sign-in (installer/tray_win.py, standard library only)."""
-    r = subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onefile", "--windowed",
-                        "--name", "logout-search-tray", "--icon", ICON, "--workpath", os.path.join(work, "tray"),
-                        "--distpath", folder, "--specpath", os.path.join(work, "tray"), os.path.join(INSTALLER, "tray_win.py")])
-    if r.returncode or not os.path.isfile(os.path.join(folder, "logout-search-tray.exe")):
+    target of the Start menu entries and of start-at-sign-in (installer/tray_win.py, standard library only).
+    One folder, not one file (2026-11-14: Defender quarantined the one-file tray as Trojan:Win32/Bearfoos.A!ml; a
+    one-file program unpacks itself to a temporary folder at every start, which that model counts against it). Its
+    libraries go in _tray beside the program's own _internal."""
+    out = os.path.join(work, "tray-dist")
+    shutil.rmtree(out, ignore_errors=True)
+    r = subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onedir", "--windowed",
+                        "--contents-directory", "_tray", "--name", "logout-search-tray", "--icon", ICON,
+                        "--workpath", os.path.join(work, "tray"), "--distpath", out, "--specpath", os.path.join(work, "tray"),
+                        os.path.join(INSTALLER, "tray_win.py")])
+    built = os.path.join(out, "logout-search-tray")
+    if r.returncode or not os.path.isfile(os.path.join(built, "logout-search-tray.exe")):
         raise SystemExit("build: logout-search-tray.exe was not produced")
+    for name in os.listdir(built):                         # logout-search-tray.exe and _tray/, beside the program
+        dest = os.path.join(folder, name)
+        if os.path.exists(dest):
+            raise SystemExit(f"build: the tray's {name} would overwrite the program's")
+        shutil.move(os.path.join(built, name), dest)
     shutil.copyfile(ICON, os.path.join(folder, "logout-search.ico"))
 
 

@@ -99,14 +99,47 @@ def register(base: str, port: int) -> list:
     return bad
 
 
+class GUID(ctypes.Structure):
+    _fields_ = [("d1", ctypes.c_uint32), ("d2", ctypes.c_uint16), ("d3", ctypes.c_uint16), ("d4", ctypes.c_ubyte * 8)]
+
+    def __init__(self, s: str):
+        import uuid
+        u = uuid.UUID(s)
+        super().__init__(u.fields[0], u.fields[1], u.fields[2], (ctypes.c_ubyte * 8)(*u.bytes[8:]))
+
+
+def _com(ptr, index: int, *args) -> int:
+    """Call method `index` of a COM interface pointer (its vtable), the arguments given as ctypes values."""
+    vtbl = ctypes.cast(ptr, ctypes.POINTER(ctypes.POINTER(ctypes.c_void_p)))[0]
+    fn = ctypes.WINFUNCTYPE(ctypes.c_long, ctypes.c_void_p, *[type(a) for a in args])(vtbl[index])
+    return fn(ptr, *args)
+
+
 def shortcut(path: str, target: str, args: str) -> bool:
-    """A .lnk through PowerShell's WScript.Shell (present on every Windows 10 and 11)."""
-    q = lambda s: s.replace("'", "''")
-    ps = (f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{q(path)}');$s.TargetPath='{q(target)}';"
-          f"$s.Arguments='{q(args)}';$s.WorkingDirectory='{q(os.path.dirname(target))}';$s.IconLocation='{q(target)},0';$s.Save()")
-    r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", ps],
-                       capture_output=True, creationflags=CREATE_NO_WINDOW)
-    return r.returncode == 0 and os.path.isfile(path)
+    """A .lnk made through Windows' own shell interface (IShellLinkW, IPersistFile), called with ctypes. No PowerShell
+    (2026-11-14: Defender took the tray for a trojan, Bearfoos.A!ml; a hidden PowerShell with its policy bypassed is one
+    of the things that model weighs)."""
+    ole32 = ctypes.windll.ole32
+    ole32.CoInitializeEx(None, 2)                              # apartment-threaded; already done is fine
+    clsid, iid_link, iid_persist = (GUID(g) for g in ("00021401-0000-0000-C000-000000000046",
+                                                      "000214F9-0000-0000-C000-000000000046", "0000010B-0000-0000-C000-000000000046"))
+    addr = lambda o: ctypes.c_void_p(ctypes.addressof(o))       # a pointer argument, as a plain address
+    link, persist = ctypes.c_void_p(), ctypes.c_void_p()
+    if ole32.CoCreateInstance(addr(clsid), None, 1, addr(iid_link), addr(link)) != 0:
+        return False
+    try:
+        W = ctypes.c_wchar_p
+        for index, value in ((20, target), (11, args), (9, os.path.dirname(target))):   # SetPath, SetArguments, SetWorkingDirectory
+            if _com(link, index, W(value)) != 0:
+                return False
+        _com(link, 17, W(target), ctypes.c_int(0))            # SetIconLocation
+        if _com(link, 0, addr(iid_persist), addr(persist)) != 0:   # QueryInterface: IPersistFile
+            return False
+        return _com(persist, 6, W(path), ctypes.c_int(1)) == 0 and os.path.isfile(path)   # Save
+    finally:
+        for p in (persist, link):
+            if p.value:
+                _com(p, 2)                                     # Release
 
 
 def unregister() -> None:
@@ -357,26 +390,9 @@ def settings_menus(data: str) -> list:
     return [("News", news), ("Weather", weather), ("Sports", sports), ("Updates", upd), ("Admin PIN", admin)]
 
 
-def ask_pin() -> str | None:
-    """A small input box (PowerShell's, present on every Windows 10 and 11): the new PIN, or None when cancelled."""
-    ps = ("[void][Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic');"
-          "[Microsoft.VisualBasic.Interaction]::InputBox('New admin PIN, 4 to 8 digits. A paired device uses it to change "
-          "these settings from search.logout.cloud.', 'logout search')")
-    r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", ps],
-                       capture_output=True, text=True, creationflags=CREATE_NO_WINDOW)
-    got = (r.stdout or "").strip()
-    return got or None
-
-
 def set_pin_from_tray(data: str) -> None:
-    pin = ask_pin()
-    if pin is None:
-        return
-    try:
-        adminpin.set_pin(data, pin)
-        tell(f"Admin PIN set: {pin}\n\nIt is shown again under Admin PIN in this menu.")
-    except ValueError as e:
-        tell(f"Not set: {e}.")
+    """A small window of our own program asks for the new PIN (`logout-search admin pin ask`): no PowerShell."""
+    subprocess.Popen([engine_exe(), "admin", "pin", "ask", "--dest", data], creationflags=0x00000010)   # CREATE_NEW_CONSOLE
 
 
 def choose(data: str, cmd: int) -> None:
@@ -445,6 +461,10 @@ def main() -> int:
         import tempfile                                    # the full menu with its submenus, built and destroyed unseen
         with tempfile.TemporaryDirectory() as d:
             user32.DestroyMenu(t.build_menu(d))
+            lnk = os.path.join(d, "selftest.lnk")              # a Start menu shortcut, made the way register() makes them
+            if not shortcut(lnk, sys.executable, "--selftest"):
+                out("tray selftest: the shortcut was not made")
+                return 1
         user32.SetTimer(t.hwnd, 2, 1500, None)
         t.loop()
         out("tray ok")

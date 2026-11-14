@@ -489,6 +489,25 @@ def admin_command(action: str, value, data: str) -> int:
         pin = adminpin.get(data)
         print(pin if pin else "no admin PIN is set")
         return 0
+    if action == "ask":                                  # the tray's "Set a new PIN…": a small console window asks
+        while True:
+            try:
+                got = input("New admin PIN for logout search, 4 to 8 digits (Enter alone to cancel): ").strip()
+            except (EOFError, KeyboardInterrupt):
+                return 1
+            if not got:
+                return 1
+            try:
+                adminpin.set_pin(data, got)
+            except ValueError as e:
+                print(f"Not set: {e}.")
+                continue
+            print(f"Admin PIN set: {got}. It is shown under Admin PIN in the tray menu.")
+            try:
+                input("Press Enter to close this window.")
+            except (EOFError, KeyboardInterrupt):
+                pass
+            return 0
     if action == "set":
         try:
             adminpin.set_pin(data, value or "")
@@ -998,7 +1017,7 @@ def main(argv=None) -> int:
     sp.add_parser("collect", add_help=False)             # internal: one collector (what `start` runs)
     adm = sp.add_parser("admin")
     adm.add_argument("what", choices=["pin"])
-    adm.add_argument("action", choices=["show", "set", "clear"])
+    adm.add_argument("action", choices=["show", "set", "clear", "ask"])
     adm.add_argument("value", nargs="?", help="set: the new PIN, 4 to 8 digits")
     adm.add_argument("--dest", required=True, help="the data folder (BASE/data)")
     upd = sp.add_parser("autoupdate")
