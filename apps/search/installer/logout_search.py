@@ -120,6 +120,34 @@ if FROZEN:
     use_system_certificates()
 
 
+def system_env() -> dict:
+    """The environment for a program that is not ours (the browser, systemctl, launchctl): without the library path the
+    bundle sets for itself (2026-11-14, Fedora: the browser setup opened loaded the bundle's older libstdc++, "GLIBCXX_3.4.32
+    not found", and its zygote broke). PyInstaller keeps the original in LD_LIBRARY_PATH_ORIG (DYLD_ on macOS)."""
+    env = dict(os.environ)
+    for var in ("LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH"):
+        orig = env.pop(var + "_ORIG", None)
+        if orig:
+            env[var] = orig
+        elif FROZEN:
+            env.pop(var, None)
+    return env
+
+
+def open_browser(url: str) -> None:
+    """The page, in this person's browser, started with their own environment."""
+    cmd = {"linux": ["xdg-open", url], "darwin": ["open", url]}.get(PLATFORM)
+    if cmd:
+        try:
+            subprocess.Popen(cmd, env=system_env(), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                             stderr=subprocess.DEVNULL, start_new_session=True)
+            return
+        except OSError:
+            pass
+    import webbrowser
+    webbrowser.open(url)
+
+
 def news_dir() -> str:
     """The news, sports and weather collectors (apps/search/news): the bundle's `news/`, or the checkout's."""
     return os.path.join(bundle_dir(), "news") if FROZEN else os.path.normpath(os.path.join(HERE, "..", "news"))
@@ -748,8 +776,7 @@ def setup(a) -> int:
             "  on this computer: it is answered here, by your own engine\n"
             "  on your phone, on the same Wi-Fi: tap Pair, and it uses this computer from anywhere")
         try:
-            import webbrowser
-            webbrowser.open("https://search.logout.cloud/")
+            open_browser("https://search.logout.cloud/")
         except Exception:  # noqa: BLE001
             pass
     else:
@@ -818,7 +845,7 @@ def apply_plan(p: dict, dry: bool, optional_ok=()) -> int:
         if dry:
             continue
         try:
-            r = subprocess.run(cmd, capture_output=True, text=True)
+            r = subprocess.run(cmd, capture_output=True, text=True, env=system_env())   # systemctl, launchctl: not ours
         except OSError as e:
             say(f"  {cmd[0]}: {e}")
             rc = 1

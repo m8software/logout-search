@@ -54,8 +54,14 @@ def classify(cost: int) -> bool:
 
 def _linux(run=subprocess.run) -> bool | None:
     try:
+        env = dict(os.environ)                                # busctl is the system's: not the bundle's libraries
+        orig = env.pop("LD_LIBRARY_PATH_ORIG", None)
+        if orig:
+            env["LD_LIBRARY_PATH"] = orig
+        elif getattr(sys, "frozen", False):
+            env.pop("LD_LIBRARY_PATH", None)
         r = run(["busctl", "get-property", "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager",
-                 "org.freedesktop.NetworkManager", "Metered"], capture_output=True, text=True, timeout=5)
+                 "org.freedesktop.NetworkManager", "Metered"], capture_output=True, text=True, timeout=5, env=env)
     except (OSError, subprocess.SubprocessError):
         return None
     return nm_metered(r.stdout) if r.returncode == 0 else None
