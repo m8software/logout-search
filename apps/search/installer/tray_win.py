@@ -24,6 +24,7 @@ import webbrowser
 from ctypes import wintypes
 
 import autoupdate as au                                   # imported here so the build's --selftest proves it is bundled
+import homesettings as hs
 
 APP = "logout search"
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -182,9 +183,16 @@ WM_USER, WM_COMMAND, WM_DESTROY, WM_LBUTTONUP, WM_RBUTTONUP, WM_LBUTTONDBLCLK = 
 WM_TRAY, WM_TIMER = WM_USER + 1, 0x0113
 NIM_ADD, NIM_MODIFY, NIM_DELETE = 0, 1, 2
 NIF_MESSAGE, NIF_ICON, NIF_TIP = 1, 2, 4
-MF_STRING, MF_GRAYED, MF_SEPARATOR, MF_CHECKED = 0, 1, 0x800, 0x8
+MF_STRING, MF_GRAYED, MF_SEPARATOR, MF_CHECKED, MF_POPUP = 0, 1, 0x800, 0x8, 0x10
 TPM_RIGHTBUTTON, TPM_RETURNCMD = 0x0002, 0x0100
 ID_OPEN, ID_RESTART, ID_UNINSTALL, ID_QUIT, ID_UPDATE_NOW, ID_UPDATE_AUTO = 1, 2, 3, 4, 5, 6
+# the settings menus (owner 2026-11-14: "should all be configurable in the tray settings, set update times or check if
+# you want them at all"): what each choice writes is in choose()
+ID_NEWS, ID_WEATHER, ID_SPORTS, ID_ADDONS = 10, 20, 30, 42
+NEWS_IDS = {11: 1, 12: 2, 13: 4}                           # news_every
+WEATHER_IDS = {21: 1, 22: 3, 23: 6}                        # weather_every_h
+WINDOW_IDS = {50: 1, 51: 3, 52: 5, 53: 12, 54: 19, 55: 23}  # at_hour: the start of the daily check's two hours
+WINDOW_TEXT = {1: "1 to 3 a.m.", 3: "3 to 5 a.m.", 5: "5 to 7 a.m.", 12: "noon to 2 p.m.", 19: "7 to 9 p.m.", 23: "11 p.m. to 1 a.m."}
 MB_YESNO, MB_ICONQUESTION, MB_OK, MB_ICONINFO, IDYES = 0x4, 0x20, 0x0, 0x40, 6
 
 
@@ -203,9 +211,18 @@ class WNDCLASSW(ctypes.Structure):
                 ("lpszClassName", wintypes.LPCWSTR)]
 
 
+def _menu_types() -> None:
+    """HMENU is a pointer: without these, ctypes passes and returns it as a 32-bit int."""
+    user32.CreatePopupMenu.restype = wintypes.HMENU
+    user32.AppendMenuW.argtypes = [wintypes.HMENU, wintypes.UINT, ctypes.c_size_t, wintypes.LPCWSTR]
+    user32.TrackPopupMenu.argtypes = [wintypes.HMENU, wintypes.UINT, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.HWND, ctypes.c_void_p]
+    user32.DestroyMenu.argtypes = [wintypes.HMENU]
+
+
 class Tray:
     def __init__(self, engine, selftest: bool = False):
         self.engine, self.selftest = engine, selftest
+        _menu_types()
         user32.DefWindowProcW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
         user32.DefWindowProcW.restype = LRESULT
         self._proc = WNDPROC(self.wndproc)                # kept: a collected callback would crash the window
@@ -234,20 +251,20 @@ class Tray:
     def menu(self) -> None:
         m = user32.CreatePopupMenu()
         st = self.engine.state() if self.engine else "ready"
-        user32.AppendMenuW(m, MF_STRING | MF_GRAYED, 0, {"ready": "Ready", "starting": "Starting…", "stopped": "Stopped"}[st])
-        user32.AppendMenuW(m, MF_SEPARATOR, 0, None)
-        user32.AppendMenuW(m, MF_STRING, ID_OPEN, "Open search")
-        user32.AppendMenuW(m, MF_STRING, ID_RESTART, "Restart the engine")
+        add = user32.AppendMenuW
+        add(m, MF_STRING | MF_GRAYED, 0, {"ready": "Ready", "starting": "Starting…", "stopped": "Stopped"}[st])
+        add(m, MF_SEPARATOR, 0, None)
+        add(m, MF_STRING, ID_OPEN, "Open search")
+        add(m, MF_STRING, ID_RESTART, "Restart the engine")
         if self.engine:
-            # the daily update (autoupdate.py, run by the engine's own process): its last result, check now, on/off
-            s = au.load(self.engine.data)
-            user32.AppendMenuW(m, MF_SEPARATOR, 0, None)
-            user32.AppendMenuW(m, MF_STRING | MF_GRAYED, 0, "Updates: " + (
-                "checking\u2026" if s.get("requested") else (s.get("last_result") or "not checked yet")))
-            user32.AppendMenuW(m, MF_STRING, ID_UPDATE_NOW, "Check for updates now")
-            user32.AppendMenuW(m, MF_STRING | (MF_CHECKED if au.enabled(s) else 0), ID_UPDATE_AUTO, "Update automatically")
-            user32.AppendMenuW(m, MF_SEPARATOR, 0, None)
-        user32.AppendMenuW(m, MF_STRING, ID_UNINSTALL, "Uninstall…")
+            add(m, MF_SEPARATOR, 0, None)
+            for title, items in settings_menus(self.engine.data):
+                sub = user32.CreatePopupMenu()              # destroyed with m (DestroyMenu takes its submenus)
+                for flags, cid, text in items:
+                    add(sub, flags, cid, text)
+                add(m, MF_POPUP, sub, title)
+            add(m, MF_SEPARATOR, 0, None)
+        add(m, MF_STRING, ID_UNINSTALL, "Uninstall…")
         user32.AppendMenuW(m, MF_STRING, ID_QUIT, "Quit (until the next sign-in)")
         pt = wintypes.POINT()
         user32.GetCursorPos(ctypes.byref(pt))
@@ -261,13 +278,13 @@ class Tray:
             webbrowser.open(SEARCH_URL)
         elif cmd == ID_RESTART and self.engine:
             threading.Thread(target=self.engine.restart, daemon=True).start()
-        elif cmd in (ID_UPDATE_NOW, ID_UPDATE_AUTO) and self.engine:
-            au.command("now" if cmd == ID_UPDATE_NOW else ("off" if au.enabled(au.load(self.engine.data)) else "on"), self.engine.data)
         elif cmd == ID_UNINSTALL:
             if uninstall(self.engine.data if self.engine else None, True, self.engine):
                 self.quit(stop_engine=False)
         elif cmd == ID_QUIT:
             self.quit()
+        elif self.engine and cmd:                          # a settings choice (settings_menus)
+            choose(self.engine.data, cmd)
 
     def quit(self, stop_engine: bool = True) -> None:
         if stop_engine and self.engine:
@@ -298,6 +315,51 @@ class Tray:
         while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
             user32.TranslateMessage(ctypes.byref(msg))
             user32.DispatchMessageW(ctypes.byref(msg))
+
+
+def settings_menus(data: str) -> list:
+    """[(submenu title, [(flags, id, text)])]: what the collectors fetch and how often (homesettings.py), and the daily
+    update (autoupdate.py). The figures are what one install downloads a day, measured or worked out on 2026-11-14."""
+    c, u = hs.load(data), au.load(data)
+    tick = lambda on: MF_CHECKED if on else 0
+    off_grey = lambda on: 0 if on else MF_GRAYED
+    news = [(MF_STRING | tick(c["news"]), ID_NEWS, "Headlines and your own feeds"), (MF_SEPARATOR, 0, None)]
+    news += [(MF_STRING | tick(c["news_every"] == v) | off_grey(c["news"]), i, t) for i, v, t in (
+        (11, 1, "Every feed at its own pace (about 600 MB a day)"), (12, 2, "Half as often (about 300 MB a day)"),
+        (13, 4, "A quarter as often (about 150 MB a day)"))]
+    weather = [(MF_STRING | tick(c["weather"]), ID_WEATHER, "US weather from NOAA"), (MF_SEPARATOR, 0, None)]
+    weather += [(MF_STRING | tick(c["weather_every_h"] == v) | off_grey(c["weather"]), i, t) for i, v, t in (
+        (21, 1, "Forecast every hour (about 750 MB a day)"), (22, 3, "Forecast every 3 hours (about 310 MB a day)"),
+        (23, 6, "Forecast every 6 hours (about 200 MB a day)"))]
+    sports = [(MF_STRING | tick(c["sports"]), ID_SPORTS, "Scores and standings (about 55 MB a day)")]
+    upd = [(MF_STRING | MF_GRAYED, 0, "Last check: " + ("checking\u2026" if u.get("requested") else (u.get("last_result") or "not yet"))),
+           (MF_STRING, ID_UPDATE_NOW, "Check for updates now"), (MF_SEPARATOR, 0, None),
+           (MF_STRING | tick(au.enabled(u)), ID_UPDATE_AUTO, "Update automatically"),
+           (MF_STRING | tick(u.get("addons", True) is not False) | off_grey(au.enabled(u)), ID_ADDONS,
+            "Add-ons: Wikipedia links and how-to answers (6 GB)"),
+           (MF_SEPARATOR, 0, None), (MF_STRING | MF_GRAYED, 0, "Check once a day between")]
+    upd += [(MF_STRING | tick(au.at_hour(u) == h) | off_grey(au.enabled(u)), i, WINDOW_TEXT[h]) for i, h in WINDOW_IDS.items()]
+    return [("News", news), ("Weather", weather), ("Sports", sports), ("Updates", upd)]
+
+
+def choose(data: str, cmd: int) -> None:
+    """A settings choice from the tray: written at once; the engine's process applies it within a minute."""
+    c, u = hs.load(data), au.load(data)
+    if cmd in (ID_NEWS, ID_WEATHER, ID_SPORTS):
+        key = {ID_NEWS: "news", ID_WEATHER: "weather", ID_SPORTS: "sports"}[cmd]
+        hs.set_value(data, key, not c[key])
+    elif cmd in NEWS_IDS:
+        hs.set_value(data, "news_every", NEWS_IDS[cmd])
+    elif cmd in WEATHER_IDS:
+        hs.set_value(data, "weather_every_h", WEATHER_IDS[cmd])
+    elif cmd == ID_UPDATE_NOW:
+        au.command("now", data)
+    elif cmd == ID_UPDATE_AUTO:
+        au.command("off" if au.enabled(u) else "on", data)
+    elif cmd == ID_ADDONS:
+        au.command("addons", data, "off" if u.get("addons", True) is not False else "on")
+    elif cmd in WINDOW_IDS:
+        au.command("at", data, WINDOW_IDS[cmd])
 
 
 def confirm(text: str) -> bool:

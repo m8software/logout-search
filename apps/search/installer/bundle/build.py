@@ -30,15 +30,20 @@ INSTALLER = os.path.dirname(HERE)
 SEARCH = os.path.dirname(INSTALLER)
 ENGINE = os.path.join(SEARCH, "serve", "api")
 RELEASE = os.path.join(SEARCH, "release")
+NEWS = os.path.join(SEARCH, "news")
 
 # what the engine image copies (serve/api/Dockerfile), less the servers' own tools; shipped on disk so search_api.py runs as a file
 ENGINE_FILES = ["search_api.py", "lookups_sqlite.py", "lookups_release.py", "kinds_release.py", "tv_open.py", "release_root.py",
                 "sem_ivf.py", "site_pages.py", "product_table.py", "gov_state.py", "site_slots.py", "state_anchor.py", "result_store.py", "facts.py", "news_sqlite.py", "instant_answers.py", "ranker.json", "warm.py",
                 "native_host.py", "rtc_peer.py", "av_absent.py", "NOTICE"]
 ENGINE_DIRS = ["licenses"]
+# the collectors `start` runs beside the engine (news, scores, weather), shipped on disk like the engine's own files.
+# sports_personal.py is not part of the public copy and never shipped: sports.py runs on the cleared open sources without it
+NEWS_FILES = ["poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py", "schema-sqlite.sql", "feeds-public.tsv"]
 # analysed with the launcher so every library and standard-library module they import is in the bundle
 ANALYSED = [os.path.join(INSTALLER, "logout_search.py"), os.path.join(ENGINE, "search_api.py"), os.path.join(ENGINE, "native_host.py"),
-            os.path.join(ENGINE, "rtc_peer.py"), os.path.join(ENGINE, "av_absent.py"), os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py")]
+            os.path.join(ENGINE, "rtc_peer.py"), os.path.join(ENGINE, "av_absent.py"), os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py"),
+            os.path.join(INSTALLER, "autoupdate.py")] + [os.path.join(NEWS, f) for f in ("poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py")]
 ICON = os.path.join(HERE, "logout-search.ico")
 COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary",
                "aiortc", "aioice", "pylibsrtp", "google_crc32c", "qrcode"]      # the peer (other devices pair through it)
@@ -78,6 +83,10 @@ def stage_engine(stage: str) -> str:
         shutil.copy2(os.path.join(ENGINE, f), eng)
     for d in ENGINE_DIRS:
         shutil.copytree(os.path.join(ENGINE, d), os.path.join(eng, d))
+    news = os.path.join(stage, "news")
+    os.makedirs(news)
+    for f in NEWS_FILES:
+        shutil.copy2(os.path.join(NEWS, f), news)
     return eng
 
 
@@ -91,6 +100,8 @@ def pyinstaller(stage: str, work: str, dist: str) -> None:
             "--workpath", work, "--distpath", dist, "--specpath", work,
             "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
             "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
+            "--add-data", f"{os.path.join(stage, 'news')}{os.pathsep}news", "--paths", NEWS,
+            "--hidden-import", "feedparser", "--hidden-import", "defusedxml.ElementTree",
             "--add-data", f"{os.path.join(stage, 'version.txt')}{os.pathsep}.",
             "--hidden-import", "numpy", "--hidden-import", "psycopg", "--hidden-import", "websockets",
             "--exclude-module", "av"]               # PyAV is FFmpeg (GPL codecs): never in the bundle, av_absent.py stands in
@@ -168,6 +179,8 @@ def smoke(folder: str) -> None:
     with tempfile.TemporaryDirectory() as t:              # the updater is in the bundle and answers
         au = json.loads(run("autoupdate", "status", "--dest", t))
         assert au["enabled"] is True, au
+    for c in ("news", "sports", "weather"):              # each collector and its libraries load (they run beside the engine)
+        assert json.loads(run("collect", c, "--check"))["ok"] is True
     peer = json.loads(run("peer", "--check"))            # the peer's libraries load, without PyAV
     assert peer.get("aiortc") and peer.get("qr") is True, peer
     plan = run("setup", "--print", "--dest", os.path.join(tempfile.gettempdir(), "logout-search-smoke"))

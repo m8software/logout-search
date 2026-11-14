@@ -47,7 +47,7 @@ API_LATEST = f"https://api.github.com/repos/{REPO}/releases/latest"
 UA = "logout-search-updater"
 EXIT_RESTART = 75                       # EX_TEMPFAIL: systemd's Restart=on-failure, launchd's KeepAlive and the tray restart it
 DAY = 86400
-CHECK_HOURS = (3, 5)                    # the window a daily check prefers, local time
+CHECK_HOURS = (3, 5)                    # the window a daily check prefers, local time (at_hour in the state moves it)
 OVERDUE_S = 36 * 3600                   # a computer that was off in the window checks at the next start after this
 FIRST_DELAY_S = 600                     # never in the first minutes after a start: the index is loading
 ASSETS = {"win32": "logout-search-setup.exe", "linux": "logout-search-linux-x86_64.tar.gz",
@@ -91,8 +91,17 @@ def due(s: dict, now: float, started: float) -> bool:
     last = float(s.get("last_check") or 0)
     if now - last >= OVERDUE_S:
         return True
-    hour = time.localtime(now).tm_hour
-    return now - last >= DAY - 3600 and CHECK_HOURS[0] <= hour < CHECK_HOURS[1]
+    return now - last >= DAY - 3600 and in_window(s, now)
+
+
+def at_hour(s: dict) -> int:
+    """The hour a daily check's two-hour window starts (the tray's "Check between"); 3 = 03:00-05:00."""
+    v = s.get("at_hour", CHECK_HOURS[0])
+    return v if isinstance(v, int) and 0 <= v <= 23 else CHECK_HOURS[0]
+
+
+def in_window(s: dict, now: float) -> bool:
+    return (time.localtime(now).tm_hour - at_hour(s)) % 24 < CHECK_HOURS[1] - CHECK_HOURS[0]
 
 
 # ================================================================================================ versions
@@ -258,6 +267,44 @@ def data_update(data: str, program: list, source: str, pubkey: str, platform: st
     return {"action": "none", "release": after or out.get("current") or out.get("latest")}
 
 
+# ================================================================================================ the add-ons
+def last_json(text: str) -> dict:
+    """The last JSON object a command printed (its own progress lines may come first)."""
+    text = (text or "").strip()
+    for start in [0] + [i + 1 for i, ch in enumerate(text) if ch == "\n" and text[i + 1:i + 2] == "{"][::-1]:
+        try:
+            v = json.loads(text[start:])
+            return v if isinstance(v, dict) else {}
+        except ValueError:
+            continue
+    return {}
+
+
+def addons_update(data: str, program: list, source: str, pubkey: str, platform: str, runner=subprocess.run) -> dict:
+    """The signed add-ons public and a home server run with (wikilinks, se-howto: install.ADDONS): each one that fits
+    this data and is missing, older than the published one, or damaged is installed. -> {"action", "installed": [...]}"""
+    kw = {"creationflags": 0x00004000 | 0x08000000} if platform == "win32" else {"preexec_fn": lambda: os.nice(10)}
+    r = runner(program + ["addon", "list", "--dest", data, "--source", source, "--pubkey", pubkey],
+               capture_output=True, text=True, timeout=600, **kw)
+    if r.returncode:
+        raise RuntimeError("add-on list refused: " + ((r.stderr or "").strip().splitlines() or ["(no message)"])[-1][:300])
+    got = last_json(r.stdout)
+    have = {a["name"]: a for a in got.get("installed") or []}
+    done = []
+    for a in got.get("available") or []:
+        if not a.get("fits_current") or "unavailable" in a:
+            continue
+        h = have.get(a["name"])
+        if h and h.get("version") == a.get("version") and h.get("intact") and h.get("fits_current"):
+            continue
+        r = runner(program + ["addon", "install", a["name"], "--dest", data, "--source", source, "--pubkey", pubkey],
+                   capture_output=True, text=True, timeout=6 * 3600, **kw)
+        if r.returncode:
+            raise RuntimeError(f"add-on {a['name']} refused: " + ((r.stderr or "").strip().splitlines() or ["(no message)"])[-1][:300])
+        done.append(a["name"])
+    return {"action": "restart" if done else "none", "installed": done}
+
+
 # ================================================================================================ one check
 def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, program: list, source: str, pubkey: str,
           fetch=None, opener=None, runner=subprocess.run, now=None) -> str | None:
@@ -285,6 +332,16 @@ def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, progr
         except Exception as e:  # noqa: BLE001
             s["data"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
             result.append("data update failed")
+        if s.get("addons", True) is not False:            # "addons": false in the state file: none installed for you
+            try:
+                a = addons_update(data, program, source, pubkey, platform, runner)
+                s["addon_result"] = a
+                if a["action"] == "restart":
+                    result.append("add-ons " + ", ".join(a["installed"]))
+                    act = act or "restart"
+            except Exception as e:  # noqa: BLE001
+                s["addon_result"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
+                result.append("add-on update failed")
     s["last_result"] = "; ".join(result) or "up to date"
     save(data, s)
     return act
@@ -363,9 +420,28 @@ def rescue(data: str, run_check, now=None) -> str | None:
         return run_check()
 
 
-def command(action: str, data: str) -> int:
-    """`logout-search autoupdate status|on|off|now --dest DATA`."""
+def command(action: str, data: str, value=None) -> int:
+    """`logout-search autoupdate status|on|off|now|at HOUR|addons on|off --dest DATA`."""
     s = load(data)
+    if action == "at":
+        try:
+            h = int(value)
+            assert 0 <= h <= 23
+        except (TypeError, ValueError, AssertionError):
+            out("autoupdate at HOUR: 0-23, the start of the two-hour window")
+            return 2
+        s["at_hour"] = h
+        save(data, s)
+        out(f"daily check between {h:02d}:00 and {(h + 2) % 24:02d}:00")
+        return 0
+    if action == "addons":
+        if value not in ("on", "off"):
+            out("autoupdate addons on|off")
+            return 2
+        s["addons"] = value == "on"
+        save(data, s)
+        out("add-ons are " + ("installed and kept up to date" if value == "on" else "left as they are"))
+        return 0
     if action in ("on", "off"):
         s["enabled"] = action == "on"
         save(data, s)
@@ -376,6 +452,7 @@ def command(action: str, data: str) -> int:
         save(data, s)
         out("asked: the running engine checks within a minute (see `autoupdate status`)")
         return 0
-    out(json.dumps({"enabled": enabled(s), **{k: s.get(k) for k in ("last_check", "last_result", "program", "data")}},
+    out(json.dumps({"enabled": enabled(s), "at_hour": at_hour(s), "addons": s.get("addons", True) is not False,
+                    **{k: s.get(k) for k in ("last_check", "last_result", "program", "data", "addon_result")}},
                      indent=1, sort_keys=True))
     return 0

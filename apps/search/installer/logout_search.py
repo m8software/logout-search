@@ -9,7 +9,10 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search addon     install|remove wikilinks|se-howto --dest BASE [--source hf:ORG/NAME --pubkey KEY]   |   addon list --dest BASE
     logout-search update    --dest BASE --source hf:ORG/NAME --pubkey KEY.pem [--check]
     logout-search autostart on|off --dest BASE [--port 8090] [--print]
-    logout-search autoupdate status|on|off|now --dest BASE        (the daily update of the program and the data)
+    logout-search autoupdate status|on|off|now|at HOUR|addons on|off --dest BASE   (the daily update, its time, the add-ons)
+    logout-search collectors status|on|off [news|sports|weather] --dest BASE   (what `start` runs beside the engine)
+    logout-search collectors set news_every 1|2|4 | weather_every_h 1|3|6 --dest BASE   (how often; homesettings.py)
+    logout-search collect   news|sports|weather [--once|--check]   (one collector; what `start` runs)
     logout-search host      register|unregister --dest BASE [--port 8090] [--print]
     logout-search host      run --dest BASE [--port 8090]              (what the browser starts; see `host register`)
     logout-search peer      --dest BASE [--port 8090]                  (what `start` runs beside the engine; see below)
@@ -79,6 +82,11 @@ def engine_dir() -> str:
     return os.path.normpath(os.path.join(HERE, "..", "serve", "api"))
 
 
+def news_dir() -> str:
+    """The news, sports and weather collectors (apps/search/news): the bundle's `news/`, or the checkout's."""
+    return os.path.join(bundle_dir(), "news") if FROZEN else os.path.normpath(os.path.join(HERE, "..", "news"))
+
+
 def release_dir() -> str:
     return os.path.join(bundle_dir(), "release") if FROZEN else os.path.normpath(os.path.join(HERE, "..", "release"))
 
@@ -145,6 +153,11 @@ def start(a) -> None:
     if "SEARCH_CE_DIR" not in env:
         say("warning: this release ships no reranker: results will rank noticeably worse")
     say(f"starting the engine on http://127.0.0.1:{a.port} from {os.path.realpath(os.path.join(base, 'current'))}")
+    try:
+        ensure_news_file(base)                           # the engine opens it read-only, collectors on or off
+    except Exception as e:  # noqa: BLE001
+        say(f"news file not made: {type(e).__name__}: {e}")
+    collectors = start_collectors(base)                  # news, scores and weather (the engine reads what they write)
     proc = subprocess.Popen(program() + ["engine"], env={**os.environ, **env})
     peer = None
     # the daily update runs from the start, ready or not: a release whose engine cannot start must still be replaceable
@@ -177,6 +190,8 @@ def start(a) -> None:
     finally:
         if peer is not None and peer.poll() is None:
             peer.terminate()
+        if collectors is not None:
+            collectors.stop()
 
 
 EXIT_RESTART = 75                                     # autoupdate.EXIT_RESTART: the service, launchd and the tray start it again
@@ -234,6 +249,182 @@ def start_updater(data: str, engine):
     return restart
 
 
+# ================================================================================================ collectors
+# What search.logout.cloud and a home server run beside the engine (owner 2026-11-14: "it should do everything the public
+# instance and my indexhost instance does"): headlines from the feeds, the user's own feeds (section "mine"), scores and
+# standings from the cleared open sports sources (SPORTS_PUBLIC=1, ADR-069), and NOAA's weather for every US town. All
+# three write DATA/state/news.sqlite, which the engine reads (install.engine_env). Each runs as `logout-search collect
+# NAME` at low priority, is started again if it stops (never stopping the engine), and stops with `start`.
+COLLECTORS = {"news": "poller.py", "sports": "sports.py", "weather": "wxall.py"}
+OWN_SETTINGS = {"news": ("NEWS_POLL_SCALE",), "sports": (), "weather": ("WX_EVERY_NBH_S", "WX_EVERY_NBE_S")}   # a change restarts only that one
+# The shipped headline list: search.logout.cloud's own (feeds-public.tsv, ADR-062). Owner 2026-11-14: "ship the public
+# feed list too" -- an installed engine reads the same list as the public site, plus the feeds its user adds.
+HOME_FEED_LIST = "feeds-public.tsv"
+
+
+def collectors_on(data: str) -> dict:
+    import homesettings
+    return homesettings.on(data)
+
+
+def news_file(data: str) -> str:
+    return os.path.join(data, "state", "news.sqlite")
+
+
+def collector_env(data: str) -> dict:
+    nd = news_dir()
+    settings = os.environ.get("LOGOUT_SETTINGS") or os.path.join(data, "state", "settings.json")
+    env = {"NEWS_SQLITE": news_file(data), "NEWS_SETTINGS": settings, "SPORTS_SETTINGS": settings, "SPORTS_PUBLIC": "1",
+           "NEWS_FEEDS": os.path.join(nd, HOME_FEED_LIST) if HOME_FEED_LIST else "", "NEWS_FEEDS_MORE": "",
+           "PYTHONUNBUFFERED": "1"}
+    import homesettings
+    env.update(homesettings.env_for(data))               # how often: the tray's choices (news pace, weather hours)
+    return env
+
+
+def ensure_news_file(data: str) -> None:
+    """The engine opens the news file read-only: it must exist, with its tables, before the engine starts."""
+    os.makedirs(os.path.join(data, "state"), exist_ok=True)
+    os.environ["NEWS_SQLITE"] = news_file(data)
+    if news_dir() not in sys.path:
+        sys.path.insert(0, news_dir())
+    import newsdb
+    newsdb.ensure_sqlite_schema()
+
+
+def run_collect(name: str, argv: list) -> int:
+    """`collect NAME [--once|--check]`: run that collector in this process. --check imports it (and its libraries)
+    without starting it: the build's proof that the bundle carries what it needs."""
+    import runpy
+    if name not in COLLECTORS:
+        say(f"collect: one of {', '.join(COLLECTORS)}")
+        return 2
+    d = news_dir()
+    if d not in sys.path:
+        sys.path.insert(0, d)
+    if "--check" in argv:
+        import feedparser  # noqa: F401  (poller.py imports it per feed)
+        from defusedxml import ElementTree  # noqa: F401  (fx.py)
+        runpy.run_path(os.path.join(d, COLLECTORS[name]), run_name="collect_check")
+        print(json.dumps({"collector": name, "ok": True}))
+        return 0
+    sys.argv = [COLLECTORS[name]] + argv
+    runpy.run_path(os.path.join(d, COLLECTORS[name]), run_name="__main__")
+    return 0
+
+
+class Collectors:
+    """The collectors `start` runs: each restarted if it stops, with back-off; all stopped by stop()."""
+
+    def __init__(self, data: str):
+        import threading
+        self.data, self.procs, self.stopping, self.lock = data, {}, threading.Event(), threading.Lock()
+        self.started_with = {}
+
+    def own(self, name: str) -> tuple:
+        env = collector_env(self.data)
+        return tuple(env.get(k) for k in OWN_SETTINGS[name])
+
+    def launch(self, name: str):
+        log_path = os.path.join(self.data, "state", f"{name}.log")
+        try:
+            if os.path.getsize(log_path) > 5 * 1024 * 1024:
+                os.replace(log_path, log_path + ".1")
+        except OSError:
+            pass
+        log = open(log_path, "ab")
+        kw = {"creationflags": 0x00004000 | 0x08000000} if PLATFORM == "win32" else {"preexec_fn": lambda: os.nice(10)}
+        return subprocess.Popen(program() + ["collect", name], env={**os.environ, **collector_env(self.data)},
+                                stdout=log, stderr=log, stdin=subprocess.DEVNULL, **kw)
+
+    def run(self) -> None:
+        import time
+        delay = {k: 10.0 for k in COLLECTORS}
+        due = {k: 0.0 for k in COLLECTORS}
+        while not self.stopping.is_set():
+            on = collectors_on(self.data)
+            for name in COLLECTORS:
+                with self.lock:
+                    p = self.procs.get(name)
+                    if not on[name]:
+                        if p is not None and p.poll() is None:
+                            p.terminate()
+                        self.procs.pop(name, None)
+                        continue
+                    if p is not None and p.poll() is None:
+                        if self.started_with.get(name) == self.own(name):
+                            continue
+                        p.terminate()                     # its settings changed (the tray): start it again with them
+                        try:
+                            p.wait(10)
+                        except subprocess.TimeoutExpired:
+                            p.kill()
+                        self.procs.pop(name, None)
+                        due[name], delay[name] = 0.0, 10.0
+                        p = None
+                    if p is not None:                     # it stopped: again, later each time it keeps stopping
+                        delay[name] = min(delay[name] * 2, 1800.0)
+                        due[name] = time.time() + delay[name]
+                        self.procs.pop(name, None)
+                        continue
+                    if time.time() < due[name] or self.stopping.is_set():
+                        continue
+                    try:
+                        self.started_with[name] = self.own(name)
+                        self.procs[name] = self.launch(name)
+                    except OSError as e:
+                        say(f"collector {name} not started: {e}")
+                        due[name] = time.time() + 600
+            self.stopping.wait(15)
+
+    def stop(self) -> None:
+        self.stopping.set()
+        with self.lock:
+            for p in self.procs.values():
+                if p.poll() is None:
+                    p.terminate()
+            for p in self.procs.values():
+                try:
+                    p.wait(10)
+                except subprocess.TimeoutExpired:
+                    p.kill()
+            self.procs.clear()
+
+
+def start_collectors(data: str):
+    """The collectors, as a thread of `start`; None when all are off. Never raises."""
+    import threading
+    try:
+        if not any(collectors_on(data).values()):
+            return None
+        ensure_news_file(data)
+        c = Collectors(data)
+        threading.Thread(target=c.run, daemon=True).start()
+        return c
+    except Exception as e:  # noqa: BLE001 - news, scores and weather must never be why the engine does not run
+        say(f"collectors not started: {type(e).__name__}: {e}")
+        return None
+
+
+def collectors_command(action: str, args: list, data: str) -> int:
+    import homesettings as hs
+    try:
+        if action in ("on", "off"):
+            for k in (args[:1] or list(COLLECTORS)):
+                if k not in COLLECTORS:
+                    raise ValueError(f"one of {', '.join(COLLECTORS)}")
+                hs.set_value(data, k, action == "on")
+        elif action == "set":
+            if len(args) != 2:
+                raise ValueError("collectors set KEY VALUE (news_every 1|2|4, weather_every_h 1|3|6)")
+            hs.set_value(data, args[0], args[1])
+    except ValueError as e:
+        say(f"collectors: {e}")
+        return 2
+    print(json.dumps(hs.load(data), indent=1, sort_keys=True))
+    return 0
+
+
 # ================================================================================================ peer (other devices)
 def load_peer():
     """rtc_peer, with the stand-in for PyAV in place: aiortc imports `av` (FFmpeg) for audio and video this peer never
@@ -278,7 +469,8 @@ def peer_run(a) -> int:
     # read by rtc_peer and native_host when they are imported: this computer's pairings and the page's settings live with the data
     os.environ.setdefault("RTC_STATE", os.path.join(state, "engine.json"))
     os.environ.setdefault("LOGOUT_SETTINGS", os.path.join(state, "settings.json"))
-    os.environ.setdefault("LOGOUT_FEEDS", "0")          # no feed fetcher runs beside this engine: the page offers no sources
+    # the page's sources box (adding your own feeds) only where the news collector runs beside this engine
+    os.environ.setdefault("LOGOUT_FEEDS", "1" if collectors_on(base)["news"] else "0")
     try:
         rp = load_peer()
     except ImportError as e:
@@ -716,8 +908,14 @@ def main(argv=None) -> int:
     u.add_argument("--source", required=True)
     u.add_argument("--pubkey", required=True, help="the PEM file of the pinned public key")
     u.add_argument("--check", action="store_true", help="say whether an update exists; download nothing")
+    co = sp.add_parser("collectors")
+    co.add_argument("action", choices=["status", "on", "off", "set"])
+    co.add_argument("args", nargs="*", help="on/off: a collector (default all); set: KEY VALUE")
+    co.add_argument("--dest", required=True, help="the data folder (BASE/data)")
+    sp.add_parser("collect", add_help=False)             # internal: one collector (what `start` runs)
     upd = sp.add_parser("autoupdate")
-    upd.add_argument("action", choices=["status", "on", "off", "now"])
+    upd.add_argument("action", choices=["status", "on", "off", "now", "at", "addons"])
+    upd.add_argument("value", nargs="?", help="at: the hour (0-23) the two-hour window starts; addons: on|off")
     upd.add_argument("--dest", required=True, help="the data folder (BASE/data)")
     au = sp.add_parser("autostart")
     au.add_argument("state", choices=["on", "off"])
@@ -748,6 +946,8 @@ def main(argv=None) -> int:
         rc = main(["setup"])
         pause_if_double_clicked()
         return rc
+    if argv and argv[0] == "collect":
+        return run_collect(argv[1] if len(argv) > 1 else "", argv[2:])
     if argv and argv[0] in ("install", "status", "addon", "engine", "_update-apply"):
         if argv[0] == "engine":
             if argv[1:] == ["--check-imports"]:
@@ -766,9 +966,11 @@ def main(argv=None) -> int:
         return run_update(a, rest)
     elif a.cmd == "autostart":
         return autostart(a)
+    elif a.cmd == "collectors":
+        return collectors_command(a.action, a.args, os.path.abspath(a.dest))
     elif a.cmd == "autoupdate":
         import autoupdate as au
-        return au.command(a.action, os.path.abspath(a.dest))
+        return au.command(a.action, os.path.abspath(a.dest), a.value)
     elif a.cmd == "host":
         if a.action == "run":
             host_run(a)

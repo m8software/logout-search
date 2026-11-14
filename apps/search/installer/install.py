@@ -1078,6 +1078,11 @@ def run_smoke(port: int, has_se: bool, get=_get_json) -> int:
 
 
 # ================================================================================================ start / status
+PUBLIC_TUNING = {"SEARCH_LINK_SITE_LOW_GUARD": "1", "SEARCH_LINK_SITE_MIN_SITELINKS": "1", "SEARCH_PLACE_UNDER_THING": "-40",
+                 "SEARCH_PRODUCT_SITE_FIRST": "2", "SEARCH_PRODUCT_TIER_WIDE": "1", "SEARCH_TYPO_NAMES": "links,places",
+                 "SEARCH_TYPO_WORD_DF": "3000", "SEARCH_ANSWER_DEAD": "1"}
+
+
 def engine_env(base: str, port: int = 8090) -> dict:
     """The environment search_api.py needs to answer from BASE/current (names read from search_api.py, not guessed)."""
     cur = os.path.join(base, "current")
@@ -1131,6 +1136,15 @@ def engine_env(base: str, port: int = 8090) -> dict:
     if os.path.isdir(os.path.join(real, "models", "rerank-gov")):
         env["SEARCH_CE_GOV_DIR"] = os.path.join(cur, "models", "rerank-gov")
     env.update(addon_env(base, m["release"]))                        # optional signed add-ons (BASE/addons): wikilinks, se-howto
+    # news, scores and weather (installer/logout_search.py's collectors write it; `start` makes it before the engine starts)
+    env["SEARCH_NEWS_BACKEND"] = "sqlite"
+    env["SEARCH_NEWS_SQLITE"] = os.path.join(base, "state", "news.sqlite")
+    # the result settings search.logout.cloud runs with (infra/search-public/docker-compose.yml), so an engine at home ranks
+    # as the public site does (owner 2026-11-14). A value already in the environment wins.
+    for k, v in PUBLIC_TUNING.items():
+        env[k] = os.environ.get(k, v)
+    if "SEARCH_SE_INDEX" in env:
+        env["SEARCH_SE_POOL"] = os.environ.get("SEARCH_SE_POOL", "8")
     env["SEARCH_BREADTH"] = os.environ.get("SEARCH_BREADTH", BREADTH_WIKI if "SEARCH_WIKILINKS" in env else BREADTH_PLAIN)
     # glibc: 2 malloc arenas instead of 8 per core for the engine's ~40 threads. rc8 under 4 GB / 4 CPUs: anonymous memory
     # after 1,000 searches 2.23 -> 1.94 GB, latency unchanged (audits/2026-10-12-box-memory-levers.md). Ignored

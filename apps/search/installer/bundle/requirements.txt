@@ -6,6 +6,9 @@ tantivy==0.26.2
 onnxruntime==1.30.0
 tokenizers==0.23.2
 psycopg[binary]==3.3.6
+# the news collector (apps/search/news, as its Dockerfile pins them)
+feedparser==6.0.12
+defusedxml==0.7.1
 # the peer that lets other devices pair (serve/api/rtc_peer.py), as serve/api/Dockerfile.rtc pins it. aiortc asks for PyAV
 # (`av`: FFmpeg with x264 and x265, GPL); the bundle must not carry it, so after installing this file run
 # `pip uninstall -y av` -- build.py refuses to build while `av` can be imported, and serve/api/av_absent.py stands in.

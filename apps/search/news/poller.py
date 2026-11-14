@@ -282,11 +282,16 @@ def news_sitemaps_in_robots(text: str) -> list[str]:
 # ---------------------------------------------------------------------------
 # Scheduling
 # ---------------------------------------------------------------------------
+# How often, overall (owner 2026-11-14: the tray chooses "every feed's own pace", "half as often", "a quarter as often"):
+# every listed interval is multiplied by this. 1 = as listed. The user's own feeds follow it too.
+POLL_SCALE = max(1.0, float(os.environ.get("NEWS_POLL_SCALE", "1") or 1))
+
+
 def next_interval(base_min: float, idle_polls: int) -> float:
     """Minutes until the next poll: the listed interval, stretched 1.5x per idle poll after
     the second, at most MAX_STRETCH x."""
     stretch = min(MAX_STRETCH, 1.5 ** max(0, idle_polls - 2))
-    return max(MIN_POLL_MIN, base_min * stretch)
+    return max(MIN_POLL_MIN, base_min * POLL_SCALE * stretch)
 
 
 def backoff(base_min: float, fails: int, retry_after_s: float | None = None) -> float:
