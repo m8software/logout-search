@@ -39,7 +39,8 @@ printf '{"release": "fx-0", "engine": {}}' > "$B/releases/fx-0/manifest.json"
 "$PY" -c "import sys; sys.path.insert(0, '$REPO_ROOT/apps/search/release'); import release_ptr; release_ptr.set_pointer('$B', 'current', 'fx-1')"
 H="$tmp/home"; mkdir -p "$H"
 run() { "$PY" "$L" "$@"; }                                      # the launcher, from source
-on() { LOGOUT_SEARCH_PLATFORM="$1" HOME="$H" USERPROFILE="$H" LOCALAPPDATA="$H/AppData/Local" APPDATA="$H/AppData/Roaming" "$PY" "$L" "${@:2}"; }
+# XDG_CONFIG_HOME too: where it is set (GitHub's Linux machines) the launcher reads it before HOME/.config
+on() { LOGOUT_SEARCH_PLATFORM="$1" HOME="$H" XDG_CONFIG_HOME="$H/.config" USERPROFILE="$H" LOCALAPPDATA="$H/AppData/Local" APPDATA="$H/AppData/Roaming" "$PY" "$L" "${@:2}"; }
 
 echo "=== 1. version, start --print-env ==="
 out=$(run version --dest "$B" 2>&1); rc=$?

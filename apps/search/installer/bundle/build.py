@@ -121,7 +121,7 @@ def smoke(folder: str) -> None:
                   ("home", "AppData", "Local", "Google", "Chrome")):
             os.makedirs(os.path.join(t, *d))
         run("host", "register", "--dest", base, "--print",
-            env={"HOME": home, "USERPROFILE": home, "LOCALAPPDATA": os.path.join(home, "AppData", "Local"), "APPDATA": os.path.join(home, "AppData", "Roaming")})
+            env={"HOME": home, "XDG_CONFIG_HOME": os.path.join(home, ".config"), "USERPROFILE": home, "LOCALAPPDATA": os.path.join(home, "AppData", "Local"), "APPDATA": os.path.join(home, "AppData", "Roaming")})
         st = json.loads(run("status", "--dest", base))
         assert st["current"] == "fx-1", st
 
