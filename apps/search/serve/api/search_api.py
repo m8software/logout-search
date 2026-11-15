@@ -819,6 +819,38 @@ _qcode_busy: dict = {}                 # query -> Event while one thread embeds 
 _qcode_lock = threading.Lock()
 
 
+def _qcode_compute(si, enc, q: str):
+    """The nomic code of q: from the compute cache (SEARCH_COMPUTE_CACHE) when this model already coded this
+    exact text, else from the model. The namespace names the model file's sha256 and the encoder's prefix and token
+    limit, so a new model or setting never reads an old code."""
+    cc = _compute_cache()
+    if cc is None:
+        return si.code_of(enc(q))
+    import compute_cache as _cc
+    ns = f"qcode|{_cc.file_sha256(os.path.join(NOMIC_DIR, 'model.onnx'))}|{si.NOMIC_PREFIX}|{si.NOMIC_TOKENS}|{enc.sess.get_providers()[0]}"
+    v = cc.get_many(ns, [q])[0]
+    if v is not None:
+        return si.np.frombuffer(v, dtype=si.np.uint8).copy()
+    c = si.code_of(enc(q))
+    cc.put_many(ns, [q], [c.tobytes()])
+    return c
+
+
+_compute_cache_state: list = []
+
+
+def _compute_cache():
+    """The model-output cache (compute_cache.py), or None when SEARCH_COMPUTE_CACHE is unset (the module is then never
+    imported)."""
+    if not _compute_cache_state:
+        if os.environ.get("SEARCH_COMPUTE_CACHE", "").strip():
+            import compute_cache as _cc
+            _compute_cache_state.append(_cc.cache())
+        else:
+            _compute_cache_state.append(None)
+    return _compute_cache_state[0]
+
+
 def query_code(q: str):
     """The query's 96-byte code, once per query text: the Wikipedia and the pages lists share it. The two lists start
     together, so a second caller waits for the first one's embedding instead of making its own (2026-11-03: every
@@ -837,7 +869,7 @@ def query_code(q: str):
             ev.wait(30)                # the first caller finished (or failed): look again
     try:
         with stage("embed"):
-            c = si.code_of(enc(q))
+            c = _qcode_compute(si, enc, q)
         with _qcode_lock:
             if len(_qcode_cache) > 512:
                 _qcode_cache.clear()
@@ -1414,7 +1446,21 @@ def embed(text: str, prefix: str = QUERY_PREFIX) -> list[float] | None:
             _embedder = _Embedder(MODEL_DIR)
         except Exception:
             _embedder = False                               # no model in this image: tier off
-    return _embedder(text, prefix) if _embedder else None
+    if not _embedder:
+        return None
+    cc = _compute_cache()
+    if cc is None:
+        return _embedder(text, prefix)
+    import array
+    import compute_cache as _cc
+    ns = f"bge|{_cc.file_sha256(os.path.join(MODEL_DIR, 'model.onnx'))}|128|{_embedder.sess.get_providers()[0]}"
+    item = prefix + "\x00" + text
+    v = cc.get_many(ns, [item])[0]
+    if v is not None:
+        return array.array("f", v).tolist()
+    out = _embedder(text, prefix)
+    cc.put_many(ns, [item], [array.array("f", out).tobytes()])
+    return out
 
 
 # News headlines by meaning (2026-09-30): one vector per item, cached by URL so a headline is
@@ -3450,6 +3496,321 @@ def _uncapped_row(r: dict, st: str, is_gov: bool = False) -> bool:
     """Wikipedia, Stack Exchange Q&A, channel/account rows, and (on a government search) .gov/.mil portals hold distinct
     pages or agencies under one root domain: D does not cap them at one row per root domain, and J leaves them."""
     return r.get("source") in _BREADTH_UNCAPPED or (is_gov and st.endswith((".gov", ".mil")))
+
+
+def card_pre(q: str, res: list[dict]):
+    """The card's first step, run for every answer (never stored): marks a respelled name's rows in place, finds the
+    article that heads the list and, for "gmail login", the rows of the account's base name ("gmail"). Returns
+    (top, cres, base): the article row, the rows the card is built from, the base name or None."""
+    if card_article(res) is None:
+        mark_respelled(q, res)                          # "sarah j mass": Sarah J. Maas's card
+    top = card_article(res)
+    cres = res                                          # the rows the card is built from; a short name's card
+    base = account_base(q) if top is None else None
+    if base and any(r.get("source") == "site" and _label(r.get("url") or "") == norm_key(base) for r in res[:3]):
+        # "gmail login": the card of "gmail", when the name's own domain leads the list
+        cres = cached(("account_base", base), lambda: [search(base, 8)])[0]
+        top = card_article(cres)
+    return top, cres, base
+
+
+def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base: str | None):
+    """The card stage (parts stage "card" phase 2): a pure function of its arguments, the release data and the
+    settings it reads. Returns (card, res, failed): the card or None, the rows after a short name's official site
+    leads (the same list when it did not), and the exception's name when the last step failed (then nothing is kept).
+    It never calls search(): the account base's rows come in as cres, so a change to the search code does not
+    change this stage's version."""
+    card, swapped = None, False
+    lk = lookups()
+    alt = short_name_title(base or q, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None)
+    if alt:                                     # "outlook" -> Microsoft Outlook, "keep" -> Google Keep
+        swapped = True
+        if lk is not None:
+            top = wiki_top(lk, alt) or top
+        else:
+            with _conn() as c:
+                top = wiki_top(c, alt) or top
+    if top is not None:
+        t = top["title"].rsplit(" — Wikipedia", 1)[0]
+        if lk is not None and lk.name == "release":     # the card is one precomputed record
+            descr, rel_rows, img_row, _person = lk.card_parts(t, RELATED_N)
+            row, rel, img = (descr,) if descr else None, related_results(rel_rows), card_image(img_row)
+            site_row = (lk.h[CARD_SITE_SQL]({"t": t}) or [None])[0]
+        else:
+            with _conn() as c:
+                has = tables(c)
+                row = c.execute(CARD_DESCR_SQL, {"t": t}).fetchone() if "suggest_items" in has else None
+                rel = (related_results(c.execute(RELATED_SQL, {"t": t, "n": RELATED_N}))
+                       if "wiki_next" in has else None)
+                img = (card_image(c.execute(CARD_IMAGE_SQL, {"t": t}).fetchone())
+                       if "card_images" in has else None)
+                site_row = c.execute(CARD_SITE_SQL, {"t": t}).fetchone() if "wiki_sites" in has else None
+        card = card_of(cres, row[0] if row else None, rel, img, site_row[0] if site_row else None, top=top)
+        if swapped:
+            try:
+                res = lead_with_official(res, card)
+            except Exception as e:                  # as before the split: the card stays, the rows stay as they were
+                return card, res, type(e).__name__
+    return card, res, None
+
+
+def card_stage(q: str, res: list[dict], top, cres, base):
+    """card_build, through the parts store when SEARCH_PARTS has "card" (and live otherwise or on any trouble). The key's
+    inputs are the content of q, the rows after card_pre and the account base's rows."""
+    P = parts_for("card")
+    if P is None or _parts_off.get():
+        if _pcheck.get():
+            raise PartStale("card")
+        card, res2, failed = card_build(q, res, top, cres, base)
+        if failed:
+            print(f"card failed: {failed}", flush=True)
+        return card, res2
+    import parts as _parts
+    try:
+        before = _parts.canon(res)
+        key = P.key("card", [q, before.decode(), None if cres is res else _parts.canon(cres).decode(), base])
+        got = P.get("card", key)
+    except Exception:  # noqa: BLE001
+        P.stats["error"] += 1
+        key, got = None, None
+    if got is not None:
+        note_part("card", key)
+        return got["card"], (got["res"] if got.get("res") is not None else res)
+    if _pcheck.get():
+        raise PartStale("card")
+    card, res2, failed = card_build(q, res, top, cres, base)
+    if failed:
+        print(f"card failed: {failed}", flush=True)
+    elif key is not None and _warm.get():                # only the builder writes (a visitor's search is never kept)
+        try:
+            if P.put("card", key, {"card": card, "res": None if _parts.canon(res2) == before else res2}):
+                note_part("card", key)
+        except Exception:  # noqa: BLE001
+            P.stats["error"] += 1
+    return card, res2
+
+
+def list_build(q: str, res: list[dict], card: dict | None, cur: list[dict] | None):
+    """The list stage (parts stage "list" phase 2): the rows as shown, from the base rows after the card and the
+    place, the card and the offline curated list (None when there is none). Returns (rows, sig). A function of its
+    arguments, the settings and data it reads and the models (through the compute cache); the order of the steps is
+    the one _instant had inline before the split."""
+    def usual(rows):                                 # the list as it is without a curated one
+        # kept per search for the cache's time (2026-11-11): the links of the card's article are scored by the
+        # reranker in breadth_list, about 0.6 s on the public engine, and that was paid again on EVERY request of
+        # a carded name, cached base rows or not. The key is everything the steps below read.
+        key = ("usual", q, _breadth.get(), _breadth_floor.get(), bool(_score_all.get()), usual_gate(), same_page((card or {}).get("url") or ""),
+               tuple(r.get("url") for r in rows))
+        return cached(key, lambda: usual_now(rows))
+
+    def usual_now(rows):
+        rows = mix_wikipedia(rows, card)
+        if card:
+            rows = card_gate(q, rows)                # off unless SEARCH_CARD_GATE or ?cg= (2026-11-05)
+        if _score_all.get() and rows:                # off unless SEARCH_SCORE_ALL or ?sa=1
+            with stage("score_all"):
+                rows = score_unscored(q, rows[:SCORE_ALL_TOP] if SCORE_ALL_TOP > 0 else rows)
+        return breadth_list(q, rows, card, _breadth.get())   # off unless SEARCH_BREADTH or ?bl= (2026-11-07)
+    if cur:
+        # the offline list as chosen, in its order (no Wikipedia mix, no gate: the large model already decided);
+        # the engine's places stay on top and the card's own article is not repeated under it
+        places = [r for r in res if r.get("source") == "place"]
+        shown = {same_page(card.get("url") or "")} if card else set()
+        top = places + [r for r in cur if r.get("source") != "place" and same_page(r["url"]) not in shown]
+        res = curated_fill(top, usual(res), shown) if _cur_fill.get() else top
+    else:
+        res = usual(res)
+    res = with_office_rows(res, card)      # "trump": whitehouse.gov just under the card (after the list is final)
+    sig = {}
+    if web_only(q, res):           # on the shown list, after the Wikipedia mix: that is what the fit saw
+        res = web_rerank(q, res)
+        sig = web_signal(q, res)
+    if not cur:                    # after the web rerank (it must not move the row); a curated list is the large model's, left as chosen
+        res = site_intent_rows(q, res, card)       # off unless SEARCH_SITE_SLOTS / SEARCH_SITE_BRIDGE
+        res = se_howto(q, res)     # off unless SEARCH_SE_INDEX; how-to searches only (2026-11-10)
+    return res, sig
+
+
+def conf_of(q: str, res: list[dict]) -> bool:
+    return bool(res) and is_confident(res) and intent_of(q, res) == "nav"
+
+
+def intent_kinds(q: str, res: list[dict]):
+    intent = intent_of(q, res) if res else ""        # judged on the list as ranked, before the mix
+    kinds = res[0].get("kind_card") if res and res[0].get("kind_top") else None
+    return intent, kinds
+
+
+def verdict_build(q: str, pre: list[dict], res: list[dict]) -> dict:
+    """The verdict stage (parts stage "verdict"): the confidence flag (judged on the base rows, before the card),
+    the intent and the kind card (on the rows after the card)."""
+    intent, kinds = intent_kinds(q, res)
+    return {"conf": conf_of(q, pre), "intent": intent, "kinds": kinds}
+
+
+def place_build(q: str, card: dict | None, want: bool):
+    """The place stage (parts stage "place"): a place searched by name, and what the card says of it. Returns
+    (card, place, failed): failed names the exception when the step could not finish (then nothing is kept)."""
+    place = None
+    try:
+        pl = cached(("place", q.lower(), home_point()), lambda: [place_exact(q)], static=True)[0] if want and len(q) >= 3 else None
+        person = False
+        if pl and card is not None:
+            with _conn() as c:
+                person = "wiki_facts" in tables(c) and c.execute(PERSON_SQL, {"t": card["title"]}).fetchone() is not None
+        org = org_named(q) if (pl or card) else False
+        if org and card is not None:
+            # branches go by the organisation's full name too: "cvs" -> CVS Pharmacy
+            oname = re.sub(r"\s*\(.*\)$", "", card["title"])
+            alt = cached(("place", oname.lower(), home_point()), lambda: [place_exact(oname)], static=True)[0] if oname.lower() != q.lower() else None
+            if alt and (not pl or (alt.get("miles") or 1e9) < (pl.get("miles") or 1e9)):
+                pl = alt
+        card, place = place_answer(q, card, pl, person, org)
+    except Exception as e:  # noqa: BLE001
+        return card, None, type(e).__name__
+    return card, place, None
+
+
+def local_build(q: str) -> bool:
+    """The local stage (parts stage "local"): does q name a business with branches (names_places)?"""
+    return bool(cached(("names_places", q.lower()),
+                       lambda: stored("names_places", (q.lower(),), lambda: [names_places(q)]), static=True)[0])
+
+
+def local_part(q: str) -> bool:
+    return part_run("local", [q], lambda: local_build(q))
+
+
+def place_stage(q: str, card: dict | None, want: bool, log):
+    import parts as _parts
+    if parts_for("place") is None:
+        card2, place, failed = place_build(q, card, want)
+    else:
+        card2, place, failed = part_run("place", [q, _parts.canon(card).decode(), want], lambda: list(place_build(q, card, want)),
+                                        keep=lambda v: not v[2])
+    if failed:
+        log("place failed: %s", failed)
+    return card2, place
+
+
+def verdict_stage(q: str, pre: list[dict], res: list[dict]):
+    import parts as _parts
+    v = part_run("verdict", [q, _parts.canon(pre).decode(), _parts.canon(res).decode()], lambda: verdict_build(q, pre, res))
+    return v["conf"], v["intent"], v["kinds"]
+
+
+def glue_build(q: str, res: list[dict], card: dict | None) -> list[dict]:
+    """The steps between the stages, run for every answer and not stored (cheap, and their effect is in the content the
+    list stage is keyed by): the kind card is taken off the rows, the card carries the accounts, branches, rows named
+    by their bare address, accounts the card leaves out."""
+    res = [{k: v for k, v in r.items() if k != "kind_card"} if "kind_card" in r else r for r in res]
+    if _accounts_in_card.get():                      #: the card carries the accounts, the list keeps sites and the article
+        res = fold_accounts(res, card)
+    res = branches_only(res)
+    # a site row whose address is not a host name is not a link ("https://1=microsoft.com/...", 2026-11-14), and a
+    # row titled with its bare address is named after the card it belongs to
+    res = name_bare_rows([r for r in res if r.get("source") != "site" or url_host_ok(r.get("url") or "")], card)
+    if card:                                         # an account the card leaves out is not a result either ("IKEA on Discogs")
+        what = card.get("description") or ""
+        key = same_page(card.get("url") or "")
+        res = [r for r in res if not (r.get("profile") and r.get("of") == key and not account_fits(r.get("platform", ""), what))]
+    return res
+
+
+def finished_answer(q: str, qs, want: bool, full: bool, plain: bool, fin_full: bool, log):
+    """The visitor-independent part of an /instant answer, stage by stage (phase 2). Returns (res, conf, card, place,
+    intent, kinds, local, sig): the fields of a finished answer. Each stage that is on goes through the parts store;
+    this function's own body (the order of the stages, which fields come from which) is the residual (parts stage
+    "rest"), the only code a re-stamp trusts rather than re-checks."""
+    # local (does q name a business with branches?) beside the search, not after it (2026-11-03: a whole-world
+    # places lookup, 0.15-0.4 s for "home depot", ran after the clock stopped). Only when results are wanted.
+    f_local = (_EXEC.submit(contextvars.copy_context().run, _staged, "names_places", local_part, q)
+               if want and q and home_point() is None else None)
+    # results=0: suggestions only; full=1: a submitted search, results whatever the length and more of them;
+    # as-you-type keeps the wordy gate
+    if want and (full or wordy(q) or short_org(q)):
+        res = search(q, MAX_K if full else 8)
+    else:
+        res = []
+        note_part("base", "none")                    # no search ran: the answer says so, and a change to the gate shows
+    pre = None
+    if parts_for("verdict") is None:
+        conf = conf_of(q, res)
+    else:
+        import copy
+        pre = copy.deepcopy(res)                     # the verdict is judged on the rows before the card marks them
+    card = None
+    with stage("card"):
+        try:                                                    # a card is extra: never fail the answer
+            top, cres, base = card_pre(q, res)
+            card, res = card_stage(q, res, top, cres, base)
+        except PartStale:
+            raise
+        except Exception as e:
+            log("card failed: %s", type(e).__name__)
+    with stage("place"):
+        card, place = place_stage(q, card, want, log)
+    if pre is None:
+        intent, kinds = intent_kinds(q, res)
+    else:
+        conf, intent, kinds = verdict_stage(q, pre, res)
+    res = glue_build(q, res, card)
+    cur = (curated_rows(q) or curated_by_card(q, card)) if res and not (qs.get("cur") or [""])[0] == "0" else None
+    res, sig = list_stage(q, res, card, cur)
+    # local: this search names a business with branches and came with no position (names_places, started above)
+    with stage("local_wait"):
+        local = False
+        if f_local is not None:
+            try:
+                lv = f_local.result()
+                local = bool(lv) if res else False
+            except PartStale:
+                if res:
+                    raise
+            except Exception as e:                         # a lookup that failed says nothing, as before it ran
+                log("names_places failed: %s", type(e).__name__)
+            if not res:
+                (_part_keys.get() or {}).pop("local", None)      # not part of this answer: its thread may or may not have noted it
+    if _warm.get() and plain and (qs.get("fin") or [""])[0] == "1":     # the builder (twin/ship.sh) keeps what it computed
+        fin_put(q, fin_full, {"results": res, "confident": conf, "card": card, "place": place, "intent": intent, "kinds": kinds,
+                              "local": local, "sig": sig, "pk": part_stamp()})
+    return res, conf, card, place, intent, kinds, local, sig
+
+
+def part_run(stage: str, inputs: list, build, keep=lambda v: True):
+    """One stage through the parts store. build() -> the stage's value (JSON-like); returns it. Key from the inputs'
+    content; a hit replaces the computation; on a miss the builder (warm=1) keeps the value. In ?pcheck=1 mode a miss
+    raises PartStale (the engine is asked only whether every part of an answer is current). Stage off = build()."""
+    P = parts_for(stage)
+    if P is None or _parts_off.get():
+        if _pcheck.get():
+            raise PartStale(stage)
+        return build()
+    try:
+        key = P.key(stage, inputs)
+        got = P.get(stage, key)
+    except Exception:  # noqa: BLE001 - a part is extra: compute it live
+        P.stats["error"] += 1
+        key, got = None, None
+    if got is not None:
+        note_part(stage, key)
+        return got["v"]
+    if _pcheck.get():
+        raise PartStale(stage)
+    val = build()
+    if key is not None and _warm.get() and keep(val):    # only the builder writes (a visitor's search is never kept)
+        if P.put(stage, key, {"v": val}):
+            note_part(stage, key)
+    return val
+
+
+def list_stage(q: str, res: list[dict], card: dict | None, cur: list[dict] | None):
+    import parts as _parts
+    if parts_for("list") is None:
+        return list_build(q, res, card, cur)
+    inputs = [q, _parts.canon(res).decode(), _parts.canon(card).decode(), _parts.canon(cur).decode()]
+    out = part_run("list", inputs, lambda: list(list_build(q, res, card, cur)))
+    return out[0], out[1]
 
 
 def _link_rows(card: dict) -> list[dict]:
@@ -6871,6 +7232,177 @@ def result_store():
     return _store[0]
 
 
+# An answer as parts (phase 2, 2026-11-15; parts.py, docs/internal/precompute-plan.md). SEARCH_PARTS=card turns the
+# listed stages on (default off): the stage's output is kept in the result store under a key made of the stage's code
+# version, the settings and data it reads and its inputs, so a deploy that did not touch the stage finds its parts again.
+# Only the builder (warm=1) writes; ?parts=0 computes live (the shadow compare's old path). Any trouble = computed live.
+PARTS_ON = frozenset(x.strip() for x in os.environ.get("SEARCH_PARTS", "").split(",") if x.strip())
+# Settings that change speed, capacity or logging, never an answer: named so a part's key is the same on every machine
+PARTS_SPEED_ONLY = ("SEARCH_CACHE_MAX", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_TTL_S", "SEARCH_CE_THREADS", "SEARCH_COMPUTE_CACHE",
+                    "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_OV_CACHE", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
+                    "SEARCH_PARTS", "SEARCH_POOL_MAX", "SEARCH_STATEMENT_TIMEOUT_MS", "SEARCH_STORE", "SEARCH_STORE_FOLD_CASE",
+                    "SEARCH_STORE_MAX_AGE_S", "SEARCH_STORE_PREV", "SEARCH_STORE_REFRESH_S", "SEARCH_WORKERS", "SEARCH_LOG",
+                    "SEARCH_SQLITE_CACHE_KB", "SEARCH_MEMSTAT")
+PARTS_CLOCK_OK = ("cached", "generation", "tables", "stage", "stage_since", "stored_text", "junk_domains", "junk_domains_ut1", "suggest_candidates")   # cache expiry and timing only
+PART_STAGES = {
+    # card_build reaches no search code: its code version moves only with the card's own code and what it calls
+    "card": dict(roots=("card_build",), settings=(
+                           "SEARCH_CARDLINKS", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
+                           "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OWN_RANK_TSV", "SEARCH_POSTGRES",
+                           "SEARCH_RELEASE_DIR", "SEARCH_SHORT_FLOOR", "SEARCH_SHORT_NAMES", "SEARCH_SHORT_RATIO",
+                           "SEARCH_SITENAV", "SEARCH_SITES_BACKEND", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),
+    # the ranked candidates of one search: retrieval, fusion, the models (their real devices are in the key)
+    "base": dict(roots=("_search_retry",), settings=(
+                           "SEARCH_ACCOUNTS_IN_CARD", "SEARCH_ANSWER_DEAD", "SEARCH_BRAND_SITES",
+                           "SEARCH_BRAND_SITES_FILE", "SEARCH_CE_ALT_DIR", "SEARCH_CE_DEVICE", "SEARCH_CE_DIR",
+                           "SEARCH_CE_DIR_IGPU", "SEARCH_CE_GOV_DIR", "SEARCH_CE_MAX_TOKENS", "SEARCH_CE_TEXT",
+                           "SEARCH_CE_TOP", "SEARCH_CE_WIKI_FLOOR", "SEARCH_CONFIDENT_RANK",
+                           "SEARCH_CONFIDENT_RANK_OWN", "SEARCH_COUNTRY", "SEARCH_FUZZY_SIM",
+                           "SEARCH_GOV_PAGES_DEPTH", "SEARCH_GOV_PAGES_GIVEN", "SEARCH_GOV_PAGES_POOL",
+                           "SEARCH_GOV_PAGES_READ", "SEARCH_GOV_STATES", "SEARCH_HEAD_WEIGHT", "SEARCH_HOME",
+                           "SEARCH_HOME_RANK", "SEARCH_HOURS_STALE_DAYS", "SEARCH_INTENT_DIR", "SEARCH_KIND_CONF_W",
+                           "SEARCH_KIND_EXACT_W", "SEARCH_KIND_HOME_W", "SEARCH_KIND_LEAD_W",
+                           "SEARCH_KIND_LEAD_W_OPEN", "SEARCH_KIND_LIFT_CONF", "SEARCH_KIND_SIM",
+                           "SEARCH_KIND_SITE_SIM", "SEARCH_LINK_SITE_LOW_GUARD", "SEARCH_LINK_SITE_MIN_SITELINKS",
+                           "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_MODEL_DIR", "SEARCH_NEWS_BACKEND",
+                           "SEARCH_NEWS_DB", "SEARCH_NEWS_SQLITE", "SEARCH_NOMIC_DIR", "SEARCH_OFFICIAL_FIRST",
+                           "SEARCH_OFFICIAL_LEAD", "SEARCH_OWN_RANK_TSV", "SEARCH_PAGES_FUSE_K",
+                           "SEARCH_PAGES_FUSE_W", "SEARCH_PIN_EXACT_ARTICLE", "SEARCH_PLACE_EXACT_KM",
+                           "SEARCH_PLACE_RADIUS_KM", "SEARCH_PLACE_UNDER_THING", "SEARCH_POSTGRES", "SEARCH_PRODUCTS",
+                           "SEARCH_PRODUCT_MAKER_MIN", "SEARCH_PRODUCT_SITE_FIRST", "SEARCH_PRODUCT_TIER_WIDE",
+                           "SEARCH_RANKER", "SEARCH_RELEASE_DIR", "SEARCH_RELEASE_ID", "SEARCH_RRF_K",
+                           "SEARCH_SEM_BACKEND", "SEARCH_SEM_IVF", "SEARCH_SEM_PAGES_IVF",
+                           "SEARCH_SEM_PAGES_MAX_BITS", "SEARCH_SEM_PAGES_PROBES", "SEARCH_SEM_PAGES_W",
+                           "SEARCH_SEM_PROBES", "SEARCH_SITES_BACKEND", "SEARCH_SITES_BLOCK_WEB",
+                           "SEARCH_SITES_INDEX", "SEARCH_SITES_INTENT_MIN", "SEARCH_SITE_PAGES",
+                           "SEARCH_SITE_PAGES_N", "SEARCH_SITE_PAGES_W", "SEARCH_SITE_RANK", "SEARCH_STATE_ANCHORS",
+                           "SEARCH_STATE_ANCHOR_MIN", "SEARCH_STATE_ANCHOR_SOURCES", "SEARCH_STRONG_BM25",
+                           "SEARCH_TYPO_EDITS2_LEN", "SEARCH_TYPO_INDEX", "SEARCH_TYPO_KNOWN_DF",
+                           "SEARCH_TYPO_KNOWN_RATIO", "SEARCH_TYPO_MIN", "SEARCH_TYPO_NAMES", "SEARCH_TYPO_POP",
+                           "SEARCH_TYPO_SIM", "SEARCH_TYPO_WIDE", "SEARCH_TYPO_WORDS", "SEARCH_TYPO_WORDS_FILE",
+                           "SEARCH_TYPO_WORD_DF", "SEARCH_WEB_BACKEND", "SEARCH_WEB_INTENT_MIN",
+                           "SEARCH_WIKI_BACKEND", "SEARCH_WIKI_INDEX", "SEARCH_WX_SQLITE", "SEARCH_YT_BARE_MIN"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK + ("_search",),
+                 runtime=lambda: base_runtime()),
+    # the rows as shown: mix, gate, breadth cleanup, curated fill, web rerank, site rows
+    "list": dict(roots=("list_build",), settings=(
+                           "SEARCH_BREADTH", "SEARCH_BREADTH_CITE", "SEARCH_BREADTH_FLOOR", "SEARCH_BREADTH_WIKI",
+                           "SEARCH_BREADTH_WIKI_FROM", "SEARCH_BREADTH_WIKI_MIN", "SEARCH_CARD_GATE",
+                           "SEARCH_CE_DEVICE", "SEARCH_CE_DIR", "SEARCH_CE_DIR_IGPU", "SEARCH_CE_MAX_TOKENS",
+                           "SEARCH_CE_TEXT", "SEARCH_CE_TOP", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
+                           "SEARCH_CURATED_FILL", "SEARCH_FACTS", "SEARCH_INSTANT_LIST_FIRST", "SEARCH_INTENT_DIR",
+                           "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OFFICE_SITES", "SEARCH_OWN_RANK_TSV",
+                           "SEARCH_POSTGRES", "SEARCH_RELEASE_DIR", "SEARCH_SCORE_ALL", "SEARCH_SCORE_ALL_TOP",
+                           "SEARCH_SE_INDEX", "SEARCH_SE_MIN", "SEARCH_SE_POOL", "SEARCH_SE_REUSE", "SEARCH_SE_ROWS",
+                           "SEARCH_SITES_BACKEND", "SEARCH_SITES_BLOCK_WEB", "SEARCH_SITE_BRIDGE", "SEARCH_SITE_RANK",
+                           "SEARCH_SITE_SLOTS", "SEARCH_SITE_SLOTS_LEAD", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND",
+                           "SEARCH_WEB_INTENT_MIN", "SEARCH_WEB_RERANK", "SEARCH_WEB_SIGNAL", "SEARCH_WEB_WEAK_CE",
+                           "SEARCH_WIKILINKS"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK + ("_search",),
+                 runtime=lambda: base_runtime()),
+    # the place searched by name and what the card says of it
+    "place": dict(roots=("place_build",), settings=(
+                           "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN", "SEARCH_HOME",
+                           "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OWN_RANK_TSV",
+                           "SEARCH_PLACE_EXACT_KM", "SEARCH_POSTGRES", "SEARCH_RELEASE_DIR", "SEARCH_SITES_BACKEND",
+                           "SEARCH_SITE_RANK", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),
+    # confidence, intent and kind card: judged by the web-intent model and the kinds data
+    "verdict": dict(roots=("verdict_build",), settings=(), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK + ("_search",),
+                    runtime=lambda: base_runtime()),
+    # does the name have branches (names_places)
+    "local": dict(roots=("local_build",), settings=(
+                           "SEARCH_CE_DIR", "SEARCH_CE_GOV_DIR", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
+                           "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_NOMIC_DIR", "SEARCH_OWN_RANK_TSV",
+                           "SEARCH_POSTGRES", "SEARCH_RELEASE_DIR", "SEARCH_SITES_BACKEND", "SEARCH_SITE_RANK",
+                           "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),
+    # the order of the stages and which field comes from which: finished_answer's own body, nothing it calls. Not stored; its
+    # key stamps an answer. Every function it calls is either a stage above or a step whose effect is in the content the
+    # next stage is keyed by (card_pre, glue_build, the curated lookup), which a re-stamp runs again.
+    "rest": dict(roots=("finished_answer",), settings=(), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK, stop="*"),
+}
+if PARTS_ON - PART_STAGES.keys():
+    raise SystemExit(f"SEARCH_PARTS names a stage that does not exist: {sorted(PARTS_ON - PART_STAGES.keys())}")
+class PartStale(Exception):
+    """?pcheck=1: a part of this answer is not stored under the current key."""
+
+
+_pcheck: contextvars.ContextVar = contextvars.ContextVar("pcheck", default=False)       # ?pcheck=1: answer only whether every part is current
+_part_keys: contextvars.ContextVar = contextvars.ContextVar("part_keys", default=None)  # the keys of the parts this answer was made from
+
+
+def _warm_q(qs) -> bool:
+    return (qs.get("warm") or ["0"])[0] == "1"
+
+
+def part_stamp():
+    """The provenance of the answer being built: the key of every stage's part and of the residual (the rest of
+    _instant's code, settings and data), or None when a stage is off or its part was not stored (nothing then says
+    the answer can be re-stamped)."""
+    box = _part_keys.get()
+    P = _parts_state[0] if _parts_state else None
+    if not box or P is None or not set(PART_STAGES) <= PARTS_ON or not {"base", "card", "place", "verdict", "list"} <= set(box):
+        return None
+    try:                                            # "local" is absent when no names_places lookup ran (a position was sent, or no results)
+        return {"v": 2, "rest": P.key("rest", []), **{k: box[k] for k in sorted(box)}}
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def note_part(stage: str, key: str) -> None:
+    box = _part_keys.get()
+    if box is not None:
+        box.setdefault(stage, []).append(key)
+
+
+def base_runtime() -> dict:
+    """What only run time knows: the device each model really runs on (a GPU that failed to load falls back to the CPU
+    whatever the setting says). The cross-encoder's int8 CPU scores and its fp32 CUDA scores differ, so the device is in
+    the key of every stage that scores."""
+    def prov(o):
+        sess = getattr(o, "sess", None)
+        return sess.get_providers()[0] if sess is not None else None
+    try:
+        ce = cross_encoder()
+        inner = getattr(ce, "inner", ce)
+        out = {"ce": [getattr(ce, "device", None), getattr(ce, "name", None), prov(inner)] if ce else None}
+    except Exception as e:  # noqa: BLE001
+        out = {"ce": f"unavailable {type(e).__name__}"}
+    try:
+        emb = _embedder if _embedder is not None else (embed("warm up") and _embedder)
+        out["bge"] = prov(emb) if emb else None
+    except Exception as e:  # noqa: BLE001
+        out["bge"] = f"unavailable {type(e).__name__}"
+    try:
+        sem = sem_ivf()
+        out["nomic"] = prov(sem[2]) if sem else None
+    except Exception as e:  # noqa: BLE001
+        out["nomic"] = f"unavailable {type(e).__name__}"
+    return out
+
+
+_parts_off: contextvars.ContextVar = contextvars.ContextVar("parts_off", default=False)       # ?parts=0: the old path (shadow compare)
+_parts_state: list = []
+_parts_lock = threading.Lock()
+
+
+def parts_for(stage: str):
+    """The Parts object when SEARCH_PARTS has this stage and the store is open, else None (the stage runs live)."""
+    if stage not in PARTS_ON:
+        return None
+    with _parts_lock:
+        if not _parts_state:
+            _parts_state.append(None)
+            st = result_store()
+            if st is not None:
+                try:
+                    import parts as _p
+                    P = _p.Parts(st, os.path.abspath(__file__), [_p.Stage(n, **c) for n, c in PART_STAGES.items()],
+                                 {k: v for k, v in globals().items() if isinstance(v, contextvars.ContextVar)})
+                    print("parts on: " + ", ".join(f"{n} {P.info(n)['version']}" for n in sorted(PARTS_ON)), flush=True)
+                    _parts_state[0] = P
+                except Exception as e:  # noqa: BLE001
+                    print(f"parts off: {type(e).__name__}: {e}", flush=True)
+    return _parts_state[0]
+
+
 # Curated answers (2026-11-05): for the warmed names, a list chosen offline by a large model (Qwen3-Reranker-4B over
 # the engine's own 50+ candidates; tools/curated-build.py) and kept in the store by release. The page's list
 # (/instant) shows it instead of the engine's ranked list; the card, places and answers are worked out as always.
@@ -7211,7 +7743,12 @@ def fin_put(q: str, full: bool, answer: dict) -> bool:
     st = result_store() if CURATED_RELEASE else None
     if st is None:
         return False
-    body = {"v": FIN_V, "cur_at": st.curated_at(CURATED_RELEASE, curated_key(q)), **{k: answer[k] for k in FIN_FIELDS}}
+    # eng: the engine (results fingerprint) that built it. Not read when serving; the builder rebuilds, or after its impact
+    # check re-stamps, the answers another engine built
+    body = {"v": FIN_V, "cur_at": st.curated_at(CURATED_RELEASE, curated_key(q)), "eng": st.fp,
+            **{k: answer[k] for k in FIN_FIELDS}}
+    if answer.get("pk"):
+        body["pk"] = answer["pk"]       # the parts it was made from (part_stamp): a deploy that changes none of them re-stamps it
     return st.put_finished(CURATED_RELEASE, fin_key(q, full), body)
 
 
@@ -8329,6 +8866,7 @@ class _CrossEncoder:
             path = os.path.join(model_dir, "model.onnx")
         self.sess = ort.InferenceSession(path, opts, providers=["CPUExecutionProvider"])
         self.inputs = {i.name for i in self.sess.get_inputs()}
+        self.path = path
 
     def __call__(self, q: str, texts: list[str]) -> list[float]:
         np = self.np
@@ -8416,7 +8954,20 @@ def cross_encoder():
             except Exception as e:
                 print(f"cross-encoder: iGPU unavailable ({type(e).__name__}: {str(e)[:160]})", flush=True)
         print(f"cross-encoder: {where} on {_ce.device}", flush=True)
+        _ce = _ce_cached(_ce)
     return _ce
+
+
+def _ce_cached(m):
+    """A CPU cross-encoder whose scores go through the compute cache when SEARCH_COMPUTE_CACHE is set; the
+    namespace names the model file, the token limit and the device that ran it."""
+    cc = _compute_cache()
+    if cc is None or getattr(m, "device", "") != "cpu" or not hasattr(m, "path"):
+        return m
+    import compute_cache as _cc
+    ns = f"ce|{_cc.file_sha256(m.path)}|{CE_MAX_TOKENS}|{m.sess.get_providers()[0]}"
+    print(f"cross-encoder: scores kept in the compute cache ({ns[:20]}...)", flush=True)
+    return _cc.CachedScorer(m, ns, cc)
 
 
 def require_reranker():
@@ -8487,6 +9038,7 @@ def ce_gov():
                     try:
                         _ce_gov = _CrossEncoder(CE_GOV_DIR)
                         print(f"cross-encoder (government tasks): {CE_GOV_DIR} on cpu", flush=True)
+                        _ce_gov = _ce_cached(_ce_gov)
                     except Exception as e:
                         print(f"cross-encoder (government tasks): off ({type(e).__name__}: {e})", flush=True)
     return _ce_gov or None
@@ -8982,12 +9534,27 @@ def search(q: str, k: int, semantic: bool = True, learned: bool = True, correct:
     ckey = (q, k, semantic, learned, correct, ce, head_weight(), home_point(), place_radius_km(), _no_anchors.get(), _off.get(),
             _body.get(), _d2q.get(), _no_intent.get(), _drop.get(), _accounts_in_card.get(), _pages_fuse.get())
     skey = ((q.lower() if STORE_FOLD_CASE else q),) + ckey[1:]
-    res = cached(ckey, lambda: computed.append(1) or stored("search", skey, lambda: _search_retry(q, k, semantic, learned, correct, ce)),
-                 static=True)
+    if _pcheck.get():                          # ?pcheck=1: is the stored base part current? (no memory cache, no row store)
+        res = base_part(q, k, semantic, learned, correct, ce)
+    else:
+        res = cached(ckey, lambda: computed.append(1) or stored("search", skey, lambda: base_part(q, k, semantic, learned, correct, ce)),
+                     static=True)
     _cache_state.set((_store_note.get() if _store_note.get() in ("disk", "prev") else "miss") if computed else "hit")
     # after the cache: the cached list is the uncapped one, so ?pcap= needs no place in the key
     res = cap_profiles(drop_junk(res, q), _profile_cap.get())
     return [] if hands_off(q, res, quiet) else res
+
+
+def base_part(q: str, k: int, semantic: bool, learned: bool, correct: bool, ce: bool = True) -> list[dict]:
+    """The base stage (parts stage "base" phase 2): the ranked candidates of one search, before the profile cap,
+    the junk drop and the hands-off check that search() applies after the cache. Through the parts store when
+    SEARCH_PARTS has "base"; its key holds the retrieval and ranking code, every setting and data file it reads, and the
+    device each model really runs on."""
+    if parts_for("base") is None:
+        if _pcheck.get():
+            raise PartStale("base")
+        return _search_retry(q, k, semantic, learned, correct, ce)
+    return part_run("base", [q, k, semantic, learned, correct, ce], lambda: _search_retry(q, k, semantic, learned, correct, ce))
 
 
 def _search_retry(q: str, k: int, semantic: bool, learned: bool, correct: bool, ce: bool = True) -> list[dict]:
@@ -10720,6 +11287,8 @@ class Handler(BaseHTTPRequestHandler):
         if u.path == "/storez":                          # the warmer: rows, fingerprint, visitors in flight (back network only)
             st = result_store()
             z = {"busy": _busy[0], **(st.counts() if st else {"off": True})}
+            if _parts_state and _parts_state[0]:
+                z["parts"] = {**_parts_state[0].stats, "by": _parts_state[0].by}
             sample = parse_qs(u.query or "").get("sample")
             if st and sample and sample[0].isdigit():     # the warmer audits rows another engine computed
                 z["sample"] = st.sample_queries(min(int(sample[0]), 200))
@@ -10730,7 +11299,10 @@ class Handler(BaseHTTPRequestHandler):
                 with _busy_lock:
                     _busy[0] += 1
             try:
-                return self._instant(parse_qs(u.query))
+                try:
+                    return self._instant(parse_qs(u.query))
+                except PartStale as e:                    # ?pcheck=1 only: a part of the answer is not stored under its current key
+                    return self._send(200, json.dumps({"stale": str(e)}).encode())
             finally:
                 if visitor:
                     with _busy_lock:
@@ -10868,6 +11440,9 @@ class Handler(BaseHTTPRequestHandler):
         _near.set(parse_near((qs.get("near") or [""])[0]))
         _reach_km.set(parse_reach((qs.get("reach") or [""])[0]))
         _no_webrr.set((qs.get("webrr") or ["1"])[0] == "0")      # eval A/B only
+        _parts_off.set((qs.get("parts") or ["1"])[0] == "0")      # eval/shadow A/B only
+        _pcheck.set((qs.get("pcheck") or ["0"])[0] == "1")        # the builder: is every part of this answer current?
+        _part_keys.set({} if (_warm_q(qs) or _pcheck.get()) else None)               # the keys this answer is made from (a finished answer's provenance)
         _warm.set((qs.get("warm") or ["0"])[0] == "1")          # warm.py's head-query refresh (2026-11-04)
         _audit.set(_warm.get() and (qs.get("audit") or ["0"])[0] == "1")
         _store_note.set(None)
@@ -10911,12 +11486,9 @@ class Handler(BaseHTTPRequestHandler):
             fin_full = full          # kept under its own name: "full" is reused below for an organisation's full name
             fin = (fin_get(q, full) if FINISHED and want and plain and not _warm.get() and (full or wordy(q) or short_org(q))
                    else None)
-            # local (does q name a business with branches?) beside the search, not after it (2026-11-03: a whole-world
-            # places lookup, 0.15-0.4 s for "home depot", ran after the clock stopped). Only when results are wanted.
-            f_local = (_EXEC.submit(contextvars.copy_context().run, _staged, "names_places",
-                                    lambda: cached(("names_places", q.lower()),
-                                                   lambda: stored("names_places", (q.lower(),), lambda: [names_places(q)]), static=True)[0])
-                       if want and q and home_point() is None and fin is None else None)
+            if _pcheck.get():                # the builder asks only whether every part of this answer is current (parts_restamp.py)
+                finished_answer(q, qs, want, full, plain, fin_full, self.log_message)
+                return self._send(200, json.dumps({"pk": part_stamp()}).encode())
             with stage("suggest"):
                 sug = suggest(q)
             with stage("phrases"):
@@ -10926,8 +11498,8 @@ class Handler(BaseHTTPRequestHandler):
             # full=1: a submitted search (address bar, search.logout.cloud#q=...) — results
             # whatever the length, and more of them; as-you-type keeps the wordy gate
             full = (qs.get("full") or ["0"])[0] == "1"
-            with stage("results"):
-                res = [] if fin is not None else search(q, MAX_K if full else 8) if want and (full or wordy(q) or short_org(q)) else []
+            with stage("results"):          # the answer's stages (finished_answer): the search, card, place, verdict, list, local
+                built = None if fin is not None else finished_answer(q, qs, want, full, plain, fin_full, self.log_message)
             with stage("news_wait"):
                 got_news = f_news.result()[0] if f_news is not None else {"stories": [], "hot": False}
             try:                                            # live scores: never cached
@@ -10981,6 +11553,8 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:                          # an answer is extra: never fail the rest
                 self.log_message("answer failed: %s", type(e).__name__)
                 ans = None
+        except PartStale:
+            raise
         except Exception as e:
             self.log_message("instant failed: %s: %s", type(e).__name__, e)   # never the query text
             return self._send(503, json.dumps({"error": type(e).__name__}).encode())
@@ -11004,123 +11578,7 @@ class Handler(BaseHTTPRequestHandler):
         if fin is not None:
             _cache_state.set("fin")
             return emit(*(fin[k] for k in FIN_FIELDS))
-        conf = bool(res) and is_confident(res) and intent_of(q, res) == "nav"
-        card = None
-        with stage("card"):
-            try:
-                if card_article(res) is None:
-                    mark_respelled(q, res)                          # "sarah j mass": Sarah J. Maas's card
-                top = card_article(res)
-                cres, swapped = res, False                  # the rows the card is built from; a short name's card
-                lk = lookups()
-                base = account_base(q) if top is None else None
-                if base and any(r.get("source") == "site" and _label(r.get("url") or "") == norm_key(base) for r in res[:3]):
-                    # "gmail login": the card of "gmail", when the name's own domain leads the list
-                    cres = cached(("account_base", base), lambda: [search(base, 8)])[0]
-                    top = card_article(cres)
-                alt = short_name_title(base or q, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None)
-                if alt:                                     # "outlook" -> Microsoft Outlook, "keep" -> Google Keep
-                    swapped = True
-                    if lk is not None:
-                        top = wiki_top(lk, alt) or top
-                    else:
-                        with _conn() as c:
-                            top = wiki_top(c, alt) or top
-                if top is not None:
-                    t = top["title"].rsplit(" — Wikipedia", 1)[0]
-                    if lk is not None and lk.name == "release":     # the card is one precomputed record
-                        descr, rel_rows, img_row, _person = lk.card_parts(t, RELATED_N)
-                        row, rel, img = (descr,) if descr else None, related_results(rel_rows), card_image(img_row)
-                        site_row = (lk.h[CARD_SITE_SQL]({"t": t}) or [None])[0]
-                    else:
-                        with _conn() as c:
-                            has = tables(c)
-                            row = c.execute(CARD_DESCR_SQL, {"t": t}).fetchone() if "suggest_items" in has else None
-                            rel = (related_results(c.execute(RELATED_SQL, {"t": t, "n": RELATED_N}))
-                                   if "wiki_next" in has else None)
-                            img = (card_image(c.execute(CARD_IMAGE_SQL, {"t": t}).fetchone())
-                                   if "card_images" in has else None)
-                            site_row = c.execute(CARD_SITE_SQL, {"t": t}).fetchone() if "wiki_sites" in has else None
-                    card = card_of(cres, row[0] if row else None, rel, img, site_row[0] if site_row else None, top=top)
-                    if swapped:
-                        res = lead_with_official(res, card)
-            except Exception as e:                                  # a card is extra: never fail the answer
-                self.log_message("card failed: %s", type(e).__name__)
-        place = None
-        with stage("place"):
-            try:                                                    # a place searched by name
-                pl = cached(("place", q.lower(), home_point()), lambda: [place_exact(q)], static=True)[0] if want and len(q) >= 3 else None
-                person = False
-                if pl and card is not None:
-                    with _conn() as c:
-                        person = "wiki_facts" in tables(c) and c.execute(PERSON_SQL, {"t": card["title"]}).fetchone() is not None
-                org = org_named(q) if (pl or card) else False
-                if org and card is not None:
-                    # branches go by the organisation's full name too: "cvs" -> CVS Pharmacy
-                    full = re.sub(r"\s*\(.*\)$", "", card["title"])
-                    alt = cached(("place", full.lower(), home_point()), lambda: [place_exact(full)], static=True)[0] if full.lower() != q.lower() else None
-                    if alt and (not pl or (alt.get("miles") or 1e9) < (pl.get("miles") or 1e9)):
-                        pl = alt
-                card, place = place_answer(q, card, pl, person, org)
-            except Exception as e:
-                self.log_message("place failed: %s", type(e).__name__)
-        intent = intent_of(q, res) if res else ""        # judged on the list as ranked, before the mix
-        kinds = res[0].get("kind_card") if res and res[0].get("kind_top") else None
-        res = [{k: v for k, v in r.items() if k != "kind_card"} if "kind_card" in r else r for r in res]
-        if _accounts_in_card.get():                      #: the card carries the accounts, the list keeps sites and the article
-            res = fold_accounts(res, card)
-        res = branches_only(res)
-        # a site row whose address is not a host name is not a link ("https://1=microsoft.com/...", 2026-11-14), and a
-        # row titled with its bare address is named after the card it belongs to
-        res = name_bare_rows([r for r in res if r.get("source") != "site" or url_host_ok(r.get("url") or "")], card)
-        if card:                                         # an account the card leaves out is not a result either ("IKEA on Discogs")
-            what = card.get("description") or ""
-            key = same_page(card.get("url") or "")
-            res = [r for r in res if not (r.get("profile") and r.get("of") == key and not account_fits(r.get("platform", ""), what))]
-        cur = (curated_rows(q) or curated_by_card(q, card)) if res and not (qs.get("cur") or [""])[0] == "0" else None
-        def usual(rows):                                 # the list as it is without a curated one
-            # kept per search for the cache's time (2026-11-11): the links of the card's article are scored by the
-            # reranker in breadth_list, about 0.6 s on the public engine, and that was paid again on EVERY request of
-            # a carded name, cached base rows or not. The key is everything the steps below read.
-            key = ("usual", q, _breadth.get(), _breadth_floor.get(), bool(_score_all.get()), usual_gate(), same_page((card or {}).get("url") or ""),
-                   tuple(r.get("url") for r in rows))
-            return cached(key, lambda: usual_now(rows))
-
-        def usual_now(rows):
-            rows = mix_wikipedia(rows, card)
-            if card:
-                rows = card_gate(q, rows)                # off unless SEARCH_CARD_GATE or ?cg= (2026-11-05)
-            if _score_all.get() and rows:                # off unless SEARCH_SCORE_ALL or ?sa=1
-                with stage("score_all"):
-                    rows = score_unscored(q, rows[:SCORE_ALL_TOP] if SCORE_ALL_TOP > 0 else rows)
-            return breadth_list(q, rows, card, _breadth.get())   # off unless SEARCH_BREADTH or ?bl= (2026-11-07)
-        if cur:
-            # the offline list as chosen, in its order (no Wikipedia mix, no gate: the large model already decided);
-            # the engine's places stay on top and the card's own article is not repeated under it
-            places = [r for r in res if r.get("source") == "place"]
-            shown = {same_page(card.get("url") or "")} if card else set()
-            top = places + [r for r in cur if r.get("source") != "place" and same_page(r["url"]) not in shown]
-            res = curated_fill(top, usual(res), shown) if _cur_fill.get() else top
-        else:
-            res = usual(res)
-        res = with_office_rows(res, card)      # "trump": whitehouse.gov just under the card (after the list is final)
-        sig = {}
-        if web_only(q, res):           # on the shown list, after the Wikipedia mix: that is what the fit saw
-            res = web_rerank(q, res)
-            sig = web_signal(q, res)
-        if not cur:                    # after the web rerank (it must not move the row); a curated list is the large model's, left as chosen
-            res = site_intent_rows(q, res, card)       # off unless SEARCH_SITE_SLOTS / SEARCH_SITE_BRIDGE
-            res = se_howto(q, res)     # off unless SEARCH_SE_INDEX; how-to searches only (2026-11-10)
-        # local: this search names a business with branches and came with no position (names_places, started above)
-        with stage("local_wait"):
-            try:
-                local = bool(f_local.result()) if f_local is not None and res else False
-            except Exception as e:                         # a lookup that failed says nothing, as before it ran
-                self.log_message("names_places failed: %s", type(e).__name__)
-                local = False
-        if _warm.get() and plain and (qs.get("fin") or [""])[0] == "1":     # the builder (twin/ship.sh) keeps what it computed
-            fin_put(q, fin_full, {"results": res, "confident": conf, "card": card, "place": place, "intent": intent, "kinds": kinds,
-                              "local": local, "sig": sig})
+        res, conf, card, place, intent, kinds, local, sig = built
         return emit(res, conf, card, place, intent, kinds, local, sig)
 
 

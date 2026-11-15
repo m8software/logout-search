@@ -30,7 +30,7 @@ import zlib
 
 # Settings that change how fast or where, never which results: left out of the fingerprint.
 NOT_RESULTS = frozenset((
-    "SEARCH_CACHE_TTL_S", "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_MAX", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
+    "SEARCH_CACHE_TTL_S", "SEARCH_COMPUTE_CACHE", "SEARCH_PARTS", "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_MAX", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
     "SEARCH_CE_THREADS", "SEARCH_API_ALLOW_FROM", "SEARCH_MEMSTAT", "SEARCH_SQLITE_CACHE_KB", "SEARCH_IVF_KERN",
     "SEARCH_IVF_KERN_LIB", "SEARCH_STORE", "SEARCH_STORE_MAX_AGE_S", "SEARCH_STORE_REFRESH_S", "SEARCH_BIND",
     "SEARCH_PORT", "SEARCH_LOG", "SEARCH_REQUIRE_KINDS_MODEL", "SEARCH_NEWS_FILL_EVERY_S", "SEARCH_NEWS_VEC_MAX",
@@ -39,11 +39,13 @@ NOT_RESULTS = frozenset((
     "SEARCH_WIKILINKS", "SEARCH_BREADTH_WIKI", "SEARCH_BREADTH_CITE", "SEARCH_BREADTH_WIKI_MIN", "SEARCH_BREADTH_WIKI_FROM",
     "SEARCH_SE_INDEX", "SEARCH_SE_ROWS", "SEARCH_SE_MIN", "SEARCH_SE_POOL", "SEARCH_SE_REUSE",                                           # the Stack Exchange how-to rows: after the store too  # W / C letters: same place, after the store
 ))
+STAMP_KEYS = frozenset(("eng", "pk", "dev"))      # what built a finished answer, not what it says
 CODE_SUFFIXES = (".py", ".json", ".so")
 # Files in the engine folder that never change a search's results (the warmer, the WebRTC peer and its stand-ins,
 # dev tooling, this store): a change to them must not retire every stored row.
 NOT_RESULT_CODE = frozenset(("warm.py", "rtc_peer.py", "rtc_selfcheck.py", "av.py", "av_absent.py", "memstat.py",
-                             "sq_candidates.py", "native_host.py", "result_store.py"))
+                             "sq_candidates.py", "native_host.py", "result_store.py", "compute_cache.py", "parts.py",
+                             "stage_version.py"))
 
 
 def _hash_tree(h, root: str, suffixes=None, sizes_only: bool = False) -> None:
@@ -152,6 +154,11 @@ class ResultStore:
         # like the lists; keyed by the name alone: it does not depend on the release or on this engine's code.
         self.db.execute("CREATE TABLE IF NOT EXISTS dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, "
                         "at REAL NOT NULL) WITHOUT ROWID")
+        # Parts of an answer (phase 2, 2026-11-15, parts.py): one stage's output under an exact key (stage code
+        # version, settings, data, inputs); h = the body's own hash, for the stages after it. Never retired by a
+        # deploy: a part whose stage did not change is found again under the same key.
+        self.db.execute("CREATE TABLE IF NOT EXISTS parts (stage TEXT NOT NULL, key TEXT NOT NULL, h TEXT NOT NULL, "
+                        "body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (stage, key)) WITHOUT ROWID")
         self.stats = {"hit": 0, "miss": 0, "put": 0, "skip": 0, "curated_hit": 0, "finished_hit": 0, "prev_hit": 0}
         self.opened = time.time()
         # the fingerprint before this one: the other fingerprint with the newest row (none on a first start)
@@ -262,6 +269,20 @@ class ResultStore:
             self.stats["skip"] += 1
             return False
         with self.lock:
+            # An answer that comes out the same as the stored one is not written again (2026-11-15): only its stamp (eng, pk,
+            # dev) moves and its time stays, because the nightly lists publish ships every answer written since the last
+            # publish, and an unchanged answer must not reach every install as a download.
+            r = self.db.execute("SELECT body FROM finished WHERE release = ? AND key = ?", (release, key)).fetchone()
+            if r:
+                try:
+                    old = json.loads(zlib.decompress(r[0]))
+                except (zlib.error, ValueError):
+                    old = None
+                if old is not None and all(old.get(k) == value.get(k) for k in set(old) | set(value) if k not in STAMP_KEYS):
+                    self.db.execute("UPDATE finished SET body = ? WHERE release = ? AND key = ?",
+                                    (zlib.compress(text.encode(), 6), release, key))
+                    self.stats["finished_kept"] = self.stats.get("finished_kept", 0) + 1
+                    return True
             self.db.execute("INSERT OR REPLACE INTO finished VALUES (?, ?, ?, ?)",
                             (release, key, zlib.compress(text.encode(), 6), time.time()))
         return True
@@ -400,6 +421,16 @@ class ResultStore:
             cur = self.db.execute("SELECT release, count(*) FROM curated GROUP BY release").fetchall()
         return {"fp": self.fp, "prev_fp": self.prev_fp, "rows": dict(mine), "other_fp_rows": other, "fresh": fresh, "curated": dict(cur),
                 "up_s": int(time.time() - self.opened), **self.stats}
+
+    def get_part(self, stage: str, key: str):
+        """The part (stage, key) as the value it was stored from, or None."""
+        with self.lock:
+            r = self.db.execute("SELECT body FROM parts WHERE stage = ? AND key = ?", (stage, key)).fetchone()
+        return json.loads(zlib.decompress(r[0])) if r else None
+
+    def put_part(self, stage: str, key: str, h: str, raw: bytes) -> None:
+        with self.lock:
+            self.db.execute("INSERT OR REPLACE INTO parts VALUES (?, ?, ?, ?, ?)", (stage, key, h, zlib.compress(raw, 6), time.time()))
 
     def prune(self, keep_other_s: float = 2 * 86400) -> int:
         """Drop rows of other fingerprints older than keep_other_s (a rollback within that time finds its rows)."""

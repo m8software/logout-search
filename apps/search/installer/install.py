@@ -1269,7 +1269,8 @@ def addon_env(base: str, rid: str) -> dict:
 LISTS_PUBKEY = "ed25519:40502f6841e8644b8f193c10af27e5b148f74297bf6da7067115a60792d138bc"
 LISTS_PUBKEYS = (LISTS_PUBKEY,)
 LISTS_FORMAT = 1
-LISTS_BIG = 64 << 20                                  # on a metered connection, nothing larger than this is fetched (a base waits)
+LISTS_BIG = 64 << 20                                  # on a metered connection, nothing larger than this is fetched by a LATER update (a new base waits).
+                                                      # The first base of an install is always fetched (owner 2026-11-15): the install already downloads ~11 GB
 
 
 def lists_source(arg: str) -> "Source":
@@ -1381,7 +1382,8 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
     if not todo:
         return {"lists": "up to date", "version": m["version"], "base": m["base"], "parts": len(m["parts"])}
     size = sum(t["xz_bytes"] for t in todo)
-    if metered and size > big:
+    first = not st.get("base") or bool(st.get("first_pending"))     # no base taken yet, or the first one was cut short: metered does not hold it back
+    if metered and size > big and not first:
         return {"lists": "waiting", "why": f"{size >> 20} MiB to fetch on a metered connection; it waits for an ordinary one",
                 "version": m["version"]}
     store = os.path.join(base, "store")
@@ -1394,6 +1396,8 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
         raise InstallError(f"not enough disk space in {base}: {free >> 20} MiB free, {need >> 20} MiB needed for the lists")
     if fresh:
         st = {"base": m["base"], "release": cur, "applied": [], "n": int(st.get("n") or 0)}
+        if first:
+            st["first_pending"] = True                       # an interrupted first fetch resumes even on a metered connection
     rows = {}
     for t in todo:
         xz = os.path.join(work, t["name"] + ".sqlite.xz")
@@ -1411,6 +1415,8 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
         os.replace(tmp, os.path.join(inbox, f"lists-{st['n']:08d}-{t['name']}.sqlite"))   # the engine reads the inbox in name order
         st["applied"] = sorted(set(st["applied"]) | {t["name"]})
         st["version"] = m["version"]
+        _lists_save(base, st)
+    if st.pop("first_pending", None):
         _lists_save(base, st)
     return {"lists": "fetched", "version": m["version"], "base": m["base"], "parts_fetched": [t["name"] for t in todo],
             "bytes": size, "rows": rows, "seconds": round(time.time() - t0, 1)}
@@ -1700,7 +1706,7 @@ def main():
     ls.add_argument("--source", help="update: the same --source as the release (hf:ORG/NAME or a URL/folder); the lists are under lists/")
     ls.add_argument("--pubkey", help="update: the key that signed the lists (default: the release key)")
     ls.add_argument("--metered", choices=["auto", "yes", "no"], default="no",
-                    help="update: on a metered connection nothing larger than 64 MiB is fetched (auto: ask the system)")
+                    help="update: on a metered connection a later update larger than 64 MiB waits; the first base of an install is always fetched (auto: ask the system)")
     t = sp.add_parser("status")
     t.add_argument("--dest", required=True)
     a = ap.parse_args()
