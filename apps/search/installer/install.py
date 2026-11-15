@@ -1264,10 +1264,10 @@ def addon_env(base: str, rid: str) -> dict:
 # engine had) and the DELTAS made after it (only what was added or changed). Each part is a small SQLite file in the engine's
 # store inbox format (result_store.py); this code checks it against the manifest, gives its rows this install's release, and
 # drops it in BASE/store/inbox, where the running engine takes it in within a minute (no restart). Signed by the RELEASE key
-# (owner 2026-11-14: one key for everything an install trusts). The first lists of 2026-11-14 were signed by a separate
-# lists key (8e590b3b...); it is accepted only until the first base signed by the release key is published, then dropped.
+# (owner 2026-11-14: one key for everything an install trusts). The separate lists key of the first publish (8e590b3b...)
+# was dropped once the first base signed by the release key was out (2026-11-14).
 LISTS_PUBKEY = "ed25519:40502f6841e8644b8f193c10af27e5b148f74297bf6da7067115a60792d138bc"
-LISTS_PUBKEYS = (LISTS_PUBKEY, "ed25519:8e590b3b23d7b38c85747f6ec9eac728d2dfb879dfda033b1cf270a7d1281aa8")
+LISTS_PUBKEYS = (LISTS_PUBKEY,)
 LISTS_FORMAT = 1
 LISTS_BIG = 64 << 20                                  # on a metered connection, nothing larger than this is fetched (a base waits)
 

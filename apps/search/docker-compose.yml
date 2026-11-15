@@ -109,7 +109,8 @@ services:
       SEARCH_POSTGRES: "off"
       SEARCH_LOOKUP_BACKEND: release
       SEARCH_RELEASE_DIR: /rel
-      SEARCH_RELEASE_ID: proto-20261104-rc14
+      # rc15 (2026-11-14, owner: "rc15. newest engine"). Back to rc14: SEARCH_RELEASE_ID and the two volumes.
+      SEARCH_RELEASE_ID: proto-20261108-rc15
       SEARCH_WIKI_BACKEND: tantivy-release
       SEARCH_WEB_BACKEND: tantivy-release
       SEARCH_SEM_BACKEND: ivf
@@ -143,12 +144,29 @@ services:
       SEARCH_SITENAV: /sitenav/sitenav.jsonl    # the card's site tree (tools/site-nav.py, 2026-11-05)
       SEARCH_CARDLINKS: /cardlinks/cardlinks.sqlite   # Wikidata's links per topic for the card (tools/card-links.py, 2026-11-06)
       SEARCH_CURATED: "1"                     # curated lists for the warmed names, from the inbox (tools/curated-build.py, 2026-11-06)
-      SEARCH_BREADTH: JDLWC                   # whole-list cleanup under the card (J junk, D one/site, L Wikidata links; 2026-11-08); W, C: the card article's own links and citations (Clef mix-300 3.21 -> 3.34, live on indexhost 2026-11-10)
+      # 2026-11-14 (owner: "rc15. newest engine"): the result settings public runs with, so this engine answers as public does
+      # (was JDLWC: the card article's own links and citations; stored answers keep W and C, twin/ship.conf BUILD_BREADTH)
+      SEARCH_BREADTH: JDLF
+      SEARCH_BREADTH_FLOOR: "0"
+      SEARCH_SCORE_ALL: "1"
+      SEARCH_SCORE_ALL_TOP: "10"
+      SEARCH_ANSWER_DEAD: "1"
+      SEARCH_LINK_SITE_LOW_GUARD: "1"
+      SEARCH_LINK_SITE_MIN_SITELINKS: "1"
+      SEARCH_PLACE_UNDER_THING: "-40"
+      SEARCH_TYPO_NAMES: links,places
+      SEARCH_TYPO_WORD_DF: "3000"
+      # live on indexhost before 2026-11-14 but missing from this copy (brought in step with the running file)
+      SEARCH_SE_POOL: "8"                     # read 8 Stack Exchange rows, not the whole pool (how-to 544 -> 384 ms median on indexhost, Clef mix-300 how-to 3.20 -> 3.32, nothing else moved; 2026-11-11)
+      SEARCH_PRODUCT_SITE_FIRST: "2"          # product searches: the maker's own site first (maker-product 14.8 -> 34.4, maker-product-clean 20.3 -> 63.3 hit@1, test halves; 2026-11-11)
+      SEARCH_PRODUCT_TIER_WIDE: "1"           # ... and the wider maker tier (paired with SITE_FIRST=2; Clef mix-300 unchanged)
+      SEARCH_CURATED_FILL: "1"                # curated rows on top, the engine's own list fills the rest (Clef, 150 curated names: 2.73 -> 3.75 relevant; owner 2026-11-11)
+      SEARCH_FINISHED: "1"                    # finished answers from the builder are looked up for plain searches (2026-11-12)
       SEARCH_WIKILINKS: /wikilinks/wikilinks.sqlite   # importer/wikiext.py (2026-11-10)
       SEARCH_SE_INDEX: /se/se-howto.sqlite    # Stack Exchange how-to index: answer excerpts for how-to searches (tools/se-howto.py, ADR-081; Clef how-to 1.68 -> 3.20, 2026-11-11)
     volumes:
       - ./news-store:/news
-      - ./release-data/rc14:/rel:ro
+      - ./release-data/rc15:/rel:ro
       - ./result-store:/store
       - /mnt/nas/logout/search/sitenav:/sitenav:ro
       - /mnt/nas/logout/search/cardlinks:/cardlinks:ro
@@ -187,7 +205,7 @@ services:
       WARM_NEWS_DB: /news/news.sqlite
       WARM_TREND: "1"
     volumes:
-      - ./release-data/rc14:/rel:ro
+      - ./release-data/rc15:/rel:ro
       - ./news-store:/news
     command: ["python", "/app/warm.py"]
     mem_limit: 512m
