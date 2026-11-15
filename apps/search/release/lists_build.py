@@ -5,7 +5,7 @@ Owner 2026-11-14: "the searchsilos should have all of the same things as public 
 update the ones they already have". Public and indexhost's engines get these through their store inbox (ship key); an install
 gets them from the dataset, under lists/:
 
-    lists/manifest.json(.sig)          kind=lists, signed with the LISTS key (install.LISTS_PUBKEY)
+    lists/manifest.json(.sig)          kind=lists, signed with the release key (install.LISTS_PUBKEY)
     lists/parts/<name>.sqlite.xz       the first part is the BASE (everything; reset=1), then one DELTA per publish after it
 
 A part holds the store tables (result_store.py: curated, finished, dept) with each body as plain JSON text (the install
@@ -166,7 +166,7 @@ def main() -> int:
     b = sp.add_parser("build")
     b.add_argument("--store", required=True)
     b.add_argument("--out", required=True)
-    b.add_argument("--key", required=True, help="PEM ed25519 private key (the LISTS key)")
+    b.add_argument("--key", required=True, help="PEM ed25519 private key (the release key)")
     b.add_argument("--release", required=True, help="the release the lists were chosen on (the store's curated/finished rows)")
     b.add_argument("--fits", action="append", required=True, help="a release id or pattern an install may use them with (repeatable)")
     b.add_argument("--base", action="store_true", help="start again from everything; the old parts are dropped on upload")

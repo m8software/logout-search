@@ -1263,10 +1263,11 @@ def addon_env(base: str, rid: str) -> dict:
 # public's are, and published to the same dataset under lists/: a signed manifest naming a BASE (everything, replaces what an
 # engine had) and the DELTAS made after it (only what was added or changed). Each part is a small SQLite file in the engine's
 # store inbox format (result_store.py); this code checks it against the manifest, gives its rows this install's release, and
-# drops it in BASE/store/inbox, where the running engine takes it in within a minute (no restart). Signed by the LISTS key, not
-# the release key: it is published every day by a machine that is not trusted with the release key, and a lists manifest can
-# only ever add search lists, never program or release files.
-LISTS_PUBKEY = "ed25519:8e590b3b23d7b38c85747f6ec9eac728d2dfb879dfda033b1cf270a7d1281aa8"
+# drops it in BASE/store/inbox, where the running engine takes it in within a minute (no restart). Signed by the RELEASE key
+# (owner 2026-11-14: one key for everything an install trusts). The first lists of 2026-11-14 were signed by a separate
+# lists key (8e590b3b...); it is accepted only until the first base signed by the release key is published, then dropped.
+LISTS_PUBKEY = "ed25519:40502f6841e8644b8f193c10af27e5b148f74297bf6da7067115a60792d138bc"
+LISTS_PUBKEYS = (LISTS_PUBKEY, "ed25519:8e590b3b23d7b38c85747f6ec9eac728d2dfb879dfda033b1cf270a7d1281aa8")
 LISTS_FORMAT = 1
 LISTS_BIG = 64 << 20                                  # on a metered connection, nothing larger than this is fetched (a base waits)
 
@@ -1357,14 +1358,16 @@ def lists_rekey(path: str, release: str) -> dict:
         db.close()
 
 
-def lists_update(base: str, source: str, pub: bytes, metered: bool = False, big: int = LISTS_BIG) -> dict:
-    """Fetch the lists parts this install has not taken yet and drop them in its store inbox. -> summary."""
+def lists_update(base: str, source: str, pub, metered: bool = False, big: int = LISTS_BIG) -> dict:
+    """Fetch the lists parts this install has not taken yet and drop them in its store inbox. -> summary.
+    pub: one pinned key (bytes) or several (any one of them must verify the manifest)."""
     t0 = time.time()
     base = os.path.abspath(base)
     src = lists_source(source)
     body, sig = src.read_small("manifest.json"), src.read_small("manifest.json.sig")
-    if not ed25519_verify(pub, body, sig):
-        raise InstallError("lists/manifest.json.sig does not verify with the pinned lists key: nothing was downloaded or written")
+    pubs = [pub] if isinstance(pub, (bytes, bytearray)) else list(pub)
+    if not any(ed25519_verify(k, body, sig) for k in pubs):
+        raise InstallError("lists/manifest.json.sig does not verify with the pinned key: nothing was downloaded or written")
     m = check_lists_manifest(body)
     cur = release_ptr.current_id(base)
     if not cur:
@@ -1432,7 +1435,7 @@ def lists_command(a) -> dict:
             metered = bool(netcost.metered())
         except Exception:  # noqa: BLE001
             metered = False
-    return lists_update(base, a.source, load_pubkey(a.pubkey or LISTS_PUBKEY), metered)
+    return lists_update(base, a.source, [load_pubkey(a.pubkey)] if a.pubkey else [load_pubkey(k) for k in LISTS_PUBKEYS], metered)
 
 
 # ================================================================================================ smoke test
@@ -1695,7 +1698,7 @@ def main():
     ls.add_argument("action", choices=["update", "status"])
     ls.add_argument("--dest", required=True)
     ls.add_argument("--source", help="update: the same --source as the release (hf:ORG/NAME or a URL/folder); the lists are under lists/")
-    ls.add_argument("--pubkey", help="update: the lists key (default: the pinned one)")
+    ls.add_argument("--pubkey", help="update: the key that signed the lists (default: the release key)")
     ls.add_argument("--metered", choices=["auto", "yes", "no"], default="no",
                     help="update: on a metered connection nothing larger than 64 MiB is fetched (auto: ask the system)")
     t = sp.add_parser("status")
