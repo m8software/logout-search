@@ -3258,8 +3258,12 @@ def short_name_title(q: str, current: str | None) -> str | None:
     best = cached(("short_name", k), look, static=True)[0]
     if best is None or best[0] == current or best[1] < SHORT_FLOOR:
         return None
+    # read SHORT_RATIO times more than the card shown, and the plain word's own article not read SHORT_RATIO times
+    # more than it ("music": the card was the domain .music, but Music is read 63,689 times to Sony Music's 19,628;
+    # "keep": Keep, the castle tower, 8,250 to Google Keep's 3,925, and the card was KEEP, 37)
     now = (_title_views(lk, current) or 0) if current else 0
-    return best[0] if best[1] >= SHORT_RATIO * now else None
+    plain = _title_views(lk, " ".join(w.capitalize() for w in k.split())) or 0
+    return best[0] if best[1] >= SHORT_RATIO * now and plain <= SHORT_RATIO * best[1] else None
 
 
 # "gmail login", "chase sign in" (owner 2026-11-14: "gmail login" is the README's example and had no card): the card

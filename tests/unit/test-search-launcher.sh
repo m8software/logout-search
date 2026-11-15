@@ -48,8 +48,8 @@ if [[ $rc -eq 0 ]] && "$PY" -c "import json,sys; d=json.loads(sys.argv[1]); asse
     ok "version: the installed release, not frozen, the engine folder of this checkout"
 else bad "version" "rc=$rc" "$out"; fi
 out=$(run start --dest "$B" --print-env --format json 2>&1); rc=$?
-if [[ $rc -eq 0 ]] && "$PY" -c "import json,sys; d=json.loads(sys.argv[1]); assert d['SEARCH_API_BIND']=='127.0.0.1' and d['SEARCH_API_PORT']=='8090' and d['SEARCH_RELEASE_ID']=='fx-1' and d['SEARCH_CE_DIR'].endswith('models/rerank-turbo') and d['SEARCH_BREADTH']=='JDL'" "$out" 2>/dev/null; then
-    ok "start --print-env: the engine binds 127.0.0.1 (nothing on the LAN may query a home machine), the release id and reranker folder are set"
+if [[ $rc -eq 0 ]] && "$PY" -c "import json,sys; d=json.loads(sys.argv[1]); assert d['SEARCH_API_BIND']=='127.0.0.1' and d['SEARCH_API_PORT']=='8090' and d['SEARCH_RELEASE_ID']=='fx-1' and d['SEARCH_CE_DIR'].endswith('models/rerank-turbo') and d['SEARCH_BREADTH']=='JDLF' and d['SEARCH_CURATED']=='1' and d['SEARCH_STORE'].endswith('store/results.sqlite')" "$out" 2>/dev/null; then
+    ok "start --print-env: the engine binds 127.0.0.1 (nothing on the LAN may query a home machine), the release id, reranker folder, public's list cleanup and the lists store are set"
 else bad "print-env" "rc=$rc" "$out"; fi
 out=$(on win32 start --dest "$B" --print-env 2>&1)
 grep -q '^set SEARCH_API_BIND=127.0.0.1$' <<<"$out" && ok "on Windows the default format is cmd" || bad "cmd format" "$out"
