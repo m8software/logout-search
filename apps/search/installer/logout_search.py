@@ -10,6 +10,7 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search update    --dest BASE --source hf:ORG/NAME --pubkey KEY.pem [--check]
     logout-search autostart on|off --dest BASE [--port 8090] [--print]
     logout-search autoupdate status|on|off|now|at HOUR|addons on|off --dest BASE   (the daily update, its time, the add-ons)
+    logout-search lists     update|status [--dest BASE]   (the hand-picked lists and finished answers public serves; the daily update fetches them)
     logout-search collectors status|on|off [news|sports|weather] --dest BASE   (what `start` runs beside the engine)
     logout-search collectors set profile auto|full|balanced|light|search|custom --dest BASE   (Data use; homesettings.py)
     logout-search collectors set news_every 1|2|4 | weather_every_h 1|3|6 --dest BASE   (custom: how often)
@@ -758,6 +759,17 @@ def setup(a) -> int:
         if e.code not in (0, None):
             say("the data was not installed; run this again to carry on")
             return int(e.code) if isinstance(e.code, int) else 1
+    # everything public answers with beside the release (owner 2026-11-14: "every single feature public has the search silos get"):
+    # the signed add-ons, then the hand-picked lists and finished answers. The daily update keeps both current; a failure here
+    # leaves it to that update rather than stopping the install
+    import autoupdate as au
+    say("     and what public uses beside it: the add-ons (Wikipedia links, how-to answers, the card's sections and links) and the hand-picked lists")
+    for what, step in (("add-ons", lambda: au.addons_update(data, program(), DATA_SOURCE, DATA_PUBKEY, PLATFORM)),
+                       ("hand-picked lists", lambda: au.lists_update(data, program(), DATA_SOURCE, PLATFORM))):
+        try:
+            step()
+        except Exception as e:  # noqa: BLE001
+            say(f"     {what} not installed now ({type(e).__name__}: {str(e)[:200]}); the daily update tries again")
     say("3/5  starting the engine now and at each sign-in")
     if PLATFORM == "win32":
         # a tray icon that runs the engine with no window and restarts it; started at sign-in from the user's own Run
@@ -1152,6 +1164,7 @@ def main(argv=None) -> int:
     sp.add_parser("install", add_help=False)
     sp.add_parser("status", add_help=False)
     sp.add_parser("addon", add_help=False)
+    sp.add_parser("lists", add_help=False)
     s = sp.add_parser("start")
     s.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     s.add_argument("--port", type=int, default=8090)
@@ -1218,10 +1231,12 @@ def main(argv=None) -> int:
         return rc
     if argv and argv[0] == "collect":
         return run_collect(argv[1] if len(argv) > 1 else "", argv[2:])
-    if argv and argv[0] in ("status", "addon") and "--dest" not in argv and not any(x.startswith("--dest=") for x in argv) \
+    if argv and argv[0] in ("status", "addon", "lists") and "--dest" not in argv and not any(x.startswith("--dest=") for x in argv) \
             and not ({"-h", "--help"} & set(argv)):
         argv = list(argv) + ["--dest", default_data()]          # the usual install, as every other command
-    if argv and argv[0] in ("install", "status", "addon", "engine", "_update-apply"):
+    if argv and argv[0] == "lists" and "update" in argv[1:2] and "--source" not in argv:
+        argv = list(argv) + ["--source", DATA_SOURCE]           # where the release comes from
+    if argv and argv[0] in ("install", "status", "addon", "lists", "engine", "_update-apply"):
         if argv[0] == "engine":
             if argv[1:] == ["--check-imports"]:
                 return check_imports()

@@ -55,6 +55,25 @@ DEFAULTS = {
                    "code blocks removed. Changes: titles, tags and excerpts reduced and re-indexed by Logout (tools/se-howto.py). "
                    "This file is shared under CC BY-SA 4.0."),
     },
+    "sitenav": {
+        "title": "Card site sections (sitenav.jsonl)",
+        "description": "For a card's official site, the few sections a person most often wants (tickets, shop, support, ...), taken from "
+                       "the site's own home page menu, its sitemap or Common Crawl's copy of its home page. Built by tools/site-nav.py.",
+        "licence": ("CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/"),
+        "notice": ("Addresses and link labels read from the home page menus and sitemaps of the official sites (fetched politely, "
+                   "robots.txt obeyed) and from Common Crawl's copies (https://commoncrawl.org, used under its terms of use). Only a "
+                   "site's own section addresses and their short labels are kept: no page text. The selection and this file are "
+                   "dedicated to the public domain under CC0 1.0 by Logout (tools/site-nav.py)."),
+    },
+    "cardlinks": {
+        "title": "Card links from Wikidata (cardlinks.sqlite)",
+        "description": "The links Wikidata records for a topic (accounts, film, music, games, books, sport and business sites), made into "
+                       "addresses with Wikidata's own formatter URLs. Built by tools/card-links.py.",
+        "licence": ("CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/"),
+        "notice": ("Contains data from Wikidata (https://www.wikidata.org), available under the Creative Commons CC0 1.0 Universal "
+                   "public domain dedication. Changes: the chosen identifier fields joined to English Wikipedia titles and made "
+                   "into addresses by Logout (tools/card-links.py). This file is shared under CC0 1.0."),
+    },
 }
 
 

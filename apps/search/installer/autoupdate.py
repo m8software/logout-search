@@ -305,6 +305,17 @@ def addons_update(data: str, program: list, source: str, pubkey: str, platform: 
     return {"action": "restart" if done else "none", "installed": done}
 
 
+def lists_update(data: str, program: list, source: str, platform: str, runner=subprocess.run) -> dict:
+    """The hand-picked lists and finished answers public serves (install.py lists): the parts this install has not taken
+    are dropped in the engine's store inbox, which the running engine reads by itself: never a restart."""
+    kw = {"creationflags": 0x00004000 | 0x08000000} if platform == "win32" else {"preexec_fn": lambda: os.nice(10)}
+    r = runner(program + ["lists", "update", "--dest", data, "--source", source, "--metered", "auto"],
+               capture_output=True, text=True, timeout=6 * 3600, **kw)
+    if r.returncode:
+        raise RuntimeError("lists refused: " + ((r.stderr or "").strip().splitlines() or ["(no message)"])[-1][:300])
+    return last_json(r.stdout) or {"lists": "unknown"}
+
+
 # ================================================================================================ one check
 def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, program: list, source: str, pubkey: str,
           fetch=None, opener=None, runner=subprocess.run, now=None) -> str | None:
@@ -342,6 +353,14 @@ def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, progr
             except Exception as e:  # noqa: BLE001
                 s["addon_result"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
                 result.append("add-on update failed")
+            try:
+                li = lists_update(data, program, source, platform, runner)
+                s["lists_result"] = li
+                if li.get("lists") == "fetched":
+                    result.append(f"lists {li.get('version')}")
+            except Exception as e:  # noqa: BLE001
+                s["lists_result"] = {"lists": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
+                result.append("lists update failed")
     s["last_result"] = "; ".join(result) or "up to date"
     save(data, s)
     return act
@@ -453,6 +472,6 @@ def command(action: str, data: str, value=None) -> int:
         out("asked: the running engine checks within a minute (see `autoupdate status`)")
         return 0
     out(json.dumps({"enabled": enabled(s), "at_hour": at_hour(s), "addons": s.get("addons", True) is not False,
-                    **{k: s.get(k) for k in ("last_check", "last_result", "program", "data", "addon_result")}},
+                    **{k: s.get(k) for k in ("last_check", "last_result", "program", "data", "addon_result", "lists_result")}},
                      indent=1, sort_keys=True))
     return 0

@@ -3189,12 +3189,153 @@ def platform_home(title: str, descr: str | None, lead: str | None) -> list[dict]
     return []
 
 
+_HOST_OK = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$")
+
+
+def url_host_ok(url: str) -> bool:
+    """A link whose host is a host name: "https://1=microsoft.com/en-us/microsoft-365/word" (Microsoft Word's stored
+    official site, 2026-11-14) is not, and was the card's first link."""
+    try:
+        return bool(_HOST_OK.match((urlsplit(url or "").hostname or "")))
+    except ValueError:
+        return False
+
+
+def own_name_site(title: str, official: list[dict], res: list[dict]) -> list[dict]:
+    """The card's official site is the subject's own-name domain when the stored one is a page on someone else's site
+    (owner 2026-11-14, "gmail": "the official site should just be gmail.com"; Wikidata's is
+    workspace.google.com/products/gmail/, whose site tree then gave the card Calendar, Blog, Pricing). Only then: a
+    stored site on another domain that is a page, not a front page, and a site row among the first five that is the
+    title's letters at .com (gmail.com for Gmail; iphone.cz is not the iPhone's). A stored front page, or one on the own-name domain, stays."""
+    official = [l for l in official if url_host_ok(l.get("url") or "")]
+    key = norm_key(title)
+    if not official or len(key) < 3:
+        return official
+    url = official[0]["url"]
+    if _label(url) == key or urlsplit(url).path.strip("/") == "":
+        return official
+    own = next((r for r in res[:5] if r.get("source") == "site" and _domain_of(r.get("url") or "") == key + ".com"
+                and url_host_ok(r.get("url") or "")), None)                     # gmail.com; not iphone.cz for the iPhone
+    return [{"title": "Official site", "url": own["url"]}] if own else official
+
+
+# A bare short name that is the everyday name of a big maker's product (owner 2026-11-14: "outlook" had no card, "keep"
+# carried the KEEP radio station, "premiere" the dictionary word, "teams" the article Team): "<Maker> <name>" or
+# "<Maker> <name> Pro" is an article, and it is read far more than the article the card would show (Wikipedia
+# pageviews, the release's signal; SHORT_RATIO times, and at least SHORT_FLOOR). Then it is the card. "music" stays
+# Music (63,689 against Apple Music's 10,495); "word" was already Microsoft Word. Release lookups only (pageviews).
+SHORT_MAKERS = ("Microsoft", "Google", "Apple", "Amazon", "Adobe", "Nintendo", "Sony", "Samsung", "Meta")
+SHORT_SUFFIXES = ("", " Pro")
+SHORT_RATIO = float(os.environ.get("SEARCH_SHORT_RATIO", "3"))
+SHORT_FLOOR = int(os.environ.get("SEARCH_SHORT_FLOOR", "1000"))
+SHORT_NAMES = os.environ.get("SEARCH_SHORT_NAMES", "1") == "1"
+
+
+def _title_views(lk, title: str):
+    from lookups_release import N_TITLE
+    ds = lk.names1(title, N_TITLE)[:1]
+    return (lk.S(ds[0], "pageviews") or 0) if ds else None
+
+
+def short_name_title(q: str, current: str | None) -> str | None:
+    """The maker's product article the bare name means, or None (see SHORT_MAKERS)."""
+    k = " ".join((q or "").lower().split())
+    if not SHORT_NAMES or not re.fullmatch(r"[a-z]{2,}( [a-z]{2,})?", k):
+        return None
+    lk = lookups()
+    if lk is None or lk.name != "release":
+        return None
+    def look():
+        name = " ".join(w.capitalize() for w in k.split())
+        best = None
+        for m in SHORT_MAKERS:
+            for suf in SHORT_SUFFIXES:
+                t = f"{m} {name}{suf}"
+                v = _title_views(lk, t)
+                if v is not None and (best is None or v > best[1]):
+                    best = (t, v)
+        return [best]
+    best = cached(("short_name", k), look, static=True)[0]
+    if best is None or best[0] == current or best[1] < SHORT_FLOOR:
+        return None
+    now = (_title_views(lk, current) or 0) if current else 0
+    return best[0] if best[1] >= SHORT_RATIO * now else None
+
+
+# "gmail login", "chase sign in" (owner 2026-11-14: "gmail login" is the README's example and had no card): the card
+# is the card of the name without the account words.
+_LOGIN_TAIL = re.compile(r"\s+(log ?in|sign ?in|sign ?on|log ?on|account|my account|login page|sign in page)$")
+
+
+def account_base(q: str) -> str | None:
+    k = " ".join((q or "").lower().split())
+    m = _LOGIN_TAIL.search(k)
+    base = k[:m.start()].strip() if m else ""
+    return base if len(base) >= 2 else None
+
+
+def wiki_top(lk_or_conn, title: str) -> dict | None:
+    """A card article row for a title found by lookup (not in the list): its url and lead."""
+    try:
+        if hasattr(lk_or_conn, "h"):
+            rows = lk_or_conn.h[FAMOUS_LEAD_SQL]({"t": title})
+        else:
+            rows = lk_or_conn.execute(FAMOUS_LEAD_SQL, {"t": title}).fetchall()
+    except Exception:  # noqa: BLE001 - a card is extra
+        return None
+    if not rows:
+        return None
+    return {"title": title + " — Wikipedia", "url": "https://en.wikipedia.org/wiki/" + quote(title.replace(" ", "_"), safe="()_,'!-.:"),
+            "content": rows[0][0] or "", "source": "wikipedia"}
+
+
+def lead_with_official(res: list[dict], card: dict | None) -> list[dict]:
+    """A short name's card (short_name_title) leads the list with its official site: "keep" listed KEEP's radio site
+    and article first and Google Keep's site third, "premiere" never listed Adobe's site at all (2026-11-14)."""
+    off = next((l["url"] for l in (card or {}).get("links", []) if l.get("title") == "Official site"), None)
+    if not off:
+        return res
+    places = [r for r in res if r.get("source") == "place"]
+    have = next((r for r in res if r.get("url") == off), None)
+    row = have or {"url": off, "title": f"{card['title']} — official site", "source": "site", "official": True,
+                   "content": card.get("description") or "", "score": max((r.get("score") or 0 for r in res), default=0)}
+    return places + [row] + [r for r in res if r is not have and r.get("source") != "place"]
+
+
+def name_bare_rows(res: list[dict], card: dict | None) -> list[dict]:
+    """A site row titled with nothing but its address ("https://www.gmail.com/", "outlook.com") is named after the
+    card it belongs to: the card's official site, or the .com of the card's name or its last word ("outlook.com" under
+    Microsoft Outlook; gmail.dev is someone else's). Copies; the rows are shared with the cache."""
+    if not card or not res:
+        return res
+    title = re.sub(r"\s*\(.*\)$", "", card.get("title") or "")
+    words = title.split()
+    names = {norm_key(title): title}
+    if len(words) >= 2:
+        names.setdefault(norm_key(words[-1]), words[-1])
+    off = next((l["url"] for l in card.get("links", []) if l.get("title") == "Official site"), None)
+    out = []
+    for r in res:
+        t, u = (r.get("title") or "").strip(), r.get("url") or ""
+        host = (urlsplit(u).hostname or "").lower()
+        bare = r.get("source") == "site" and (t.rstrip("/") in (u.rstrip("/"), host, host.removeprefix("www.")) or t == "")
+        if off and t == f"{title} — official site" and _domain_of(off) != _domain_of(u):
+            r = dict(r, title=f"{title} — {_domain_of(u)}")     # the stored site the card's own-name site replaced
+        elif bare:
+            if off and _domain_of(off) == _domain_of(u):
+                r = dict(r, title=f"{title} — official site")
+            elif _label(u) in names and _domain_of(u) == _label(u) + ".com":     # gmail.dev is someone else's
+                r = dict(r, title=names[_label(u)])
+        out.append(r)
+    return out
+
+
 def card_of(res: list[dict], descr: str | None = None, related: list[dict] | None = None,
-            image: dict | None = None, site: str | None = None) -> dict | None:
+            image: dict | None = None, site: str | None = None, top: dict | None = None) -> dict | None:
     """An exact article among the first CARD_WITHIN results -> {title, url, description,
     lead, links: its official site then its accounts, related: readers' next articles,
     image: its picture + credit (card_image)}; else None. ("taylor swift" leads with her official site, the article second.)"""
-    top = card_article(res)
+    top = top or card_article(res)
     if top is None:
         return None
     title = top["title"].rsplit(" — Wikipedia", 1)[0]
@@ -3206,6 +3347,7 @@ def card_of(res: list[dict], descr: str | None = None, related: list[dict] | Non
         official = [{"title": "Official site", "url": site}]       # the article's own stored site (CARD_SITE_SQL)
     if not official:
         official = platform_home(title, descr, top.get("content"))     # a platform whose own site is a social host
+    official = own_name_site(title, official, res)
     mine = [r for r in res if r.get("profile") and r.get("of") == key]
     # what it is, in one line (2026-11-06): its Wikidata short description, which every account row of it carries
     what = next((r["content"].strip() for r in mine if (r.get("content") or "").strip()), "")
@@ -5792,15 +5934,18 @@ def prefer_facts(ans: dict | None, card: dict | None) -> dict | None:
 SPORTS_SQL = """
 SELECT league, game_id, start_utc, state, detail, away_name, away_nick, away_score,
        home_name, home_nick, home_score, venue, broadcasts, url,
-       away_keys && %(k)s::text[] AS away_hit
+       away_keys && %(k)s::text[] AS away_hit, updated
 FROM games WHERE (away_keys && %(k)s::text[] OR home_keys && %(k)s::text[])
-  AND start_utc BETWEEN now() - interval '16 hours' AND now() + interval '8 days'
+  AND start_utc BETWEEN now() - interval '8 days' AND now() + interval '15 days'
 ORDER BY start_utc LIMIT 60
 """
 _SPORTS_TAIL = re.compile(r"\s+(?:score|scores|game|games|schedule|tonight|today|live|next game|tickets|tv|on tv|"
                           r"game time|game times|game tonight|game today|game tomorrow|last game|results|fixtures|"
                           r"next match|match|matches|what time|time)$")
 RECENT_FINAL = dt.timedelta(hours=14)
+# a team whose next game is more than QUIET away keeps its last result on the card, up to LAST_FINAL old (2026-11-14: "giants"
+# two days after a Thursday game, the next one 8 days off, showed no game at all)
+QUIET, LAST_FINAL = dt.timedelta(days=2), dt.timedelta(days=8)
 GAMES_PER_TEAM, TEAMS_MAX = 2, 3
 
 
@@ -5834,18 +5979,23 @@ def pick_games(rows, now: dt.datetime | None = None) -> list[dict]:
     now = now or dt.datetime.now(dt.timezone.utc)
     teams: dict = {}
     for (league, gid, start, state, detail, a_name, a_nick, a_score, h_name, h_nick, h_score,
-         venue, tv, url, away_hit) in rows:
+         venue, tv, url, away_hit, *checked) in rows:
+        upd = checked[0] if checked else None           # when the collector last stored this game: the box's "as of"
         team = (league, a_name if away_hit else h_name)
         teams.setdefault(team, []).append({
             "league": league, "id": gid, "start": start.isoformat(), "state": state, "detail": detail,
             "away": {"name": a_name, "nick": a_nick, "score": a_score},
             "home": {"name": h_name, "nick": h_nick, "score": h_score},
-            "venue": venue, "broadcasts": list(tv or []), "url": url, "_t": start})
+            "venue": venue, "broadcasts": list(tv or []), "url": url, "_t": start,
+            "as_of": upd.isoformat() if isinstance(upd, dt.datetime) else None})
     picked = []
     for team, games in teams.items():
         live = [g for g in games if g["state"] == "live"]
-        recent = [g for g in games if g["state"] == "final" and now - g["_t"] <= RECENT_FINAL]
+        finals = [g for g in games if g["state"] == "final" and now - g["_t"] <= LAST_FINAL]
+        recent = [g for g in finals if now - g["_t"] <= RECENT_FINAL]
         ahead = [g for g in games if g["state"] in ("pre", "postponed") and g["_t"] >= now - dt.timedelta(hours=3)]
+        if not recent and finals and (not ahead or ahead[0]["_t"] - now > QUIET):
+            recent = finals[-1:]
         chosen = (live or recent[-1:]) + ahead[:1]
         chosen = chosen[:GAMES_PER_TEAM]
         if chosen:
@@ -6190,10 +6340,10 @@ ORDER BY {sdist} LIMIT 1""", row=ns.row_with(**{"0": ns.from_json}))
     overlap = "EXISTS (SELECT 1 FROM json_each({col}) a JOIN json_each(:k) b ON a.value = b.value)"
     ns.register(SPORTS_SQL, f"""
 SELECT league, game_id, start_utc, state, detail, away_name, away_nick, away_score,
-       home_name, home_nick, home_score, venue, broadcasts, url, {overlap.format(col="away_keys")} AS away_hit
+       home_name, home_nick, home_score, venue, broadcasts, url, {overlap.format(col="away_keys")} AS away_hit, updated
 FROM games WHERE ({overlap.format(col="away_keys")} OR {overlap.format(col="home_keys")})
-  AND start_utc BETWEEN now_s() - 16 * 3600 AND now_s() + 8 * 86400
-ORDER BY start_utc LIMIT 60""", row=ns.row_with(**{"2": ns.epoch_dt, "12": ns.from_json, "14": bool}))
+  AND start_utc BETWEEN now_s() - 8 * 86400 AND now_s() + 15 * 86400
+ORDER BY start_utc LIMIT 60""", row=ns.row_with(**{"2": ns.epoch_dt, "12": ns.from_json, "14": bool, "15": ns.epoch_dt}))
     ns.register(TEAM_SQL, f"SELECT DISTINCT league, name, nick FROM teams WHERE {overlap.format(col='keys')} LIMIT 3")
     ns.register(STANDINGS_SQL, """SELECT grp, rank, team, nick, played, won, drawn, lost, for_, against, points, extra, as_of
 FROM standings WHERE league = :l AND (:g IS NULL OR grp = :g) ORDER BY grp, rank""",
@@ -6963,11 +7113,47 @@ def card_is_person(card) -> bool:
 
 
 def shop_wanted_over(q: str, card) -> bool:
-    """False for a name whose card is a person, unless the words ask to buy or name a thing one buys."""
+    """False for a name whose card is a person, or a named thing that is not a product (card_sells), unless the words
+    ask to buy or name a thing one buys."""
+    ql = (q or "").lower()
+    asks = bool(_SHOP.search(ql) or _SHOP_THING.search(ql))
+    if not card_sells(card) and not asks:
+        return False
     if PERSON_SHOP or not card_is_person(card):
         return True
-    ql = (q or "").lower()
-    return bool(_SHOP.search(ql) or _SHOP_THING.search(ql))
+    return asks
+
+
+# No store box over a named thing that is not sold (2026-11-14, owner: "gmail" got Target/Amazon/Walmart, "obviously not a
+# store product"; "keep" over the KEEP radio station, "definitely not something to buy"). A card with an official site
+# is a named thing: an organisation, a service, a product. The box stays only when its Wikidata description (else its
+# lead's first sentence) says it is a product, and not a service, software or medium. A card without an official site
+# (a word: "watch", "wallet") and no card at all are left to the department label as before. SEARCH_CARD_SELLS=0: off.
+CARD_SELLS = os.environ.get("SEARCH_CARD_SELLS", "1") == "1"
+_NOT_SOLD = re.compile(r"\b(services?|software|program|app|apps|application|platform|website|web site|web-based|online|"
+                       r"search engine|social (media|network\w*)|streaming|messag\w*|webmail|e-?mail|cloud|assistant|"
+                       r"radio station|television station|tv station|broadcast\w*|channel|newspaper|magazine|film|"
+                       r"band|musical group|political|university|school|college|government|agency|city|town|county|"
+                       r"editor|suite|operating system|browser|exchange|bank|airline|restaurant|retailer|seller)\b", re.I)
+_SOLD = re.compile(r"\b(products?|brand|line of|series of|models?|devices?|consoles?|smartphones?|phones?|tablets?|"
+                   r"laptops?|notebooks?|computers?|e-?readers?|speakers?|headphones?|earbuds?|earphones?|cameras?|"
+                   r"watch(es)?|smartwatch\w*|trackers?|televisions?|monitors?|printers?|routers?|media player|"
+                   r"appliances?|vehicles?|cars?|automobiles?|trucks?|motorcycles?|bicycles?|shoes?|sneakers?|clothing|"
+                   r"apparel|footwear|toys?|dolls?|video games?|board games?|beverages?|drinks?|soda|beer|wine|snacks?|"
+                   r"cereals?|cand(y|ies)|chocolates?|cosmetics?|fragrances?|perfumes?|tools?|furniture|mattress\w*|"
+                   r"guitars?|instruments?|manufacturer|manufactures)\b", re.I)
+
+
+def card_sells(card) -> bool:
+    if not CARD_SELLS or not card or not any(l.get("title") == "Official site" for l in card.get("links", [])):
+        return True
+    text = card.get("description") or re.split(r"(?<=[.!?])\s", card.get("lead") or "", maxsplit=1)[0]
+    # what it is comes first: "The iPhone is a line of smartphones ..., that run iOS, the company's own mobile
+    # operating system" is a product though the sentence goes on to software
+    head = re.split(r",|;| that | which | developed | owned ", text, maxsplit=1)[0]
+    if _SOLD.search(head) and not _NOT_SOLD.search(head):
+        return True
+    return bool(text) and not _NOT_SOLD.search(text) and bool(_SOLD.search(text))
 
 
 def shop_list(q: str, res: list[dict]) -> list[dict]:
@@ -7118,7 +7304,8 @@ def store_inbox_once() -> list:
     for f in names:
         p = os.path.join(inbox, f)
         try:
-            n = st.import_file(p)
+            r = st.reset_lists(p, CURATED_RELEASE) if CURATED_RELEASE else {}   # a lists base replaces what came before (install.py lists)
+            n = dict(st.import_file(p), **r)
             c = st.import_dept(p)                            # shopping departments (2026-11-13): not tied to a release
             if any(c.values()):
                 n = dict(n, **{f"dept_{k}": v for k, v in c.items()})
@@ -10803,6 +10990,7 @@ class Handler(BaseHTTPRequestHandler):
                 sig = dict(sig, store={"cache": _cache_state.get(), "note": note})
             # ms / stages / intent: the page's timing line and "why" tooltips (2026-09-26) —
             # names and numbers only, never the query
+            res = name_bare_rows(res, card)              # a hand-picked or stored list too
             return self._send(200, json.dumps({"suggest": sug, "phrases": phrases, "results": shop_list(q, res) if shop_wanted_over(q, card) else res,
                                               "shop": shop_box(q) if shop_wanted_over(q, card) else None, "confident": conf, "card": card,
                                               "news": latest, "news_hot": got_news["hot"], "news_more": got_news.get("more", False), "mine": got_news.get("mine") or [], "answer": ans,
@@ -10819,9 +11007,23 @@ class Handler(BaseHTTPRequestHandler):
                 if card_article(res) is None:
                     mark_respelled(q, res)                          # "sarah j mass": Sarah J. Maas's card
                 top = card_article(res)
+                cres, swapped = res, False                  # the rows the card is built from; a short name's card
+                lk = lookups()
+                base = account_base(q) if top is None else None
+                if base and any(r.get("source") == "site" and _label(r.get("url") or "") == norm_key(base) for r in res[:3]):
+                    # "gmail login": the card of "gmail", when the name's own domain leads the list
+                    cres = cached(("account_base", base), lambda: [search(base, 8)])[0]
+                    top = card_article(cres)
+                alt = short_name_title(base or q, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None)
+                if alt:                                     # "outlook" -> Microsoft Outlook, "keep" -> Google Keep
+                    swapped = True
+                    if lk is not None:
+                        top = wiki_top(lk, alt) or top
+                    else:
+                        with _conn() as c:
+                            top = wiki_top(c, alt) or top
                 if top is not None:
                     t = top["title"].rsplit(" — Wikipedia", 1)[0]
-                    lk = lookups()
                     if lk is not None and lk.name == "release":     # the card is one precomputed record
                         descr, rel_rows, img_row, _person = lk.card_parts(t, RELATED_N)
                         row, rel, img = (descr,) if descr else None, related_results(rel_rows), card_image(img_row)
@@ -10835,7 +11037,9 @@ class Handler(BaseHTTPRequestHandler):
                             img = (card_image(c.execute(CARD_IMAGE_SQL, {"t": t}).fetchone())
                                    if "card_images" in has else None)
                             site_row = c.execute(CARD_SITE_SQL, {"t": t}).fetchone() if "wiki_sites" in has else None
-                    card = card_of(res, row[0] if row else None, rel, img, site_row[0] if site_row else None)
+                    card = card_of(cres, row[0] if row else None, rel, img, site_row[0] if site_row else None, top=top)
+                    if swapped:
+                        res = lead_with_official(res, card)
             except Exception as e:                                  # a card is extra: never fail the answer
                 self.log_message("card failed: %s", type(e).__name__)
         place = None
@@ -10862,6 +11066,9 @@ class Handler(BaseHTTPRequestHandler):
         if _accounts_in_card.get():                      #: the card carries the accounts, the list keeps sites and the article
             res = fold_accounts(res, card)
         res = branches_only(res)
+        # a site row whose address is not a host name is not a link ("https://1=microsoft.com/...", 2026-11-14), and a
+        # row titled with its bare address is named after the card it belongs to
+        res = name_bare_rows([r for r in res if r.get("source") != "site" or url_host_ok(r.get("url") or "")], card)
         if card:                                         # an account the card leaves out is not a result either ("IKEA on Discogs")
             what = card.get("description") or ""
             key = same_page(card.get("url") or "")

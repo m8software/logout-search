@@ -356,6 +356,24 @@ class ResultStore:
             n["newer" if old else "added"] += 1
         return n
 
+    def reset_lists(self, path: str, release: str) -> dict:
+        """A lists BASE (install.py lists update, 2026-11-14): a file whose lists_meta table says reset=1 replaces every
+        hand-picked list, finished answer and department label: what is not in it is dropped first. Delta files carry
+        no reset and only add or replace (import_curated / import_finished / import_dept)."""
+        src = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            has = src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'lists_meta'").fetchone()
+            meta = dict(src.execute("SELECT k, v FROM lists_meta").fetchall()) if has else {}
+        finally:
+            src.close()
+        if str(meta.get("reset", "")) != "1":
+            return {}
+        with self.lock:
+            n = {"reset_curated": self.db.execute("DELETE FROM curated WHERE release = ?", (release,)).rowcount,
+                 "reset_finished": self.db.execute("DELETE FROM finished WHERE release = ?", (release,)).rowcount,
+                 "reset_dept": self.db.execute("DELETE FROM dept").rowcount}
+        return n
+
     def sample_queries(self, n: int) -> list[str]:
         """n random stored searches' words (for the warmer's audit of rows it did not compute itself)."""
         with self.lock:

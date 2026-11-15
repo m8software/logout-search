@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""Publish the hand-picked lists, finished answers and shopping departments for installs (`install.py lists update`).
+
+Owner 2026-11-14: "the searchsilos should have all of the same things as public ... they need the updates when we add more or
+update the ones they already have". Public and indexhost's engines get these through their store inbox (ship key); an install
+gets them from the dataset, under lists/:
+
+    lists/manifest.json(.sig)          kind=lists, signed with the LISTS key (install.LISTS_PUBKEY)
+    lists/parts/<name>.sqlite.xz       the first part is the BASE (everything; reset=1), then one DELTA per publish after it
+
+A part holds the store tables (result_store.py: curated, finished, dept) with each body as plain JSON text (the install
+compresses it for its store: xz over plain text is about a quarter smaller than over zlib bodies), and lists_meta(k, v).
+A delta has only the rows written since the publish before it (`at` above the manifest's `until`); an empty delta is not
+published. `--base` starts again from everything and drops the old parts (weekly: what was removed upstream goes then).
+
+    lists_build.py build  --store results.sqlite --out DIR --key LISTS.pem --release R --fits R [--fits R2] [--base]
+                          [--manifest CURRENT_MANIFEST.json]    (the published one; none = a base is built)
+    lists_build.py upload --out DIR --repo ORG/NAME --token-file F [--dry-run]
+
+Standard library (sqlite3, lzma) plus hf_dataset.sign; upload needs huggingface_hub.
+"""
+import argparse
+import hashlib
+import json
+import lzma
+import os
+import sqlite3
+import sys
+import time
+import zlib
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "..", "installer"))
+sys.path.insert(0, HERE)
+import install as inst  # noqa: E402
+import hf_dataset  # noqa: E402  (sign())
+
+NOTICE = ("Search lists chosen ahead of time for names people search: each list names web pages (address, title and a short "
+          "description taken from the page or from the open sources of the logout search data release), ordered by Logout's "
+          "own models. The descriptions keep the licences of their sources, listed in the release's LICENSES folder; the "
+          "selection, order and grades are Logout's and are shared under CC BY-SA 4.0.")
+OVERLAP_S = 12 * 3600
+LICENCE = {"name": "CC BY-SA 4.0 (the selection); sources as in the release", "url": "https://creativecommons.org/licenses/by-sa/4.0/"}
+
+
+def sha256_file(p: str):
+    h, n = hashlib.sha256(), 0
+    with open(p, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
+            n += len(b)
+    return h.hexdigest(), n
+
+
+def write_part(store: str, out_db: str, release: str, since: float, reset: bool, new_after: float = 0.0, dept: bool = False) -> dict:
+    """Rows of `store` written after `since` (all when reset) -> out_db. -> {table: rows, "until": newest at, "new": rows after new_after}."""
+    if os.path.exists(out_db):
+        os.remove(out_db)
+    src = sqlite3.connect(f"file:{store}?mode=ro", uri=True)
+    dst = sqlite3.connect(out_db)
+    dst.execute("PRAGMA journal_mode=OFF")
+    dst.execute("CREATE TABLE curated (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (release, key)) WITHOUT ROWID")
+    dst.execute("CREATE TABLE finished (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (release, key)) WITHOUT ROWID")
+    dst.execute("CREATE TABLE dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, at REAL NOT NULL) WITHOUT ROWID")
+    dst.execute("CREATE TABLE lists_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)")
+    n, until, new = {}, since, 0
+    lo = -1.0 if reset else since
+    for t in ("curated", "finished"):
+        c = 0
+        for key, body, at in src.execute(f"SELECT key, body, at FROM {t} WHERE release = ? AND at > ?", (release, lo)):
+            try:
+                text = zlib.decompress(body)
+                json.loads(text)
+            except (zlib.error, ValueError):
+                continue                                   # a damaged body is not passed on
+            dst.execute(f"INSERT INTO {t} VALUES (?, ?, ?, ?)", (release, key, text, at))
+            c += 1
+            new += at > new_after
+            until = max(until, at)
+        n[t] = c
+    have = dept and src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'dept'").fetchone()
+    c = 0
+    for row in (src.execute("SELECT key, p, d, c, at FROM dept WHERE at > ?", (lo,)) if have else []):
+        dst.execute("INSERT INTO dept VALUES (?, ?, ?, ?, ?)", row)
+        c += 1
+        new += row[4] > new_after
+        until = max(until, row[4])
+    n["dept"] = c
+    dst.executemany("INSERT INTO lists_meta VALUES (?, ?)", [("reset", "1" if reset else "0"), ("body", "plain"), ("release", release)])
+    dst.commit()
+    dst.execute("VACUUM")
+    dst.close()
+    src.close()
+    n["until"], n["new"] = until, new
+    return n
+
+
+def build(a) -> dict:
+    os.makedirs(os.path.join(a.out, "lists", "parts"), exist_ok=True)
+    prev = None
+    if a.manifest and os.path.isfile(a.manifest):
+        prev = json.load(open(a.manifest, encoding="utf-8"))
+    base = a.base or prev is None or prev.get("source_release") != a.release
+    t = time.time()
+    stamp = time.strftime("%Y%m%dT%H%M%S", time.gmtime(t)) + f"{int(t * 1000) % 1000:03d}Z"     # two publishes never share a name
+    name = ("b-" if base else "d-") + stamp
+    raw = os.path.join(a.out, "lists", "parts", name + ".sqlite")
+    # a delta repeats the last OVERLAP_S before the previous publish: a row built before then but taken into this store
+    # after it would otherwise be missed (the install keeps a row only when it is newer than its own, so a repeat is free)
+    n = write_part(a.store, raw, a.release, 0.0 if base else float(prev["until"]) - OVERLAP_S, base, 0.0 if base else float(prev["until"]), a.with_dept)
+    n["until"] = max(n["until"], 0.0 if base else float(prev["until"]))
+    if not base and not n["new"]:
+        os.remove(raw)
+        return {"published": False, "why": "nothing new since the last publish", "until": prev["until"]}
+    sha, size = sha256_file(raw)
+    xz = raw + ".xz"
+    with open(raw, "rb") as fi, lzma.open(xz, "wb", preset=6) as fo:
+        for b in iter(lambda: fi.read(1 << 20), b""):
+            fo.write(b)
+    os.remove(raw)
+    xsha, xsize = sha256_file(xz)
+    part = {"name": name, "bytes": size, "sha256": sha, "xz_bytes": xsize, "xz_sha256": xsha,
+            "rows": {k: n[k] for k in ("curated", "finished", "dept")}}
+    if base:
+        part["reset"] = True
+        parts = [part]
+    else:
+        parts = list(prev["parts"]) + [part]
+    m = {"format": inst.LISTS_FORMAT, "kind": "lists", "version": stamp, "source_release": a.release, "fits_releases": a.fits,
+         "base": parts[0]["name"], "until": n["until"], "parts": parts, "licence": LICENCE, "notice": NOTICE}
+    body = (json.dumps(m, indent=1, sort_keys=True) + "\n").encode()
+    inst.check_lists_manifest(body)                  # what we write must be what the installer accepts
+    with open(os.path.join(a.out, "lists", "manifest.json"), "wb") as f:
+        f.write(body)
+    with open(os.path.join(a.out, "lists", "manifest.json.sig"), "wb") as f:
+        f.write(hf_dataset.sign(a.key, body))
+    return {"published": True, "part": name, "base": base, "rows": part["rows"], "xz_bytes": xsize, "parts": len(parts),
+            "download_from_scratch": sum(p["xz_bytes"] for p in parts)}
+
+
+def upload(a) -> dict:
+    m = json.load(open(os.path.join(a.out, "lists", "manifest.json"), encoding="utf-8"))
+    want = {f"lists/parts/{p['name']}.sqlite.xz" for p in m["parts"]}
+    local = [p for p in want if os.path.isfile(os.path.join(a.out, p))]
+    plan = {"repo": a.repo, "version": m["version"], "upload": sorted(local), "bytes": sum(os.path.getsize(os.path.join(a.out, p)) for p in local)}
+    if a.dry_run:
+        return dict(plan, dry_run=True)
+    from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi
+    api = HfApi(token=open(a.token_file).read().strip())
+    remote = {p for p in api.list_repo_files(a.repo, repo_type="dataset") if p.startswith("lists/parts/")}
+    ops = [CommitOperationAdd(path_in_repo=p, path_or_fileobj=os.path.join(a.out, p)) for p in sorted(local) if p not in remote]
+    if ops:
+        api.create_commit(a.repo, repo_type="dataset", operations=ops, commit_message=f"lists {m['version']}: parts")
+    # the manifest last, so a reader never sees a manifest naming a part that is not there yet; parts no manifest names go
+    ops = [CommitOperationAdd(path_in_repo=f"lists/{n}", path_or_fileobj=os.path.join(a.out, "lists", n)) for n in ("manifest.json", "manifest.json.sig")]
+    ops += [CommitOperationDelete(path_in_repo=p) for p in sorted(remote - want)]
+    api.create_commit(a.repo, repo_type="dataset", operations=ops, commit_message=f"lists {m['version']}")
+    for p in local:                                  # uploaded: the local copy is not needed again
+        os.remove(os.path.join(a.out, p))
+    return dict(plan, removed=sorted(remote - want))
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    sp = ap.add_subparsers(dest="cmd", required=True)
+    b = sp.add_parser("build")
+    b.add_argument("--store", required=True)
+    b.add_argument("--out", required=True)
+    b.add_argument("--key", required=True, help="PEM ed25519 private key (the LISTS key)")
+    b.add_argument("--release", required=True, help="the release the lists were chosen on (the store's curated/finished rows)")
+    b.add_argument("--fits", action="append", required=True, help="a release id or pattern an install may use them with (repeatable)")
+    b.add_argument("--base", action="store_true", help="start again from everything; the old parts are dropped on upload")
+    b.add_argument("--with-dept", action="store_true", help="also the shopping departments (names from Amazon's search suggestions: "
+                   "HELD until the owner decides on their licence)")
+    b.add_argument("--manifest", help="the manifest now published (default: OUT/lists/manifest.json)")
+    u = sp.add_parser("upload")
+    u.add_argument("--out", required=True)
+    u.add_argument("--repo", required=True)
+    u.add_argument("--token-file")
+    u.add_argument("--dry-run", action="store_true")
+    a = ap.parse_args()
+    if a.cmd == "build":
+        a.manifest = a.manifest or os.path.join(a.out, "lists", "manifest.json")
+        r = build(a)
+    else:
+        if not a.dry_run and not a.token_file:
+            raise SystemExit("--token-file is needed")
+        r = upload(a)
+    print(json.dumps(r, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

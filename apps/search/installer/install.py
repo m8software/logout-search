@@ -1005,9 +1005,13 @@ ADDONS = {
                   "what": "the card's Wikipedia article links and what Wikipedia cites (SEARCH_WIKILINKS, with W and C in SEARCH_BREADTH)"},
     "se-howto": {"file": "se-howto.sqlite", "env": "SEARCH_SE_INDEX",
                  "what": "Stack Exchange how-to index: a short answer excerpt with credit on how-to searches (SEARCH_SE_INDEX)"},
+    # what public reads beside its release (2026-11-14, silo parity): the card's site sections and its Wikidata links
+    "sitenav": {"file": "sitenav.jsonl", "env": "SEARCH_SITENAV",
+                "what": "the card's site sections: tickets, shop, support... from each official site's own menu (SEARCH_SITENAV)"},
+    "cardlinks": {"file": "cardlinks.sqlite", "env": "SEARCH_CARDLINKS",
+                  "what": "the card's accounts and More links, from Wikidata (SEARCH_CARDLINKS)"},
 }
 ADDON_FORMAT = 1
-BREADTH_PLAIN, BREADTH_WIKI = "JDL", "JDLWC"        # SEARCH_BREADTH without / with the wikilinks file (W and C need it)
 
 
 def check_addon_manifest(body: bytes, name: str) -> dict:
@@ -1253,6 +1257,184 @@ def addon_env(base: str, rid: str) -> dict:
     return env
 
 
+# ================================================================================================ the lists
+# Hand-picked lists, finished answers and shopping departments (owner 2026-11-14: "the searchsilos should have all of the same
+# things as public ... they need the updates when we add more or update the ones they already have"). Built on indexhost, where
+# public's are, and published to the same dataset under lists/: a signed manifest naming a BASE (everything, replaces what an
+# engine had) and the DELTAS made after it (only what was added or changed). Each part is a small SQLite file in the engine's
+# store inbox format (result_store.py); this code checks it against the manifest, gives its rows this install's release, and
+# drops it in BASE/store/inbox, where the running engine takes it in within a minute (no restart). Signed by the LISTS key, not
+# the release key: it is published every day by a machine that is not trusted with the release key, and a lists manifest can
+# only ever add search lists, never program or release files.
+LISTS_PUBKEY = "ed25519:8e590b3b23d7b38c85747f6ec9eac728d2dfb879dfda033b1cf270a7d1281aa8"
+LISTS_FORMAT = 1
+LISTS_BIG = 64 << 20                                  # on a metered connection, nothing larger than this is fetched (a base waits)
+
+
+def lists_source(arg: str) -> "Source":
+    m = HF_RE.match(arg)
+    if m:
+        base = hf_base(m.group(1), m.group(2) or "main")
+    elif arg.startswith("hf:"):
+        raise Fatal(f"--source {arg!r}: write hf:ORG/NAME or hf:ORG/NAME@TAG")
+    else:
+        base = arg.rstrip("/")
+    return Source(f"{base}/lists")
+
+
+def check_lists_manifest(body: bytes) -> dict:
+    try:
+        m = json.loads(body)
+    except ValueError as e:
+        raise InstallError(f"lists manifest is not JSON: {e}")
+    if not isinstance(m, dict) or m.get("kind") != "lists" or m.get("format") != LISTS_FORMAT:
+        raise InstallError(f"lists manifest is not kind=lists format={LISTS_FORMAT}: get a newer program")
+    if not isinstance(m.get("version"), str) or not ID_RE.match(m["version"]):
+        raise InstallError("lists manifest version is not a plain name")
+    fits = m.get("fits_releases")
+    if not isinstance(fits, list) or not fits or any(not isinstance(x, str) or not x for x in fits):
+        raise InstallError("lists manifest names no release it fits (fits_releases)")
+    parts = m.get("parts")
+    if not isinstance(parts, list) or not parts:
+        raise InstallError("lists manifest has no parts")
+    names = set()
+    for i, t in enumerate(parts):
+        ok = (isinstance(t, dict) and isinstance(t.get("name"), str) and ID_RE.match(t["name"]) and t["name"] not in names
+              and isinstance(t.get("bytes"), int) and t["bytes"] > 0 and re.fullmatch(r"[0-9a-f]{64}", str(t.get("sha256", "")))
+              and isinstance(t.get("xz_bytes"), int) and t["xz_bytes"] > 0 and re.fullmatch(r"[0-9a-f]{64}", str(t.get("xz_sha256", "")))
+              and (t.get("reset") is True) == (i == 0))     # the first part is the base, and only it resets
+        if not ok:
+            raise InstallError(f"lists manifest part {i} is malformed")
+        names.add(t["name"])
+    if m.get("base") != parts[0]["name"]:
+        raise InstallError("lists manifest base is not its first part")
+    lic = m.get("licence")
+    if not isinstance(lic, dict) or not lic.get("name") or not isinstance(m.get("notice"), str) or not m["notice"].strip():
+        raise InstallError("lists manifest carries no licence name / notice text")
+    return m
+
+
+def lists_state_path(base: str) -> str:
+    return os.path.join(base, "store", "lists.json")
+
+
+def lists_state(base: str) -> dict:
+    try:
+        s = json.load(open(lists_state_path(base), encoding="utf-8"))
+        return s if isinstance(s, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _lists_save(base: str, s: dict) -> None:
+    p = lists_state_path(base)
+    with open(p + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(s, f, indent=1, sort_keys=True)
+    os.replace(p + ".tmp", p)
+
+
+def lists_rekey(path: str, release: str) -> dict:
+    """The part's rows are for the release they were chosen on (public's); here they serve this install's release, which the
+    manifest says they fit. -> counts per table."""
+    import sqlite3
+    import zlib
+    db = sqlite3.connect(path)
+    try:
+        have = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+        meta = dict(db.execute("SELECT k, v FROM lists_meta").fetchall()) if "lists_meta" in have else {}
+        db.create_function("zc", 1, lambda b: zlib.compress(b if isinstance(b, bytes) else str(b).encode(), 6), deterministic=True)
+        n = {}
+        for t in ("curated", "finished"):
+            if t in have:
+                # bodies travel as plain text (smaller once xz'd); the store keeps them zlib-compressed
+                db.execute(f"UPDATE {t} SET release = ?" + (", body = zc(body)" if meta.get("body") == "plain" else ""), (release,))
+                n[t] = db.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
+        if "dept" in have:
+            n["dept"] = db.execute("SELECT count(*) FROM dept").fetchone()[0]
+        db.commit()
+        return n
+    finally:
+        db.close()
+
+
+def lists_update(base: str, source: str, pub: bytes, metered: bool = False, big: int = LISTS_BIG) -> dict:
+    """Fetch the lists parts this install has not taken yet and drop them in its store inbox. -> summary."""
+    t0 = time.time()
+    base = os.path.abspath(base)
+    src = lists_source(source)
+    body, sig = src.read_small("manifest.json"), src.read_small("manifest.json.sig")
+    if not ed25519_verify(pub, body, sig):
+        raise InstallError("lists/manifest.json.sig does not verify with the pinned lists key: nothing was downloaded or written")
+    m = check_lists_manifest(body)
+    cur = release_ptr.current_id(base)
+    if not cur:
+        raise InstallError(f"{base} has no installed release")
+    if not addon_fits(m, cur):
+        return {"lists": "skipped", "why": f"the lists fit {m['fits_releases']}, this install is {cur}", "version": m["version"]}
+    st = lists_state(base)
+    fresh = st.get("base") != m["base"] or st.get("release") != cur
+    applied = set() if fresh else set(st.get("applied") or [])
+    todo = [t for t in m["parts"] if t["name"] not in applied]
+    if not todo:
+        return {"lists": "up to date", "version": m["version"], "base": m["base"], "parts": len(m["parts"])}
+    size = sum(t["xz_bytes"] for t in todo)
+    if metered and size > big:
+        return {"lists": "waiting", "why": f"{size >> 20} MiB to fetch on a metered connection; it waits for an ordinary one",
+                "version": m["version"]}
+    store = os.path.join(base, "store")
+    inbox, work = os.path.join(store, "inbox"), os.path.join(store, ".lists")
+    os.makedirs(inbox, exist_ok=True)
+    os.makedirs(work, exist_ok=True)
+    free = int(FAKE_FREE) if FAKE_FREE else shutil.disk_usage(base).free
+    need = sum(t["xz_bytes"] + 2 * t["bytes"] for t in todo)
+    if free < need:
+        raise InstallError(f"not enough disk space in {base}: {free >> 20} MiB free, {need >> 20} MiB needed for the lists")
+    if fresh:
+        st = {"base": m["base"], "release": cur, "applied": [], "n": int(st.get("n") or 0)}
+    rows = {}
+    for t in todo:
+        xz = os.path.join(work, t["name"] + ".sqlite.xz")
+        download(src, f"parts/{t['name']}.sqlite.xz", xz, t["xz_bytes"], t["xz_sha256"], f"lists {t['name']}")
+        tmp = os.path.join(work, t["name"] + ".sqlite")
+        xz_decode(xz, tmp)
+        os.remove(xz)
+        sha, n = file_digest(tmp)
+        if (n, sha) != (t["bytes"], t["sha256"]):
+            os.remove(tmp)
+            raise InstallError(f"lists {t['name']}: after decoding {n} bytes / {sha[:16]}..., the manifest says {t['bytes']} / {t['sha256'][:16]}...")
+        for k, v in lists_rekey(tmp, cur).items():
+            rows[k] = rows.get(k, 0) + v
+        st["n"] = int(st.get("n") or 0) + 1
+        os.replace(tmp, os.path.join(inbox, f"lists-{st['n']:08d}-{t['name']}.sqlite"))   # the engine reads the inbox in name order
+        st["applied"] = sorted(set(st["applied"]) | {t["name"]})
+        st["version"] = m["version"]
+        _lists_save(base, st)
+    return {"lists": "fetched", "version": m["version"], "base": m["base"], "parts_fetched": [t["name"] for t in todo],
+            "bytes": size, "rows": rows, "seconds": round(time.time() - t0, 1)}
+
+
+def lists_command(a) -> dict:
+    base = os.path.abspath(a.dest)
+    if a.action == "status":
+        st = lists_state(base)
+        inbox = os.path.join(base, "store", "inbox")
+        waiting = sorted(f for f in os.listdir(inbox) if f.endswith(".sqlite")) if os.path.isdir(inbox) else []
+        return {"version": st.get("version"), "base": st.get("base"), "release": st.get("release"),
+                "parts": len(st.get("applied") or []), "waiting_in_inbox": waiting}
+    if not a.source:
+        raise InstallError("lists update needs --source")
+    metered = False
+    if a.metered == "yes":
+        metered = True
+    elif a.metered == "auto":
+        try:
+            import netcost
+            metered = bool(netcost.metered())
+        except Exception:  # noqa: BLE001
+            metered = False
+    return lists_update(base, a.source, load_pubkey(a.pubkey or LISTS_PUBKEY), metered)
+
+
 # ================================================================================================ smoke test
 # Three fixed searches through the path the page uses. "wikipedia" is the engine's own /readyz probe, so it must work.
 SMOKE_NAME, SMOKE_PLAIN, SMOKE_HOWTO = "wikipedia", "history of the bicycle", "how to remove a stripped screw"
@@ -1307,7 +1489,29 @@ def run_smoke(port: int, has_se: bool, get=_get_json) -> int:
 # ================================================================================================ start / status
 PUBLIC_TUNING = {"SEARCH_LINK_SITE_LOW_GUARD": "1", "SEARCH_LINK_SITE_MIN_SITELINKS": "1", "SEARCH_PLACE_UNDER_THING": "-40",
                  "SEARCH_PRODUCT_SITE_FIRST": "2", "SEARCH_PRODUCT_TIER_WIDE": "1", "SEARCH_TYPO_NAMES": "links,places",
-                 "SEARCH_TYPO_WORD_DF": "3000", "SEARCH_ANSWER_DEAD": "1"}
+                 "SEARCH_TYPO_WORD_DF": "3000", "SEARCH_ANSWER_DEAD": "1",
+                 # the list cleanup public runs (2026-11-14, owner: "every single feature public has the search silos get"):
+                 # every row of the first 10 scored, a row under 0 left out from the 4th on
+                 "SEARCH_BREADTH": "JDLF", "SEARCH_SCORE_ALL": "1", "SEARCH_BREADTH_FLOOR": "0", "SEARCH_SCORE_ALL_TOP": "10",
+                 # hand-picked lists and finished answers, read from the store the lists arrive in (`lists update`)
+                 "SEARCH_CURATED": "1", "SEARCH_CURATED_FILL": "1", "SEARCH_FINISHED": "1"}
+
+
+# Public's settings an install does NOT copy, each with why (tests/unit/test-search-lists.sh: every other SEARCH_* public's engine
+# runs with must be set by engine_env, so a setting added to public and forgotten here fails the test).
+PUBLIC_ONLY = {
+    "SEARCH_HOME": "public has no home town; an install's is the owner's own (settings)",
+    "SEARCH_NEWS_DB": "the Postgres news database's name: an install reads the news file (SEARCH_NEWS_SQLITE)",
+    "SEARCH_MINE_BOX": "public has no feeds of its own to show; an install shows its owner's",
+    "SEARCH_RADAR_DIR": "HELD: the page loads radar pictures from search.logout.cloud, which would tell public the town searched",
+    "SEARCH_SHOP_NAMES": "HELD: a list of Amazon's search suggestions; publishing it waits for a licence decision",
+    "SEARCH_SHOP_BOX": "goes with SEARCH_SHOP_NAMES",
+    "SEARCH_CE_GOV_DIR": "public names the same model as SEARCH_CE_DIR (st3); unset, government tasks use SEARCH_CE_DIR: the same",
+    "SEARCH_SQLITE_CACHE_KB": "memory per machine, not results",
+    "SEARCH_ORT_PREPACK": "speed/memory per machine, not results",
+    "SEARCH_CE_THREADS": "CPU per machine, not results",
+    "SEARCH_CACHE_MAX": "memory per machine, not results",
+}
 
 
 def engine_env(base: str, port: int = 8090) -> dict:
@@ -1372,7 +1576,10 @@ def engine_env(base: str, port: int = 8090) -> dict:
         env[k] = os.environ.get(k, v)
     if "SEARCH_SE_INDEX" in env:
         env["SEARCH_SE_POOL"] = os.environ.get("SEARCH_SE_POOL", "8")
-    env["SEARCH_BREADTH"] = os.environ.get("SEARCH_BREADTH", BREADTH_WIKI if "SEARCH_WIKILINKS" in env else BREADTH_PLAIN)
+    # the store: hand-picked lists, finished answers and departments arrive in its inbox (`lists update`); this engine's own
+    # computed rows are kept there too (only the warmer writes them, and a home engine runs none)
+    os.makedirs(os.path.join(base, "store", "inbox"), exist_ok=True)
+    env["SEARCH_STORE"] = os.environ.get("SEARCH_STORE", os.path.join(base, "store", "results.sqlite"))
     # glibc: 2 malloc arenas instead of 8 per core for the engine's ~40 threads. rc8 under 4 GB / 4 CPUs: anonymous memory
     # after 1,000 searches 2.23 -> 1.94 GB, latency unchanged (audits/2026-10-12-box-memory-levers.md). Ignored
     # off glibc; a value already in the environment wins.
@@ -1484,6 +1691,13 @@ def main():
     ad.add_argument("--source", help="install/list: the same --source as the release (hf:ORG/NAME or a URL/folder); add-ons are under addons/<name>/")
     ad.add_argument("--pubkey", help="install/list: the PINNED public key, as for `install`")
     ad.add_argument("--quick", action="store_true", help="install: on a re-run compare sizes only")
+    ls = sp.add_parser("lists", help="hand-picked lists and finished answers, as public has them: update | status")
+    ls.add_argument("action", choices=["update", "status"])
+    ls.add_argument("--dest", required=True)
+    ls.add_argument("--source", help="update: the same --source as the release (hf:ORG/NAME or a URL/folder); the lists are under lists/")
+    ls.add_argument("--pubkey", help="update: the lists key (default: the pinned one)")
+    ls.add_argument("--metered", choices=["auto", "yes", "no"], default="no",
+                    help="update: on a metered connection nothing larger than 64 MiB is fetched (auto: ask the system)")
     t = sp.add_parser("status")
     t.add_argument("--dest", required=True)
     a = ap.parse_args()
@@ -1496,6 +1710,8 @@ def main():
                     say(after_install_help(os.path.abspath(a.dest)))
         elif a.cmd == "start":
             start(a)
+        elif a.cmd == "lists":
+            print(json.dumps(lists_command(a), sort_keys=True))
         elif a.cmd == "addon":
             if a.action != "list" and not a.name:
                 raise InstallError(f"addon {a.action} needs a name: one of {', '.join(sorted(ADDONS))}")

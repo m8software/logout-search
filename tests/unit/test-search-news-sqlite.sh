@@ -212,10 +212,12 @@ def sports_write():
 busy = step("sports write", sports_write)
 check("sports.busy: a game starting within the window makes the league busy; another league is idle", lambda: (busy == (True, False), busy))
 games = step("sports read", lambda: a._sports_rows(a.SPORTS_SQL, {"k": ["mets"]})) or []
-check("SPORTS_SQL: the team's games in the window, soonest first (the 2-days-old final is outside)",
-      lambda: ([g[1] for g in games] == ["g1"], [g[1] for g in games]))
+check("SPORTS_SQL: the team's games in the window, soonest first (the 2-days-old final is inside: 8 days back since 2026-11-14)",
+      lambda: ([g[1] for g in games] == ["g2", "g1"], [g[1] for g in games]))
 check("... start is an aware datetime, broadcasts a list, away_hit a bool",
-      lambda: isinstance(games[0][2], dt.datetime) and games[0][2].tzinfo and games[0][12] == ["SNY", "ESPN"] and games[0][14] is False)
+      lambda: isinstance(games[1][2], dt.datetime) and games[1][2].tzinfo and games[1][12] == ["SNY", "ESPN"] and games[1][14] is False)
+check("... and the time the collector stored it, an aware datetime (the box's 'as of')",
+      lambda: isinstance(games[1][15], dt.datetime) and games[1][15].tzinfo is not None)
 check("SPORTS_SQL: away_hit true when the key is the away team's", lambda: [g[14] for g in a._sports_rows(a.SPORTS_SQL, {"k": ["braves"]})] == [True])
 check("TEAM_SQL: a team key finds its team", lambda: a._sports_rows(a.TEAM_SQL, {"k": ["mets"]}) == [("mlb", "New York Mets", "Mets")])
 check("TEAM_SQL: an unknown key finds nothing", lambda: a._sports_rows(a.TEAM_SQL, {"k": ["dodgers"]}) == [])

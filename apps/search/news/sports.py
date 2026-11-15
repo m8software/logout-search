@@ -9,8 +9,9 @@ Sources (approved 2026-09-25), one request per league at a time:
   MLB  statsapi.mlb.com  /api/v1/schedule (linescore, broadcasts, venue)
   NHL  api-web.nhle.com  /v1/schedule/now (the week) + /v1/score/now (live clock/period)
   NFL   nflverse-data games.csv (CC-BY-4.0)       public_ok, every 10 min Sep-Feb else 6 h
-  epl, championship  openfootball football.json   public_ok, public domain, every 6 h
-  ucl   openfootball champions-league cl.txt      public_ok, public domain, every 6 h
+  epl, championship, ucl  DROPPED 2026-11-14 (owner): openfootball stopped updating on 2026-09-22 and has no
+       Champions League file this season, so tables and results were two months old. The readers below stay for tests
+       and a user's own source; nothing fetches them, and the rows already stored are removed at start.
   NBA   OFF — cdn.nba.com refuses non-browsers and ESPN (site.api.espn.com) returns Akamai
        403 to the box; neither is worked around (see BUILTIN)
   The openfootball files are weekly: matches are 'final' or 'pre', never 'live'. nflverse has
@@ -58,8 +59,9 @@ LIVE_EVERY_S = 60
 IDLE_EVERY_S = 30 * 60
 TICK_S = 15
 SOON = dt.timedelta(minutes=20)          # about to start: refresh at the live pace
-KEEP_DAYS_BACK = 2
+KEEP_DAYS_BACK = 8                      # a weekly team's last result stays on its card until the next game (2026-11-14)
 WINDOW_DAYS = 7
+STATIC_AHEAD_DAYS = 14                  # the published files: a team with a bye or a Thursday game still has its next one (2026-11-14: the Giants had none)
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS games (
@@ -218,13 +220,8 @@ CLUB_ALIASES = {
 SOURCES = {
     "nfl": {"public_ok": True, "licence": "CC-BY-4.0",
             "attribution": "NFL schedules and scores: nflverse-data (https://github.com/nflverse/nflverse-data), CC BY 4.0"},
-    "epl": {"public_ok": True, "licence": "public domain dedication (football.db)",
-            "attribution": "English Premier League fixtures and results: openfootball (https://github.com/openfootball), public domain"},
-    "championship": {"public_ok": True, "licence": "public domain dedication (football.db)",
-                     "attribution": "EFL Championship fixtures and results: openfootball (https://github.com/openfootball), public domain"},
-    "ucl": {"public_ok": True, "licence": "public domain dedication (football.db)",
-            "attribution": "UEFA Champions League fixtures and results: openfootball (https://github.com/openfootball), public domain"},
 }
+DROPPED_LEAGUES = ("epl", "championship", "ucl")          # openfootball went stale (see the top of this file)
 STATIC_LEAGUES = ("nfl", "epl", "championship", "ucl")     # read from a published file, not a live API
 PUBLIC_TEAMS: dict[str, list[dict]] = {}                   # league -> every team; the adapters set it, the loop stores it
 HTTP_CACHE: dict = {}                                      # url -> (ETag, Last-Modified, body)
@@ -576,7 +573,7 @@ def fetch_season_file(template: str, today: dt.date, **kw) -> str | None:
 def in_window(games: list[dict], today: dt.date) -> list[dict]:
     """What prune_games would keep: a whole season must not be inserted just to be deleted again."""
     lo = dt.datetime.combine(today - dt.timedelta(days=KEEP_DAYS_BACK), dt.time(0), dt.timezone.utc)
-    hi = dt.datetime.combine(today + dt.timedelta(days=WINDOW_DAYS + 1), dt.time(0), dt.timezone.utc)
+    hi = dt.datetime.combine(today + dt.timedelta(days=STATIC_AHEAD_DAYS + 1), dt.time(0), dt.timezone.utc)
     return [g for g in games if lo <= g["start_utc"] < hi]
 
 
@@ -794,6 +791,10 @@ def run(once: bool = False) -> None:
         full_due: dict = {}                        # the whole week, at the idle pace
         teams_due: dict = {}                       # each built-in league's team list, daily
         status: dict = {}
+        for lg in DROPPED_LEAGUES:                 # stale soccer rows from before 2026-11-14, unless a user's own source has it
+            if lg not in leagues():
+                for t in ("games", "standings", "teams"):
+                    conn.execute(f"DELETE FROM {t} WHERE league = %s", (lg,))
         while True:
             active = leagues()
             for lg in list(status):
