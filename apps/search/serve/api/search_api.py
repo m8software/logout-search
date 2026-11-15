@@ -3255,7 +3255,7 @@ def own_name_site(title: str, official: list[dict], res: list[dict]) -> list[dic
     title's letters at .com (gmail.com for Gmail; iphone.cz is not the iPhone's). A stored front page, or one on the own-name domain, stays."""
     official = [l for l in official if url_host_ok(l.get("url") or "")]
     key = norm_key(title)
-    if not official or len(key) < 3:
+    if not official or len(key) < 3 or not _plain_name(title):
         return official
     url = official[0]["url"]
     if _label(url) == key or urlsplit(url).path.strip("/") == "":
@@ -3283,10 +3283,85 @@ def _title_views(lk, title: str):
     return (lk.S(ds[0], "pageviews") or 0) if ds else None
 
 
-def short_name_title(q: str, current: str | None) -> str | None:
-    """The maker's product article the bare name means, or None (see SHORT_MAKERS)."""
+def _plain_name(title: str) -> bool:
+    """A title whose letters are all the name: "Google" and "Microsoft Outlook", not "Google+" (norm_key drops the
+    plus, and "google" then matched Google+, 2026-11-15)."""
+    return bool(title) and norm_key(title) == re.sub(r"\s+", "", title.lower())
+
+
+def plain_title_first(q: str, top: dict | None, rows: list[dict]) -> dict | None:
+    """The article titled exactly the search wins the card over another exact one read far less (owner 2026-11-15,
+    "google": the list ranked Google+ — Wikipedia (23,573 views) above Google (1,423,778), and the card was the dead
+    social network's). Only among the exact articles the list already has, and only SHORT_RATIO times more read."""
+    lk = lookups()
+    if top is None or lk is None or lk.name != "release":
+        return top
     k = " ".join((q or "").lower().split())
-    if not SHORT_NAMES or not re.fullmatch(r"[a-z]{2,}( [a-z]{2,})?", k):
+    cur = top["title"].rsplit(" — Wikipedia", 1)[0]
+    if cur.lower() == k:
+        return top
+    plain = next((r for r in rows[:CARD_WITHIN + 4] if r.get("source") == "wikipedia" and r.get("score", 0) >= WIKI_EXACT_SCORE
+                  and r.get("title", "").rsplit(" — Wikipedia", 1)[0].lower() == k), None)
+    if plain is None:
+        return top
+    try:
+        a = _title_views(lk, plain["title"].rsplit(" — Wikipedia", 1)[0]) or 0
+        b = _title_views(lk, cur) or 0
+    except Exception:  # noqa: BLE001 - a card is extra
+        return top
+    return plain if a >= SHORT_RATIO * max(b, 1) else top
+
+
+# Two- and three-letter names (owner 2026-11-15: "two letter searches should be able to get their own card"; "lg" had
+# none, "ea" showed E&A): the article whose official site is the name's own .com front page, when that .com is among
+# the first three rows and the article is read at least SHORT_ENTITY_VIEWS times (LG Electronics 15,034; Go.com 1,843
+# and MobileMe 2,019 are not). A two-letter search with no such article and a card on another site gets no card ("is",
+# "go", "us"). Release lookups only.
+SHORT_ENTITY_VIEWS = int(os.environ.get("SEARCH_SHORT_ENTITY_VIEWS", "10000"))
+
+
+def top_is(top: dict | None, title: str) -> bool:
+    return bool(top) and top["title"].rsplit(" — Wikipedia", 1)[0] == title
+
+
+def short_entity(q: str, rows: list[dict], current: str | None):
+    """None when the rule does not apply (longer than 3, not letters and digits, no release); else (title, drop):
+    the article to show (or None), and whether a two-letter search's current card should go."""
+    k = (q or "").lower().strip()
+    lk = lookups()
+    if not re.fullmatch(r"[a-z0-9]{2,3}", k) or lk is None or lk.name != "release":
+        return None
+    host = k + ".com"
+    best = None
+    if any(r.get("source") == "site" and _domain_of(r.get("url") or "") == host for r in rows[:3]):
+        try:
+            claims = lk.site_claims(host)[1]
+        except Exception:  # noqa: BLE001 - a card is extra
+            claims = ()
+        titles = [c[0] for c in claims]
+        if current in titles:                   # "hp": HP Inc. is hp.com's, it stays (not Hewlett-Packard)
+            return (current, False)
+        for t in titles:
+            v = _title_views(lk, t) or 0
+            if v >= SHORT_ENTITY_VIEWS and (best is None or v > best[1]):
+                best = (t, v)
+    if best:
+        return (best[0], False)
+    if len(k) == 2 and current is not None:
+        site = None
+        try:
+            site = (lk.h[CARD_SITE_SQL]({"t": current}) or [(None,)])[0][0]
+        except Exception:  # noqa: BLE001
+            pass
+        return (None, not (site and _domain_of(site) == host))
+    return (None, False)
+
+
+def short_name_title(q: str, current: str | None) -> str | None:
+    """The maker's product article the bare name means, or None (see SHORT_MAKERS). A maker's own name is never one of
+    its products ("google" is Google)."""
+    k = " ".join((q or "").lower().split())
+    if not SHORT_NAMES or not re.fullmatch(r"[a-z]{2,}( [a-z]{2,})?", k) or k in {m.lower() for m in SHORT_MAKERS}:
         return None
     lk = lookups()
     if lk is None or lk.name != "release":
@@ -3360,8 +3435,8 @@ def name_bare_rows(res: list[dict], card: dict | None) -> list[dict]:
         return res
     title = re.sub(r"\s*\(.*\)$", "", card.get("title") or "")
     words = title.split()
-    names = {norm_key(title): title}
-    if len(words) >= 2:
+    names = {norm_key(title): title} if _plain_name(title) else {}     # never "Google+" for google.com
+    if len(words) >= 2 and _plain_name(words[-1]):
         names.setdefault(norm_key(words[-1]), words[-1])
     off = next((l["url"] for l in card.get("links", []) if l.get("title") == "Official site"), None)
     out = []
@@ -3523,6 +3598,11 @@ def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base
     card, swapped = None, False
     lk = lookups()
     alt = short_name_title(base or q, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None)
+    if not alt:                                 # "google": Google, not Google+ (a maker's name never swaps above)
+        top = plain_title_first(base or q, top, cres)
+    short = short_entity(base or q, cres, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None) if not alt else None
+    if short and short[0] and not top_is(top, short[0]):
+        alt = short[0]                          # "lg": LG Electronics (lg.com's own article); "ea": Electronic Arts
     if alt:                                     # "outlook" -> Microsoft Outlook, "keep" -> Google Keep
         swapped = True
         if lk is not None:
@@ -3546,6 +3626,8 @@ def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base
                        if "card_images" in has else None)
                 site_row = c.execute(CARD_SITE_SQL, {"t": t}).fetchone() if "wiki_sites" in has else None
         card = card_of(cres, row[0] if row else None, rel, img, site_row[0] if site_row else None, top=top)
+        if short is not None and not short[0] and short[1]:
+            return None, res, None              # "is", "go", "us": a two-letter word gets no card without the entity rule
         if swapped:
             try:
                 res = lead_with_official(res, card)
@@ -7249,7 +7331,7 @@ PART_STAGES = {
     "card": dict(roots=("card_build",), settings=(
                            "SEARCH_CARDLINKS", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
                            "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OWN_RANK_TSV", "SEARCH_POSTGRES",
-                           "SEARCH_RELEASE_DIR", "SEARCH_SHORT_FLOOR", "SEARCH_SHORT_NAMES", "SEARCH_SHORT_RATIO",
+                           "SEARCH_RELEASE_DIR", "SEARCH_SHORT_ENTITY_VIEWS", "SEARCH_SHORT_FLOOR", "SEARCH_SHORT_NAMES", "SEARCH_SHORT_RATIO",
                            "SEARCH_SITENAV", "SEARCH_SITES_BACKEND", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),
     # the ranked candidates of one search: retrieval, fusion, the models (their real devices are in the key)
     "base": dict(roots=("_search_retry",), settings=(
