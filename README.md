@@ -15,9 +15,13 @@ built by `.github/workflows/bundle.yml` and attached to each release. They are n
 
 
 ## What you need
-Disk: 30 GB free, on an SSD if you can: 18 GB of search data, 6 GB of add-ons (Wikipedia links and how-to answers), and news and weather.
-Every day: about 780 MB at Full (news about 330 MB, weather about 390 MB, scores about 55 MB), about 475 MB at Balanced, about 320 MB at Light. Automatic picks Light on a metered connection.
-Memory in use: about 2.5-3.5 GB for the engine and the news, scores and weather beside it.
+
+Minimums:
+
+- **Memory:** 4 GB
+- **Processor:** 2 cores, 2015 or newer (Intel Core 6th generation, AMD Ryzen or Apple silicon)
+- **Storage:** 30 GB free, on an SSD
+
 ## Quick start (from source)
 
 ```bash
