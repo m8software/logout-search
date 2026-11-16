@@ -147,7 +147,7 @@ import importlib.util, os, sys, types
 sys.modules["psycopg"] = types.ModuleType("psycopg")
 sys.path.insert(0, __import__("os").path.dirname(__import__("os").path.abspath(sys.argv[1])))   # search_api imports its neighbours
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1])
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+m = importlib.util.module_from_spec(spec); sys.modules["search_api"] = m; spec.loader.exec_module(m)
 import tantivy
 p = sys.argv[2] + "/ro-wiki"
 sb = tantivy.SchemaBuilder()

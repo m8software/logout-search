@@ -339,7 +339,7 @@ import importlib.util, os, sys, types
 sys.modules["psycopg"] = types.ModuleType("psycopg")
 sys.path.insert(0, os.path.dirname(sys.argv[1]))          # search_api imports its neighbours (gov_state.py) as the image's /app does
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1])
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+m = importlib.util.module_from_spec(spec); sys.modules["search_api"] = m; spec.loader.exec_module(m)
 print(m.SITES_BACKEND)
 PY2
 }
