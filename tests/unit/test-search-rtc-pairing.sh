@@ -27,6 +27,7 @@ API="${REPO}/apps/search/serve/api" RTC_STATE="${TMP}/state/engine.json" LOGOUT_
 import asyncio, base64, json, os, stat, sys
 sys.path.insert(0, os.environ["API"])
 import rtc_peer as rp
+rp.MAX_PER_SOURCE = rp.MAX_UNPAIRED = rp.MAX_PEERS = 10 ** 6      # RT-07's caps (3 per source, 4 unpaired, 16 in all) are tested in test-search-audit-rtc.sh; these cases leave their offers open
 fails = 0
 def check(name, ok, detail=""):
     global fails
