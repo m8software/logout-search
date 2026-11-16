@@ -13,25 +13,11 @@ holds the public key and the install command. One program, `logout-search`, inst
 keeps it updated and connects the browser extension; the bundles for Linux, Windows and macOS (Apple silicon) are
 built by `.github/workflows/bundle.yml` and attached to each release. They are not signed or notarised yet.
 
-**Compatibility promise:** every file we publish (data release, update packages, add-ons, the answers) works on the
-last three released versions of the program; a publish is installed on those three before it goes out
-(`apps/search/tools/compat_check.py`), and a format change that would break it needs a version bump and a migration.
-See the wiki page *Compatibility*. A program that updates itself goes back to the previous version when its own
-self-test fails, and `logout-search channel beta` takes new versions a day early.
 
-## What it is good at and bad at
-
-Measured 2026-11-11. Right answer first: accounts such as "gmail login" 99.7%, books 99.5%, article
-names 97.7%, facts 97.3%, well-known brands 96.2%, places 90.5%, site sections 76.0%, misspelled site
-names 68.3%, bare product names 14.2%. On 3,000 government tasks across 50 US states, a helpful official
-page came first 52-56% of the time and the official site was in the top five 96-98% of the time. Graded
-by an outside judge model on 305 mixed searches, 3.34 of the top 8 results were relevant (how-to
-searches 3.20, up from 1.68 before the Stack Exchange answer index). Most searches take about 150-400 ms
-on our small public server; how-to searches take about 900 ms for now.
-
-It does not crawl the live web: answers come from a data release built ahead of time from open
-sources, so very recent pages are missing. English only. US-centred for places and government.
-
+## What you need
+Disk: 30 GB free, on an SSD if you can: 18 GB of search data, 6 GB of add-ons (Wikipedia links and how-to answers), and news and weather.
+Every day: about 780 MB at Full (news about 330 MB, weather about 390 MB, scores about 55 MB), about 475 MB at Balanced, about 320 MB at Light. Automatic picks Light on a metered connection.
+Memory in use: about 2.5-3.5 GB for the engine and the news, scores and weather beside it.
 ## Quick start (from source)
 
 ```bash
