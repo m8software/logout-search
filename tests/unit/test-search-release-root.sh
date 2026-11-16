@@ -73,7 +73,15 @@ import gov_state   # a plain top-level import of search_api; loaded while api/ i
 sys.path.remove(sys.argv[1])
 sys.modules.pop("release_root")
 spec = importlib.util.spec_from_file_location("search_api", os.path.join(sys.argv[1], "search_api.py"))
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+m = importlib.util.module_from_spec(spec); sys.modules["search_api"] = m   # stage_* import search_api back, so it must be registered first
+import importlib.machinery
+class _StageFinder:    # only the stage_* parts are found; the api dir stays off sys.path so release_root still takes the by-file fallback
+    @staticmethod
+    def find_spec(name, path=None, target=None):
+        if name.startswith("stage_"):
+            return importlib.machinery.PathFinder.find_spec(name, [sys.argv[1]])
+sys.meta_path.insert(0, _StageFinder)
+spec.loader.exec_module(m)
 print("search_api RELEASE_DIR is the release current names", m.RELEASE_DIR == f"{base}/releases/r2")
 print("search_api SEM_IVF follows too", m.SEM_IVF == f"{base}/releases/r2/vectors/x")
 # ReleaseLookups' root goes through it (source check: the real class needs a whole release)

@@ -19,6 +19,7 @@ import hashlib
 import os
 import sqlite3
 import threading
+import time
 
 _FILE_HASHES: dict = {}
 
@@ -38,10 +39,13 @@ class ComputeCache:
     def __init__(self, path: str):
         self.path = path
         self.lock = threading.Lock()
-        self.db = sqlite3.connect(path, check_same_thread=False, isolation_level=None, timeout=30)
+        self.db = sqlite3.connect(path, check_same_thread=False, isolation_level=None, timeout=3)       # a second process on the file stalled every writer behind the global lock for up to 30 s (audit DB-09)
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA synchronous=NORMAL")
         self.db.execute("CREATE TABLE IF NOT EXISTS kv (k BLOB PRIMARY KEY, v BLOB NOT NULL) WITHOUT ROWID")
+        # When an entry was last read (audit DB-09), in a table of its own: twin/helper-relay.sh inserts into kv by position
+        self.db.execute("CREATE TABLE IF NOT EXISTS kv_used (k BLOB PRIMARY KEY, used REAL NOT NULL) WITHOUT ROWID")
+        self._touched: set = set()
         self.stats = {"hit": 0, "miss": 0}
 
     @staticmethod
@@ -57,6 +61,11 @@ class ComputeCache:
                 got.update(self.db.execute(f"SELECT k, v FROM kv WHERE k IN ({','.join('?' * len(part))})", part).fetchall())
         out = [got.get(k) for k in keys]
         hit = sum(v is not None for v in out)
+        if hit:
+            with self.lock:
+                self._touched.update(k for k in keys if got.get(k) is not None)
+                if len(self._touched) >= 5000:
+                    self._flush()
         self.stats["hit"] += hit
         self.stats["miss"] += len(out) - hit
         return out
@@ -72,6 +81,36 @@ class ComputeCache:
                 pass                            # a full disk or a busy file costs a recompute next time, never an answer
 
 
+    def _flush(self) -> None:
+        """Record the reads in one batch (the caller holds the lock)."""
+        if not self._touched:
+            return
+        now = time.time()
+        rows = [(k, now) for k in self._touched]
+        self._touched = set()
+        try:
+            self.db.executemany("INSERT OR REPLACE INTO kv_used VALUES (?, ?)", rows)
+        except sqlite3.Error:
+            pass
+
+    def prune(self, keep_s: float = 30 * 86400) -> int:
+        """Drop entries nobody has read for keep_s (audit DB-09: 12.7 KB an answer, every changed candidate batch orphans its
+        entries). An entry with no read recorded counts from the first prune that sees it. Returns the entries dropped.
+        An entry is a pure function of its key, so a dropped one is recomputed, never wrong."""
+        if keep_s <= 0:
+            return 0
+        now = time.time()
+        with self.lock:
+            self._flush()
+            try:
+                self.db.execute("INSERT OR IGNORE INTO kv_used SELECT k, ? FROM kv", (now,))
+                n = self.db.execute("DELETE FROM kv WHERE k IN (SELECT k FROM kv_used WHERE used < ?)", (now - keep_s,)).rowcount
+                self.db.execute("DELETE FROM kv_used WHERE used < ?", (now - keep_s,))
+                return n
+            except sqlite3.Error:
+                return 0
+
+
 _cache: list = []
 _cache_lock = threading.Lock()
 
@@ -85,7 +124,8 @@ def cache() -> ComputeCache | None:
         if not _cache:
             try:
                 _cache.append(ComputeCache(path))
-                print(f"compute cache {path}: on", flush=True)
+                keep = float(os.environ.get("SEARCH_COMPUTE_CACHE_KEEP_DAYS", "30")) * 86400
+                print(f"compute cache {path}: on (pruned {_cache[0].prune(keep)} entries unread for {keep / 86400:.0f} days)", flush=True)
             except (sqlite3.Error, OSError) as e:
                 print(f"compute cache {path}: off ({type(e).__name__}: {e})", flush=True)
                 _cache.append(None)

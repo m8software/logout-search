@@ -18,6 +18,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR_T/../.." && pwd)"
 API="${SEARCH_API_PY:-$REPO_ROOT/apps/search/serve/api/search_api.py}"
 TOOL="$REPO_ROOT/apps/search/tools/wiki-tantivy.py"
 PY="${PY:-python3}"
+COMBINED="$(cat "$API" "$(dirname "$API")"/stage_*.py)"   # the engine is split over search_api.py and stage_*.py
 export PYTHONDONTWRITEBYTECODE=1   # a stale .pyc would hide a mutation of the same size
 
 PASS=0
@@ -35,7 +36,14 @@ psycopg = types.ModuleType("psycopg")
 sys.modules["psycopg"] = psycopg
 import os; sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[1])))   # its neighbours (gov_state.py), as `python /app/search_api.py` finds them
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1])
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+_real = importlib.util.module_from_spec(spec); sys.modules["search_api"] = _real; spec.loader.exec_module(_real)   # registered first: stage_*.py do `from search_api import ...`
+# the engine is split over search_api.py and stage_*.py: a stand-in must replace the name in every module that holds it
+class _NS:
+    def __getattr__(self, n): return getattr(_real, n)
+    def __setattr__(self, n, v):
+        for x in [_real] + [x for k, x in list(sys.modules.items()) if k.startswith("stage_") and k != "stage_version" and isinstance(x, types.ModuleType)]:
+            if hasattr(x, n): setattr(x, n, v)
+m = _NS()
 '
 
 echo ""; echo "=== Part 1: the interface, no database ==="
@@ -66,7 +74,7 @@ expect "rows [('Dog', 'A dog is ...', 12.5)]" "the Postgres backend returns WIKI
 expect "sql True {'q': 'dogs', 'k': 3}" "it runs WIKI_SQL with the stored search_text column, the query and k"
 expect "bogus refused" "an unknown SEARCH_WIKI_BACKEND is an error"
 expect "missing index refused" "tantivy with no index fails loudly, never falls back to Postgres"
-if grep -q 'sub("wiki", wiki_rows, wq, min(5, k), stored)' "$API"; then
+if grep -qF 'sub("wiki", wiki_rows, wq, min(5, k), stored)' <<<"$COMBINED"; then
     ok "_search() takes the wiki list from wiki_rows() (the flag reaches the engine)"
 else
     bad "_search() does not call wiki_rows() — the backend flag would change nothing"

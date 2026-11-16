@@ -70,16 +70,24 @@ def cmd_texts(a) -> None:
 def load_codes(vec_dirs) -> dict[int, np.ndarray]:
     """Codes from one or several embed-full.py output folders (rows split across machines)."""
     out: dict[int, np.ndarray] = {}
-    for ip in sorted(p for d in ([vec_dirs] if isinstance(vec_dirs, str) else vec_dirs) for p in glob.glob(os.path.join(d, "nomic-*.ids.npy"))):
-        vp = ip.replace(".ids.npy", ".vecs.npy")
-        if not os.path.exists(vp):
-            continue                                    # a shard without its vecs file is not complete (embed-full.py writes it last)
-        ids, vecs = np.load(ip), np.load(vp)
-        codes = np.packbits(vecs >= 0, axis=1)          # MSB first, 768 -> 96 bytes
-        for i, c in zip(ids.tolist(), codes):
-            if int(i) in out and not (out[int(i)] == c).all():
-                sys.exit(f"page {int(i)} was embedded twice with different bits (two devices disagree): keep one device")
-            out[int(i)] = c
+    for d in ([vec_dirs] if isinstance(vec_dirs, str) else vec_dirs):
+        # embed-full.py shards (nomic-NNNN: float16 vectors) and wiki_embed_pod.py shards (shard-NNNN: packed bits already)
+        for ip in sorted(glob.glob(os.path.join(d, "nomic-*.ids.npy")) + glob.glob(os.path.join(d, "shard-*.ids.npy"))):
+            if os.path.basename(ip).startswith("shard-"):
+                vp = ip.replace(".ids.npy", ".bits.npy")
+                if not os.path.exists(vp):
+                    continue
+                ids, codes = np.load(ip), np.load(vp)
+            else:
+                vp = ip.replace(".ids.npy", ".vecs.npy")
+                if not os.path.exists(vp):
+                    continue                                # a shard without its vecs file is not complete (embed-full.py writes it last)
+                ids, vecs = np.load(ip), np.load(vp)
+                codes = np.packbits(vecs >= 0, axis=1)      # MSB first, 768 -> 96 bytes
+            for i, c in zip(ids.tolist(), codes):
+                if int(i) in out and not (out[int(i)] == c).all():
+                    sys.exit(f"page {int(i)} was embedded twice with different bits (two devices disagree): keep one device")
+                out[int(i)] = c
     return out
 
 

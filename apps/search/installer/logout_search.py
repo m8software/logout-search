@@ -10,6 +10,8 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search update    --dest BASE --source hf:ORG/NAME --pubkey KEY.pem [--check]
     logout-search autostart on|off --dest BASE [--port 8090] [--print]
     logout-search autoupdate status|on|off|now|at HOUR|addons on|off --dest BASE   (the daily update, its time, the add-ons)
+    logout-search channel   [stable|beta] --dest BASE   (beta gets each new version a day before stable; our own boxes run it)
+    logout-search doctor    [--dest BASE] [--port 8090]   (one plain-text report to paste into a support email: no searches, nothing personal)
     logout-search lists     update|status [--dest BASE]   (the hand-picked lists and finished answers public serves; the daily update fetches them)
     logout-search collectors status|on|off [news|sports|weather] --dest BASE   (what `start` runs beside the engine)
     logout-search collectors set profile auto|full|balanced|light|search|custom --dest BASE   (Data use; homesettings.py)
@@ -219,8 +221,30 @@ def check_imports() -> int:
     return 1 if any(str(v).startswith("MISSING") for v in out.values()) else 0
 
 
+def restart_loop_guard(data: str) -> str | None:
+    """An update's marker that has seen four starts and no self-test: the program or the release cannot even start the engine
+    (engine_env raises, the launcher crashes): go back untested. -> what autoupdate.verify returns."""
+    try:
+        import autoupdate as au
+        s = au.load(data)
+        v = s.get("verify")
+        if not isinstance(v, dict):
+            return None
+        v["starts"] = int(v.get("starts") or 0) + 1
+        au.save(data, s)
+        if v["starts"] < 4:
+            return None
+        return au.verify(data, platform=PLATFORM, program=program(), port=0, state="exited", mine=VERSION)
+    except Exception as e:  # noqa: BLE001
+        say(f"restart guard: {type(e).__name__}: {e}")
+        return None
+
+
 def start(a) -> None:
     base = os.path.abspath(a.dest)
+    if restart_loop_guard(base) == "restart":
+        say("the update's engine would not start four times: starting again with the previous version")
+        sys.exit(EXIT_RESTART)
     env = install.engine_env(base, a.port)
     if a.print_env:
         print(install.format_env(env, a.format or ("cmd" if PLATFORM == "win32" else "posix")))
@@ -236,9 +260,20 @@ def start(a) -> None:
     proc = subprocess.Popen(program() + ["engine"], env={**os.environ, **env})
     peer = None
     # the daily update runs from the start, ready or not: a release whose engine cannot start must still be replaceable
-    restart = start_updater(base, proc)
+    has_se = "SEARCH_SE_INDEX" in env
+    restart = start_updater(base, proc, a.port, has_se)
     try:
         state = install.wait_ready(a.port, lambda: proc.poll() is None)
+        back = verify_update(base, a.port, state, has_se, lambda: proc.poll() is None)
+        if back == "restart":                            # the update failed its self-test: the previous version is back in place
+            if proc.poll() is None:
+                proc.terminate()
+                proc.wait()
+            say("the update failed its self-test: starting again with the previous version")
+            sys.exit(EXIT_RESTART)
+        if back == "handed-over":                        # Windows: the setup program puts the previous program back and starts it
+            import time
+            time.sleep(300)
         if state != "ready" and proc.poll() is not None:
             act = rescue_update(base)
             if act == "restart":
@@ -272,8 +307,9 @@ def start(a) -> None:
 EXIT_RESTART = 75                                     # autoupdate.EXIT_RESTART: the service, launchd and the tray start it again
 
 
-def updater_context(data: str):
-    """(base, check function) for autoupdate, or None when this program does not update itself."""
+def updater_context(data: str, port=None, has_se: bool = False):
+    """(base, check function) for autoupdate, or None when this program does not update itself. port, has_se: the running
+    engine's, for the in-place test of a new answers file (autoupdate.lists_verify)."""
     import autoupdate as au
     want = os.environ.get("LOGOUT_AUTOUPDATE", "")
     if want == "0" or (want != "1" and not FROZEN):
@@ -283,8 +319,29 @@ def updater_context(data: str):
 
     def run_check():
         return au.check(base, data, platform=PLATFORM, mine=VERSION, app_dir=app_dir, program=program(),
-                        source=DATA_SOURCE, pubkey=DATA_PUBKEY)
+                        source=DATA_SOURCE, pubkey=DATA_PUBKEY, port=port, has_se=has_se)
     return base, run_check
+
+
+def verify_update(data: str, port: int, state: str, has_se: bool, alive) -> str | None:
+    """The self-test of an update that restarted the engine (autoupdate.verify). Never raises: it must not be why the engine
+    does not run. A engine still loading after the first wait gets ten more minutes before that counts as failing."""
+    try:
+        import autoupdate as au
+        if not au.load(data).get("verify"):
+            return None
+        if state == "timeout":
+            state = install.wait_ready(port, alive, timeout=600)
+        import time
+        for _ in range(60):                              # a check in progress (the update thread) holds the lock and would save its older
+            with au.Lock(data) as held:                  # state over this one: wait for it, at most two minutes
+                if held is not None:
+                    return au.verify(data, platform=PLATFORM, program=program(), port=port, state=state, has_se=has_se, mine=VERSION)
+            time.sleep(2)
+        return au.verify(data, platform=PLATFORM, program=program(), port=port, state=state, has_se=has_se, mine=VERSION)
+    except Exception as e:  # noqa: BLE001
+        say(f"self-test could not run: {type(e).__name__}: {e}")
+        return None
 
 
 def rescue_update(data: str):
@@ -298,14 +355,14 @@ def rescue_update(data: str):
         return None
 
 
-def start_updater(data: str, engine):
+def start_updater(data: str, engine, port=None, has_se: bool = False):
     """The daily update check (autoupdate.py), as a thread of `start`. Returns an Event set when an update needs the engine
     to start again: the engine is stopped, and `start` exits EXIT_RESTART. Off for a program that is not installed in
     BASE/app (a checkout, a test) unless LOGOUT_AUTOUPDATE=1; LOGOUT_AUTOUPDATE=0 turns it off everywhere."""
     import threading
     try:
         import autoupdate as au
-        ctx = updater_context(data)
+        ctx = updater_context(data, port, has_se)
     except Exception as e:  # noqa: BLE001 - the updater must never be why the engine does not run
         say(f"automatic updates off: {type(e).__name__}: {e}")
         return None
@@ -1122,7 +1179,7 @@ def run_update(a, rest: list) -> int:
     os.environ["LOGOUT_UPDATE_APPLY_CMD"] = json.dumps(cmd)      # update_fetch runs update_apply through this program
     os.environ["LOGOUT_UPDATE_SELF_CMD"] = json.dumps(cmd)       # and update_apply's row-diff workers too
     sys.argv = ["update_fetch.py", "check" if a.check else "fetch", "--base", a.dest, "--source", a.source, "--pubkey", a.pubkey] + \
-        ([] if a.check else ["--apply"]) + rest
+        ([] if a.check else ["--apply", "--metered", a.metered]) + (["--channel", a.channel] if a.channel != "stable" else []) + rest
     return update_fetch.main()
 
 
@@ -1177,6 +1234,8 @@ def main(argv=None) -> int:
     u.add_argument("--source", required=True)
     u.add_argument("--pubkey", required=True, help="the PEM file of the pinned public key")
     u.add_argument("--check", action="store_true", help="say whether an update exists; download nothing")
+    u.add_argument("--channel", choices=["stable", "beta"], default="stable", help="beta follows latest-beta.json")
+    u.add_argument("--metered", choices=["auto", "yes", "no"], default="no", help="on a metered connection an update of more than 64 MiB waits (the daily chain is far smaller)")
     co = sp.add_parser("collectors")
     co.add_argument("action", choices=["status", "on", "off", "set"])
     co.add_argument("args", nargs="*", help="on/off: a collector (default all); set: KEY VALUE")
@@ -1191,6 +1250,12 @@ def main(argv=None) -> int:
     upd.add_argument("action", choices=["status", "on", "off", "now", "at", "addons"])
     upd.add_argument("value", nargs="?", help="at: the hour (0-23) the two-hour window starts; addons: on|off")
     upd.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
+    ch = sp.add_parser("channel", help="stable (the default) or beta: beta gets the next version a day before everyone")
+    ch.add_argument("value", nargs="?", choices=["stable", "beta"], help="leave out to show the current one")
+    ch.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
+    dc = sp.add_parser("doctor", help="one plain-text report of this install to paste into a support email (no searches, nothing personal)")
+    dc.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
+    dc.add_argument("--port", type=int, default=8090)
     au = sp.add_parser("autostart")
     au.add_argument("state", choices=["on", "off"])
     au.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
@@ -1248,7 +1313,7 @@ def main(argv=None) -> int:
         run_install(argv)
         return 0
     a, rest = ap.parse_known_args(argv)
-    if a.cmd in ("start", "update", "collectors", "admin", "autoupdate", "autostart", "host", "pin") and not getattr(a, "dest", None):
+    if a.cmd in ("start", "update", "collectors", "admin", "autoupdate", "autostart", "host", "pin", "channel", "doctor") and not getattr(a, "dest", None):
         a.dest = default_data()
     if a.cmd == "start":
         start(a)
@@ -1265,6 +1330,13 @@ def main(argv=None) -> int:
     elif a.cmd == "autoupdate":
         import autoupdate as au
         return au.command(a.action, os.path.abspath(a.dest), a.value)
+    elif a.cmd == "channel":
+        import autoupdate as au
+        return au.command("channel", os.path.abspath(a.dest), a.value)
+    elif a.cmd == "doctor":
+        import doctor
+        print(doctor.report(os.path.abspath(a.dest), a.port, VERSION, PLATFORM, FROZEN))
+        return 0
     elif a.cmd == "host":
         if a.action == "run":
             host_run(a)

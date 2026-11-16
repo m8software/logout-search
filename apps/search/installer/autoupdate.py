@@ -21,10 +21,23 @@ now"):
             rename, the old one kept for `update_apply.py rollback`. Run at low priority; the engine restarts only when
             an update was applied.
 
-The state is DATA/state/autoupdate.json: {"enabled", "last_check", "last_result", "requested", "program", "data"}.
-`enabled: false` stops both. Nothing is sent but the two downloads' ordinary requests (GitHub, Hugging Face).
+The state is DATA/state/autoupdate.json: {"enabled", "last_check", "last_result", "requested", "program", "data", "channel",
+"verify", "failed", "selftest", "rollback"}. `enabled: false` stops both. Nothing is sent but the two downloads' ordinary
+requests (GitHub, Hugging Face).
 
-    logout-search autoupdate status|on|off|now --dest DATA
+Channels. "stable" (the default) follows GitHub's latest release, the data release's latest.json and the answers'
+manifest.json. "beta" follows the newest release GitHub has, pre-releases included, latest-beta.json and manifest-beta.json,
+each falling back to the stable one while there is no beta. Our own boxes run beta; a release is promoted to stable (the
+pre-release flag off, `hf_dataset.py promote`, `lists_build.py promote`) when they have run it healthy for a day.
+
+Self-test. An update that needs the engine to restart (program, data release, add-ons, a re-based answers file) leaves
+`verify` in the state file; the program that starts afterwards (`logout-search start`) runs selftest.py against its own engine
+and, when it fails, goes back: the previous program folder (BASE/app.old, kept until the test passes; on Windows the setup
+program's --rollback), the previous data release (`update_apply.py rollback`), the add-on removed, or the answers file
+switched off (the engine then answers live) until a newer version replaces it from its base. A version that failed is written
+to `failed` and never fetched again: a newer one is. A new answers file that needs no restart is tested in place.
+
+    logout-search autoupdate status|on|off|now|channel stable|beta --dest DATA
 
 Standard library only.
 """
@@ -50,6 +63,9 @@ DAY = 86400
 CHECK_HOURS = (3, 5)                    # the window a daily check prefers, local time (at_hour in the state moves it)
 OVERDUE_S = 36 * 3600                   # a computer that was off in the window checks at the next start after this
 FIRST_DELAY_S = 600                     # never in the first minutes after a start: the index is loading
+API_RELEASES = f"https://api.github.com/repos/{REPO}/releases?per_page=100"
+CHANNELS = ("stable", "beta")
+INBOX_WAIT_S = 600                       # how long a lists part may take the engine to read before it is tested
 ASSETS = {"win32": "logout-search-setup.exe", "linux": "logout-search-linux-x86_64.tar.gz",
           "darwin": "logout-search-macos-arm64.tar.gz"}
 
@@ -122,13 +138,55 @@ def get(url: str, timeout: float = 60):
                                   timeout=timeout)
 
 
-def latest_release(fetch=None) -> dict:
-    """{"version", "assets": {name: url}} of the latest GitHub release."""
+def channel_of(s: dict) -> str:
+    v = s.get("channel")
+    return v if v in CHANNELS else "stable"
+
+
+def pick_beta(releases: list) -> dict | None:
+    """The newest release by version among GitHub's, pre-releases included, drafts never."""
+    best = None
+    for r in releases:
+        v = parse_version(r.get("tag_name") or "")
+        if r.get("draft") or v is None:
+            continue
+        if best is None or v > parse_version(best["tag_name"]):
+            best = r
+    return best
+
+
+def latest_release(fetch=None, channel: str = "stable") -> dict:
+    """{"version", "assets": {name: url}} of the latest GitHub release (stable) or the newest one, pre-release or not (beta)."""
     if fetch is not None:
         return fetch()
-    with get(API_LATEST, 30) as r:
-        d = json.load(r)
-    return {"version": d.get("tag_name") or "", "assets": {a["name"]: a["browser_download_url"] for a in d.get("assets") or []}}
+    if channel == "beta":
+        with get(API_RELEASES, 30) as r:
+            d = pick_beta(json.load(r)) or {}
+    else:
+        with get(API_LATEST, 30) as r:
+            d = json.load(r)
+    return {"version": d.get("tag_name") or "", "assets": {a["name"]: a["browser_download_url"] for a in d.get("assets") or []},
+            "prerelease": bool(d.get("prerelease"))}
+
+
+# ================================================================================================ failed versions, the previous kept
+def failed_list(s: dict, kind: str) -> list:
+    v = (s.get("failed") or {}).get(kind)
+    return [str(x) for x in v] if isinstance(v, list) else []
+
+
+def mark_failed(s: dict, kind: str, ident: str) -> None:
+    f = s.setdefault("failed", {})
+    f[kind] = sorted(set(failed_list(s, kind)) | {str(ident)})[-20:]
+
+
+def base_of(data: str) -> str:
+    return os.path.dirname(data) if os.path.basename(data) == "data" else data
+
+
+def begin_verify(s: dict, kind: str, frm, to, **extra) -> None:
+    """The next start of the engine tests this update (verify() below) and goes back when it fails."""
+    s["verify"] = dict({"kind": kind, "from": frm, "to": to, "at": int(time.time())}, **extra)
 
 
 def parse_sums(text: str) -> dict:
@@ -158,14 +216,20 @@ def download(url: str, dest: str, sha256: str, opener=None) -> None:
 
 
 # ================================================================================================ the program
-def program_update(base: str, platform: str, mine: str, app_dir: str, rel: dict, opener=None, runner=subprocess.run) -> dict:
-    """{"action": "none"|"restart"|"handed-over", ...}. app_dir: the folder this program runs from."""
+def program_update(base: str, platform: str, mine: str, app_dir: str, rel: dict, opener=None, runner=subprocess.run,
+                   skip=()) -> dict:
+    """{"action": "none"|"restart"|"handed-over", ...}. app_dir: the folder this program runs from. skip: versions that failed
+    their self-test here. The folder it replaces stays as BASE/app.old until the new program passes its self-test (verify)."""
+    shutil.rmtree(os.path.join(base, "app.bad"), ignore_errors=True)             # a rolled-back program's folder, left for this
     if parse_version(mine) is None:
         return {"action": "none", "why": f"version {mine!r} is not a release build: it does not update itself"}
     if not newer(rel["version"], mine):
         return {"action": "none", "version": mine, "latest": rel["version"]}
     if os.path.normcase(os.path.realpath(app_dir)) != os.path.normcase(os.path.realpath(os.path.join(base, "app"))):
         return {"action": "none", "why": f"this program runs from {app_dir}, not {os.path.join(base, 'app')}: not replaced"}
+    if rel["version"].lstrip("v") in {str(x).lstrip("v") for x in skip}:
+        return {"action": "none", "version": mine, "latest": rel["version"],
+                "why": f"{rel['version']} failed its self-test here: it waits for a newer version"}
     name = ASSETS.get(platform)
     if not name or name not in rel["assets"] or "SHA256SUMS" not in rel["assets"]:
         return {"action": "none", "why": f"release {rel['version']} has no {name} for this system"}
@@ -183,7 +247,7 @@ def program_update(base: str, platform: str, mine: str, app_dir: str, rel: dict,
         runner_popen = getattr(runner, "popen", None) or subprocess.Popen
         runner_popen([path, "--update", "--dest", base], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                      stderr=subprocess.DEVNULL, creationflags=0x00000008 | 0x00000200 | 0x08000000)
-        return {"action": "handed-over", "version": new_version}
+        return {"action": "handed-over", "version": new_version, "setup": path}      # the download stays: its --rollback is the way back
     app = os.path.join(base, "app")
     new = app + ".new"
     shutil.rmtree(new, ignore_errors=True)
@@ -211,9 +275,8 @@ def program_update(base: str, platform: str, mine: str, app_dir: str, rel: dict,
         raise RuntimeError(f"the new program did not start here (exit {r.returncode}, version {got!r}): kept {mine}")
     old = app + ".old"
     shutil.rmtree(old, ignore_errors=True)
-    os.replace(app, old)
+    os.replace(app, old)                                   # kept: the self-test's way back (verify removes it once it passes)
     os.replace(new, app)
-    shutil.rmtree(old, ignore_errors=True)
     shutil.rmtree(dl, ignore_errors=True)
     return {"action": "restart", "version": new_version}
 
@@ -240,12 +303,21 @@ def current_release(data: str):
 
 
 def data_update(data: str, program: list, source: str, pubkey: str, platform: str, runner=subprocess.run,
-                current=current_release) -> dict:
-    """Applied or not is read from the `current` pointer before and after (update_apply's own lines share stdout)."""
+                current=current_release, channel: str = "stable", skip=()) -> dict:
+    """Applied or not is read from the `current` pointer before and after (update_apply's own lines share stdout).
+    skip: release ids that failed their self-test here: when the channel's latest is one of them, nothing is fetched."""
     key = pem(pubkey, os.path.join(data, "state", "release-key.pem"))
     before = current(data)
     kw = {"creationflags": 0x00004000 | 0x08000000} if platform == "win32" else {"preexec_fn": lambda: os.nice(10)}
-    r = runner(program + ["update", "--dest", data, "--source", source, "--pubkey", key],
+    chan = ["--channel", "beta"] if channel == "beta" else []
+    if skip:
+        c = runner(program + ["update", "--dest", data, "--source", source, "--pubkey", key, "--check"] + chan,
+                   capture_output=True, text=True, timeout=600, **kw)
+        planned = last_json(c.stdout)
+        if planned.get("latest") in set(skip):
+            return {"action": "none", "release": before, "latest": planned["latest"],
+                    "why": f"release {planned['latest']} failed its self-test here: it waits for a newer one"}
+    r = runner(program + ["update", "--dest", data, "--source", source, "--pubkey", key, "--metered", "auto"] + chan,
                capture_output=True, text=True, timeout=6 * 3600, **kw)
     out = {}
     text = r.stdout or ""
@@ -305,41 +377,220 @@ def addons_update(data: str, program: list, source: str, pubkey: str, platform: 
     return {"action": "restart" if done else "none", "installed": done}
 
 
-def lists_update(data: str, program: list, source: str, platform: str, runner=subprocess.run) -> dict:
+def lists_update(data: str, program: list, source: str, platform: str, runner=subprocess.run, channel: str = "stable",
+                skip=()) -> dict:
     """The hand-picked lists and finished answers public serves (install.py lists): the parts this install has not taken
     are dropped in the engine's store inbox, which the running engine reads by itself: never a restart."""
     kw = {"creationflags": 0x00004000 | 0x08000000} if platform == "win32" else {"preexec_fn": lambda: os.nice(10)}
-    r = runner(program + ["lists", "update", "--dest", data, "--source", source, "--metered", "auto"],
+    extra = (["--channel", "beta"] if channel == "beta" else []) + (["--skip", ",".join(skip)] if skip else [])
+    r = runner(program + ["lists", "update", "--dest", data, "--source", source, "--metered", "auto"] + extra,
                capture_output=True, text=True, timeout=6 * 3600, **kw)
     if r.returncode:
         raise RuntimeError("lists refused: " + ((r.stderr or "").strip().splitlines() or ["(no message)"])[-1][:300])
     return last_json(r.stdout) or {"lists": "unknown"}
 
 
+# ================================================================================================ the self-test, and the way back
+def lists_state_file(data: str) -> str:
+    return os.path.join(data, "store", "lists.json")
+
+
+def set_quarantine(data: str, version) -> None:
+    """Switch the answers file off for this install (install.engine_env reads it): the engine answers live until a newer
+    lists version replaces it from its base (install.lists_update)."""
+    p = lists_state_file(data)
+    try:
+        with open(p, encoding="utf-8") as f:
+            st = json.load(f)
+    except (OSError, ValueError):
+        st = {}
+    if version is None:
+        st.pop("quarantine", None)
+    else:
+        st["quarantine"] = str(version)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(st, f, indent=1, sort_keys=True)
+    os.replace(p + ".tmp", p)
+
+
+def quarantined(data: str):
+    try:
+        with open(lists_state_file(data), encoding="utf-8") as f:
+            return json.load(f).get("quarantine") or None
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def wait_inbox(data: str, timeout: float = INBOX_WAIT_S, sleep=time.sleep, clock=time.monotonic) -> str:
+    """"" when the engine has taken in every lists part; else why not (a refused part is renamed *.bad by the engine)."""
+    inbox = os.path.join(data, "store", "inbox")
+    t0 = clock()
+    while True:
+        try:
+            names = os.listdir(inbox)
+        except OSError:
+            return ""
+        bad = [n for n in names if n.startswith("lists-") and n.endswith(".bad")]
+        if bad:
+            return f"the engine refused {len(bad)} answers part(s) ({bad[0]})"
+        if not [n for n in names if n.startswith("lists-") and n.endswith(".sqlite")]:
+            return ""
+        if clock() - t0 >= timeout:
+            return f"the engine had not taken in the answers parts after {int(timeout)} s"
+        sleep(5)
+
+
+def rollback_program(base: str, platform: str, v: dict, popen=None) -> dict:
+    """Back to the program folder the update kept. Linux and macOS: two renames; the caller exits EXIT_RESTART. Windows: the
+    running program cannot replace its own folder: the kept setup program does it (its --rollback), as --update does."""
+    app = os.path.join(base, "app")
+    old = app + ".old"
+    if not os.path.isdir(old):
+        raise RuntimeError(f"there is no previous program folder ({old}) to go back to")
+    if platform == "win32":
+        setup = v.get("setup")
+        if not setup or not os.path.isfile(setup):
+            raise RuntimeError("the setup program of the update is gone: cannot go back")
+        (popen or subprocess.Popen)([setup, "--rollback", "--dest", base], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL, creationflags=0x00000008 | 0x00000200 | 0x08000000)
+        return {"action": "handed-over"}
+    bad = app + ".bad"
+    shutil.rmtree(bad, ignore_errors=True)
+    os.replace(app, bad)                                   # left in place until the next update: the process running from it ends first
+    os.replace(old, app)
+    return {"action": "restart"}
+
+
+def rollback_data(data: str, program: list, v: dict, runner=subprocess.run, current=current_release) -> dict:
+    r = runner(program + ["_update-apply", "rollback", data], capture_output=True, text=True, timeout=600)
+    got = current(data)
+    if r.returncode or (v.get("from") and got != v["from"]):
+        raise RuntimeError(f"the previous release {v.get('from')!r} could not be switched back (now {got!r}, exit {r.returncode}): "
+                           + ((r.stderr or "").strip().splitlines() or ["(no message)"])[-1][:200])
+    return {"action": "restart"}
+
+
+def finish_verify(base: str, v: dict) -> None:
+    """The test passed: what was kept for the way back is no longer needed."""
+    if v.get("kind") == "program":
+        shutil.rmtree(os.path.join(base, "app.old"), ignore_errors=True)
+        shutil.rmtree(os.path.join(base, ".download", f"program-v{v.get('to')}"), ignore_errors=True)
+        shutil.rmtree(os.path.join(base, ".download", f"program-{v.get('to')}"), ignore_errors=True)
+
+
+def revert(data: str, s: dict, v: dict, why: str, *, platform: str, program: list, runner=subprocess.run, popen=None,
+           current=current_release) -> str | None:
+    """Go back after a failed test and record it. -> "restart" | "handed-over" | None (nothing to go back to)."""
+    base, kind, to, frm = base_of(data), v.get("kind"), v.get("to"), v.get("from")
+    mark_failed(s, kind, to)
+    s["rollback"] = {"kind": kind, "from": frm, "to": to, "why": why[:400], "result": "going back", "at": int(time.time())}
+    save(data, s)                                          # before anything that can end this process (the Windows hand-over closes it)
+    act, how = None, ""
+    try:
+        if kind == "program":
+            r = rollback_program(base, platform, v, popen)
+            act, how = r["action"], f"program {to} -> {frm}"
+        elif kind == "data":
+            act, how = rollback_data(data, program, v, runner, current)["action"], f"data release {to} -> {frm}"
+        elif kind == "addons":
+            for n in v.get("names") or []:
+                runner(program + ["addon", "remove", n, "--dest", data], capture_output=True, text=True, timeout=600)
+            act, how = "restart", "add-ons " + ", ".join(v.get("names") or []) + " removed"
+        elif kind == "lists":
+            set_quarantine(data, to)
+            act, how = "restart", f"answers file {to} switched off (the engine answers live until a newer one)"
+    except Exception as e:  # noqa: BLE001 - say why it could not go back; the failed version is still not tried again
+        how = f"could not go back: {type(e).__name__}: {e}"[:300]
+    s["rollback"] = {"kind": kind, "from": frm, "to": to, "why": why[:400], "result": how, "at": int(time.time())}
+    s["last_result"] = f"{kind} {to} failed its self-test: {how}"[:400]
+    return act
+
+
+def verify(data: str, *, platform: str, program: list, port: int, state: str, has_se: bool = False, run=None,
+           runner=subprocess.run, popen=None, current=current_release, now=None, mine=None) -> str | None:
+    """After an update's restart, once the engine has reported ready (state "ready") or not (the engine exited or timed
+    out): test it, and go back when it fails. -> None (passed, or nothing to test), "restart" or "handed-over". The marker is
+    cleared before anything runs, so one failed test is never repeated by the next start."""
+    s = load(data)
+    v = s.pop("verify", None)
+    if not isinstance(v, dict):
+        return None
+    save(data, s)
+    stale = (now or time.time()) - float(v.get("at") or 0) > 7 * DAY
+    took = (v.get("kind") != "program" or mine is None or parse_version(mine) == parse_version(v.get("to"))) and \
+           (v.get("kind") != "data" or current(data) == v.get("to"))
+    if stale or not took:                                  # the update never took (a hand-over that failed, a week-old marker): nothing to test
+        return None
+    if state != "ready":
+        res = {"ok": False, "at": int(time.time()), "ms": 0, "checks": [{"name": "engine ready", "status": "fail", "ms": 0,
+               "why": f"the engine did not become ready ({state})"}]}
+    else:
+        import selftest
+        res = (run or selftest.run)(port, data, current(data), has_se=has_se, quarantined=bool(quarantined(data)))
+    res["kind"] = v.get("kind")
+    s["selftest"] = res
+    act = None
+    if res.get("ok"):
+        finish_verify(base_of(data), v)
+    else:
+        import selftest
+        act = revert(data, s, v, selftest.summary(res), platform=platform, program=program, runner=runner, popen=popen, current=current)
+    save(data, s)
+    return act
+
+
+def lists_verify(data: str, s: dict, version, *, port: int, platform: str, program: list, has_se: bool = False, run=None,
+                 wait=wait_inbox, runner=subprocess.run, current=current_release) -> str | None:
+    """A new answers file that needs no restart: wait for the engine to take it in, test it in place, and switch it off when
+    the test fails. -> "restart" when it was switched off."""
+    import selftest
+    why = wait(data)
+    res = None
+    if not why:
+        res = (run or selftest.run)(port, data, current(data), has_se=has_se, quarantined=bool(quarantined(data)))
+        if not res.get("ok"):
+            why = selftest.summary(res)
+    if res is None:
+        res = {"ok": False, "at": int(time.time()), "ms": 0, "checks": [{"name": "answers taken in", "status": "fail", "ms": 0, "why": why}]}
+    res["kind"] = "lists"
+    s["selftest"] = res
+    if res.get("ok"):
+        return None
+    return revert(data, s, {"kind": "lists", "to": version, "from": None}, why, platform=platform, program=program, runner=runner,
+                  current=current)
+
+
 # ================================================================================================ one check
 def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, program: list, source: str, pubkey: str,
-          fetch=None, opener=None, runner=subprocess.run, now=None) -> str | None:
+          fetch=None, opener=None, runner=subprocess.run, now=None, port: int | None = None, has_se: bool = False,
+          selftest_run=None, wait=wait_inbox) -> str | None:
     """Program first, then data. -> None, "restart" (the caller stops the engine and exits EXIT_RESTART) or
-    "handed-over" (Windows: the setup program takes over and closes this program)."""
+    "handed-over" (Windows: the setup program takes over and closes this program). port: the running engine's, for the
+    in-place test of a new answers file."""
     s = load(data)
     s.update(requested=False, last_check=now or time.time())
+    ch = channel_of(s)
     result, act = [], None
     try:
-        p = program_update(base, platform, mine, app_dir, latest_release(fetch), opener, runner)
+        p = program_update(base, platform, mine, app_dir, latest_release(fetch, ch), opener, runner, skip=failed_list(s, "program"))
         s["program"] = p
         if p["action"] != "none":
             result.append(f"program {mine} -> {p['version']}")
             act = p["action"]
+            begin_verify(s, "program", mine, p["version"], **({"setup": p["setup"]} if p.get("setup") else {}))
     except Exception as e:  # noqa: BLE001 - an update that fails leaves everything as it was
         s["program"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
         result.append("program check failed")
     if act is None:                                        # a new program restarts first; the data waits for the next check
         try:
-            d = data_update(data, program, source, pubkey, platform, runner)
+            before = current_release(data)
+            d = data_update(data, program, source, pubkey, platform, runner, channel=ch, skip=failed_list(s, "data"))
             s["data"] = d
             if d["action"] == "restart":
                 result.append(f"data -> {d.get('release')}")
                 act = act or "restart"
+                begin_verify(s, "data", before, d.get("release"))
         except Exception as e:  # noqa: BLE001
             s["data"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
             result.append("data update failed")
@@ -350,14 +601,27 @@ def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, progr
                 if a["action"] == "restart":
                     result.append("add-ons " + ", ".join(a["installed"]))
                     act = act or "restart"
+                    if not s.get("verify"):                # a data release's test covers the add-ons it restarts with
+                        begin_verify(s, "addons", None, ",".join(a["installed"]), names=a["installed"])
             except Exception as e:  # noqa: BLE001
                 s["addon_result"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
                 result.append("add-on update failed")
             try:
-                li = lists_update(data, program, source, platform, runner)
+                li = lists_update(data, program, source, platform, runner, channel=ch, skip=failed_list(s, "lists"))
                 s["lists_result"] = li
                 if li.get("lists") == "fetched":
                     result.append(f"lists {li.get('version')}")
+                    if li.get("was_quarantined"):          # the engine runs with the answers off: it starts again to take them
+                        act = act or "restart"
+                        if not s.get("verify"):
+                            begin_verify(s, "lists", None, li.get("version"))
+                    elif port and act is None:
+                        save(data, s)                      # the test takes minutes: what happened so far is on record
+                        back = lists_verify(data, s, li.get("version"), port=port, platform=platform, program=program, has_se=has_se,
+                                            run=selftest_run, wait=wait, runner=runner)
+                        if back:
+                            result.append(f"lists {li.get('version')} failed its self-test: switched off")
+                            act = back
             except Exception as e:  # noqa: BLE001
                 s["lists_result"] = {"lists": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
                 result.append("lists update failed")
@@ -453,6 +717,18 @@ def command(action: str, data: str, value=None) -> int:
         save(data, s)
         out(f"daily check between {h:02d}:00 and {(h + 2) % 24:02d}:00")
         return 0
+    if action == "channel":
+        if value is None:
+            out(channel_of(s))
+            return 0
+        if value not in CHANNELS:
+            out("channel stable|beta: stable follows the releases everyone gets; beta gets the next one a day early")
+            return 2
+        s["channel"] = value
+        s["requested"] = True                              # the running engine checks within a minute
+        save(data, s)
+        out(f"channel: {value}" + (" (the next version arrives here before it reaches everyone)" if value == "beta" else ""))
+        return 0
     if action == "addons":
         if value not in ("on", "off"):
             out("autoupdate addons on|off")
@@ -471,7 +747,8 @@ def command(action: str, data: str, value=None) -> int:
         save(data, s)
         out("asked: the running engine checks within a minute (see `autoupdate status`)")
         return 0
-    out(json.dumps({"enabled": enabled(s), "at_hour": at_hour(s), "addons": s.get("addons", True) is not False,
-                    **{k: s.get(k) for k in ("last_check", "last_result", "program", "data", "addon_result", "lists_result")}},
+    out(json.dumps({"enabled": enabled(s), "channel": channel_of(s), "at_hour": at_hour(s), "addons": s.get("addons", True) is not False,
+                    **{k: s.get(k) for k in ("last_check", "last_result", "program", "data", "addon_result", "lists_result",
+                                             "selftest", "rollback", "failed")}},
                      indent=1, sort_keys=True))
     return 0

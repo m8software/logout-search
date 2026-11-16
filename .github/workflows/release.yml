@@ -61,4 +61,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "${TAG}" dist/* --title "${TAG}" --generate-notes --verify-tag
+        # A new release starts as a PRE-release: installs on the stable channel (GitHub's `latest`) do not see it, installs on the
+        # beta channel (`logout-search channel beta`: our own computers first) take it. About a day later, once those have run it
+        # healthy, `gh release edit "${TAG}" --prerelease=false --latest` hands it to everyone.
+        run: gh release create "${TAG}" dist/* --title "${TAG}" --generate-notes --verify-tag --prerelease

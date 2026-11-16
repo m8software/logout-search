@@ -119,13 +119,68 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
         new += row[4] > new_after
         until = max(until, row[4])
     n["dept"] = c
-    dst.executemany("INSERT INTO lists_meta VALUES (?, ?)", [("reset", "1" if reset else "0"), ("body", "plain"), ("release", release)])
+    dst.executemany("INSERT INTO lists_meta VALUES (?, ?)", [("reset", "1" if reset else "0"), ("body", "plain"), ("release", release),
+                                                              ("rows_curated", str(n["curated"])), ("rows_finished", str(n["finished"]))])   # a base is checked against them (DB-05)
     dst.commit()
     dst.execute("VACUUM")
     dst.close()
     src.close()
     n["until"], n["new"], n["held"] = until, new, held
     return n
+
+
+VERIFY_KEEP_S = 22 * 86400      # a confirmation older than the install's age gate (21 days) is worth nothing
+
+
+def key_hash(key: str) -> int:
+    """48-bit hash of a store key: the same function as result_store.key_hash (a test holds the two together)."""
+    return int.from_bytes(hashlib.sha256(key.encode()).digest()[:6], "big")
+
+
+def write_verify(store: str, out_db: str, release: str, until: float, allow=None, now: float | None = None) -> dict:
+    """The re-verification file (audit DB-03). put_finished keeps `at` for an answer the builder rebuilt unchanged (so the
+    publish does not ship it again) and notes the time of the confirmation in finished_checked; installs refuse a finished
+    answer whose newest confirmation is older than 21 days, so without this file the stable answers would stop being served
+    on installs 21 days after they were first built. Rows: finished answers with at <= until (they are in the published
+    parts) whose confirmation is newer than their change and younger than VERIFY_KEEP_S -> verified_h(h, hr): the 48-bit key
+    hash and the hour of the confirmation. About 6 bytes a row in xz: 300,000 rows = about 1.8 MB, replaced at each publish
+    (never accumulated), so an install pays it once per publish whatever the number of nights since its last. -> {rows}"""
+    now = time.time() if now is None else now
+    if os.path.exists(out_db):
+        os.remove(out_db)
+    src = sqlite3.connect(f"file:{store}?mode=ro", uri=True)
+    dst = sqlite3.connect(out_db)
+    dst.execute("PRAGMA journal_mode=OFF")
+    dst.execute("CREATE TABLE verified_h (h INTEGER PRIMARY KEY, hr INTEGER NOT NULL)")
+    dst.execute("CREATE TABLE lists_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)")
+    c = 0
+    try:
+        has = src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'finished_checked'").fetchone()
+        for key, chk in (src.execute("SELECT f.key, c.checked FROM finished f JOIN finished_checked c ON c.release = f.release AND c.key = f.key "
+                                     "WHERE f.release = ? AND f.at <= ? AND c.checked > f.at AND c.checked > ?", (release, until, now - VERIFY_KEEP_S)) if has else []):
+            if allow is not None and name_of(key) not in allow:
+                continue
+            dst.execute("INSERT OR REPLACE INTO verified_h VALUES (?, ?)", (key_hash(key), int(chk // 3600)))
+            c += 1
+    finally:
+        src.close()
+    dst.executemany("INSERT INTO lists_meta VALUES (?, ?)", [("verify", "1"), ("release", release), ("rows", str(c))])
+    dst.commit()
+    dst.execute("VACUUM")
+    dst.close()
+    return {"rows": c}
+
+
+def pack(raw: str) -> dict:
+    """xz a built file and describe it for the manifest (the raw file is removed)."""
+    sha, size = sha256_file(raw)
+    xz = raw + ".xz"
+    with open(raw, "rb") as fi, lzma.open(xz, "wb", preset=6) as fo:
+        for b in iter(lambda: fi.read(1 << 20), b""):
+            fo.write(b)
+    os.remove(raw)
+    xsha, xsize = sha256_file(xz)
+    return {"bytes": size, "sha256": sha, "xz_bytes": xsize, "xz_sha256": xsha}
 
 
 def build(a) -> dict:
@@ -163,18 +218,31 @@ def build(a) -> dict:
     if allow is not None:
         print(f"lists: {n['held']} rows held back (their names are not open-data or hand-added names)", flush=True)
     n["until"] = max(n["until"], 0.0 if base else float(prev["until"]))
+    vraw = os.path.join(a.out, "lists", "parts", "v-" + stamp + ".sqlite")
+    vn = write_verify(a.store, vraw, a.release, n["until"], allow)
+    vold = (prev or {}).get("verify") if not base else None
     if not base and not n["new"]:
         os.remove(raw)
-        return {"published": False, "why": "nothing new since the last publish", "until": prev["until"]}
-    sha, size = sha256_file(raw)
-    xz = raw + ".xz"
-    with open(raw, "rb") as fi, lzma.open(xz, "wb", preset=6) as fo:
-        for b in iter(lambda: fi.read(1 << 20), b""):
-            fo.write(b)
-    os.remove(raw)
-    xsha, xsize = sha256_file(xz)
-    part = {"name": name, "bytes": size, "sha256": sha, "xz_bytes": xsize, "xz_sha256": xsha,
-            "rows": {k: n[k] for k in ("curated", "finished", "dept")}}
+        # no new content; a confirmation that moved is still published (a small manifest + verify file), or the installs'
+        # stable answers would age out while nothing changes
+        if not vn["rows"] or (vold and vold.get("sha256") == sha256_file(vraw)[0]):     # the same confirmations: nothing to publish
+            os.remove(vraw)
+            return {"published": False, "why": "nothing new since the last publish", "until": prev["until"]}
+        m = dict(prev)
+        m["version"] = stamp
+        vpart = dict(pack(vraw), name="v-" + stamp, rows=vn["rows"], checked_until=time.time())
+        m["verify"] = vpart
+        body = (json.dumps(m, indent=1, sort_keys=True) + "\n").encode()
+        inst.check_lists_manifest(body)
+        with open(os.path.join(a.out, "lists", "manifest.json"), "wb") as f:
+            f.write(body)
+        with open(os.path.join(a.out, "lists", "manifest.json.sig"), "wb") as f:
+            f.write(hf_dataset.sign(a.key, body))
+        return {"published": True, "part": None, "base": False, "verify_rows": vn["rows"], "xz_bytes": vpart["xz_bytes"], "parts": len(m["parts"]),
+                "download_from_scratch": sum(p["xz_bytes"] for p in m["parts"]) + vpart["xz_bytes"]}
+    part = dict(pack(raw), name=name, rows={k: n[k] for k in ("curated", "finished", "dept")})
+    xsize = part["xz_bytes"]
+    vpart = dict(pack(vraw), name="v-" + stamp, rows=vn["rows"], checked_until=time.time()) if vn["rows"] else None
     if base:
         part["reset"] = True
         parts = [part]
@@ -182,6 +250,8 @@ def build(a) -> dict:
         parts = list(prev["parts"]) + [part]
     m = {"format": inst.LISTS_FORMAT, "kind": "lists", "version": stamp, "source_release": a.release, "fits_releases": a.fits,
          "base": parts[0]["name"], "until": n["until"], "parts": parts, "licence": LICENCE, "notice": NOTICE}
+    if vpart:
+        m["verify"] = vpart
     body = (json.dumps(m, indent=1, sort_keys=True) + "\n").encode()
     inst.check_lists_manifest(body)                  # what we write must be what the installer accepts
     with open(os.path.join(a.out, "lists", "manifest.json"), "wb") as f:
@@ -189,29 +259,47 @@ def build(a) -> dict:
     with open(os.path.join(a.out, "lists", "manifest.json.sig"), "wb") as f:
         f.write(hf_dataset.sign(a.key, body))
     return {"published": True, "part": name, "base": base, "rows": part["rows"], "xz_bytes": xsize, "parts": len(parts),
-            "download_from_scratch": sum(p["xz_bytes"] for p in parts)}
+            "download_from_scratch": sum(p["xz_bytes"] for p in parts) + (vpart["xz_bytes"] if vpart else 0), "verify_rows": vn["rows"]}
+
+
+BETA_MANIFEST = ("manifest-beta.json", "manifest-beta.json.sig")
 
 
 def upload(a) -> dict:
+    beta = getattr(a, "channel", "stable") == "beta"      #: a beta publish moves only manifest-beta.json; promote with `promote`
     m = json.load(open(os.path.join(a.out, "lists", "manifest.json"), encoding="utf-8"))
-    want = {f"lists/parts/{p['name']}.sqlite.xz" for p in m["parts"]}
+    want = {f"lists/parts/{p['name']}.sqlite.xz" for p in m["parts"] + ([m["verify"]] if m.get("verify") else [])}
     local = [p for p in want if os.path.isfile(os.path.join(a.out, p))]
     plan = {"repo": a.repo, "version": m["version"], "upload": sorted(local), "bytes": sum(os.path.getsize(os.path.join(a.out, p)) for p in local)}
     if a.dry_run:
         return dict(plan, dry_run=True)
     from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi
     api = HfApi(token=open(a.token_file).read().strip())
-    remote = {p for p in api.list_repo_files(a.repo, repo_type="dataset") if p.startswith("lists/parts/")}
+    everything = set(api.list_repo_files(a.repo, repo_type="dataset"))
+    remote = {p for p in everything if p.startswith("lists/parts/")}
     ops = [CommitOperationAdd(path_in_repo=p, path_or_fileobj=os.path.join(a.out, p)) for p in sorted(local) if p not in remote]
     if ops:
         api.create_commit(a.repo, repo_type="dataset", operations=ops, commit_message=f"lists {m['version']}: parts")
     # the manifest last, so a reader never sees a manifest naming a part that is not there yet; parts no manifest names go
-    ops = [CommitOperationAdd(path_in_repo=f"lists/{n}", path_or_fileobj=os.path.join(a.out, "lists", n)) for n in ("manifest.json", "manifest.json.sig")]
-    ops += [CommitOperationDelete(path_in_repo=p) for p in sorted(remote - want)]
+    names = [(b, l) for b, l in zip(BETA_MANIFEST, ("manifest.json", "manifest.json.sig"))] if beta else \
+        [(n, n) for n in ("manifest.json", "manifest.json.sig")]
+    if not beta and f"lists/{BETA_MANIFEST[0]}" in everything:      # a stable publish moves beta with it: beta is never behind stable
+        names += [(b, l) for b, l in zip(BETA_MANIFEST, ("manifest.json", "manifest.json.sig"))]
+    ops = [CommitOperationAdd(path_in_repo=f"lists/{rn}", path_or_fileobj=os.path.join(a.out, "lists", ln)) for rn, ln in names]
+    # parts the OTHER channel's manifest still names are kept (the stable manifest while publishing beta, and the reverse)
+    keep = set()
+    other = ("manifest.json" if beta else BETA_MANIFEST[0])
+    try:
+        from huggingface_hub import hf_hub_download
+        keep = {f"lists/parts/{p['name']}.sqlite.xz"
+                for p in json.load(open(hf_hub_download(a.repo, f"lists/{other}", repo_type="dataset", token=api.token)))["parts"]}
+    except Exception:  # noqa: BLE001 - no other manifest: nothing to keep
+        pass
+    ops += [CommitOperationDelete(path_in_repo=p) for p in sorted(remote - want - keep)]
     api.create_commit(a.repo, repo_type="dataset", operations=ops, commit_message=f"lists {m['version']}")
     for p in local:                                  # uploaded: the local copy is not needed again
         os.remove(os.path.join(a.out, p))
-    return dict(plan, removed=sorted(remote - want))
+    return dict(plan, removed=sorted(remote - want - keep), channel="beta" if beta else "stable")
 
 
 def main() -> int:
@@ -234,7 +322,24 @@ def main() -> int:
     u.add_argument("--repo", required=True)
     u.add_argument("--token-file")
     u.add_argument("--dry-run", action="store_true")
+    u.add_argument("--channel", choices=("stable", "beta"), default="stable",
+                   help="beta: parts go up as usual, manifest-beta.json is the pointer moved (installs on the beta channel follow it)")
+    pr = sp.add_parser("promote", help="manifest.json := manifest-beta.json (one commit, nothing uploaded): the beta lists become the stable ones")
+    pr.add_argument("--repo", required=True)
+    pr.add_argument("--token-file", required=True)
+    pr.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    if a.cmd == "promote":
+        from huggingface_hub import CommitOperationAdd, HfApi, hf_hub_download
+        api = HfApi(token=open(a.token_file).read().strip())
+        got = [hf_hub_download(a.repo, f"lists/{n}", repo_type="dataset", token=api.token) for n in BETA_MANIFEST]
+        v = json.load(open(got[0]))["version"]
+        if not a.dry_run:
+            api.create_commit(a.repo, repo_type="dataset", commit_message=f"lists {v} (promoted from beta)",
+                              operations=[CommitOperationAdd(path_in_repo=f"lists/{n}", path_or_fileobj=g)
+                                          for n, g in zip(("manifest.json", "manifest.json.sig"), got)])
+        print(json.dumps({"promote": v, "dry_run": a.dry_run}))
+        return 0
     if a.cmd == "build":
         a.manifest = a.manifest or os.path.join(a.out, "lists", "manifest.json")
         r = build(a)

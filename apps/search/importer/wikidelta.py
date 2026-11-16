@@ -405,13 +405,14 @@ def cmd_merge(a) -> None:
                 db.execute("INSERT OR REPLACE INTO docs VALUES (?,?,?,?,?)", (pid_i, int(rid), title_u, core, al))
                 written.add(pid_i)
     out.n.update(n)
-    sc.execute("ATTACH DATABASE ? AS st", (a.state,))
     if not a.partial:
-        for pid, title in sc.execute("SELECT d.page_id, d.title FROM st.docs d WHERE d.page_id NOT IN (SELECT page_id FROM main.seen)").fetchall():
-            if pid in written:
+        seen = {r[0] for r in sc.execute("SELECT page_id FROM main.seen")}
+        for pid, title in db.execute("SELECT page_id, title FROM docs").fetchall():
+            if pid in seen or pid in written:
                 continue
             out.delete(pid, title)
             db.execute("DELETE FROM docs WHERE page_id = ?", (pid,))
+        del seen
     cand = db.execute("SELECT page_id, rev_id, title, aliases FROM docs")
     n_alias = alias_only_rows(db, amap, cand, out, lambda ids: rows_from_base(a.base_articles, ids), written)
     db.execute("DELETE FROM redirects")
@@ -479,7 +480,7 @@ def cmd_incr(a, deletes=None) -> None:
     work, redirect_changes, touched_targets = [], 0, set()
     for pid, (rid, title, is_red, target, text) in best.items():
         st = db.execute("SELECT rev_id, title, core, aliases FROM docs WHERE page_id = ?", (pid,)).fetchone()
-        rd = db.execute("SELECT title, target FROM redirects WHERE page_id = ?", (pid,)).fetchone()
+        rd = db.execute("SELECT title, target FROM redirects WHERE title = ?", (title,)).fetchone()   # by title: the state's redirects carry no page id
         if st and st[0] >= rid:
             continue                                  # not newer than what we hold
         if is_red:
@@ -487,7 +488,6 @@ def cmd_incr(a, deletes=None) -> None:
                 continue
             if rd:
                 touched_targets.add(rd[1])
-                db.execute("DELETE FROM redirects WHERE page_id = ?", (pid,))
             db.execute("INSERT OR REPLACE INTO redirects (title, target, page_id) VALUES (?,?,?)", (title, target, pid))
             touched_targets.add(target)
             redirect_changes += 1
@@ -497,7 +497,7 @@ def cmd_incr(a, deletes=None) -> None:
             continue
         if rd:                                        # a redirect that became an article
             touched_targets.add(rd[1])
-            db.execute("DELETE FROM redirects WHERE page_id = ?", (pid,))
+            db.execute("DELETE FROM redirects WHERE title = ?", (title,))
             redirect_changes += 1
         work.append((pid, rid, title, text))
     with Pool(a.procs, initializer=W._low_priority) as pool:
@@ -533,9 +533,20 @@ def cmd_incr(a, deletes=None) -> None:
     amap = {r[2]: alias_text(t for (t,) in db.execute("SELECT title FROM redirects WHERE target = ?", (r[2],))) for r in cand}
     src = (lambda ids: {}) if a.no_api else (lambda ids: rows_from_api(db, ids))
     n_alias = alias_only_rows(db, amap, cand, out, src, got)
-    # deletions: the delete log of the window (the dumps carry none)
+    # deletions: an explicit file, the test hook, or the delete log of the window (the dumps carry none)
     n_del = 0
-    if not a.no_api:
+    del_file = getattr(a, "deletes_file", None)
+    if del_file and deletes is None:
+        def deletes(_since, _until):
+            rows_del = []
+            with open(del_file, encoding="utf-8") as df:
+                for line in df:
+                    line = line.rstrip("\r\n")
+                    if line:
+                        p_s, _, t = line.partition("\t")
+                        rows_del.append((int(p_s), unescape(t) or t))
+            return rows_del
+    if deletes is not None or not a.no_api:
         for pid, title in (deletes or api_deletes)(a.since or "", cutoff):
             if db.execute("SELECT 1 FROM docs WHERE page_id = ?", (pid,)).fetchone():
                 out.delete(pid, title)
@@ -622,6 +633,7 @@ def main() -> None:
     i.add_argument("--day", required=True); i.add_argument("--hold-hours", type=float, default=8.0)
     i.add_argument("--now"); i.add_argument("--since", help="start of the delete-log window (ISO)")
     i.add_argument("--procs", type=int, default=max(1, (os.cpu_count() or 2) - 2))
+    i.add_argument("--deletes-file", help="TSV file (page_id TAB title) of deleted pages instead of fetching the live delete log")
     i.add_argument("--no-api", action="store_true"); i.add_argument("--no-commit", action="store_true")
     a = ap.parse_args()
     {"state": cmd_state, "catchup": cmd_catchup, "part": cmd_part, "merge": cmd_merge, "combine": cmd_combine, "incr": cmd_incr}[a.cmd](a)

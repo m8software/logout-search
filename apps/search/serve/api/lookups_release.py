@@ -476,11 +476,22 @@ class ReleaseLookups:
                         rows = self.db.execute("SELECT ext, doc_id FROM r.registry WHERE doc_id >= ? AND doc_id < ?", (lo, hi))
                     else:
                         rows = self.db.execute("SELECT CAST(key AS INTEGER), doc_id FROM r.doc WHERE type = ?", (WIKI,))
-                    a = np.array(rows.fetchall(), dtype=np.int64).reshape(-1, 2)
-                    a = a[np.argsort(a[:, 0], kind="stable")]
-                    # page_ids and wiki doc_ids (1 << 28 | seq) both fit int32: 8 bytes an article, not 16
-                    self._pid_map = (a[:, 0].astype(np.int32), a[:, 1].astype(np.int32))
-                    del a
+                    # page_ids and wiki doc_ids (1 << 28 | seq) both fit int32: 8 bytes an article. Read in slices of 500,000 rows
+                    # straight into int32 arrays: materialising 6.8 M tuples peaked at 897 MB at start-up (audit DB-10)
+                    ids, dcs = [], []
+                    while True:
+                        chunk = rows.fetchmany(500_000)
+                        if not chunk:
+                            break
+                        a = np.array(chunk, dtype=np.int64).reshape(-1, 2)
+                        ids.append(a[:, 0].astype(np.int32))
+                        dcs.append(a[:, 1].astype(np.int32))
+                        del chunk, a
+                    pid_a = np.concatenate(ids) if ids else np.zeros(0, np.int32)
+                    doc_a = np.concatenate(dcs) if dcs else np.zeros(0, np.int32)
+                    order = np.argsort(pid_a, kind="stable")
+                    self._pid_map = (pid_a[order], doc_a[order])
+                    del ids, dcs, pid_a, doc_a, order
         return self._pid_map
 
     def ivf_docs(self, p):
@@ -834,16 +845,17 @@ class ReleaseLookups:
 
     def suggest_scan2(self, p):
         pre = p["like"][:-1]
-        grp: dict = {}
-        for d, ps in self.db.execute("SELECT doc_id, pos FROM suggest_keys WHERE key >= ? AND key < ? || char(1114111)", (pre, pre)):
-            grp[d] = min(ps, grp.get(d, 9))
+        # one statement for the keys, the best position and the kind of each doc (audit DB-04: one SELECT per document
+        # made "south" 4,294 queries, 1.5 s; the join is 20 ms and returns the same rows)
         by_kind: dict = {}
-        for d, ps in grp.items():
+        for d, ps, kid in self.db.execute(
+                "SELECT k.doc_id, min(k.pos), i.kind FROM suggest_keys k JOIN suggest_items i ON i.doc_id = k.doc_id "
+                "WHERE k.key >= ? AND k.key < ? || char(1114111) GROUP BY k.doc_id", (pre, pre)):
             sc = self.S(d, "score", False)
-            by_kind.setdefault(self.item_kind(d), []).append(((sc if sc is not None else -1e9) - ps, d, ps))
+            by_kind.setdefault(self.dict.get(kid), []).append(((sc if sc is not None else -1e9) - ps, d, ps))
         keep = []
         for _k, v in by_kind.items():
-            v.sort(key=lambda x: -x[0])
+            v.sort(key=lambda x: (-x[0], x[1]))      # ties by doc id: the order no longer depends on how the rows were read
             keep += [(d, ps) for _s, d, ps in v[:12]]
         return self.items_rows(keep)
 

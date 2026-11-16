@@ -338,6 +338,39 @@ class _SqliteWorkers:
             pr.wait()
 
 
+FAKE_FREE = os.environ.get("LOGOUT_UPDATE_FAKE_FREE_BYTES", "")      # test hook: pretend the disk has this much room
+
+
+def bytes_needed(upd: dict, new_m: dict) -> int:
+    """What staging writes: every file the package patches or ships as bytes (a link costs none), plus 10% and 256 MiB slack."""
+    size = {f["path"]: int(f.get("bytes") or 0) for f in new_m.get("files", []) if isinstance(f, dict)}
+    n = sum(size.get(op["path"], 0) for op in upd["files"] if op["op"] in ("sqlite-rows", "blob", "ivf-merge"))
+    return int(n * 1.1) + (256 << 20)
+
+
+def check_free_space(base: str, upd: dict, new_m: dict) -> None:
+    """Refuse at the start, with the numbers, instead of hours into the hashing and patching (audit DB-11)."""
+    need = bytes_needed(upd, new_m)
+    free = int(FAKE_FREE) if FAKE_FREE else shutil.disk_usage(base).free
+    if free < need:
+        raise uc.UpdateError(f"not enough disk space in {base}: {free >> 20} MiB free, about {need >> 20} MiB needed to stage {upd['to_release']}: nothing changed")
+
+
+def prune_old_releases(base: str, keep: set) -> list:
+    """After a successful swap: release folders other than the ones named in `keep` (current, previous) are removed; each
+    month would otherwise add the whole changed-file set (about 10 GB) to releases/ (audit DB-11). Only folders that hold a
+    manifest.json (a release); never a staging folder or anything else."""
+    rel_dir = os.path.join(base, "releases")
+    gone = []
+    for name in sorted(os.listdir(rel_dir)):
+        d = os.path.join(rel_dir, name)
+        if name in keep or name.startswith(".") or not os.path.isfile(os.path.join(d, "manifest.json")):
+            continue
+        shutil.rmtree(d, ignore_errors=True)
+        gone.append(name)
+    return gone
+
+
 def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool = False, verify_links: bool = True, quick_check: bool = True,
           jobs: int = None) -> dict:
     t0 = time.time()
@@ -390,7 +423,12 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
     if os.path.exists(final):                       # an earlier apply died between the rename and the pointer swap
         old_m = json.load(open(os.path.join(final, "manifest.json")))
         problems = rc.check_release(final)
-        if old_m.get("release") == to and not problems:
+        # it must be the release THIS package builds, not just one with the same name (audit DB-11): the manifest's bytes are hashed
+        try:
+            same = uc.sha256_bytes(open(os.path.join(final, "manifest.published.json"), "rb").read()) == upd["to_manifest_sha256"]
+        except OSError:
+            same = False
+        if old_m.get("release") == to and not problems and same:
             try:
                 verify_tree(final, old_m, jobs=jobs)
                 set_pointer(base, "previous", cur)
@@ -401,6 +439,7 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
         shutil.rmtree(final)
     # ---- verify the base the package reads
     base_m = json.load(open(os.path.join(cur_dir, "manifest.json")))
+    check_free_space(base, upd, new_m)
     stage = os.path.join(rel_dir, f".staging-{to}-{os.getpid()}")
     os.makedirs(stage)
     stats = {"linked": 0, "copied_instead_of_linked": 0, "blob_files": 0, "sqlite_patched": 0, "ivf_merged": 0, "linked_bytes": 0, "written_bytes": 0}
@@ -543,6 +582,7 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
             os.kill(os.getpid(), signal.SIGKILL)
         set_pointer(base, "previous", cur)
         set_pointer(base, "current", to)
+        notes["pruned_releases"] = prune_old_releases(base, {to, cur})
     except BaseException:
         if tpool:
             tpool.shutdown(wait=True, cancel_futures=True)

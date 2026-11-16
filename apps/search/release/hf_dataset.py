@@ -367,7 +367,11 @@ def load_counts(path: str) -> dict:
     return c
 
 
-def stage(pub: str, out: str, repo: str, key: str, updates: list, test_key: bool, counts_file: str = None, addons: str = "") -> dict:
+CHAIN_MAX = 40          # hops kept in latest.json's chain: an install further behind than this installs the release itself
+
+
+def stage(pub: str, out: str, repo: str, key: str, updates: list, test_key: bool, counts_file: str = None, addons: str = "",
+          prev: str = None, chain_max: int = CHAIN_MAX) -> dict:
     pub, out = os.path.abspath(pub), os.path.abspath(out)
     if not inst.HF_RE.match("hf:" + repo):
         raise DatasetError(f"--repo {repo!r} is not ORG/NAME")
@@ -425,11 +429,32 @@ def stage(pub: str, out: str, repo: str, key: str, updates: list, test_key: bool
         open(os.path.join(tmp, dest, "package.json.sig"), "wb").write(sign(key, body))
         extra.append((f"{dest}/", "the files of release " + rid + " they rebuild, as listed above"))
         ups[frm] = dest
+    # the chain (daily cadence): the hops already published (the previous staged folder, `prev`) + this release's own hops.
+    # Each hop is its own folder updates/<from> (a release id is unique, so no two hops share a name) and its own signed
+    # package.json; latest.json (signed) lists them in order, oldest first, ending at this release.
+    chain = []
+    if prev:
+        prev = os.path.abspath(prev)
+        old_latest = json.load(open(os.path.join(prev, "latest.json")))
+        for h in old_latest.get("chain") or []:
+            if h["to"] == rid or h["from"] == rid:
+                continue                                  # a re-stage of this release: its own hops are rebuilt above
+            chain.append(h)
+        keep = max(0, chain_max - len(ups))
+        chain = chain[-keep:] if keep else []
+        for h in chain:
+            inst.safe_rel(h["package"])
+            for rel in walk(os.path.join(prev, *h["package"].split("/"))):
+                place(os.path.join(prev, *h["package"].split("/"), *rel.split("/")), os.path.join(tmp, *h["package"].split("/"), *rel.split("/")))
+            extra.append((h["package"] + "/", "an earlier daily update, still published for installs that are behind"))
+    for frm, dest in sorted(ups.items()):
+        chain.append({"from": frm, "to": rid, "package": dest,
+                      "bytes": sum(os.path.getsize(os.path.join(tmp, dest, *r.split("/"))) for r in walk(os.path.join(tmp, dest)))})
     pubhex = public_hex(key)
     open(os.path.join(tmp, "LICENSE"), "w").write(licence_file(m, extra))
     open(os.path.join(tmp, "README.md"), "w").write(card(m, repo, pubhex, test_key, ups, load_counts(counts_file), addons))
     latest = json.dumps({"format": LATEST_FORMAT, "release": rid, "revision": rid, "manifest_sha256": hashlib.sha256(raw).hexdigest(),
-                         "updates": ups}, indent=1, sort_keys=True).encode()
+                         "updates": ups, "chain": chain}, indent=1, sort_keys=True).encode()
     open(os.path.join(tmp, "latest.json"), "wb").write(latest)
     open(os.path.join(tmp, "latest.json.sig"), "wb").write(sign(key, latest))
     os.rename(tmp, out)
@@ -476,6 +501,26 @@ def check(out: str, pubkey: str) -> dict:
             if not os.path.isfile(p) or os.path.getsize(p) != f["bytes"] or sha256_file(p) != f["sha256"]:
                 raise DatasetError(f"{dest}/{f['path']}: missing, wrong size or wrong sha256")
             seen.add(f"{dest}/{f['path']}")
+    hops = latest.get("chain") or []
+    for h in hops:
+        if h["to"] == m["release"]:
+            continue                                      # this release's own hops were checked above (they are in `updates`)
+        dest = h["package"]
+        body = open(os.path.join(out, dest, "package.json"), "rb").read()
+        if not inst.ed25519_verify(pub, body, open(os.path.join(out, dest, "package.json.sig"), "rb").read()):
+            raise DatasetError(f"{dest}/package.json.sig does not verify")
+        pk = json.loads(body)
+        if pk.get("from_release") != h["from"] or pk.get("to_release") != h["to"]:
+            raise DatasetError(f"{dest}/package.json is not the update {h['from']} -> {h['to']}")
+        seen.update({f"{dest}/package.json", f"{dest}/package.json.sig"})
+        for f in pk["files"]:
+            p = os.path.join(out, dest, *inst.safe_rel(f["path"]).split("/"))
+            if not os.path.isfile(p) or os.path.getsize(p) != f["bytes"] or sha256_file(p) != f["sha256"]:
+                raise DatasetError(f"{dest}/{f['path']}: missing, wrong size or wrong sha256")
+            seen.add(f"{dest}/{f['path']}")
+    nodes = [h["from"] for h in hops] + ([hops[-1]["to"]] if hops else [])
+    if hops and (nodes[-1] != m["release"] or any(hops[i]["to"] != hops[i + 1]["from"] for i in range(len(hops) - 1))):
+        raise DatasetError("latest.json's chain is not one unbroken line of releases ending at this one")
     unlisted = sorted(set(walk(out)) - seen)
     if unlisted:
         raise DatasetError(f"files nothing lists (an installer would never check them): {unlisted[:5]}")
@@ -491,7 +536,7 @@ def check(out: str, pubkey: str) -> dict:
     # release check's "nothing internal" rule; the release's own files had it at release_v1.py check --tranco-free
     sys.path.insert(0, HERE)
     import release_check  # noqa: E402  (stdlib)
-    said = ["README.md", "LICENSE", "latest.json"] + [f"{d}/{n}" for d in latest["updates"].values() for n in ("package.json", "update.json")]
+    said = ["README.md", "LICENSE", "latest.json"] + [f"{d}/{n}" for d in sorted({h["package"] for h in hops} | set(latest["updates"].values())) for n in ("package.json", "update.json")]
     for p in said:
         hit = release_check.INTERNAL_WORDS.search(p + "\n" + open(os.path.join(out, p), encoding="utf-8").read())
         if hit:
@@ -501,15 +546,31 @@ def check(out: str, pubkey: str) -> dict:
 
 # ------------------------------------------------------------------------------------------------ upload
 LAST = ("latest.json", "latest.json.sig")
+BETA_LAST = ("latest-beta.json", "latest-beta.json.sig")   # the beta channel's pointer: installs on `beta` follow it, the others never read it
 KEEP_DIRS = ("addons/",)     # published beside the releases, each signed on its own (install.py ADDONS): never a release's stale file
 
 
-def upload(out: str, repo: str, token_file: str, public: bool, dry_run: bool) -> dict:
+def pointer_ops(out: str, channel: str, beta_exists: bool) -> list:
+    """(path in the repository, local file) of the pointer files sent last. A beta publish moves only the beta pointer (the
+    staged latest.json goes up as latest-beta.json: the signature covers the same bytes); a stable publish moves latest.json
+    and, when a beta pointer exists, the beta pointer with it: beta is never behind stable."""
+    ops = []
+    if channel == "beta":
+        ops += [(b, l) for b, l in zip(BETA_LAST, LAST)]
+    else:
+        ops += [(n, n) for n in LAST]
+        if beta_exists:
+            ops += [(b, l) for b, l in zip(BETA_LAST, LAST)]
+    return [(repo_path, os.path.join(out, local_name)) for repo_path, local_name in ops]
+
+
+def upload(out: str, repo: str, token_file: str, public: bool, dry_run: bool, channel: str = "stable") -> dict:
     latest = json.load(open(os.path.join(out, "latest.json")))
     rid = latest["release"]
     local = [p for p in walk(out) if p not in LAST]
-    plan = {"repo": repo, "release": rid, "files": len(local), "bytes": sum(os.path.getsize(os.path.join(out, p)) for p in local),
-            "then": ["remove files the release no longer has", "latest.json last", f"tag {rid} on that commit"]}
+    plan = {"repo": repo, "release": rid, "channel": channel, "files": len(local),
+            "bytes": sum(os.path.getsize(os.path.join(out, p)) for p in local),
+            "then": ["remove files the release no longer has", ("latest-beta.json" if channel == "beta" else "latest.json") + " last", f"tag {rid} on that commit"]}
     if dry_run:
         return dict(plan, dry_run=True)
     from huggingface_hub import CommitOperationAdd, HfApi     # 2.x: upload_folder uploads and deletes in ONE commit
@@ -518,19 +579,34 @@ def upload(out: str, repo: str, token_file: str, public: bool, dry_run: bool) ->
     api.create_repo(repo, repo_type="dataset", private=not public, exist_ok=True)
     remote = set(api.list_repo_files(repo, repo_type="dataset"))
     # what the new release no longer has, by exact name (glob characters never occur in release paths: refused below)
-    stale = sorted(p for p in remote - set(local) - set(LAST) - {".gitattributes"} if not p.startswith(KEEP_DIRS))
+    stale = sorted(p for p in remote - set(local) - set(LAST) - set(BETA_LAST) - {".gitattributes"} if not p.startswith(KEEP_DIRS))
     if any(c in p for p in stale for c in "*?[]"):
         raise DatasetError(f"a remote path holds a glob character, it cannot be removed by name: {stale[:3]}")
     # a re-run after a failure re-sends only what the Xet store does not already hold
     api.upload_folder(repo_id=repo, folder_path=out, repo_type="dataset", ignore_patterns=list(LAST),
                       delete_patterns=stale or None, commit_message=f"release {rid}")
     done = api.create_commit(repo, repo_type="dataset", commit_message=f"latest: {rid}",
-                             operations=[CommitOperationAdd(path_in_repo=p, path_or_fileobj=os.path.join(out, p)) for p in LAST])
+                             operations=[CommitOperationAdd(path_in_repo=rp, path_or_fileobj=lp)
+                                         for rp, lp in pointer_ops(out, channel, BETA_LAST[0] in remote)])
     # a re-upload of the same release id moves its tag here; exist_ok alone would leave it on the earlier upload
     if rid in {t.name for t in api.list_repo_refs(repo, repo_type="dataset").tags}:
         api.delete_tag(repo, tag=rid, repo_type="dataset")
     api.create_tag(repo, tag=rid, revision=done.oid, repo_type="dataset", tag_message=f"release {rid}")
     return dict(plan, removed=len(stale), public=public)
+
+
+def promote(repo: str, token_file: str, dry_run: bool) -> dict:
+    """latest.json := latest-beta.json, bytes and signature as they are (the signature covers the same bytes)."""
+    from huggingface_hub import CommitOperationAdd, HfApi, hf_hub_download
+    api = HfApi(token=open(token_file).read().strip())
+    got = {n: hf_hub_download(repo, n, repo_type="dataset", token=api.token) for n in BETA_LAST}
+    doc = json.load(open(got[BETA_LAST[0]]))
+    plan = {"repo": repo, "promote": doc["release"], "dry_run": dry_run}
+    if dry_run:
+        return plan
+    api.create_commit(repo, repo_type="dataset", commit_message=f"latest: {doc['release']} (promoted from beta)",
+                      operations=[CommitOperationAdd(path_in_repo=n, path_or_fileobj=got[b]) for n, b in zip(LAST, BETA_LAST)])
+    return plan
 
 
 def main() -> int:
@@ -542,6 +618,8 @@ def main() -> int:
     s.add_argument("--repo", required=True)
     s.add_argument("--sign", required=True, help="PEM ed25519 private key (the release key)")
     s.add_argument("--update", action="append", default=[], help="an update_pkg.py package INTO this release (repeatable)")
+    s.add_argument("--prev", help="the previously staged folder: its chain of daily updates is kept and this release's hop is appended (CHAIN_MAX hops)")
+    s.add_argument("--chain-max", type=int, default=CHAIN_MAX)
     s.add_argument("--test-key", action="store_true", help="the card says the copy is signed with a test key")
     s.add_argument("--counts", help="counts.json from `counts RELEASE_DIR`: the card's numbers")
     s.add_argument("--addons", help="the built add-ons (addon_build.py OUT/addons): the card keeps its Add-ons section; nothing of them is staged")
@@ -564,10 +642,16 @@ def main() -> int:
     u.add_argument("--token-file")
     u.add_argument("--public", action="store_true", help="create the repository public (default: private, made public by hand)")
     u.add_argument("--dry-run", action="store_true")
+    u.add_argument("--channel", choices=("stable", "beta"), default="stable",
+                   help="beta: send the release and move only latest-beta.json (the stable pointer stays); promote it later with `promote`")
+    pr = sub.add_parser("promote", help="make the beta release the stable one: latest.json := latest-beta.json (one commit; nothing is uploaded)")
+    pr.add_argument("--repo", required=True)
+    pr.add_argument("--token-file", required=True)
+    pr.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     try:
         if a.cmd == "stage":
-            r = stage(a.publish, a.out, a.repo, a.sign, a.update, a.test_key, a.counts, a.addons or "")
+            r = stage(a.publish, a.out, a.repo, a.sign, a.update, a.test_key, a.counts, a.addons or "", a.prev, a.chain_max)
         elif a.cmd == "counts":
             r = counts(a.release)
         elif a.cmd == "card":
@@ -579,10 +663,12 @@ def main() -> int:
             return 0
         elif a.cmd == "check":
             r = check(a.out, a.pubkey)
+        elif a.cmd == "promote":
+            r = promote(a.repo, a.token_file, a.dry_run)
         else:
             if not a.dry_run and not a.token_file:
                 raise DatasetError("--token-file is needed (a file holding a write token; it is never printed)")
-            r = upload(a.out, a.repo, a.token_file, a.public, a.dry_run)
+            r = upload(a.out, a.repo, a.token_file, a.public, a.dry_run, a.channel)
     except (DatasetError, inst.InstallError) as e:
         print(f"refused: {e}", file=sys.stderr)
         return 2

@@ -1,0 +1,3997 @@
+{
+"note": "Stand-in catalogue for tests/unit/test-search-suggest-rank.sh: names, urls and monthly-search figures are made up to resemble the release (page titles as site names, duplicates, infrastructure hosts, obscure namesakes). 'prefixes' is also what eval-suggest-live.py asks a live engine.",
+"entities": [
+{
+"id": 1,
+"name": "Starbucks Coffee Company",
+"kind": "site",
+"url": "https://www.starbucks.com/",
+"domain": "starbucks.com",
+"demand": 40000000.0,
+"wiki": "Starbucks"
+},
+{
+"id": 2,
+"name": "Starbucks",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Starbucks",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Starbucks"
+},
+{
+"id": 3,
+"name": "Starbucks Reserve",
+"kind": "site",
+"url": "https://www.reserve.starbucks.com/",
+"domain": "reserve.starbucks.com",
+"demand": 9000.0,
+"wiki": "Starbucks Reserve"
+},
+{
+"id": 4,
+"name": "Starbreeze Studios",
+"kind": "site",
+"url": "https://www.starbreeze.com/",
+"domain": "starbreeze.com",
+"demand": 4000.0,
+"wiki": "Starbreeze Studios"
+},
+{
+"id": 5,
+"name": "Starburst (confectionery)",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Starburst_(confectionery)",
+"domain": null,
+"demand": 300000.0,
+"wiki": "Starburst (confectionery)"
+},
+{
+"id": 6,
+"name": "Star Bonifacio Echeverria",
+"kind": "site",
+"url": "https://www.star-firearms.com/",
+"domain": "star-firearms.com",
+"demand": 30,
+"wiki": "Star Bonifacio Echeverria"
+},
+{
+"id": 7,
+"name": "Star Wars",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Star_Wars",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "Star Wars"
+},
+{
+"id": 8,
+"name": "Starlink",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Starlink",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "Starlink"
+},
+{
+"id": 9,
+"name": "StarCraft",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/StarCraft",
+"domain": null,
+"demand": 900000.0,
+"wiki": "StarCraft"
+},
+{
+"id": 10,
+"name": "Star Tribune",
+"kind": "site",
+"url": "https://www.startribune.com/",
+"domain": "startribune.com",
+"demand": 1200000.0,
+"wiki": "Star Tribune"
+},
+{
+"id": 11,
+"name": "Google Search",
+"kind": "site",
+"url": "https://www.google.com/",
+"domain": "google.com",
+"demand": 8000000000.0,
+"wiki": "Google"
+},
+{
+"id": 12,
+"name": "Google",
+"kind": "site",
+"url": "https://www.about.google/",
+"domain": "about.google",
+"demand": 200000.0,
+"wiki": "Google"
+},
+{
+"id": 13,
+"name": "Google",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Google",
+"domain": null,
+"demand": 15000000.0,
+"wiki": "Google"
+},
+{
+"id": 14,
+"name": "googleapis.com",
+"kind": "site",
+"url": "https://www.googleapis.com/",
+"domain": "googleapis.com",
+"demand": 400000.0,
+"wiki": "googleapis.com"
+},
+{
+"id": 15,
+"name": "Google Books: Find, Preview, and Read Books Online.",
+"kind": "site",
+"url": "https://www.books.google.com/",
+"domain": "books.google.com",
+"demand": 600000.0,
+"wiki": "Google Books"
+},
+{
+"id": 16,
+"name": "Google Assistant, your own personal Google",
+"kind": "site",
+"url": "https://www.assistant.google.com/",
+"domain": "assistant.google.com",
+"demand": 300000.0,
+"wiki": "Google Assistant"
+},
+{
+"id": 17,
+"name": "Google Pixel",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Google_Pixel",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Google Pixel"
+},
+{
+"id": 18,
+"name": "Google Maps",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Google_Maps",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Google Maps"
+},
+{
+"id": 19,
+"name": "Google Docs",
+"kind": "site",
+"url": "https://www.docs.google.com/",
+"domain": "docs.google.com",
+"demand": 3000000.0,
+"wiki": "Google Docs"
+},
+{
+"id": 20,
+"name": "Google Drive",
+"kind": "site",
+"url": "https://www.drive.google.com/",
+"domain": "drive.google.com",
+"demand": 4000000.0,
+"wiki": "Google Drive"
+},
+{
+"id": 21,
+"name": "Google Translate",
+"kind": "site",
+"url": "https://www.translate.google.com/",
+"domain": "translate.google.com",
+"demand": 6000000.0,
+"wiki": "Google Translate"
+},
+{
+"id": 22,
+"name": "Google Earth",
+"kind": "site",
+"url": "https://www.earth.google.com/",
+"domain": "earth.google.com",
+"demand": 900000.0,
+"wiki": "Google Earth"
+},
+{
+"id": 23,
+"name": "Chevrolet",
+"kind": "site",
+"url": "https://www.chevrolet.com/",
+"domain": "chevrolet.com",
+"demand": 6000000.0,
+"wiki": "Chevrolet"
+},
+{
+"id": 24,
+"name": "Chevrolet",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chevrolet",
+"domain": null,
+"demand": 1500000.0,
+"wiki": "Chevrolet"
+},
+{
+"id": 25,
+"name": "Chevron Corporation",
+"kind": "site",
+"url": "https://www.chevron.com/",
+"domain": "chevron.com",
+"demand": 900000.0,
+"wiki": "Chevron Corporation"
+},
+{
+"id": 26,
+"name": "Chevron Corporation",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chevron_Corporation",
+"domain": null,
+"demand": 400000.0,
+"wiki": "Chevron Corporation"
+},
+{
+"id": 27,
+"name": "Chevrolet Silverado",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chevrolet_Silverado",
+"domain": null,
+"demand": 900000.0,
+"wiki": "Chevrolet Silverado"
+},
+{
+"id": 28,
+"name": "Chevrolet Camaro",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chevrolet_Camaro",
+"domain": null,
+"demand": 800000.0,
+"wiki": "Chevrolet Camaro"
+},
+{
+"id": 29,
+"name": "Chevrolet Corvette",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chevrolet_Corvette",
+"domain": null,
+"demand": 1100000.0,
+"wiki": "Chevrolet Corvette"
+},
+{
+"id": 30,
+"name": "Chevrolet Impala",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chevrolet_Impala",
+"domain": null,
+"demand": 300000.0,
+"wiki": "Chevrolet Impala"
+},
+{
+"id": 31,
+"name": "Chevron Cars Ltd",
+"kind": "site",
+"url": "https://www.chevroncars.co.uk/",
+"domain": "chevroncars.co.uk",
+"demand": 60,
+"wiki": "Chevron Cars Ltd"
+},
+{
+"id": 32,
+"name": "Amazon.com: Online Shopping for Electronics, Apparel, Computers, Books, DVDs & more",
+"kind": "site",
+"url": "https://www.amazon.com/",
+"domain": "amazon.com",
+"demand": 2000000000.0,
+"wiki": "Amazon"
+},
+{
+"id": 33,
+"name": "Amazon",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Amazon",
+"domain": null,
+"demand": 8000000.0,
+"wiki": "Amazon"
+},
+{
+"id": 34,
+"name": "Amazon Prime",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Amazon_Prime",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Amazon Prime"
+},
+{
+"id": 35,
+"name": "Amazon Web Services",
+"kind": "site",
+"url": "https://www.aws.amazon.com/",
+"domain": "aws.amazon.com",
+"demand": 4000000.0,
+"wiki": "Amazon Web Services"
+},
+{
+"id": 36,
+"name": "amazonaws.com",
+"kind": "site",
+"url": "https://www.amazonaws.com/",
+"domain": "amazonaws.com",
+"demand": 300000.0,
+"wiki": "amazonaws.com"
+},
+{
+"id": 37,
+"name": "Amazon Alexa",
+"kind": "site",
+"url": "https://www.alexa.amazon.com/",
+"domain": "alexa.amazon.com",
+"demand": 800000.0,
+"wiki": "Amazon Alexa"
+},
+{
+"id": 38,
+"name": "Facebook - log in or sign up",
+"kind": "site",
+"url": "https://www.facebook.com/",
+"domain": "facebook.com",
+"demand": 900000000.0,
+"wiki": "Facebook"
+},
+{
+"id": 39,
+"name": "Facebook",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Facebook",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Facebook"
+},
+{
+"id": 40,
+"name": "Facebook Messenger",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Facebook_Messenger",
+"domain": null,
+"demand": 1000000.0,
+"wiki": "Facebook Messenger"
+},
+{
+"id": 41,
+"name": "Fandango",
+"kind": "site",
+"url": "https://www.fandango.com/",
+"domain": "fandango.com",
+"demand": 1500000.0,
+"wiki": "Fandango"
+},
+{
+"id": 42,
+"name": "Faceapp",
+"kind": "site",
+"url": "https://www.faceapp.com/",
+"domain": "faceapp.com",
+"demand": 200000.0,
+"wiki": "Faceapp"
+},
+{
+"id": 43,
+"name": "Nike",
+"kind": "site",
+"url": "https://www.nike.com/",
+"domain": "nike.com",
+"demand": 200000000.0,
+"wiki": "Nike"
+},
+{
+"id": 44,
+"name": "Nike, Inc.",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Nike,_Inc.",
+"domain": null,
+"demand": 900000.0,
+"wiki": "Nike, Inc."
+},
+{
+"id": 45,
+"name": "Nike Factory Store",
+"kind": "site",
+"url": "https://www.nike.com/factory/",
+"domain": "nike.com/factory",
+"demand": 50000.0,
+"wiki": "Nike Factory Store"
+},
+{
+"id": 46,
+"name": "Nikon",
+"kind": "site",
+"url": "https://www.nikon.com/",
+"domain": "nikon.com",
+"demand": 3000000.0,
+"wiki": "Nikon"
+},
+{
+"id": 47,
+"name": "Adidas",
+"kind": "site",
+"url": "https://www.adidas.com/",
+"domain": "adidas.com",
+"demand": 90000000.0,
+"wiki": "Adidas"
+},
+{
+"id": 48,
+"name": "Adidas",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Adidas",
+"domain": null,
+"demand": 1200000.0,
+"wiki": "Adidas"
+},
+{
+"id": 49,
+"name": "Adient",
+"kind": "site",
+"url": "https://www.adient.com/",
+"domain": "adient.com",
+"demand": 80000.0,
+"wiki": "Adient"
+},
+{
+"id": 50,
+"name": "Apple",
+"kind": "site",
+"url": "https://www.apple.com/",
+"domain": "apple.com",
+"demand": 300000000.0,
+"wiki": "Apple"
+},
+{
+"id": 51,
+"name": "Apple Inc.",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Apple_Inc.",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "Apple Inc."
+},
+{
+"id": 52,
+"name": "Apple (fruit)",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Apple",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Apple (fruit)"
+},
+{
+"id": 53,
+"name": "Apple Music",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Apple_Music",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Apple Music"
+},
+{
+"id": 54,
+"name": "Apple Store",
+"kind": "site",
+"url": "https://www.apple.com/retail/",
+"domain": "apple.com/retail",
+"demand": 100000.0,
+"wiki": "Apple Store"
+},
+{
+"id": 55,
+"name": "Applebee's",
+"kind": "site",
+"url": "https://www.applebees.com/",
+"domain": "applebees.com",
+"demand": 5000000.0,
+"wiki": "Applebee's"
+},
+{
+"id": 56,
+"name": "Apple Valley",
+"kind": "site",
+"url": "https://www.applevalley.org/",
+"domain": "applevalley.org",
+"demand": 3000.0,
+"wiki": "Apple Valley"
+},
+{
+"id": 57,
+"name": "Microsoft – Cloud, Computers, Apps & Gaming",
+"kind": "site",
+"url": "https://www.microsoft.com/",
+"domain": "microsoft.com",
+"demand": 200000000.0,
+"wiki": "Microsoft"
+},
+{
+"id": 58,
+"name": "Microsoft",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Microsoft",
+"domain": null,
+"demand": 8000000.0,
+"wiki": "Microsoft"
+},
+{
+"id": 59,
+"name": "Microsoft Word",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Microsoft_Word",
+"domain": null,
+"demand": 1500000.0,
+"wiki": "Microsoft Word"
+},
+{
+"id": 60,
+"name": "Microsoft Teams",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Microsoft_Teams",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Microsoft Teams"
+},
+{
+"id": 61,
+"name": "Microsoft Edge",
+"kind": "site",
+"url": "https://www.microsoftedge.com/",
+"domain": "microsoftedge.com",
+"demand": 1200000.0,
+"wiki": "Microsoft Edge"
+},
+{
+"id": 62,
+"name": "Micron",
+"kind": "site",
+"url": "https://www.micron.com/",
+"domain": "micron.com",
+"demand": 1500000.0,
+"wiki": "Micron"
+},
+{
+"id": 63,
+"name": "Michaels",
+"kind": "site",
+"url": "https://www.michaels.com/",
+"domain": "michaels.com",
+"demand": 9000000.0,
+"wiki": "Michaels"
+},
+{
+"id": 64,
+"name": "Netflix",
+"kind": "site",
+"url": "https://www.netflix.com/",
+"domain": "netflix.com",
+"demand": 1500000000.0,
+"wiki": "Netflix"
+},
+{
+"id": 65,
+"name": "Netflix",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Netflix",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Netflix"
+},
+{
+"id": 66,
+"name": "Netflix Jobs",
+"kind": "site",
+"url": "https://www.jobs.netflix.com/",
+"domain": "jobs.netflix.com",
+"demand": 40000.0,
+"wiki": "Netflix Jobs"
+},
+{
+"id": 67,
+"name": "Spotify",
+"kind": "site",
+"url": "https://www.spotify.com/",
+"domain": "spotify.com",
+"demand": 500000000.0,
+"wiki": "Spotify"
+},
+{
+"id": 68,
+"name": "Spotify",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Spotify",
+"domain": null,
+"demand": 4000000.0,
+"wiki": "Spotify"
+},
+{
+"id": 69,
+"name": "Spotify Open",
+"kind": "site",
+"url": "https://www.open.spotify.com/",
+"domain": "open.spotify.com",
+"demand": 9000000.0,
+"wiki": "Spotify Open"
+},
+{
+"id": 70,
+"name": "Spotlight",
+"kind": "site",
+"url": "https://www.spotlight.com/",
+"domain": "spotlight.com",
+"demand": 4000.0,
+"wiki": "Spotlight"
+},
+{
+"id": 71,
+"name": "Walmart",
+"kind": "site",
+"url": "https://www.walmart.com/",
+"domain": "walmart.com",
+"demand": 500000000.0,
+"wiki": "Walmart"
+},
+{
+"id": 72,
+"name": "Walmart",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Walmart",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Walmart"
+},
+{
+"id": 73,
+"name": "Walgreens",
+"kind": "site",
+"url": "https://www.walgreens.com/",
+"domain": "walgreens.com",
+"demand": 120000000.0,
+"wiki": "Walgreens"
+},
+{
+"id": 74,
+"name": "Walgreens",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Walgreens",
+"domain": null,
+"demand": 1000000.0,
+"wiki": "Walgreens"
+},
+{
+"id": 75,
+"name": "Wayfair",
+"kind": "site",
+"url": "https://www.wayfair.com/",
+"domain": "wayfair.com",
+"demand": 40000000.0,
+"wiki": "Wayfair"
+},
+{
+"id": 76,
+"name": "Walton's Mountain",
+"kind": "site",
+"url": "https://www.waltons.org/",
+"domain": "waltons.org",
+"demand": 90,
+"wiki": "Walton's Mountain"
+},
+{
+"id": 77,
+"name": "Target",
+"kind": "site",
+"url": "https://www.target.com/",
+"domain": "target.com",
+"demand": 400000000.0,
+"wiki": "Target"
+},
+{
+"id": 78,
+"name": "Target Corporation",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Target_Corporation",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Target Corporation"
+},
+{
+"id": 79,
+"name": "Target Corporation",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Target_Corporation_2",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Target Corporation"
+},
+{
+"id": 80,
+"name": "Targus",
+"kind": "site",
+"url": "https://www.targus.com/",
+"domain": "targus.com",
+"demand": 150000.0,
+"wiki": "Targus"
+},
+{
+"id": 81,
+"name": "Costco",
+"kind": "site",
+"url": "https://www.costco.com/",
+"domain": "costco.com",
+"demand": 300000000.0,
+"wiki": "Costco"
+},
+{
+"id": 82,
+"name": "Costco",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Costco",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Costco"
+},
+{
+"id": 83,
+"name": "Costco Travel",
+"kind": "site",
+"url": "https://www.costcotravel.com/",
+"domain": "costcotravel.com",
+"demand": 600000.0,
+"wiki": "Costco Travel"
+},
+{
+"id": 84,
+"name": "Cosmopolitan",
+"kind": "site",
+"url": "https://www.cosmopolitan.com/",
+"domain": "cosmopolitan.com",
+"demand": 2000000.0,
+"wiki": "Cosmopolitan"
+},
+{
+"id": 85,
+"name": "Costa Coffee",
+"kind": "site",
+"url": "https://www.costa.co.uk/",
+"domain": "costa.co.uk",
+"demand": 2000000.0,
+"wiki": "Costa Coffee"
+},
+{
+"id": 86,
+"name": "The Home Depot: More Saving. More Doing.",
+"kind": "site",
+"url": "https://www.homedepot.com/",
+"domain": "homedepot.com",
+"demand": 200000000.0,
+"wiki": "The Home Depot"
+},
+{
+"id": 87,
+"name": "The Home Depot",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/The_Home_Depot",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "The Home Depot"
+},
+{
+"id": 88,
+"name": "Home Chef",
+"kind": "site",
+"url": "https://www.homechef.com/",
+"domain": "homechef.com",
+"demand": 1000000.0,
+"wiki": "Home Chef"
+},
+{
+"id": 89,
+"name": "HomeAdvisor",
+"kind": "site",
+"url": "https://www.homeadvisor.com/",
+"domain": "homeadvisor.com",
+"demand": 10000000.0,
+"wiki": "HomeAdvisor"
+},
+{
+"id": 90,
+"name": "Homes.com",
+"kind": "site",
+"url": "https://www.homes.com/",
+"domain": "homes.com",
+"demand": 9000000.0,
+"wiki": "Homes.com"
+},
+{
+"id": 91,
+"name": "Lowe's",
+"kind": "site",
+"url": "https://www.lowes.com/",
+"domain": "lowes.com",
+"demand": 150000000.0,
+"wiki": "Lowe's"
+},
+{
+"id": 92,
+"name": "Lowe's",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Lowe's",
+"domain": null,
+"demand": 1500000.0,
+"wiki": "Lowe's"
+},
+{
+"id": 93,
+"name": "Lowell Sun",
+"kind": "site",
+"url": "https://www.lowellsun.com/",
+"domain": "lowellsun.com",
+"demand": 90000.0,
+"wiki": "Lowell Sun"
+},
+{
+"id": 94,
+"name": "Best Buy",
+"kind": "site",
+"url": "https://www.bestbuy.com/",
+"domain": "bestbuy.com",
+"demand": 200000000.0,
+"wiki": "Best Buy"
+},
+{
+"id": 95,
+"name": "Best Buy",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Best_Buy",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Best Buy"
+},
+{
+"id": 96,
+"name": "Bestcovery",
+"kind": "site",
+"url": "https://www.bestcovery.com/",
+"domain": "bestcovery.com",
+"demand": 50,
+"wiki": "Bestcovery"
+},
+{
+"id": 97,
+"name": "FedEx",
+"kind": "site",
+"url": "https://www.fedex.com/",
+"domain": "fedex.com",
+"demand": 90000000.0,
+"wiki": "FedEx"
+},
+{
+"id": 98,
+"name": "FedEx",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/FedEx",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "FedEx"
+},
+{
+"id": 99,
+"name": "Fedora Project",
+"kind": "site",
+"url": "https://www.fedoraproject.org/",
+"domain": "fedoraproject.org",
+"demand": 400000.0,
+"wiki": "Fedora Project"
+},
+{
+"id": 100,
+"name": "PayPal",
+"kind": "site",
+"url": "https://www.paypal.com/",
+"domain": "paypal.com",
+"demand": 300000000.0,
+"wiki": "PayPal"
+},
+{
+"id": 101,
+"name": "PayPal",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/PayPal",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "PayPal"
+},
+{
+"id": 102,
+"name": "Payoneer",
+"kind": "site",
+"url": "https://www.payoneer.com/",
+"domain": "payoneer.com",
+"demand": 2000000.0,
+"wiki": "Payoneer"
+},
+{
+"id": 103,
+"name": "Chase Online - Sign In",
+"kind": "site",
+"url": "https://www.chase.com/",
+"domain": "chase.com",
+"demand": 200000000.0,
+"wiki": "Chase"
+},
+{
+"id": 104,
+"name": "JPMorgan Chase",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/JPMorgan_Chase",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "JPMorgan Chase"
+},
+{
+"id": 105,
+"name": "Chase Sapphire",
+"kind": "site",
+"url": "https://www.creditcards.chase.com/",
+"domain": "creditcards.chase.com",
+"demand": 2000000.0,
+"wiki": "Chase Sapphire"
+},
+{
+"id": 106,
+"name": "Chaser",
+"kind": "site",
+"url": "https://www.chaser.com/",
+"domain": "chaser.com",
+"demand": 900,
+"wiki": "Chaser"
+},
+{
+"id": 107,
+"name": "Wells Fargo",
+"kind": "site",
+"url": "https://www.wellsfargo.com/",
+"domain": "wellsfargo.com",
+"demand": 300000000.0,
+"wiki": "Wells Fargo"
+},
+{
+"id": 108,
+"name": "Wells Fargo",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Wells_Fargo",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Wells Fargo"
+},
+{
+"id": 109,
+"name": "Wells Real Estate",
+"kind": "site",
+"url": "https://www.wellsre.com/",
+"domain": "wellsre.com",
+"demand": 400,
+"wiki": "Wells Real Estate"
+},
+{
+"id": 110,
+"name": "Bank of America",
+"kind": "site",
+"url": "https://www.bankofamerica.com/",
+"domain": "bankofamerica.com",
+"demand": 300000000.0,
+"wiki": "Bank of America"
+},
+{
+"id": 111,
+"name": "Bank of America",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Bank_of_America",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Bank of America"
+},
+{
+"id": 112,
+"name": "Banco Santander",
+"kind": "site",
+"url": "https://www.santander.com/",
+"domain": "santander.com",
+"demand": 2000000.0,
+"wiki": "Banco Santander"
+},
+{
+"id": 113,
+"name": "Bank of Tokyo",
+"kind": "site",
+"url": "https://www.bk.mufg.jp/",
+"domain": "bk.mufg.jp",
+"demand": 40000.0,
+"wiki": "Bank of Tokyo"
+},
+{
+"id": 114,
+"name": "Citibank",
+"kind": "site",
+"url": "https://www.citi.com/",
+"domain": "citi.com",
+"demand": 90000000.0,
+"wiki": "Citibank"
+},
+{
+"id": 115,
+"name": "Citigroup",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Citigroup",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Citigroup"
+},
+{
+"id": 116,
+"name": "Citrix",
+"kind": "site",
+"url": "https://www.citrix.com/",
+"domain": "citrix.com",
+"demand": 3000000.0,
+"wiki": "Citrix"
+},
+{
+"id": 117,
+"name": "McDonald's",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/McDonald's",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "McDonald's"
+},
+{
+"id": 118,
+"name": "McDonald's",
+"kind": "site",
+"url": "https://www.mcdonalds.com/",
+"domain": "mcdonalds.com",
+"demand": 200000000.0,
+"wiki": "McDonald's"
+},
+{
+"id": 119,
+"name": "McDonough County",
+"kind": "site",
+"url": "https://www.mcdonough.il.us/",
+"domain": "mcdonough.il.us",
+"demand": 900,
+"wiki": "McDonough County"
+},
+{
+"id": 120,
+"name": "McDonnell Douglas",
+"kind": "site",
+"url": "https://www.mcdonnell.com/",
+"domain": "mcdonnell.com",
+"demand": 10000.0,
+"wiki": "McDonnell Douglas"
+},
+{
+"id": 121,
+"name": "Burger King",
+"kind": "site",
+"url": "https://www.burgerking.com/",
+"domain": "burgerking.com",
+"demand": 90000000.0,
+"wiki": "Burger King"
+},
+{
+"id": 122,
+"name": "Burger King",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Burger_King",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Burger King"
+},
+{
+"id": 123,
+"name": "Burgerville",
+"kind": "site",
+"url": "https://www.burgerville.com/",
+"domain": "burgerville.com",
+"demand": 300000.0,
+"wiki": "Burgerville"
+},
+{
+"id": 124,
+"name": "Wendy's",
+"kind": "site",
+"url": "https://www.wendys.com/",
+"domain": "wendys.com",
+"demand": 90000000.0,
+"wiki": "Wendy's"
+},
+{
+"id": 125,
+"name": "Wendy's",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Wendy's",
+"domain": null,
+"demand": 1500000.0,
+"wiki": "Wendy's"
+},
+{
+"id": 126,
+"name": "Wendell Berry",
+"kind": "site",
+"url": "https://www.wendellberry.com/",
+"domain": "wendellberry.com",
+"demand": 2000.0,
+"wiki": "Wendell Berry"
+},
+{
+"id": 127,
+"name": "Taco Bell",
+"kind": "site",
+"url": "https://www.tacobell.com/",
+"domain": "tacobell.com",
+"demand": 90000000.0,
+"wiki": "Taco Bell"
+},
+{
+"id": 128,
+"name": "Taco Bell",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Taco_Bell",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Taco Bell"
+},
+{
+"id": 129,
+"name": "Tacoma Public Library",
+"kind": "site",
+"url": "https://www.tacomalibrary.org/",
+"domain": "tacomalibrary.org",
+"demand": 80000.0,
+"wiki": "Tacoma Public Library"
+},
+{
+"id": 130,
+"name": "Pizza Hut",
+"kind": "site",
+"url": "https://www.pizzahut.com/",
+"domain": "pizzahut.com",
+"demand": 100000000.0,
+"wiki": "Pizza Hut"
+},
+{
+"id": 131,
+"name": "Pizza Hut",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Pizza_Hut",
+"domain": null,
+"demand": 1500000.0,
+"wiki": "Pizza Hut"
+},
+{
+"id": 132,
+"name": "Pizza Inn",
+"kind": "site",
+"url": "https://www.pizzainn.com/",
+"domain": "pizzainn.com",
+"demand": 30000.0,
+"wiki": "Pizza Inn"
+},
+{
+"id": 133,
+"name": "Dunkin'",
+"kind": "site",
+"url": "https://www.dunkindonuts.com/",
+"domain": "dunkindonuts.com",
+"demand": 100000000.0,
+"wiki": "Dunkin'"
+},
+{
+"id": 134,
+"name": "Dunkin'",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Dunkin'",
+"domain": null,
+"demand": 1500000.0,
+"wiki": "Dunkin'"
+},
+{
+"id": 135,
+"name": "Dunk Tank",
+"kind": "site",
+"url": "https://www.dunktank.com/",
+"domain": "dunktank.com",
+"demand": 120,
+"wiki": "Dunk Tank"
+},
+{
+"id": 136,
+"name": "Subway",
+"kind": "site",
+"url": "https://www.subway.com/",
+"domain": "subway.com",
+"demand": 120000000.0,
+"wiki": "Subway"
+},
+{
+"id": 137,
+"name": "Subway (restaurant)",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Subway_(restaurant)",
+"domain": null,
+"demand": 1000000.0,
+"wiki": "Subway (restaurant)"
+},
+{
+"id": 138,
+"name": "Subway Surfers",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Subway_Surfers",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Subway Surfers"
+},
+{
+"id": 139,
+"name": "Subway Surfers",
+"kind": "site",
+"url": "https://www.subwaysurfers.com/",
+"domain": "subwaysurfers.com",
+"demand": 800000.0,
+"wiki": "Subway Surfers"
+},
+{
+"id": 140,
+"name": "Tesla",
+"kind": "site",
+"url": "https://www.tesla.com/",
+"domain": "tesla.com",
+"demand": 200000000.0,
+"wiki": "Tesla"
+},
+{
+"id": 141,
+"name": "Tesla, Inc.",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Tesla,_Inc.",
+"domain": null,
+"demand": 8000000.0,
+"wiki": "Tesla, Inc."
+},
+{
+"id": 142,
+"name": "Nikola Tesla",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Nikola_Tesla",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Nikola Tesla"
+},
+{
+"id": 143,
+"name": "Tessitura",
+"kind": "site",
+"url": "https://www.tessitura.com/",
+"domain": "tessitura.com",
+"demand": 5000.0,
+"wiki": "Tessitura"
+},
+{
+"id": 144,
+"name": "Toyota",
+"kind": "site",
+"url": "https://www.toyota.com/",
+"domain": "toyota.com",
+"demand": 150000000.0,
+"wiki": "Toyota"
+},
+{
+"id": 145,
+"name": "Toyota",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Toyota",
+"domain": null,
+"demand": 4000000.0,
+"wiki": "Toyota"
+},
+{
+"id": 146,
+"name": "Toyota Camry",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Toyota_Camry",
+"domain": null,
+"demand": 1200000.0,
+"wiki": "Toyota Camry"
+},
+{
+"id": 147,
+"name": "Toyota Financial",
+"kind": "site",
+"url": "https://www.toyotafinancial.com/",
+"domain": "toyotafinancial.com",
+"demand": 2000000.0,
+"wiki": "Toyota Financial"
+},
+{
+"id": 148,
+"name": "Toyo Tires",
+"kind": "site",
+"url": "https://www.toyotires.com/",
+"domain": "toyotires.com",
+"demand": 600000.0,
+"wiki": "Toyo Tires"
+},
+{
+"id": 149,
+"name": "Honda",
+"kind": "site",
+"url": "https://www.honda.com/",
+"domain": "honda.com",
+"demand": 120000000.0,
+"wiki": "Honda"
+},
+{
+"id": 150,
+"name": "Honda",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Honda",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Honda"
+},
+{
+"id": 151,
+"name": "Honda Civic",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Honda_Civic",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Honda Civic"
+},
+{
+"id": 152,
+"name": "Hondros College",
+"kind": "site",
+"url": "https://www.hondros.com/",
+"domain": "hondros.com",
+"demand": 900,
+"wiki": "Hondros College"
+},
+{
+"id": 153,
+"name": "BMW",
+"kind": "site",
+"url": "https://www.bmw.com/",
+"domain": "bmw.com",
+"demand": 90000000.0,
+"wiki": "BMW"
+},
+{
+"id": 154,
+"name": "BMW",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/BMW",
+"domain": null,
+"demand": 4000000.0,
+"wiki": "BMW"
+},
+{
+"id": 155,
+"name": "BMW Financial Services",
+"kind": "site",
+"url": "https://www.bmwfs.com/",
+"domain": "bmwfs.com",
+"demand": 500000.0,
+"wiki": "BMW Financial Services"
+},
+{
+"id": 156,
+"name": "Ford",
+"kind": "site",
+"url": "https://www.ford.com/",
+"domain": "ford.com",
+"demand": 150000000.0,
+"wiki": "Ford"
+},
+{
+"id": 157,
+"name": "Ford Motor Company",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Ford_Motor_Company",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Ford Motor Company"
+},
+{
+"id": 158,
+"name": "Ford Mustang",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Ford_Mustang",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Ford Mustang"
+},
+{
+"id": 159,
+"name": "Ford Models",
+"kind": "site",
+"url": "https://www.fordmodels.com/",
+"domain": "fordmodels.com",
+"demand": 200000.0,
+"wiki": "Ford Models"
+},
+{
+"id": 160,
+"name": "Samsung",
+"kind": "site",
+"url": "https://www.samsung.com/",
+"domain": "samsung.com",
+"demand": 300000000.0,
+"wiki": "Samsung"
+},
+{
+"id": 161,
+"name": "Samsung",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Samsung",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "Samsung"
+},
+{
+"id": 162,
+"name": "Samsung Galaxy",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Samsung_Galaxy",
+"domain": null,
+"demand": 4000000.0,
+"wiki": "Samsung Galaxy"
+},
+{
+"id": 163,
+"name": "Samsonite",
+"kind": "site",
+"url": "https://www.samsonite.com/",
+"domain": "samsonite.com",
+"demand": 3000000.0,
+"wiki": "Samsonite"
+},
+{
+"id": 164,
+"name": "Sony",
+"kind": "site",
+"url": "https://www.sony.com/",
+"domain": "sony.com",
+"demand": 120000000.0,
+"wiki": "Sony"
+},
+{
+"id": 165,
+"name": "Sony",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Sony",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "Sony"
+},
+{
+"id": 166,
+"name": "Sony Pictures",
+"kind": "site",
+"url": "https://www.sonypictures.com/",
+"domain": "sonypictures.com",
+"demand": 3000000.0,
+"wiki": "Sony Pictures"
+},
+{
+"id": 167,
+"name": "Sonic Drive-In",
+"kind": "site",
+"url": "https://www.sonicdrivein.com/",
+"domain": "sonicdrivein.com",
+"demand": 30000000.0,
+"wiki": "Sonic Drive-In"
+},
+{
+"id": 168,
+"name": "Sonos",
+"kind": "site",
+"url": "https://www.sonos.com/",
+"domain": "sonos.com",
+"demand": 20000000.0,
+"wiki": "Sonos"
+},
+{
+"id": 169,
+"name": "Dell",
+"kind": "site",
+"url": "https://www.dell.com/",
+"domain": "dell.com",
+"demand": 200000000.0,
+"wiki": "Dell"
+},
+{
+"id": 170,
+"name": "Dell",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Dell",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Dell"
+},
+{
+"id": 171,
+"name": "Delta Air Lines",
+"kind": "site",
+"url": "https://www.delta.com/",
+"domain": "delta.com",
+"demand": 200000000.0,
+"wiki": "Delta Air Lines"
+},
+{
+"id": 172,
+"name": "Delta Air Lines",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Delta_Air_Lines",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Delta Air Lines"
+},
+{
+"id": 173,
+"name": "Delta Dental",
+"kind": "site",
+"url": "https://www.deltadental.com/",
+"domain": "deltadental.com",
+"demand": 15000000.0,
+"wiki": "Delta Dental"
+},
+{
+"id": 174,
+"name": "Delmonte",
+"kind": "site",
+"url": "https://www.delmonte.com/",
+"domain": "delmonte.com",
+"demand": 1000000.0,
+"wiki": "Delmonte"
+},
+{
+"id": 175,
+"name": "Nintendo",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Nintendo",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Nintendo"
+},
+{
+"id": 176,
+"name": "Nintendo",
+"kind": "site",
+"url": "https://www.nintendo.com/",
+"domain": "nintendo.com",
+"demand": 150000000.0,
+"wiki": "Nintendo"
+},
+{
+"id": 177,
+"name": "Nintendo Switch",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Nintendo_Switch",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "Nintendo Switch"
+},
+{
+"id": 178,
+"name": "Ninja Kiwi",
+"kind": "site",
+"url": "https://www.ninjakiwi.com/",
+"domain": "ninjakiwi.com",
+"demand": 400000.0,
+"wiki": "Ninja Kiwi"
+},
+{
+"id": 179,
+"name": "PlayStation",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/PlayStation",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "PlayStation"
+},
+{
+"id": 180,
+"name": "PlayStation",
+"kind": "site",
+"url": "https://www.playstation.com/",
+"domain": "playstation.com",
+"demand": 150000000.0,
+"wiki": "PlayStation"
+},
+{
+"id": 181,
+"name": "PlayStation 5",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/PlayStation_5",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "PlayStation 5"
+},
+{
+"id": 182,
+"name": "Playtika",
+"kind": "site",
+"url": "https://www.playtika.com/",
+"domain": "playtika.com",
+"demand": 200000.0,
+"wiki": "Playtika"
+},
+{
+"id": 183,
+"name": "Xbox",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Xbox",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Xbox"
+},
+{
+"id": 184,
+"name": "Xbox",
+"kind": "site",
+"url": "https://www.xbox.com/",
+"domain": "xbox.com",
+"demand": 150000000.0,
+"wiki": "Xbox"
+},
+{
+"id": 185,
+"name": "Xbox Series X and Series S",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Xbox_Series_X_and_Series_S",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Xbox Series X and Series S"
+},
+{
+"id": 186,
+"name": "Instagram",
+"kind": "site",
+"url": "https://www.instagram.com/",
+"domain": "instagram.com",
+"demand": 1500000000.0,
+"wiki": "Instagram"
+},
+{
+"id": 187,
+"name": "Instagram",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Instagram",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "Instagram"
+},
+{
+"id": 188,
+"name": "Instacart",
+"kind": "site",
+"url": "https://www.instacart.com/",
+"domain": "instacart.com",
+"demand": 60000000.0,
+"wiki": "Instacart"
+},
+{
+"id": 189,
+"name": "YouTube",
+"kind": "site",
+"url": "https://www.youtube.com/",
+"domain": "youtube.com",
+"demand": 3000000000.0,
+"wiki": "YouTube"
+},
+{
+"id": 190,
+"name": "YouTube",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/YouTube",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "YouTube"
+},
+{
+"id": 191,
+"name": "YouTube Music",
+"kind": "site",
+"url": "https://www.music.youtube.com/",
+"domain": "music.youtube.com",
+"demand": 10000000.0,
+"wiki": "YouTube Music"
+},
+{
+"id": 192,
+"name": "Youtube-dl",
+"kind": "site",
+"url": "https://www.youtube-dl.org/",
+"domain": "youtube-dl.org",
+"demand": 400000.0,
+"wiki": "Youtube-dl"
+},
+{
+"id": 193,
+"name": "LinkedIn",
+"kind": "site",
+"url": "https://www.linkedin.com/",
+"domain": "linkedin.com",
+"demand": 500000000.0,
+"wiki": "LinkedIn"
+},
+{
+"id": 194,
+"name": "LinkedIn",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/LinkedIn",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "LinkedIn"
+},
+{
+"id": 195,
+"name": "Linked Rail",
+"kind": "site",
+"url": "https://www.linkedrail.com/",
+"domain": "linkedrail.com",
+"demand": 90,
+"wiki": "Linked Rail"
+},
+{
+"id": 196,
+"name": "Reddit",
+"kind": "site",
+"url": "https://www.reddit.com/",
+"domain": "reddit.com",
+"demand": 1000000000.0,
+"wiki": "Reddit"
+},
+{
+"id": 197,
+"name": "Reddit",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Reddit",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "Reddit"
+},
+{
+"id": 198,
+"name": "Redfin",
+"kind": "site",
+"url": "https://www.redfin.com/",
+"domain": "redfin.com",
+"demand": 50000000.0,
+"wiki": "Redfin"
+},
+{
+"id": 199,
+"name": "Redbox",
+"kind": "site",
+"url": "https://www.redbox.com/",
+"domain": "redbox.com",
+"demand": 15000000.0,
+"wiki": "Redbox"
+},
+{
+"id": 200,
+"name": "Pinterest",
+"kind": "site",
+"url": "https://www.pinterest.com/",
+"domain": "pinterest.com",
+"demand": 700000000.0,
+"wiki": "Pinterest"
+},
+{
+"id": 201,
+"name": "Pinterest",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Pinterest",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Pinterest"
+},
+{
+"id": 202,
+"name": "Pintrest Pins",
+"kind": "site",
+"url": "https://www.pintrestpins.com/",
+"domain": "pintrestpins.com",
+"demand": 70,
+"wiki": "Pintrest Pins"
+},
+{
+"id": 203,
+"name": "TikTok",
+"kind": "site",
+"url": "https://www.tiktok.com/",
+"domain": "tiktok.com",
+"demand": 900000000.0,
+"wiki": "TikTok"
+},
+{
+"id": 204,
+"name": "TikTok",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/TikTok",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "TikTok"
+},
+{
+"id": 205,
+"name": "Tiktok Shop",
+"kind": "site",
+"url": "https://www.shop.tiktok.com/",
+"domain": "shop.tiktok.com",
+"demand": 3000000.0,
+"wiki": "Tiktok Shop"
+},
+{
+"id": 206,
+"name": "WhatsApp",
+"kind": "site",
+"url": "https://www.whatsapp.com/",
+"domain": "whatsapp.com",
+"demand": 900000000.0,
+"wiki": "WhatsApp"
+},
+{
+"id": 207,
+"name": "WhatsApp",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/WhatsApp",
+"domain": null,
+"demand": 8000000.0,
+"wiki": "WhatsApp"
+},
+{
+"id": 208,
+"name": "Whataburger",
+"kind": "site",
+"url": "https://www.whataburger.com/",
+"domain": "whataburger.com",
+"demand": 20000000.0,
+"wiki": "Whataburger"
+},
+{
+"id": 209,
+"name": "Zoom: One platform to connect",
+"kind": "site",
+"url": "https://www.zoom.us/",
+"domain": "zoom.us",
+"demand": 900000000.0,
+"wiki": "Zoom"
+},
+{
+"id": 210,
+"name": "Zoom Video Communications",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Zoom_Video_Communications",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Zoom Video Communications"
+},
+{
+"id": 211,
+"name": "Zoo Atlanta",
+"kind": "site",
+"url": "https://www.zooatlanta.org/",
+"domain": "zooatlanta.org",
+"demand": 500000.0,
+"wiki": "Zoo Atlanta"
+},
+{
+"id": 212,
+"name": "Slack",
+"kind": "site",
+"url": "https://www.slack.com/",
+"domain": "slack.com",
+"demand": 300000000.0,
+"wiki": "Slack"
+},
+{
+"id": 213,
+"name": "Slack (software)",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Slack_(software)",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Slack (software)"
+},
+{
+"id": 214,
+"name": "Slacker",
+"kind": "site",
+"url": "https://www.slacker.com/",
+"domain": "slacker.com",
+"demand": 90000.0,
+"wiki": "Slacker"
+},
+{
+"id": 215,
+"name": "Dropbox",
+"kind": "site",
+"url": "https://www.dropbox.com/",
+"domain": "dropbox.com",
+"demand": 300000000.0,
+"wiki": "Dropbox"
+},
+{
+"id": 216,
+"name": "Dropbox",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Dropbox",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Dropbox"
+},
+{
+"id": 217,
+"name": "Dropkick Murphys",
+"kind": "site",
+"url": "https://www.dropkickmurphys.com/",
+"domain": "dropkickmurphys.com",
+"demand": 300000.0,
+"wiki": "Dropkick Murphys"
+},
+{
+"id": 218,
+"name": "GitHub",
+"kind": "site",
+"url": "https://www.github.com/",
+"domain": "github.com",
+"demand": 900000000.0,
+"wiki": "GitHub"
+},
+{
+"id": 219,
+"name": "GitHub",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/GitHub",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "GitHub"
+},
+{
+"id": 220,
+"name": "Gitlab",
+"kind": "site",
+"url": "https://www.gitlab.com/",
+"domain": "gitlab.com",
+"demand": 100000000.0,
+"wiki": "Gitlab"
+},
+{
+"id": 221,
+"name": "github.io",
+"kind": "site",
+"url": "https://www.github.io/",
+"domain": "github.io",
+"demand": 500000.0,
+"wiki": "github.io"
+},
+{
+"id": 222,
+"name": "Stack Overflow",
+"kind": "site",
+"url": "https://www.stackoverflow.com/",
+"domain": "stackoverflow.com",
+"demand": 900000000.0,
+"wiki": "Stack Overflow"
+},
+{
+"id": 223,
+"name": "Stack Overflow",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Stack_Overflow",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Stack Overflow"
+},
+{
+"id": 224,
+"name": "Stackpath",
+"kind": "site",
+"url": "https://www.stackpath.com/",
+"domain": "stackpath.com",
+"demand": 300000.0,
+"wiki": "Stackpath"
+},
+{
+"id": 225,
+"name": "Wikipedia",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Wikipedia",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "Wikipedia"
+},
+{
+"id": 226,
+"name": "Wikipedia",
+"kind": "site",
+"url": "https://www.wikipedia.org/",
+"domain": "wikipedia.org",
+"demand": 900000000.0,
+"wiki": "Wikipedia"
+},
+{
+"id": 227,
+"name": "Wikimedia Commons",
+"kind": "site",
+"url": "https://www.commons.wikimedia.org/",
+"domain": "commons.wikimedia.org",
+"demand": 6000000.0,
+"wiki": "Wikimedia Commons"
+},
+{
+"id": 228,
+"name": "IMDb",
+"kind": "site",
+"url": "https://www.imdb.com/",
+"domain": "imdb.com",
+"demand": 900000000.0,
+"wiki": "IMDb"
+},
+{
+"id": 229,
+"name": "IMDb",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/IMDb",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "IMDb"
+},
+{
+"id": 230,
+"name": "eBay",
+"kind": "site",
+"url": "https://www.ebay.com/",
+"domain": "ebay.com",
+"demand": 900000000.0,
+"wiki": "eBay"
+},
+{
+"id": 231,
+"name": "EBay",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/EBay",
+"domain": null,
+"demand": 4000000.0,
+"wiki": "EBay"
+},
+{
+"id": 232,
+"name": "eBay Motors",
+"kind": "site",
+"url": "https://www.ebay.com/motors/",
+"domain": "ebay.com/motors",
+"demand": 10000000.0,
+"wiki": "eBay Motors"
+},
+{
+"id": 233,
+"name": "Etsy",
+"kind": "site",
+"url": "https://www.etsy.com/",
+"domain": "etsy.com",
+"demand": 300000000.0,
+"wiki": "Etsy"
+},
+{
+"id": 234,
+"name": "Etsy",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Etsy",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Etsy"
+},
+{
+"id": 235,
+"name": "Etsy Wholesale",
+"kind": "site",
+"url": "https://www.wholesale.etsy.com/",
+"domain": "wholesale.etsy.com",
+"demand": 10000.0,
+"wiki": "Etsy Wholesale"
+},
+{
+"id": 236,
+"name": "Craigslist",
+"kind": "site",
+"url": "https://www.craigslist.org/",
+"domain": "craigslist.org",
+"demand": 500000000.0,
+"wiki": "Craigslist"
+},
+{
+"id": 237,
+"name": "Craigslist",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Craigslist",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Craigslist"
+},
+{
+"id": 238,
+"name": "Yelp",
+"kind": "site",
+"url": "https://www.yelp.com/",
+"domain": "yelp.com",
+"demand": 300000000.0,
+"wiki": "Yelp"
+},
+{
+"id": 239,
+"name": "Yelp",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Yelp",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Yelp"
+},
+{
+"id": 240,
+"name": "Yellow Pages",
+"kind": "site",
+"url": "https://www.yellowpages.com/",
+"domain": "yellowpages.com",
+"demand": 50000000.0,
+"wiki": "Yellow Pages"
+},
+{
+"id": 241,
+"name": "Uber",
+"kind": "site",
+"url": "https://www.uber.com/",
+"domain": "uber.com",
+"demand": 400000000.0,
+"wiki": "Uber"
+},
+{
+"id": 242,
+"name": "Uber",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Uber",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "Uber"
+},
+{
+"id": 243,
+"name": "Uber Eats",
+"kind": "site",
+"url": "https://www.ubereats.com/",
+"domain": "ubereats.com",
+"demand": 150000000.0,
+"wiki": "Uber Eats"
+},
+{
+"id": 244,
+"name": "Lyft",
+"kind": "site",
+"url": "https://www.lyft.com/",
+"domain": "lyft.com",
+"demand": 150000000.0,
+"wiki": "Lyft"
+},
+{
+"id": 245,
+"name": "Lyft",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Lyft",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Lyft"
+},
+{
+"id": 246,
+"name": "Airbnb",
+"kind": "site",
+"url": "https://www.airbnb.com/",
+"domain": "airbnb.com",
+"demand": 300000000.0,
+"wiki": "Airbnb"
+},
+{
+"id": 247,
+"name": "Airbnb",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Airbnb",
+"domain": null,
+"demand": 4000000.0,
+"wiki": "Airbnb"
+},
+{
+"id": 248,
+"name": "Airbus",
+"kind": "site",
+"url": "https://www.airbus.com/",
+"domain": "airbus.com",
+"demand": 9000000.0,
+"wiki": "Airbus"
+},
+{
+"id": 249,
+"name": "Airbus A320 family",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Airbus_A320_family",
+"domain": null,
+"demand": 900000.0,
+"wiki": "Airbus A320 family"
+},
+{
+"id": 250,
+"name": "Expedia",
+"kind": "site",
+"url": "https://www.expedia.com/",
+"domain": "expedia.com",
+"demand": 200000000.0,
+"wiki": "Expedia"
+},
+{
+"id": 251,
+"name": "Expedia Group",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Expedia_Group",
+"domain": null,
+"demand": 1000000.0,
+"wiki": "Expedia Group"
+},
+{
+"id": 252,
+"name": "Expert Village",
+"kind": "site",
+"url": "https://www.expertvillage.com/",
+"domain": "expertvillage.com",
+"demand": 800,
+"wiki": "Expert Village"
+},
+{
+"id": 253,
+"name": "Booking.com",
+"kind": "site",
+"url": "https://www.booking.com/",
+"domain": "booking.com",
+"demand": 500000000.0,
+"wiki": "Booking.com"
+},
+{
+"id": 254,
+"name": "Booking.com",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Booking.com",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Booking.com"
+},
+{
+"id": 255,
+"name": "Bookmyshow",
+"kind": "site",
+"url": "https://www.bookmyshow.com/",
+"domain": "bookmyshow.com",
+"demand": 90000000.0,
+"wiki": "Bookmyshow"
+},
+{
+"id": 256,
+"name": "Books-A-Million",
+"kind": "site",
+"url": "https://www.booksamillion.com/",
+"domain": "booksamillion.com",
+"demand": 3000000.0,
+"wiki": "Books-A-Million"
+},
+{
+"id": 257,
+"name": "Taylor Swift",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Taylor_Swift",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "Taylor Swift"
+},
+{
+"id": 258,
+"name": "Taylor Swift",
+"kind": "site",
+"url": "https://www.taylorswift.com/",
+"domain": "taylorswift.com",
+"demand": 15000000.0,
+"wiki": "Taylor Swift"
+},
+{
+"id": 259,
+"name": "Taylor Guitars",
+"kind": "site",
+"url": "https://www.taylorguitars.com/",
+"domain": "taylorguitars.com",
+"demand": 3000000.0,
+"wiki": "Taylor Guitars"
+},
+{
+"id": 260,
+"name": "Taylor Lautner",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Taylor_Lautner",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Taylor Lautner"
+},
+{
+"id": 261,
+"name": "Taylor Made Golf",
+"kind": "site",
+"url": "https://www.taylormadegolf.com/",
+"domain": "taylormadegolf.com",
+"demand": 3000000.0,
+"wiki": "Taylor Made Golf"
+},
+{
+"id": 262,
+"name": "Beyoncé",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Beyoncé",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Beyoncé"
+},
+{
+"id": 263,
+"name": "Beyoncé",
+"kind": "site",
+"url": "https://www.beyonce.com/",
+"domain": "beyonce.com",
+"demand": 3000000.0,
+"wiki": "Beyoncé"
+},
+{
+"id": 264,
+"name": "Beyond Meat",
+"kind": "site",
+"url": "https://www.beyondmeat.com/",
+"domain": "beyondmeat.com",
+"demand": 2000000.0,
+"wiki": "Beyond Meat"
+},
+{
+"id": 265,
+"name": "Beyond Burger",
+"kind": "site",
+"url": "https://www.beyondmeat.com/burger/",
+"domain": "beyondmeat.com/burger",
+"demand": 300000.0,
+"wiki": "Beyond Burger"
+},
+{
+"id": 266,
+"name": "Elon Musk",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Elon_Musk",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "Elon Musk"
+},
+{
+"id": 267,
+"name": "Elon Musk",
+"kind": "site",
+"url": "https://www.elonmusk.com/",
+"domain": "elonmusk.com",
+"demand": 900,
+"wiki": "Elon Musk"
+},
+{
+"id": 268,
+"name": "Elon University",
+"kind": "site",
+"url": "https://www.elon.edu/",
+"domain": "elon.edu",
+"demand": 3000000.0,
+"wiki": "Elon University"
+},
+{
+"id": 269,
+"name": "Bill Gates",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Bill_Gates",
+"domain": null,
+"demand": 20000000.0,
+"wiki": "Bill Gates"
+},
+{
+"id": 270,
+"name": "Bill Gates",
+"kind": "site",
+"url": "https://www.gatesnotes.com/",
+"domain": "gatesnotes.com",
+"demand": 5000000.0,
+"wiki": "Bill Gates"
+},
+{
+"id": 271,
+"name": "Bill Nye",
+"kind": "site",
+"url": "https://www.billnye.com/",
+"domain": "billnye.com",
+"demand": 900000.0,
+"wiki": "Bill Nye"
+},
+{
+"id": 272,
+"name": "Billboard",
+"kind": "site",
+"url": "https://www.billboard.com/",
+"domain": "billboard.com",
+"demand": 90000000.0,
+"wiki": "Billboard"
+},
+{
+"id": 273,
+"name": "Bill.com",
+"kind": "site",
+"url": "https://www.bill.com/",
+"domain": "bill.com",
+"demand": 9000000.0,
+"wiki": "Bill.com"
+},
+{
+"id": 274,
+"name": "Barack Obama",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Barack_Obama",
+"domain": null,
+"demand": 30000000.0,
+"wiki": "Barack Obama"
+},
+{
+"id": 275,
+"name": "Barack Obama",
+"kind": "site",
+"url": "https://www.barackobama.com/",
+"domain": "barackobama.com",
+"demand": 1500000.0,
+"wiki": "Barack Obama"
+},
+{
+"id": 276,
+"name": "Obama Foundation",
+"kind": "site",
+"url": "https://www.obama.org/",
+"domain": "obama.org",
+"demand": 800000.0,
+"wiki": "Obama Foundation"
+},
+{
+"id": 277,
+"name": "Donald Trump",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Donald_Trump",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "Donald Trump"
+},
+{
+"id": 278,
+"name": "Donald Trump",
+"kind": "site",
+"url": "https://www.donaldjtrump.com/",
+"domain": "donaldjtrump.com",
+"demand": 12000000.0,
+"wiki": "Donald Trump"
+},
+{
+"id": 279,
+"name": "Donald Duck",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Donald_Duck",
+"domain": null,
+"demand": 1500000.0,
+"wiki": "Donald Duck"
+},
+{
+"id": 280,
+"name": "Donald Glover",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Donald_Glover",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Donald Glover"
+},
+{
+"id": 281,
+"name": "LeBron James",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/LeBron_James",
+"domain": null,
+"demand": 30000000.0,
+"wiki": "LeBron James"
+},
+{
+"id": 282,
+"name": "LeBron James",
+"kind": "site",
+"url": "https://www.lebronjames.com/",
+"domain": "lebronjames.com",
+"demand": 1000000.0,
+"wiki": "LeBron James"
+},
+{
+"id": 283,
+"name": "Lebanon",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Lebanon",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Lebanon"
+},
+{
+"id": 284,
+"name": "Lionel Messi",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Lionel_Messi",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Lionel Messi"
+},
+{
+"id": 285,
+"name": "Messenger",
+"kind": "site",
+"url": "https://www.messenger.com/",
+"domain": "messenger.com",
+"demand": 90000000.0,
+"wiki": "Messenger"
+},
+{
+"id": 286,
+"name": "Messier object",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Messier_object",
+"domain": null,
+"demand": 90000.0,
+"wiki": "Messier object"
+},
+{
+"id": 287,
+"name": "Cristiano Ronaldo",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Cristiano_Ronaldo",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Cristiano Ronaldo"
+},
+{
+"id": 288,
+"name": "Cristiano Ronaldo",
+"kind": "site",
+"url": "https://www.cristianoronaldo.com/",
+"domain": "cristianoronaldo.com",
+"demand": 2000000.0,
+"wiki": "Cristiano Ronaldo"
+},
+{
+"id": 289,
+"name": "Cristina Kirchner",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Cristina_Kirchner",
+"domain": null,
+"demand": 300000.0,
+"wiki": "Cristina Kirchner"
+},
+{
+"id": 290,
+"name": "New York City",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/New_York_City",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "New York City"
+},
+{
+"id": 291,
+"name": "New York",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/New_York",
+"domain": null,
+"demand": 30000000.0,
+"wiki": "New York"
+},
+{
+"id": 292,
+"name": "New York Times",
+"kind": "site",
+"url": "https://www.nytimes.com/",
+"domain": "nytimes.com",
+"demand": 50000000.0,
+"wiki": "New York Times"
+},
+{
+"id": 293,
+"name": "New York Yankees",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/New_York_Yankees",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "New York Yankees"
+},
+{
+"id": 294,
+"name": "New Yorker",
+"kind": "site",
+"url": "https://www.newyorker.com/",
+"domain": "newyorker.com",
+"demand": 10000000.0,
+"wiki": "New Yorker"
+},
+{
+"id": 295,
+"name": "Newegg",
+"kind": "site",
+"url": "https://www.newegg.com/",
+"domain": "newegg.com",
+"demand": 90000000.0,
+"wiki": "Newegg"
+},
+{
+"id": 296,
+"name": "Newark Airport",
+"kind": "site",
+"url": "https://www.newarkairport.com/",
+"domain": "newarkairport.com",
+"demand": 3000000.0,
+"wiki": "Newark Airport"
+},
+{
+"id": 297,
+"name": "Los Angeles",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Los_Angeles",
+"domain": null,
+"demand": 30000000.0,
+"wiki": "Los Angeles"
+},
+{
+"id": 298,
+"name": "Los Angeles Lakers",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Los_Angeles_Lakers",
+"domain": null,
+"demand": 12000000.0,
+"wiki": "Los Angeles Lakers"
+},
+{
+"id": 299,
+"name": "Los Angeles Times",
+"kind": "site",
+"url": "https://www.latimes.com/",
+"domain": "latimes.com",
+"demand": 8000000.0,
+"wiki": "Los Angeles Times"
+},
+{
+"id": 300,
+"name": "Los Alamos",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Los_Alamos",
+"domain": null,
+"demand": 500000.0,
+"wiki": "Los Alamos"
+},
+{
+"id": 301,
+"name": "Chicago",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chicago",
+"domain": null,
+"demand": 30000000.0,
+"wiki": "Chicago"
+},
+{
+"id": 302,
+"name": "Chicago Tribune",
+"kind": "site",
+"url": "https://www.chicagotribune.com/",
+"domain": "chicagotribune.com",
+"demand": 5000000.0,
+"wiki": "Chicago Tribune"
+},
+{
+"id": 303,
+"name": "Chicago Bulls",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Chicago_Bulls",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Chicago Bulls"
+},
+{
+"id": 304,
+"name": "Chick-fil-A",
+"kind": "site",
+"url": "https://www.chick-fil-a.com/",
+"domain": "chick-fil-a.com",
+"demand": 200000000.0,
+"wiki": "Chick-fil-A"
+},
+{
+"id": 305,
+"name": "Chicks Sporting Goods",
+"kind": "site",
+"url": "https://www.chicks.com/",
+"domain": "chicks.com",
+"demand": 50000.0,
+"wiki": "Chicks Sporting Goods"
+},
+{
+"id": 306,
+"name": "Miami",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Miami",
+"domain": null,
+"demand": 20000000.0,
+"wiki": "Miami"
+},
+{
+"id": 307,
+"name": "Miami Heat",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Miami_Heat",
+"domain": null,
+"demand": 5000000.0,
+"wiki": "Miami Heat"
+},
+{
+"id": 308,
+"name": "Miami Herald",
+"kind": "site",
+"url": "https://www.miamiherald.com/",
+"domain": "miamiherald.com",
+"demand": 3000000.0,
+"wiki": "Miami Herald"
+},
+{
+"id": 309,
+"name": "Miami University",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Miami_University",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Miami University"
+},
+{
+"id": 310,
+"name": "Seattle",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Seattle",
+"domain": null,
+"demand": 20000000.0,
+"wiki": "Seattle"
+},
+{
+"id": 311,
+"name": "Seattle Seahawks",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Seattle_Seahawks",
+"domain": null,
+"demand": 6000000.0,
+"wiki": "Seattle Seahawks"
+},
+{
+"id": 312,
+"name": "Seattle Times",
+"kind": "site",
+"url": "https://www.seattletimes.com/",
+"domain": "seattletimes.com",
+"demand": 3000000.0,
+"wiki": "Seattle Times"
+},
+{
+"id": 313,
+"name": "London",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/London",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "London"
+},
+{
+"id": 314,
+"name": "London Underground",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/London_Underground",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "London Underground"
+},
+{
+"id": 315,
+"name": "London Drugs",
+"kind": "site",
+"url": "https://www.londondrugs.com/",
+"domain": "londondrugs.com",
+"demand": 4000000.0,
+"wiki": "London Drugs"
+},
+{
+"id": 316,
+"name": "Paris",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Paris",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "Paris"
+},
+{
+"id": 317,
+"name": "Paris Hilton",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Paris_Hilton",
+"domain": null,
+"demand": 20000000.0,
+"wiki": "Paris Hilton"
+},
+{
+"id": 318,
+"name": "Paris Saint-Germain F.C.",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Paris_Saint-Germain_F.C.",
+"domain": null,
+"demand": 10000000.0,
+"wiki": "Paris Saint-Germain F.C."
+},
+{
+"id": 319,
+"name": "Parisian Hotel",
+"kind": "site",
+"url": "https://www.parisian.com/",
+"domain": "parisian.com",
+"demand": 30000.0,
+"wiki": "Parisian Hotel"
+},
+{
+"id": 320,
+"name": "Tokyo",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Tokyo",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Tokyo"
+},
+{
+"id": 321,
+"name": "Tokyo Disneyland",
+"kind": "site",
+"url": "https://www.tokyodisneyresort.co.jp/",
+"domain": "tokyodisneyresort.co.jp",
+"demand": 9000000.0,
+"wiki": "Tokyo Disneyland"
+},
+{
+"id": 322,
+"name": "Tokyo Olympics",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Tokyo_Olympics",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "Tokyo Olympics"
+},
+{
+"id": 323,
+"name": "California",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/California",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "California"
+},
+{
+"id": 324,
+"name": "California DMV",
+"kind": "site",
+"url": "https://www.dmv.ca.gov/",
+"domain": "dmv.ca.gov",
+"demand": 10000000.0,
+"wiki": "California DMV"
+},
+{
+"id": 325,
+"name": "California Pizza Kitchen",
+"kind": "site",
+"url": "https://www.cpk.com/",
+"domain": "cpk.com",
+"demand": 9000000.0,
+"wiki": "California Pizza Kitchen"
+},
+{
+"id": 326,
+"name": "Calibre",
+"kind": "site",
+"url": "https://www.calibre-ebook.com/",
+"domain": "calibre-ebook.com",
+"demand": 3000000.0,
+"wiki": "Calibre"
+},
+{
+"id": 327,
+"name": "Caliber Collision",
+"kind": "site",
+"url": "https://www.caliber.com/",
+"domain": "caliber.com",
+"demand": 5000000.0,
+"wiki": "Caliber Collision"
+},
+{
+"id": 328,
+"name": "Texas",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Texas",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "Texas"
+},
+{
+"id": 329,
+"name": "Texas Roadhouse",
+"kind": "site",
+"url": "https://www.texasroadhouse.com/",
+"domain": "texasroadhouse.com",
+"demand": 5000000.0,
+"wiki": "Texas Roadhouse"
+},
+{
+"id": 330,
+"name": "Texas A&M University",
+"kind": "site",
+"url": "https://www.tamu.edu/",
+"domain": "tamu.edu",
+"demand": 30000000.0,
+"wiki": "Texas A&M University"
+},
+{
+"id": 331,
+"name": "Texaco",
+"kind": "site",
+"url": "https://www.texaco.com/",
+"domain": "texaco.com",
+"demand": 10000000.0,
+"wiki": "Texaco"
+},
+{
+"id": 332,
+"name": "Florida",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Florida",
+"domain": null,
+"demand": 90000000.0,
+"wiki": "Florida"
+},
+{
+"id": 333,
+"name": "Florida Power & Light",
+"kind": "site",
+"url": "https://www.fpl.com/",
+"domain": "fpl.com",
+"demand": 2000000.0,
+"wiki": "Florida Power & Light"
+},
+{
+"id": 334,
+"name": "Flordia Man",
+"kind": "site",
+"url": "https://www.floridaman.com/",
+"domain": "floridaman.com",
+"demand": 800,
+"wiki": "Flordia Man"
+},
+{
+"id": 335,
+"name": "IPhone",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/IPhone",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "IPhone"
+},
+{
+"id": 336,
+"name": "IPhone 15",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/IPhone_15",
+"domain": null,
+"demand": 10000000.0,
+"wiki": "IPhone 15"
+},
+{
+"id": 337,
+"name": "iPhone",
+"kind": "site",
+"url": "https://www.apple.com/iphone/",
+"domain": "apple.com/iphone",
+"demand": 500000000.0,
+"wiki": "iPhone"
+},
+{
+"id": 338,
+"name": "iPhone Repair",
+"kind": "site",
+"url": "https://www.iphonerepair.com/",
+"domain": "iphonerepair.com",
+"demand": 90,
+"wiki": "iPhone Repair"
+},
+{
+"id": 339,
+"name": "Ipho Rentals",
+"kind": "site",
+"url": "https://www.iphorentals.com/",
+"domain": "iphorentals.com",
+"demand": 20,
+"wiki": "Ipho Rentals"
+},
+{
+"id": 340,
+"name": "Google Pixel",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Google_Pixel",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Google Pixel"
+},
+{
+"id": 341,
+"name": "AirPods",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/AirPods",
+"domain": null,
+"demand": 12000000.0,
+"wiki": "AirPods"
+},
+{
+"id": 342,
+"name": "AirPods",
+"kind": "site",
+"url": "https://www.apple.com/airpods/",
+"domain": "apple.com/airpods",
+"demand": 60000000.0,
+"wiki": "AirPods"
+},
+{
+"id": 343,
+"name": "Airport Parking",
+"kind": "site",
+"url": "https://www.airportparking.com/",
+"domain": "airportparking.com",
+"demand": 300000.0,
+"wiki": "Airport Parking"
+},
+{
+"id": 344,
+"name": "Kindle",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Kindle",
+"domain": null,
+"demand": 10000000.0,
+"wiki": "Kindle"
+},
+{
+"id": 345,
+"name": "Kindle",
+"kind": "site",
+"url": "https://www.kindle.amazon.com/",
+"domain": "kindle.amazon.com",
+"demand": 100000000.0,
+"wiki": "Kindle"
+},
+{
+"id": 346,
+"name": "Kindle Fire",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Kindle_Fire",
+"domain": null,
+"demand": 2000000.0,
+"wiki": "Kindle Fire"
+},
+{
+"id": 347,
+"name": "Kinder Surprise",
+"kind": "site",
+"url": "https://www.kinder.com/",
+"domain": "kinder.com",
+"demand": 3000000.0,
+"wiki": "Kinder Surprise"
+},
+{
+"id": 348,
+"name": "MacBook",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/MacBook",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "MacBook"
+},
+{
+"id": 349,
+"name": "MacBook Air",
+"kind": "site",
+"url": "https://www.apple.com/macbook-air/",
+"domain": "apple.com/macbook-air",
+"demand": 2000000.0,
+"wiki": "MacBook Air"
+},
+{
+"id": 350,
+"name": "MacBook Pro",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/MacBook_Pro",
+"domain": null,
+"demand": 8000000.0,
+"wiki": "MacBook Pro"
+},
+{
+"id": 351,
+"name": "Macy's",
+"kind": "site",
+"url": "https://www.macys.com/",
+"domain": "macys.com",
+"demand": 300000000.0,
+"wiki": "Macy's"
+},
+{
+"id": 352,
+"name": "Mac Tonight",
+"kind": "site",
+"url": "https://www.mactonight.com/",
+"domain": "mactonight.com",
+"demand": 60,
+"wiki": "Mac Tonight"
+},
+{
+"id": 353,
+"name": "Fitbit",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Fitbit",
+"domain": null,
+"demand": 4000000.0,
+"wiki": "Fitbit"
+},
+{
+"id": 354,
+"name": "Fitbit",
+"kind": "site",
+"url": "https://www.fitbit.com/",
+"domain": "fitbit.com",
+"demand": 90000000.0,
+"wiki": "Fitbit"
+},
+{
+"id": 355,
+"name": "Fitness First",
+"kind": "site",
+"url": "https://www.fitnessfirst.com/",
+"domain": "fitnessfirst.com",
+"demand": 2000000.0,
+"wiki": "Fitness First"
+},
+{
+"id": 356,
+"name": "GoPro",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/GoPro",
+"domain": null,
+"demand": 3000000.0,
+"wiki": "GoPro"
+},
+{
+"id": 357,
+"name": "GoPro",
+"kind": "site",
+"url": "https://www.gopro.com/",
+"domain": "gopro.com",
+"demand": 90000000.0,
+"wiki": "GoPro"
+},
+{
+"id": 358,
+"name": "Gopher Sport",
+"kind": "site",
+"url": "https://www.gophersport.com/",
+"domain": "gophersport.com",
+"demand": 200000.0,
+"wiki": "Gopher Sport"
+},
+{
+"id": 359,
+"name": "Harry Potter",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Harry_Potter",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Harry Potter"
+},
+{
+"id": 360,
+"name": "Harry Potter",
+"kind": "site",
+"url": "https://www.harrypotter.com/",
+"domain": "harrypotter.com",
+"demand": 3000000.0,
+"wiki": "Harry Potter"
+},
+{
+"id": 361,
+"name": "Harry's",
+"kind": "site",
+"url": "https://www.harrys.com/",
+"domain": "harrys.com",
+"demand": 3000000.0,
+"wiki": "Harry's"
+},
+{
+"id": 362,
+"name": "Harry Winston",
+"kind": "site",
+"url": "https://www.harrywinston.com/",
+"domain": "harrywinston.com",
+"demand": 2000000.0,
+"wiki": "Harry Winston"
+},
+{
+"id": 363,
+"name": "Marvel Cinematic Universe",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Marvel_Cinematic_Universe",
+"domain": null,
+"demand": 20000000.0,
+"wiki": "Marvel Cinematic Universe"
+},
+{
+"id": 364,
+"name": "Marvel",
+"kind": "site",
+"url": "https://www.marvel.com/",
+"domain": "marvel.com",
+"demand": 200000000.0,
+"wiki": "Marvel"
+},
+{
+"id": 365,
+"name": "Marvel Comics",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Marvel_Comics",
+"domain": null,
+"demand": 9000000.0,
+"wiki": "Marvel Comics"
+},
+{
+"id": 366,
+"name": "Marvelous Designer",
+"kind": "site",
+"url": "https://www.marvelousdesigner.com/",
+"domain": "marvelousdesigner.com",
+"demand": 400000.0,
+"wiki": "Marvelous Designer"
+},
+{
+"id": 367,
+"name": "The Walt Disney Company",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/The_Walt_Disney_Company",
+"domain": null,
+"demand": 15000000.0,
+"wiki": "The Walt Disney Company"
+},
+{
+"id": 368,
+"name": "Disney Official Site",
+"kind": "site",
+"url": "https://www.disney.com/",
+"domain": "disney.com",
+"demand": 500000000.0,
+"wiki": "Disney"
+},
+{
+"id": 369,
+"name": "Disney+",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Disney+",
+"domain": null,
+"demand": 12000000.0,
+"wiki": "Disney+"
+},
+{
+"id": 370,
+"name": "Disneyland",
+"kind": "site",
+"url": "https://www.disneyland.com/",
+"domain": "disneyland.com",
+"demand": 100000000.0,
+"wiki": "Disneyland"
+},
+{
+"id": 371,
+"name": "Disney Springs",
+"kind": "site",
+"url": "https://www.disneysprings.com/",
+"domain": "disneysprings.com",
+"demand": 3000000.0,
+"wiki": "Disney Springs"
+},
+{
+"id": 372,
+"name": "Disneyland Paris",
+"kind": "site",
+"url": "https://www.disneylandparis.com/",
+"domain": "disneylandparis.com",
+"demand": 15000000.0,
+"wiki": "Disneyland Paris"
+},
+{
+"id": 373,
+"name": "Pokémon",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Pokémon",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Pokémon"
+},
+{
+"id": 374,
+"name": "Pokémon",
+"kind": "site",
+"url": "https://www.pokemon.com/",
+"domain": "pokemon.com",
+"demand": 300000000.0,
+"wiki": "Pokémon"
+},
+{
+"id": 375,
+"name": "Pokémon Go",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Pokémon_Go",
+"domain": null,
+"demand": 8000000.0,
+"wiki": "Pokémon Go"
+},
+{
+"id": 376,
+"name": "Pokemon Center",
+"kind": "site",
+"url": "https://www.pokemoncenter.com/",
+"domain": "pokemoncenter.com",
+"demand": 50000000.0,
+"wiki": "Pokemon Center"
+},
+{
+"id": 377,
+"name": "Minecraft",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Minecraft",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Minecraft"
+},
+{
+"id": 378,
+"name": "Minecraft",
+"kind": "site",
+"url": "https://www.minecraft.net/",
+"domain": "minecraft.net",
+"demand": 300000000.0,
+"wiki": "Minecraft"
+},
+{
+"id": 379,
+"name": "Minecraft Wiki",
+"kind": "site",
+"url": "https://www.minecraft.wiki/",
+"domain": "minecraft.wiki",
+"demand": 90000000.0,
+"wiki": "Minecraft Wiki"
+},
+{
+"id": 380,
+"name": "Mine Safety",
+"kind": "site",
+"url": "https://www.msanet.com/",
+"domain": "msanet.com",
+"demand": 1000000.0,
+"wiki": "Mine Safety"
+},
+{
+"id": 381,
+"name": "Fortnite",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Fortnite",
+"domain": null,
+"demand": 30000000.0,
+"wiki": "Fortnite"
+},
+{
+"id": 382,
+"name": "Fortnite",
+"kind": "site",
+"url": "https://www.fortnite.com/",
+"domain": "fortnite.com",
+"demand": 200000000.0,
+"wiki": "Fortnite"
+},
+{
+"id": 383,
+"name": "Fortinet",
+"kind": "site",
+"url": "https://www.fortinet.com/",
+"domain": "fortinet.com",
+"demand": 9000000.0,
+"wiki": "Fortinet"
+},
+{
+"id": 384,
+"name": "Fortune",
+"kind": "site",
+"url": "https://www.fortune.com/",
+"domain": "fortune.com",
+"demand": 50000000.0,
+"wiki": "Fortune"
+},
+{
+"id": 385,
+"name": "The Legend of Zelda",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/The_Legend_of_Zelda",
+"domain": null,
+"demand": 12000000.0,
+"wiki": "The Legend of Zelda"
+},
+{
+"id": 386,
+"name": "Zelda Dungeon",
+"kind": "site",
+"url": "https://www.zeldadungeon.net/",
+"domain": "zeldadungeon.net",
+"demand": 500000.0,
+"wiki": "Zelda Dungeon"
+},
+{
+"id": 387,
+"name": "Zeldman",
+"kind": "site",
+"url": "https://www.zeldman.com/",
+"domain": "zeldman.com",
+"demand": 30000.0,
+"wiki": "Zeldman"
+},
+{
+"id": 388,
+"name": "Game of Thrones",
+"kind": "wiki",
+"url": "https://en.wikipedia.org/wiki/Game_of_Thrones",
+"domain": null,
+"demand": 50000000.0,
+"wiki": "Game of Thrones"
+},
+{
+"id": 389,
+"name": "GameStop",
+"kind": "site",
+"url": "https://www.gamestop.com/",
+"domain": "gamestop.com",
+"demand": 200000000.0,
+"wiki": "GameStop"
+},
+{
+"id": 390,
+"name": "GameFAQs",
+"kind": "site",
+"url": "https://www.gamefaqs.gamespot.com/",
+"domain": "gamefaqs.gamespot.com",
+"demand": 50000000.0,
+"wiki": "GameFAQs"
+},
+{
+"id": 391,
+"name": "Gamestate",
+"kind": "site",
+"url": "https://www.gamestate.com/",
+"domain": "gamestate.com",
+"demand": 40,
+"wiki": "Gamestate"
+}
+],
+"prefixes": [
+{
+"prefix": "starb",
+"expect": "Starbucks"
+},
+{
+"prefix": "goog",
+"expect": "Google"
+},
+{
+"prefix": "chevr",
+"expect": "Chevrolet"
+},
+{
+"prefix": "amaz",
+"expect": "Amazon"
+},
+{
+"prefix": "faceb",
+"expect": "Facebook"
+},
+{
+"prefix": "nik",
+"expect": "Nike"
+},
+{
+"prefix": "adid",
+"expect": "Adidas"
+},
+{
+"prefix": "appl",
+"expect": "Apple"
+},
+{
+"prefix": "micro",
+"expect": "Microsoft"
+},
+{
+"prefix": "netf",
+"expect": "Netflix"
+},
+{
+"prefix": "spoti",
+"expect": "Spotify"
+},
+{
+"prefix": "walm",
+"expect": "Walmart"
+},
+{
+"prefix": "targ",
+"expect": "Target"
+},
+{
+"prefix": "cost",
+"expect": "Costco"
+},
+{
+"prefix": "home d",
+"expect": "The Home Depot"
+},
+{
+"prefix": "lowe",
+"expect": "Lowe's"
+},
+{
+"prefix": "best b",
+"expect": "Best Buy"
+},
+{
+"prefix": "fede",
+"expect": "FedEx"
+},
+{
+"prefix": "payp",
+"expect": "PayPal"
+},
+{
+"prefix": "chas",
+"expect": "Chase"
+},
+{
+"prefix": "wells",
+"expect": "Wells Fargo"
+},
+{
+"prefix": "bank o",
+"expect": "Bank of America"
+},
+{
+"prefix": "citi",
+"expect": "Citibank"
+},
+{
+"prefix": "mcdo",
+"expect": "McDonald's"
+},
+{
+"prefix": "burg",
+"expect": "Burger King"
+},
+{
+"prefix": "wend",
+"expect": "Wendy's"
+},
+{
+"prefix": "taco",
+"expect": "Taco Bell"
+},
+{
+"prefix": "pizz",
+"expect": "Pizza Hut"
+},
+{
+"prefix": "dunk",
+"expect": "Dunkin'"
+},
+{
+"prefix": "subw",
+"expect": "Subway"
+},
+{
+"prefix": "tesl",
+"expect": "Tesla"
+},
+{
+"prefix": "toyo",
+"expect": "Toyota"
+},
+{
+"prefix": "hond",
+"expect": "Honda"
+},
+{
+"prefix": "bmw",
+"expect": "BMW"
+},
+{
+"prefix": "sams",
+"expect": "Samsung"
+},
+{
+"prefix": "son",
+"expect": "Sony"
+},
+{
+"prefix": "dell",
+"expect": "Dell"
+},
+{
+"prefix": "nint",
+"expect": "Nintendo"
+},
+{
+"prefix": "play",
+"expect": "PlayStation"
+},
+{
+"prefix": "xbo",
+"expect": "Xbox"
+},
+{
+"prefix": "insta",
+"expect": "Instagram"
+},
+{
+"prefix": "youtu",
+"expect": "YouTube"
+},
+{
+"prefix": "linke",
+"expect": "LinkedIn"
+},
+{
+"prefix": "redd",
+"expect": "Reddit"
+},
+{
+"prefix": "pint",
+"expect": "Pinterest"
+},
+{
+"prefix": "tikt",
+"expect": "TikTok"
+},
+{
+"prefix": "whats",
+"expect": "WhatsApp"
+},
+{
+"prefix": "zoo",
+"expect": "Zoom"
+},
+{
+"prefix": "slac",
+"expect": "Slack"
+},
+{
+"prefix": "dropb",
+"expect": "Dropbox"
+},
+{
+"prefix": "gith",
+"expect": "GitHub"
+},
+{
+"prefix": "stack o",
+"expect": "Stack Overflow"
+},
+{
+"prefix": "wikip",
+"expect": "Wikipedia"
+},
+{
+"prefix": "imd",
+"expect": "IMDb"
+},
+{
+"prefix": "ebay",
+"expect": "eBay"
+},
+{
+"prefix": "ets",
+"expect": "Etsy"
+},
+{
+"prefix": "craig",
+"expect": "Craigslist"
+},
+{
+"prefix": "yel",
+"expect": "Yelp"
+},
+{
+"prefix": "ube",
+"expect": "Uber"
+},
+{
+"prefix": "lyf",
+"expect": "Lyft"
+},
+{
+"prefix": "airb",
+"expect": "Airbnb"
+},
+{
+"prefix": "expe",
+"expect": "Expedia"
+},
+{
+"prefix": "booki",
+"expect": "Booking.com"
+},
+{
+"prefix": "taylor s",
+"expect": "Taylor Swift"
+},
+{
+"prefix": "beyo",
+"expect": "Beyoncé"
+},
+{
+"prefix": "elon m",
+"expect": "Elon Musk"
+},
+{
+"prefix": "bill g",
+"expect": "Bill Gates"
+},
+{
+"prefix": "barack",
+"expect": "Barack Obama"
+},
+{
+"prefix": "donald t",
+"expect": "Donald Trump"
+},
+{
+"prefix": "lebr",
+"expect": "LeBron James"
+},
+{
+"prefix": "lionel",
+"expect": "Lionel Messi"
+},
+{
+"prefix": "cristi",
+"expect": "Cristiano Ronaldo"
+},
+{
+"prefix": "new yo",
+"expect": "New York City|New York"
+},
+{
+"prefix": "los an",
+"expect": "Los Angeles"
+},
+{
+"prefix": "chica",
+"expect": "Chicago"
+},
+{
+"prefix": "miam",
+"expect": "Miami"
+},
+{
+"prefix": "seat",
+"expect": "Seattle"
+},
+{
+"prefix": "lond",
+"expect": "London"
+},
+{
+"prefix": "pari",
+"expect": "Paris"
+},
+{
+"prefix": "toky",
+"expect": "Tokyo"
+},
+{
+"prefix": "calif",
+"expect": "California"
+},
+{
+"prefix": "texa",
+"expect": "Texas"
+},
+{
+"prefix": "flor",
+"expect": "Florida"
+},
+{
+"prefix": "ipho",
+"expect": "iPhone"
+},
+{
+"prefix": "airp",
+"expect": "AirPods"
+},
+{
+"prefix": "kind",
+"expect": "Kindle"
+},
+{
+"prefix": "macb",
+"expect": "MacBook"
+},
+{
+"prefix": "fitb",
+"expect": "Fitbit"
+},
+{
+"prefix": "gopr",
+"expect": "GoPro"
+},
+{
+"prefix": "harr",
+"expect": "Harry Potter"
+},
+{
+"prefix": "marv",
+"expect": "Marvel"
+},
+{
+"prefix": "disn",
+"expect": "Disney"
+},
+{
+"prefix": "poke",
+"expect": "Pokémon"
+},
+{
+"prefix": "mine",
+"expect": "Minecraft"
+},
+{
+"prefix": "fort",
+"expect": "Fortnite"
+},
+{
+"prefix": "zeld",
+"expect": "The Legend of Zelda"
+},
+{
+"prefix": "game o",
+"expect": "Game of Thrones"
+},
+{
+"prefix": "star w",
+"expect": "Star Wars"
+}
+],
+"phrases": {
+"starb": [
+"starbucks cups",
+"starbucks k cups",
+"starbucks coffee"
+],
+"goog": [
+"google pixel 7 pro",
+"google nest",
+"google home"
+],
+"chevr": [
+"chevrolet silverado accessories",
+"chevy truck parts"
+],
+"amaz": [
+"amazon gift card",
+"amazon basics"
+],
+"nik": [
+"nike shoes",
+"nike socks"
+],
+"appl": [
+"apple watch band",
+"apple pencil"
+],
+"cost": [
+"costco gift card"
+],
+"tesl": [
+"tesla coil kit"
+],
+"walm": [
+"walmart gift card"
+],
+"targ": [
+"target gift card"
+],
+"sams": [
+"samsung charger",
+"samsung tv"
+],
+"son": [
+"sony headphones"
+],
+"dell": [
+"dell monitor"
+],
+"kind": [
+"kindle charger",
+"kindle case"
+],
+"fitb": [
+"fitbit charger"
+],
+"gopr": [
+"gopro mount"
+],
+"ipho": [
+"iphone 15 case",
+"iphone charger"
+],
+"airp": [
+"airpods case"
+],
+"macb": [
+"macbook charger"
+],
+"harr": [
+"harry potter lego"
+],
+"poke": [
+"pokemon cards"
+],
+"mine": [
+"minecraft toys"
+]
+}
+}

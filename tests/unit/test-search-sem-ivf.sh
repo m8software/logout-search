@@ -146,7 +146,13 @@ psycopg.Error = Error
 sys.modules["psycopg"] = psycopg
 sys.path.insert(0, sys.argv[1]); tmp = sys.argv[2]
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1] + "/search_api.py")
-m = importlib.util.module_from_spec(spec); sys.modules["search_api"] = m; spec.loader.exec_module(m)
+_real = importlib.util.module_from_spec(spec); sys.modules["search_api"] = _real; spec.loader.exec_module(_real)
+class _NS:    # a stand-in replaces the name in every module that holds it (search_api + stage_*)
+    def __getattr__(self, n): return getattr(_real, n)
+    def __setattr__(self, n, v):
+        for x in [_real] + [x for k, x in list(sys.modules.items()) if k.startswith("stage_") and k != "stage_version" and isinstance(x, types.ModuleType)]:
+            if hasattr(x, n): setattr(x, n, v)
+m = _NS()
 print("default", m.SEM_BACKEND, m.sem_ivf())
 print("sem_ivf not loaded", "sem_ivf" not in sys.modules)
 m.SEM_BACKEND = "faiss"
@@ -197,7 +203,8 @@ for env in ("", "0", "1"):
     else: os.environ.pop("SEARCH_ORT_PREPACK", None)
     o = O(); S._ort_lean(o)
     print(f"prepack={env or 'unset'} arena={o.enable_cpu_mem_arena} pattern={o.enable_mem_pattern} disable_prepacking={o.conf.get('session.disable_prepacking', '-')}")
-src = open(os.path.join(os.environ["API_DIR"], "search_api.py")).read()
+import glob
+src = "\n".join(open(f).read() for f in [os.path.join(os.environ["API_DIR"], "search_api.py")] + sorted(g for g in glob.glob(os.path.join(os.environ["API_DIR"], "stage_*.py")) if not g.endswith("stage_version.py")))
 print("every search_api session lean", src.count("opts = ort.SessionOptions()") == len([l for l in src.splitlines() if l.strip() == "_ort_lean(opts)"]) > 0)
 dock = open(os.path.join(os.environ["API_DIR"], "Dockerfile")).read()
 print("image sets MALLOC_ARENA_MAX=2", "ENV MALLOC_ARENA_MAX=2" in dock)

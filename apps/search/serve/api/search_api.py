@@ -42,6 +42,11 @@ import psycopg
 
 import gov_state
 
+try:                                  # builder-side provenance (phase 4); a missing file is never fatal to serving
+    from provenance import cand_summary
+except ImportError:
+    cand_summary = None
+
 # "Never fetched" for the (fetched_at, value) caches below. time.monotonic() counts from the
 # MACHINE's boot, so a 0.0 stamp looked fresh to a service started within a TTL of booting:
 # tables() kept its empty start value and every search answered "200, zero results" for the
@@ -123,9 +128,6 @@ SITE_RANK = os.environ.get("SEARCH_SITE_RANK", "tranco").strip().lower()
 if SITE_RANK not in ("tranco", "own"):
     raise SystemExit(f"SEARCH_SITE_RANK={SITE_RANK!r}: use 'tranco' or 'own'")
 
-# Words that do not change which SITE is meant ("brave search", "costco website").
-_NAV_NOISE = frozenset("the a www http https com net org site website official login signin sign in "
-                       "home homepage page search app online".split())
 _TOKEN = re.compile(r"[a-z0-9]+")
 
 
@@ -134,61 +136,11 @@ def norm_key(s: str) -> str:
     return "".join(_TOKEN.findall(s.lower()))
 
 
-def nav_keys(q: str) -> list[str]:
-    """Candidate first labels of a domain the query could be naming.
-
-    "wells fargo" → wellsfargo / wells-fargo; "brave search" → brave. Only the
-    WHOLE remaining query is joined: "apple pie recipe" must not become apple.com,
-    so a query with more than three meaningful words names no site.
-    """
-    core = [t for t in _TOKEN.findall(q.lower()) if t not in _NAV_NOISE]
-    if not core or len(core) > 3:
-        return []
-    keys = {"".join(core), "-".join(core)}
-    return sorted(k for k in keys if len(k) >= 2)
-
-
-NAV_SQL = """
-SELECT d.url, d.title, d.description, s.tranco_rank, coalesce(s.history_visits, 0), d.domain
-FROM docs d LEFT JOIN serve_sites s USING (domain)
-WHERE d.error IS NULL AND split_part(d.domain, '.', 1) = ANY(%(keys)s)
-ORDER BY (d.domain !~ %(generic)s), s.tranco_rank NULLS LAST, s.cc_hc_pos NULLS LAST LIMIT 3
-"""
-
-# Every Tranco domain and subdomain host by name ("typing in the
-# name of each of the top million domains and subdomains from tranco should have its
-# domain as the top result"). 63% of them have no parsed homepage; those answer with a
-# plain link to the site. nav_sites is built by serve-prep.sql, blocked domains excluded.
-NAV_SITES_SQL = "SELECT host, rank FROM nav_sites WHERE key = ANY(%(keys)s) ORDER BY rank LIMIT 5"
 # A typed domain ("costco.co.uk", "drive.google.com", "https://www.bbc.com/") is that site.
 _DOMAIN_Q = re.compile(r"^(?:https?://)?(?:www\.)?((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,})/?$")
-DOMAIN_DOC_SQL = """
-SELECT d.url, d.title, d.description, s.tranco_rank FROM docs d LEFT JOIN serve_sites s USING (domain)
-WHERE d.error IS NULL AND d.domain = %(d)s LIMIT 1
-"""
-DOMAIN_NAV_SQL = "SELECT rank FROM nav_sites WHERE host = %(d)s ORDER BY rank LIMIT 1"
-
-
 def domain_query(q: str) -> str | None:
     m = _DOMAIN_Q.match(q.strip().lower())
     return m.group(1) if m else None
-
-
-def bare_site(host: str, rank) -> tuple:
-    """A Tranco site we hold no homepage for: a plain link, titled by its name."""
-    return (f"https://{host}/", host, "", rank, 0, host)
-
-
-def is_bare(c: tuple) -> bool:
-    return c[1] == c[5] and not c[2]
-
-
-def nav_order(cands: list[tuple]) -> list[tuple]:
-    """(url, title, desc, rank, visits, domain) -> generic endings first, then Tranco rank,
-    over homepages AND homepage-less Tranco sites alike. Preferring a site we hold a
-    homepage for was tried and lost: nbcnews -> nbcnews.to (a mirror we had a page for)
-    over nbcnews.com (none), meraki -> meraki.net over meraki.com (test)."""
-    return sorted(cands, key=lambda c: (not is_generic(c[5]), c[3] if c[3] is not None else 10 ** 9))
 
 
 # Domain endings a US-based user means by a bare name. A foreign country version
@@ -203,19 +155,6 @@ _CC_SLD = re.compile(r"\.(com|co|net|org|gov|edu|ac|or|ne|go)\.[a-z]{2}$")
 
 def is_generic(host: str) -> bool:
     return bool(_GENERIC.search(host)) and not _CC_SLD.search(host)
-
-# Subdomain services by name (host_nav, built by serve-prep from Tranco WITH
-# subdomains): "youtube tv" -> tv.youtube.com.
-HOST_NAV_SQL = """
-SELECT url, title, description, rank FROM host_nav WHERE key = ANY(%(keys)s)
-ORDER BY rank LIMIT 2
-"""
-
-WIKI_EXACT_SQL = """
-SELECT DISTINCT w.title, w.lead
-FROM wiki_aliases a JOIN wiki_docs w USING (page_id)
-WHERE a.norm = %(nq)s LIMIT 3
-"""
 
 # Same lookup plus the article's official website (wiki_sites, built from the same
 # dump). "costco" -> Costco's article -> costco.com, even when costco.com's homepage
@@ -235,20 +174,6 @@ SELECT title, lead, url, box, tranco_rank, history_visits, own_title FROM (
 ORDER BY own_title DESC, tranco_rank NULLS LAST LIMIT 3
 """
 
-# Infobox kinds whose subject IS the website's owner: for these the official site is
-# what a bare-name query wants, so it goes above the article. For anything else (a
-# phone, a film, a person) the article stays first and the site follows it.
-# Sports teams' infoboxes are named per league — "infobox mlb" (Yankees), "infobox nfl team",
-# "infobox basketball club", "ice hockey team" — and none said "sports team", so no pro
-# team's own site outranked its article ("yankees" put mlb.com/yankees last, 2026-09-25).
-# A season, a biography, a match or a competition page is not the organisation.
-_ORG_BOX = re.compile(r"^(?!.*\b(season|biography|match|competition|tournament|championship)\b)"
-                      r"(?=.*(company|website|organi[sz]ation|airline|bank|retail|agency|software|brand|"
-                      r"service|channel|network|university|college|school|club|restaurant|store|"
-                      r"magazine|newspaper|government|political party|non-profit|charity|"
-                      r"\bteam\b|\bmlb\b|\bnhl\b|\bnba\b|\bnfl\b|\bmls\b|minor league|\bleague\b))")
-
-
 # Hosts that are never an "official site" answer, whatever Wikipedia lists: a social
 # profile or link hub. "youth reform movement" -> https://www.fb.com/YRMPH was marked
 # sure (2026-09-24 gate check); fb.com / youtu.be slipped past facebook.com / youtube.com.
@@ -262,20 +187,6 @@ _WIRE_HOSTS = frozenset("prnewswire.com businesswire.com globenewswire.com prweb
                         "accesswire.com einpresswire.com".split())
 
 
-# "x official site", "x website", "x homepage": the person asks for the SITE of x (rc5 plan W6, measured 2026-10-07 on
-# the site-nav dev half: 92 of 750 queries had the article and its official site in the release and missed only because
-# the lookup was asked with these words still attached). Only a TRAILING ask is stripped; "web site design" is untouched.
-_SITE_ASK = re.compile(r"^(.{2,}?)\s+(?:(?:official\s+)?(?:web\s?site|site|home\s?page)|official)\s*$")
-
-
-def site_ask(q: str) -> str | None:
-    """The name before a trailing "official site" / "website" / "homepage" / "official", else None."""
-    m = _SITE_ASK.match(" ".join(q.lower().split()))
-    name = m.group(1).strip() if m else ""
-    # "official site" names nothing: the name must hold a word that is not itself such a word
-    return name if any(t not in _NAV_NOISE for t in _TOKEN.findall(name)) else None
-
-
 # Which of an article and its official site leads when the query is the article's own name. Owner, 2026-10-07 (final):
 # "site first then article on everything ... always showing wikipedia as first result really doesn't make us much of a
 # search engine" - so the SITE, whatever the thing is and whatever the site's rank ("snoop dogg" -> snoopdogg.com,
@@ -284,39 +195,8 @@ def site_ask(q: str) -> str | None:
 OFFICIAL_FIRST = os.environ.get("SEARCH_OFFICIAL_FIRST", "all").strip().lower()
 if OFFICIAL_FIRST not in ("people-orgs", "all"):
     raise SystemExit(f"SEARCH_OFFICIAL_FIRST={OFFICIAL_FIRST!r}: use 'people-orgs' or 'all'")
-_PLACE_BOX = re.compile(r"\b(country|settlement|city|town|village|municipality|region|province|state|islands?|county|"
-                        r"district|division|river|mountain|lake|continent|territory|prefecture|canton|commune|"
-                        r"neighbou?rhood|borough|protected area|park|place)\b")
-_PERSON_BOX = re.compile(r"\b(person|people|biography|artist|officeholder|writer|scientist|royalty|sportsperson|player|"
-                         r"actor|comedian|politician|personality|criminal|saint|clergy|economist|philosopher|academic|"
-                         r"architect|chef|model|wrestler|boxer|golfer|cyclist|swimmer|skier|driver|astronaut|engineer|"
-                         r"presenter|journalist|author|musician|band)\b")
-
-
-def box_kind(box: str | None) -> str:
-    """"org", "place", "person" (a person or a band) or "other", from the article's infobox type or the Wikidata
-    verdict the importer stored ('wikidata organization', 'wikidata place', 'wikidata person'). An organisation
-    type wins: "infobox state agency" is an agency, "infobox football club" a club."""
-    b = (box or "").lower()
-    if not b:
-        return "other"
-    if _ORG_BOX.search(b):
-        return "org"
-    if _PLACE_BOX.search(b):
-        return "place"
-    return "person" if _PERSON_BOX.search(b) else "other"
-
-
 def official_ok(url: str) -> bool:
     return _domain_of(url) not in _SOCIAL_HOSTS and _domain_of(url) not in _WIRE_HOSTS
-
-
-def official_deep(url: str) -> bool:
-    """A page, not a site: movies.disney.com/smith is the film Smith!'s "official site",
-    and "smith" was answered with it, sure. Such a link may still be shown, never as a
-    popular (confident) answer."""
-    path = urlsplit(url).path.strip("/")
-    return path.count("/") >= 1 or (len(path) > 0 and _domain_of(url).count(".") >= 2)
 
 
 _LOCALE_SEG = re.compile(r"[a-z]{2}(?:[-_][a-z]{2,4})?$", re.I)
@@ -331,155 +211,6 @@ def official_inner_page(url: str) -> bool:
     segs = [x for x in urlsplit(url or "").path.split("/") if x and not _LOCALE_SEG.match(x)]
     return len(segs) >= 3
 
-
-# How far above the best name match (NAV_SCORE) a leading official site sits. Under 0 it is no longer first among
-# the sites of one name, and no longer pinned (official_top asks for NAV_SCORE or more). sweeps it.
-OFFICIAL_LEAD = float(os.environ.get("SEARCH_OFFICIAL_LEAD", "0.5"))
-
-
-def official_score(box: str | None, i: int, url: str = "", own_popular: bool = False, own: bool = False,
-                   asked: bool = False) -> float:
-    """Where an article's official site ranks. An organisation's own site on a generic
-    ending is the best evidence there is for a bare-name query: above every name
-    match. On a foreign country ending (aldi.de for "aldi") it stays tier 1 but below
-    the best generic-ending name match. Anything else: just below the article.
-    own: the query is this article's own title. asked: the query asks for the site ("x official site")."""
-    kind = box_kind(box)
-    if asked:
-        lead = True                                     # the person asked for the site: it leads, whatever x is
-    elif kind == "place" and OFFICIAL_FIRST != "all":
-        lead = False                                    # a place: the article first, even with a popular site (italia.it)
-    elif kind == "org" or own_popular:
-        # own_popular: the article's own title IS the query and its site is popular — Gmail
-        # (typed "email service", not an organisation) must still put its site first.
-        lead = True
-    else:
-        # a person or a band asked by its own name: the site first, popular or not; only the first article of that
-        # name (a namesake's site must not lead). Anything else (a phone, a film): the article first.
-        lead = own and i == 0 and (kind == "person" or OFFICIAL_FIRST == "all")
-    if lead and not asked and official_inner_page(url):
-        lead = False                                    # a page of someone's site is not "the site"
-    if lead:
-        host = (urlsplit(url).hostname or "") if url else ""
-        # The country-ending rule is about a foreign branch of a brand: aldi.de for "aldi" stays under the best
-        # generic-ending name match. It is wrong for the thing the query names by its own title when that thing is no
-        # organisation: a country's or a city's site IS on a country ending. Measured 2026-10-07, own-title dev half:
-        # "france" led with france.tv, "london" with london.edu, "iceland" with iceland.co.uk (a supermarket), each a
-        # mere name match on a generic ending, over service-public.fr, london.gov.uk and the country's own site.
-        if not url or is_generic(host) or asked or (own and i == 0 and kind != "org"):
-            return NAV_SCORE + OFFICIAL_LEAD - 0.1 * i
-        return NAV_SCORE - 1.5 - 0.1 * i
-    return WIKI_EXACT_SCORE - 0.5 - 0.1 * i
-
-
-# A site we hold no fetched homepage for was shown by its address: "chess" -> "https://www.chess.com/", no description
-# (rc6, 2026-10-08: 516 of the top 1,000 plain domains by own rank have no title, facebook.com, apple.com,
-# google.com and amazon.com among them; 1,727,008 of 1,944,913 sites in all). The release already knows what most of
-# them are: the article whose official site is that exact front page. It names the site the way the article's own
-# name does everywhere else, "<Article> — official site", with the lead's first sentence under it.
-# Only a front page takes a name: stricter than official_deep and official_inner_page, so "Google Keep"
-# (keep.google.com) names keep.google.com and never google.com. official_ok is not asked: it keeps a profile on
-# facebook.com from being someone's official site, and facebook.com's own front page is Facebook's.
-# Which article: an organisation before anything else, then the most sitelinks (bbc.com is claimed by BBC, a BBC
-# News channel and two people; fifa.com by FIFA and "Association football"). 25,588 of the 660,610 untitled sites
-# with a claim have more than one, 223 of 467 in the top 1,000.
-# A claim alone is not enough, Wikipedia lists front pages loosely: wixstatic.com is "Amy Serrano", gmail.com
-# "I Hate Being Single", merriam-webster.com "Samoyed dog", sony.com "Core International" (1 sitelink). So the
-# article must be tied to the address: its name fits it (name_fits), or the address or its first label is one of
-# the article's own names (the redirects "Weather.gov", "GOP", "DFB"). Only when no claim is tied that way does an
-# organisation with SITE_NAME_SITELINKS sitelinks or more name it (almoqawma.com: Hamas; werder.de: SV Werder
-# Bremen). Tied claims go first because the best-linked claim is often a neighbour: businessinsider.com is also
-# claimed by SourceForge, lionsgate.com by Summit Entertainment, dfb.de by the Germany national football team.
-# Measured on the untitled sites: 462 of 516 in the top 1,000 get a name (361 by the name, 66 by a redirect, 35 by
-# sitelinks), 14,171 of 16,050 in the top 25,000, 515,573 of 1,727,008 in all; any claim at all would name 467,
-# 14,324 and 660,610, the difference being mostly people, places and works on an address their name is not in.
-# Not used: anchor phrases (24,566 more sites, 8 in the top 1,000; lower-cased link text such as "video" and
-# "register here", and the file has no index by site) and suggest_items names (tiktok.com: "TikTok For Business").
-SITE_NAME_SITELINKS = 5
-_NAME_QUALIFIER = re.compile(r"\s*\([^()]*\)$")                 # "Amazon (company)" -> "Amazon"
-_SENTENCE_END = re.compile(r"(?<=[a-z0-9)\"”]{3})\.(?=\s+[A-Z\"“(]|\s*$)")   # not "Inc. is", "St. Mary", "U.S. agency"
-
-
-def front_host(url: str) -> str | None:
-    """The host, without www., when the address is a site's front page; else None."""
-    try:
-        u = urlsplit(url or "")
-    except ValueError:
-        return None
-    if u.scheme not in ("http", "https") or u.path not in ("", "/") or u.query or u.fragment:
-        return None
-    return _domain_of(url) or None
-
-
-def name_fits(title: str, host: str) -> bool:
-    """Does the article's name fit the site's address? The name without its qualifier ("Wiley (publisher)",
-    "Bayside, Wisconsin", "The Lancet") starts or ends a label of the host or the label starts or ends it (wiley.com,
-    baysidewi.gov, thelancet.com, springer.com for "Springer Science+Business Media", navalny.com for "Alexei
-    Navalny"), or the label is the name's initials (fbi.gov, pnas.org, lww.com). Not a word in the middle:
-    defense.gov is not the "Assistant to the Secretary of Defense for Public Affairs"."""
-    t = re.sub(r"^the\s+", "", _NAME_QUALIFIER.sub("", title or "").split(",")[0], flags=re.I)
-    fold = lambda s: re.sub(r"[^a-z0-9]", "", unaccent(s.lower()))
-    name = fold(t)
-    ini = "".join(w[0] for w in re.split(r"[^\w]+", t) if w and (w[0].isupper() or w[0].isdigit())).lower()
-    for label in host.split(".")[:-1] or [host]:
-        for x in {fold(label), fold(label)[3:] if label.startswith("the") else fold(label)} - {"www", ""}:
-            if len(name) >= 3 and len(x) >= 3 and (x.startswith(name) or x.endswith(name)):
-                return True
-            if len(x) >= 4 and (name.startswith(x) or name.endswith(x)):
-                return True
-            if len(ini) >= 2 and len(x) >= 2 and (x == ini or (len(x) >= 3 and x in ini) or (len(ini) >= 3 and x.startswith(ini))):
-                return True
-    return False
-
-
-def first_sentence(lead: str | None) -> str:
-    """The lead's first sentence, 300 characters at most: a site's one-line description."""
-    text = " ".join((lead or "").split())
-    if text.startswith(("{", "|", "[[")):       # the infobox, not the lead (115 of the 515,573: "{{Infobox political party | name ...")
-        return ""
-    m = _SENTENCE_END.search(text, 20)
-    return (text[:m.end()] if m else text)[:300]
-
-
-def site_name(host: str, claims) -> tuple[str, str] | None:
-    """(name, description) for a site from the articles that claim its front page as their official site,
-    [(title, infobox kind, sitelinks, lead, short description, the address is one of the article's names)];
-    None when no claim is good enough."""
-    order = sorted(claims, key=lambda c: (box_kind(c[1]) != "org", -(c[2] or 0), c[0] or ""))
-    tied = [c for c in order if c[0] and (c[5] or name_fits(c[0], host))]
-    known = [c for c in order if c[0] and box_kind(c[1]) == "org" and (c[2] or 0) >= SITE_NAME_SITELINKS]
-    for title, _box, _links, lead, descr, _aka in (tied or known)[:1]:
-        return _NAME_QUALIFIER.sub("", title) or title, first_sentence(lead) or descr or ""
-    return None
-
-
-def shown_by_address(r: dict) -> bool:
-    """The result's title is its own address or host: nothing better was known."""
-    t = re.sub(r"^https?://", "", (r.get("title") or "").strip().lower()).rstrip("/")
-    return (t[4:] if t.startswith("www.") else t) == same_page(r["url"])
-
-
-def name_front_pages(res: list[dict]) -> list[dict]:
-    """Give the front pages shown by their address a name, and those shown without a description one (site_name).
-    Run on the finished list, after every rule and both rankers, so it cannot move a result (web_rerank, which
-    runs later, reads a named result by its address). A site with a fetched homepage keeps its own title and
-    description: only what is missing is filled."""
-    lk = lookups()
-    if lk is None or lk.name != "release":
-        return res
-    out = []
-    for r in res:
-        host = front_host(r["url"]) if r.get("source") == "site" else None
-        bare = bool(host) and shown_by_address(r)
-        if host and (bare or not r.get("content")):
-            titled, claims = lk.site_claims(host)
-            got = site_name(host, claims)
-            if got and bare and not titled:
-                r = dict(r, title=f"{got[0]} — official site", named=True)      # named: web_rerank reads the address
-            if got and got[1] and not r.get("content"):
-                r = dict(r, content=got[1])
-        out.append(r)
-    return out
 
 # Weight of the head fields (domain words + title + h1) against the whole page in the
 # site keyword list — BM25F-style field weighting (Robertson, Zaragoza & Taylor
@@ -567,9 +298,6 @@ JOIN docs d ON d.domain = a.domain AND d.error IS NULL
 LEFT JOIN serve_sites s ON s.domain = a.domain
 ORDER BY 4 DESC LIMIT %(k)s
 """
-# Searches a language model wrote for each site (doc2query, d2q_docs): "newspaper of
-# record new york" -> nytimes.com. Off unless ?d2q=1 until it is measured (2026-09-29).
-D2Q_SQL = ANCHORS_SQL.replace("anchor_docs_bm25", "d2q_docs_bm25").replace("FROM anchor_docs", "FROM d2q_docs")
 # The query IS what many sites call one site when they link to it ("wayback machine": 150
 # sites say it of archive.org, 14 of the next) — as good as its name (2026-09-26). The
 # weighting above keeps a one-word match on an obscure site (papermag.com for "the paper
@@ -578,8 +306,6 @@ EXACT_ANCHOR_SQL = """
 SELECT a.domain, a.sources, d.url, d.title, d.description FROM anchors a
 JOIN docs d ON d.domain = a.domain AND d.error IS NULL
 WHERE a.anchor = %(q)s ORDER BY a.sources DESC LIMIT 2"""
-EXACT_ANCHOR_MIN, EXACT_ANCHOR_LEAD = 10, 3.0
-
 WIKI_SQL = """
 SELECT title, lead, -(@wiki_text@ <@> to_bm25query(%(q)s, 'wiki_docs_bm25')) AS bm25
 FROM wiki_docs
@@ -774,7 +500,6 @@ _wiki_text_lock = threading.Lock()
 SEM_BACKEND = os.environ.get("SEARCH_SEM_BACKEND", "postgres").strip().lower()
 SEM_IVF = _release_root(os.environ.get("SEARCH_SEM_IVF", "/data/vectors/ivf2600"))
 NOMIC_DIR = os.environ.get("SEARCH_NOMIC_DIR", "/models/nomic-embed-text-v1.5")
-SEM_PROBES = max(1, min(int(os.environ.get("SEARCH_SEM_PROBES", "200")), 2600))
 SEM_RELEASE = os.environ.get("SEARCH_RELEASE_ID") or None
 
 
@@ -790,52 +515,6 @@ def sem_ivf():
     return _si, ix, enc
 
 
-# Meaning search over web pages: the release's vectors/pages-ivf* folder, the pages' 1-bit nomic codes
-# (release/pages_vec.py), compared with the query's code as Wikipedia's are. Its hits join the fusion as one list at
-# SEM_PAGES_W; a page more than SEM_PAGES_MAX_BITS of the 768 bits away is no match. Needs SEARCH_SEM_BACKEND=ivf (the
-# encoder). SEARCH_SEM_PAGES_IVF=<folder>; unset, the release's vectors/pages-ivf* if there is one. ?drop=sempages: off.
-SEM_PAGES_W = float(os.environ.get("SEARCH_SEM_PAGES_W", "0.5"))
-SEM_PAGES_MAX_BITS = int(os.environ.get("SEARCH_SEM_PAGES_MAX_BITS", "230"))
-SEM_PAGES_PROBES = max(1, int(os.environ.get("SEARCH_SEM_PAGES_PROBES", "100")))
-_sem_pages_dir: str | None | bool = False
-
-
-def sem_pages_dir() -> str | None:
-    global _sem_pages_dir
-    if _sem_pages_dir is False:
-        d = os.environ.get("SEARCH_SEM_PAGES_IVF") or ""
-        if not d:
-            import glob as _glob
-            found = sorted(_glob.glob(os.path.join(RELEASE_DIR, "vectors", "pages-ivf*")))
-            d = found[-1] if found else ""
-        _sem_pages_dir = d if d and os.path.isfile(os.path.join(d, "ivf.json")) else None
-        if _sem_pages_dir:
-            print(f"page meaning search: {_sem_pages_dir}", flush=True)
-    return _sem_pages_dir
-
-
-_qcode_cache: dict = {}
-_qcode_busy: dict = {}                 # query -> Event while one thread embeds it
-_qcode_lock = threading.Lock()
-
-
-def _qcode_compute(si, enc, q: str):
-    """The nomic code of q: from the compute cache (SEARCH_COMPUTE_CACHE) when this model already coded this
-    exact text, else from the model. The namespace names the model file's sha256 and the encoder's prefix and token
-    limit, so a new model or setting never reads an old code."""
-    cc = _compute_cache()
-    if cc is None:
-        return si.code_of(enc(q))
-    import compute_cache as _cc
-    ns = f"qcode|{_cc.file_sha256(os.path.join(NOMIC_DIR, 'model.onnx'))}|{si.NOMIC_PREFIX}|{si.NOMIC_TOKENS}|{enc.sess.get_providers()[0]}"
-    v = cc.get_many(ns, [q])[0]
-    if v is not None:
-        return si.np.frombuffer(v, dtype=si.np.uint8).copy()
-    c = si.code_of(enc(q))
-    cc.put_many(ns, [q], [c.tobytes()])
-    return c
-
-
 _compute_cache_state: list = []
 
 
@@ -849,60 +528,6 @@ def _compute_cache():
         else:
             _compute_cache_state.append(None)
     return _compute_cache_state[0]
-
-
-def query_code(q: str):
-    """The query's 96-byte code, once per query text: the Wikipedia and the pages lists share it. The two lists start
-    together, so a second caller waits for the first one's embedding instead of making its own (2026-11-03: every
-    search embedded twice, ~150 CPU ms each, on the public server's four busy cores)."""
-    si, _ix, enc = sem_ivf()
-    while True:
-        with _qcode_lock:
-            c = _qcode_cache.get(q)
-            if c is not None:
-                return c
-            ev = _qcode_busy.get(q)
-            if ev is None:
-                ev = _qcode_busy[q] = threading.Event()
-                break
-        with stage("embed_wait"):
-            ev.wait(30)                # the first caller finished (or failed): look again
-    try:
-        with stage("embed"):
-            c = _qcode_compute(si, enc, q)
-        with _qcode_lock:
-            if len(_qcode_cache) > 512:
-                _qcode_cache.clear()
-            _qcode_cache[q] = c
-        return c
-    finally:
-        with _qcode_lock:
-            _qcode_busy.pop(q, None)
-        ev.set()
-
-
-def sem_page_rows(q: str, k: int) -> list[tuple]:
-    """(url, title, "", similarity) of the pages whose meaning is nearest the query's; [] without the folder."""
-    path = sem_pages_dir()
-    if not path or SEM_BACKEND != "ivf" or "sempages" in _drop.get():
-        return []
-    si = sem_ivf()[0]
-    pix = si.load_pages(path, SEM_RELEASE)
-    code = query_code(q)
-    with stage("sem-pages"):
-        hits = pix.search(code, k, SEM_PAGES_PROBES)
-    web = web_text()
-    if not hasattr(web, "_page_url"):
-        return []
-    lk = web._lk()
-    out = []
-    for d, dist in hits:
-        if dist > SEM_PAGES_MAX_BITS:
-            continue
-        url = web._page_url(lk, d)
-        if url:
-            out.append((url, lk.title(d) or url, "", 1 - dist / 768.0))
-    return out
 
 
 def wiki_text():
@@ -925,11 +550,6 @@ def wiki_text():
                     raise ValueError(f"SEARCH_WIKI_BACKEND={WIKI_BACKEND!r}: want postgres, tantivy or tantivy-release")
                 _wiki_text = b
     return _wiki_text
-
-
-def wiki_rows(q: str, k: int, stored: frozenset = frozenset()) -> list[tuple]:
-    """(title, lead, bm25) rows of the Wikipedia text list, from whichever backend serves it."""
-    return wiki_text().search(q, k, stored)
 
 
 # The site, page and anchor lists (T2 step 2): one backend serves all four of them —
@@ -1385,7 +1005,6 @@ def web_text():
 # ---------------------------------------------------------------------------
 MODEL_DIR = os.environ.get("SEARCH_MODEL_DIR", "/models/bge-small-en-v1.5")
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "   # bge v1.5 retrieval
-RRF_K = int(os.environ.get("SEARCH_RRF_K", "60"))            # swept by tools/sq-sweep.py
 # The pages list in the fusion (rc9). rc9 grew page_docs from 82,602 to 587,427 pages
 # (Stack Exchange, Wikibooks, Wikivoyage, MedlinePlus): a topic query now gets five page hits
 # that tie the article at ~49, the learned ranker leaves the article below the cross-encoder's
@@ -1439,14 +1058,40 @@ class _Embedder:
         return cls / np.linalg.norm(cls, axis=1, keepdims=True)
 
 
-def embed(text: str, prefix: str = QUERY_PREFIX) -> list[float] | None:
+_embedder_lock = threading.Lock()
+_embedder_retry = [0.0]                                    # monotonic time before which a failed load is not retried
+EMBED_RETRY_S = float(os.environ.get("SEARCH_EMBED_RETRY_S", "30"))
+
+
+def embedder_ready() -> bool:
+    """Is the query embedder loaded? No inference (CORE-A-03: embed("warm") ran the model to ask this)."""
+    return bool(_load_embedder())
+
+
+def _load_embedder():
+    """The embedder, built once under a lock (CORE-A-07: four concurrent first calls built four 130 MB sessions). A model
+    that is not in this image turns the tier off for good; any other failure (an I/O error while a release swaps, memory) is
+    printed and retried after EMBED_RETRY_S instead of silently turning the semantic tiers off until restart."""
     global _embedder
-    if _embedder is None:
-        try:
-            _embedder = _Embedder(MODEL_DIR)
-        except Exception:
-            _embedder = False                               # no model in this image: tier off
-    if not _embedder:
+    if _embedder is None or (_embedder is False and _embedder_retry[0] and time.monotonic() >= _embedder_retry[0]):
+        with _embedder_lock:
+            if _embedder is None or (_embedder is False and _embedder_retry[0] and time.monotonic() >= _embedder_retry[0]):
+                try:
+                    if not os.path.exists(os.path.join(MODEL_DIR, "model.onnx")):
+                        raise FileNotFoundError(MODEL_DIR)
+                    _embedder = _Embedder(MODEL_DIR)
+                except (FileNotFoundError, ImportError):
+                    _embedder = False                       # no model in this image: tier off
+                    _embedder_retry[0] = 0.0
+                except Exception as e:  # noqa: BLE001
+                    print(f"embedder: not loaded ({type(e).__name__}), retry in {EMBED_RETRY_S:.0f} s", flush=True)
+                    _embedder = False
+                    _embedder_retry[0] = time.monotonic() + EMBED_RETRY_S
+    return _embedder
+
+
+def embed(text: str, prefix: str = QUERY_PREFIX) -> list[float] | None:
+    if _load_embedder() is False or not _embedder:
         return None
     cc = _compute_cache()
     if cc is None:
@@ -1474,7 +1119,7 @@ _news_vec_lock = threading.Lock()
 
 def news_vectors(items: list[tuple[str, str]]) -> dict | None:
     """[(url, "headline. summary")] -> {url: unit vector}; None when the model is off."""
-    if embed("warm") is None:
+    if not embedder_ready():
         return None
     np = _embedder.np
     with _news_vec_lock:
@@ -1488,30 +1133,6 @@ def news_vectors(items: list[tuple[str, str]]) -> dict | None:
                 _news_vecs.popitem(last=False)
     with _news_vec_lock:
         return {u: _news_vecs[u] for u, _t in items if u in _news_vecs}
-
-
-SEM_WIKI_SQL = """
-SELECT w.title, w.lead, 1 - (v.v <=> %(e)s::halfvec) AS sim
-FROM wiki_vec v JOIN wiki_docs w ON w.page_id = v.id
-ORDER BY v.v <=> %(e)s::halfvec LIMIT %(k)s
-"""
-
-
-def rrf(lists: list[list[dict]], scale: float = 100.0, weights: list[float] | None = None) -> list[dict]:
-    """Reciprocal-rank fusion of ranked result lists: one entry per page, scored
-    scale * RRF_K/2 * sum(w / (RRF_K + rank)) — a page first in two lists ~98, first
-    in one ~49, so the fused tier stays far below the exact tiers (900+). w is the list's
-    weight, 1 unless given."""
-    fused: dict[str, dict] = {}
-    for n, lst in enumerate(lists):
-        w = weights[n] if weights else 1.0
-        for rank, r in enumerate(lst, 1):
-            key = same_page(r["url"])
-            f = fused.setdefault(key, dict(r, score=0.0))
-            f["score"] += w * scale * (RRF_K / 2) / (RRF_K + rank)
-    for f in fused.values():
-        f["score"] = round(f["score"], 2)
-    return sorted(fused.values(), key=lambda r: r["score"], reverse=True)
 
 
 # Pages inside the top sites (page_docs, ccpages.py): a keyword list of their own in
@@ -1537,199 +1158,6 @@ def _body_sql(sql: str, table: str, v: str) -> str:
                         f"FROM {alt} d\n    ORDER BY d.search_text")
                .replace(f"FROM {table} WHERE error IS NULL", f"FROM {alt}"))
 
-# ---------------------------------------------------------------------------
-# Subreddits (2026-09-24): "r/homelab", "homelab subreddit", "subreddit homelab" name a
-# community -> tier 1; "homelab reddit" and "<topic> subreddit/reddit" search the
-# directory (name + title + description, weighted by members) as its own fused list.
-# ---------------------------------------------------------------------------
-_R_SLASH = re.compile(r"^/?r/([a-z0-9_]{2,21})/?$")
-_SUB_WORDS = re.compile(r"\b(subreddits?|sub reddit|reddit)\b")
-SUB_POPULAR = 10_000
-
-
-def subreddit_query(q: str) -> tuple[str | None, str | None]:
-    """-> (exact subreddit key or None, topic text or None).
-    "r/homelab" / "homelab subreddit" -> ("homelab", "homelab"); "3d printing reddit" ->
-    ("3dprinting", "3d printing"); anything without reddit/subreddit/r/ -> (None, None)."""
-    t = q.lower().strip()
-    m = _R_SLASH.match(t)
-    if m:
-        return norm_key(m.group(1)), m.group(1)
-    if not _SUB_WORDS.search(t):
-        return None, None
-    rest = " ".join(_SUB_WORDS.sub(" ", t).split())
-    if not rest or len(rest.split()) > 4:
-        return None, (rest or None)
-    return norm_key(rest), rest
-
-
-SUB_EXACT_SQL = "SELECT name, title, description, subscribers FROM subreddits WHERE key = %(key)s"
-SUB_SEARCH_SQL = """
-SELECT name, title, description, subscribers,
-       -(search_text <@> to_bm25query(%(q)s, 'subreddits_bm25')) AS bm25
-FROM subreddits
-ORDER BY search_text <@> to_bm25query(%(q)s, 'subreddits_bm25') LIMIT 30
-"""
-
-
-def _subreddit(name, title, desc, subs, score, popular=False) -> dict:
-    r = {"url": f"https://www.reddit.com/r/{name}/", "title": f"r/{name} — {title or name}",
-         "content": f"{int(subs):,} members. {(desc or '')[:260]}", "source": "subreddit", "score": round(score, 2)}
-    if popular:
-        r["popular"] = True
-    return r
-
-
-# ---------------------------------------------------------------------------
-# YouTube channels (2026-09-24, Wikidata P2397): "mkbhd youtube", "@mrbeast", "nike
-# youtube channel" name a channel -> tier 1; "woodworking youtube channels" searches
-# the directory as its own fused list. "youtube <x>" names a channel only when x is not
-# a YouTube product ("youtube music" is music.youtube.com, not a channel called Music).
-# ---------------------------------------------------------------------------
-_YT_HANDLE = re.compile(r"^@([a-z0-9._-]{3,30})$")
-_YT_WORDS = re.compile(r"\b(youtube channels?|youtubers?|youtube|yt channel)\b")
-_YT_TAIL = re.compile(r"^(.+?)\s+(?:on\s+)?(?:youtube channel|youtube|yt channel)$")
-_YT_HEAD = re.compile(r"^(?:youtube channel|youtube)\s+(?!channels?\b)(.+)$")
-_YT_LIST = re.compile(r"\b(youtube channels|youtubers?)\b")
-_YT_PRODUCTS = frozenset("music tv kids premium studio shorts red gaming originals downloader download "
-                         "to mp3 mp3 converter login sign in account app video videos "
-                         "live search history subscriptions".split())
-YT_POPULAR = 100_000
-
-
-def youtube_query(q: str) -> tuple[str | None, str | None]:
-    """-> (exact channel key or None, topic text or None).
-    "mkbhd youtube" / "@mkbhd" / "youtube channel mkbhd" -> ("mkbhd", "mkbhd");
-    "cooking youtube channels" / "woodworking youtubers" -> (None, topic);
-    "youtube music" -> (None, None); no youtube word -> (None, None)."""
-    t = " ".join(q.lower().split())
-    m = _YT_HANDLE.match(t)
-    if m:
-        return norm_key(m.group(1)), m.group(1)
-    if not _YT_WORDS.search(t):
-        return None, None
-    tail, head = _YT_TAIL.match(t), _YT_HEAD.match(t)
-    if head and not tail and head.group(1).split()[0] in _YT_PRODUCTS:
-        return None, None                                  # youtube music / youtube tv / youtube to mp3
-    named = (tail or head).group(1) if (tail or head) else None
-    if named and len(named.split()) <= 4:
-        return norm_key(named), named
-    if named:
-        return None, named
-    if not _YT_LIST.search(t):                              # "how to upload to youtube": not about channels
-        return None, None
-    return None, " ".join(_YT_WORDS.sub(" ", t).split()) or None
-
-
-YT_EXACT_SQL = """
-SELECT channel_id, handle, name, description, followers, sitelinks FROM youtube_channels
-WHERE key = %(key)s OR hkey = %(key)s OR wkey = %(key)s OR skey = %(key)s
-ORDER BY (skey = %(key)s AND %(key)s NOT IN (coalesce(key, ''), coalesce(hkey, ''), coalesce(wkey, ''))),
-         followers DESC NULLS LAST, sitelinks DESC LIMIT 2
-"""
-YT_SEARCH_SQL = """
-SELECT channel_id, handle, name, description, followers, sitelinks,
-       -(search_text <@> to_bm25query(%(q)s, 'youtube_channels_bm25')) AS bm25
-FROM youtube_channels
-ORDER BY search_text <@> to_bm25query(%(q)s, 'youtube_channels_bm25') LIMIT 30
-"""
-
-
-# A bare query that IS a big channel's name ("linus tech tips" — its article is a
-# redirect to Linus Media Group, so the channel was nowhere, 2026-09-24).
-# 100,000 since 2026-10-11 (the owner: "100,000+ should show for its bare name"); it was 1,000,000.
-YT_BARE_MIN = int(os.environ.get("SEARCH_YT_BARE_MIN", "100000"))
-YT_BARE_SQL = """
-SELECT channel_id, handle, name, description, followers, sitelinks FROM youtube_channels
-WHERE (key = %(key)s OR hkey = %(key)s OR wkey = %(key)s) AND followers >= %(min)s
-ORDER BY followers DESC LIMIT 1
-"""
-
-
-# A bare name leads with the channel only when the channel IS the thing: a creator.
-# "prime video" is a streaming service with a channel — primevideo.com is the answer.
-_YT_CREATOR = re.compile(r"youtub|vlogg|internet personality|web series|streamer|content creator|podcast", re.I)
-
-
-def bare_channel_score(key: str, out: list[dict], words: int = 2, handle: str | None = None,
-                       desc: str = "YouTuber") -> float:
-    """Where a bare-name channel goes: first, unless a site or article is literally named
-    the query (nike -> nike.com, music -> the Music article), then just under the article.
-    One plain word is too ambiguous to lead with ("train", "quick" are 1M+ channels) unless
-    it is the channel's own handle (mkbhd, mrbeast). A brand's or company's channel never
-    leads (see _YT_CREATOR)."""
-    if not _YT_CREATOR.search(desc or "") or (words < 2 and norm_key(handle or "") != key):
-        return WIKI_EXACT_SCORE - 0.5
-    for r in out:
-        if r["score"] < WIKI_EXACT_SCORE - 3:
-            continue
-        name = r.get("title", "").split(" — ")[0]
-        label = _domain_of(r.get("url", "")).split(".")[0]
-        if (r.get("source") == "site" and not r.get("official") and label == key) or \
-                (r.get("source") in ("wikipedia",) and norm_key(name) == key) or \
-                (r.get("official") and norm_key(name) == key):
-            return WIKI_EXACT_SCORE - 0.5
-    return NAV_SCORE + 0.75
-
-
-def bare_channel_row(r: dict, desc: str | None, out: list[dict]) -> dict | None:
-    """The bare-name channel as it joins the list, or None. A creator's channel is the thing asked for and joins as
-    it is. Anything else's (a company's, a band's) is one more of the thing's own accounts once its article has
-    brought some: it is counted with them (SEARCH_PROFILE_CAP), and left out when they already hold a YouTube
-    account. At 100,000 followers "sega" otherwise listed two Sega channels and lost sega.com from the first five
-    (head-brand, rc8, 2026-10-11)."""
-    if _YT_CREATOR.search(desc or ""):
-        return r
-    profs = [p for p in out if p.get("profile")]
-    if any(_domain_of(p.get("url", "")) == "youtube.com" for p in profs):
-        return None
-    if profs:
-        r["profile"], r["of"] = True, profs[0].get("of")
-    return r
-
-
-def youtube_url(channel_id, handle) -> str:
-    return f"https://www.youtube.com/@{handle}" if handle else f"https://www.youtube.com/channel/{channel_id}"
-
-
-def _youtube(channel_id, handle, name, desc, followers, sitelinks, score) -> dict:
-    head = f"{int(followers):,} subscribers. " if followers else ""
-    r = {"url": youtube_url(channel_id, handle), "title": f"{name} — YouTube" + (f" (@{handle})" if handle else ""),
-         "content": head + (desc or "")[:260], "source": "youtube", "score": round(score, 2)}
-    if (followers or 0) >= YT_POPULAR or (followers is None and (sitelinks or 0) >= 10):
-        r["popular"] = True
-    return r
-
-
-# ---------------------------------------------------------------------------
-# Accounts from Wikidata (wiki_links, 2026-09-24): "<name> instagram", "<name> on x",
-# "<name> spotify", "<film> imdb" -> that account at tier 1. Only the TAIL form: a
-# leading platform word is usually a product ("instagram reels", "github actions").
-# "x" alone is never a platform word ("malcolm x", "spacex"): "on x" / "x account" are.
-# ---------------------------------------------------------------------------
-_ACCOUNT_WORDS = {
-    "x": ("twitter", "tweets", "twitter account", "on x", "x account", "x profile"),
-    "instagram": ("instagram", "insta", "ig", "instagram account", "instagram page"),
-    "facebook": ("facebook", "fb", "facebook page", "facebook account"),
-    "tiktok": ("tiktok", "tik tok", "tiktok account"),
-    "linkedin": ("linkedin", "linkedin page", "linkedin profile"),
-    "spotify": ("spotify",),
-    "github": ("github", "git hub", "github repo"),
-    "twitch": ("twitch", "twitch channel", "twitch stream"),
-    "imdb": ("imdb",),
-    "mastodon": ("mastodon",),
-    "bluesky": ("bluesky", "bsky"),
-    "blog": ("blog",),
-    "gutenberg": ("gutenberg", "project gutenberg"),
-}
-_ACCOUNT_TAIL = [(p, re.compile(r"^(.+?)\s+(?:on\s+)?(?:%s)$" % "|".join(
-    re.escape(w) for w in sorted(ws, key=len, reverse=True)))) for p, ws in _ACCOUNT_WORDS.items()]
-# "download instagram", "delete facebook", "how to use github": the platform, not an account.
-# Articles and adjectives are NOT here: The Office, Best Buy, Top Gun, New York Times.
-_ACCOUNT_NOT_A_NAME = re.compile(
-    r"^(how|what|why|when|where|is|can|does|do|my|download|delete|deactivate|"
-    r"login|log in|log into|sign in|sign up|signup|create|open|reset|change|recover|hack|unblock|install|"
-    r"update|private|desktop|web|app|dark mode|contact|customer|support|careers?|jobs?|stock|shares?)\b")
 ACCOUNT_POPULAR = 15          # Wikidata sitelinks: known in 15+ language editions
 ACCOUNT_LABEL = {"x": "X", "instagram": "Instagram", "facebook": "Facebook", "tiktok": "TikTok",
                  "linkedin": "LinkedIn", "linkedin-in": "LinkedIn", "spotify": "Spotify", "github": "GitHub",
@@ -1747,136 +1175,6 @@ ACCOUNT_LABEL = {"x": "X", "instagram": "Instagram", "facebook": "Facebook", "ti
                  "fec": "FEC", "cspan": "C-SPAN", "ukparliament": "UK Parliament"}
 
 
-# A book by Wikidata's ebook ID, a book matched from the catalog (importer/gutenberg.py), an author.
-GUTENBERG = ["gutenberg", "gutenberg-catalog", "gutenberg-author"]
-
-
-def the_keys(key: str) -> list[str]:
-    """"newyorktimes" also matches "The New York Times" (Wikidata keeps the article)."""
-    return [key] if key.startswith("the") else [key, "the" + key]
-
-
-def account_query(q: str) -> tuple[list[str], str] | None:
-    """"nike instagram" -> (["instagram"], "nike"); "elon musk on x" -> (["x"], "elonmusk");
-    "linkedin" platforms cover both company pages and people. None when the query names
-    no account."""
-    t = " ".join(q.lower().split())
-    for platform, rx in _ACCOUNT_TAIL:
-        m = rx.match(t)
-        if m:
-            name = m.group(1)
-            if _ACCOUNT_NOT_A_NAME.match(name) or len(name.split()) > 5:
-                return None
-            key = norm_key(name)
-            if len(key) < 2:
-                return None
-            if platform == "gutenberg":
-                # the book ("moby dick gutenberg") or the author's shelf ("mark twain gutenberg");
-                # "project gutenberg" alone is the site
-                return None if key == "project" else (GUTENBERG, key)
-            return (["linkedin", "linkedin-in"] if platform == "linkedin" else [platform]), key
-    return None
-
-
-# One account per entity: an item often lists several (The New York Times: @nytimes,
-# @nytgraphics, @nytchinese …) — the handle matching the query wins, else the shortest,
-# which is the main account far more often than not.
-ACCOUNT_SQL = """
-SELECT platform, url, name, description, value, sitelinks FROM (
-    SELECT DISTINCT ON (qid) platform, url, name, description, value, sitelinks,
-           (skey = %(key)s AND %(key)s NOT IN (coalesce(key, ''), coalesce(hkey, ''), coalesce(wkey, ''))) AS short_only
-    FROM wiki_links
-    WHERE platform = ANY(%(p)s) AND (key = ANY(%(keys)s) OR hkey = %(key)s OR wkey = ANY(%(keys)s) OR skey = %(key)s)
-    ORDER BY qid, (hkey = %(key)s) DESC, length(value)) x
-ORDER BY short_only, sitelinks DESC LIMIT 2
-"""
-# Official sites of things English Wikipedia has no article about: a bare exact name,
-# ranked just under an article and never above a domain-name match.
-# The floor: such a site is shown only when its Wikidata item has this many sitelinks (pages about it in any
-# Wikimedia project; 0 for an item no project has a page for). Read by all three lookups (this SQL,
-# lookups_sqlite, lookups_release.link_accounts).: 149 dev answers of the open sets sit under 2.
-# rc9: default 1 (was 2); the floor at 0 stays rejected (arm-486-floor1.md). SEARCH_LINK_SITE_MIN_SITELINKS=2 restores rc8.
-LINK_SITE_MIN_SITELINKS = int(os.environ.get("SEARCH_LINK_SITE_MIN_SITELINKS", "1"))
-LINK_SITE_SQL = f"""
-SELECT url, name, description, sitelinks FROM wiki_links
-WHERE platform = 'site' AND (key = %(key)s OR wkey = %(key)s) AND coalesce(sitelinks, 0) >= {LINK_SITE_MIN_SITELINKS}
-ORDER BY sitelinks DESC NULLS LAST LIMIT 1
-"""
-# (2026-10-30): chains and utilities by the name people use (brand-sites.tsv: name-suggestion-index's names, Wikidata's
-# official sites). Asked only where the link tier found nothing, with the same conditions. SEARCH_BRAND_SITES=0 turns it off;
-# measured 2026-10-30 (no set moves on test, 2 site-nav gains on dev); the file absent is the same as off.
-BRAND_SITES = os.environ.get("SEARCH_BRAND_SITES", "1") == "1"
-_brand_sites = None
-
-
-def brand_sites() -> dict:
-    global _brand_sites
-    if _brand_sites is None:
-        _brand_sites = {}
-        try:
-            with open(os.environ.get("SEARCH_BRAND_SITES_FILE") or os.path.join(RELEASE_DIR, "brand-sites.tsv"), encoding="utf-8") as f:
-                for line in f:
-                    k, url, name = line.rstrip("\n").split("\t")
-                    _brand_sites[k] = (url, name)
-        except OSError:
-            pass
-        print(f"brand names with an official site: {len(_brand_sites)}", flush=True)
-    return _brand_sites
-
-
-# The guard for a floor under LINK_SITE_TRUSTED, on by default in rc9; SEARCH_LINK_SITE_LOW_GUARD=0 turns it off. A site the tier
-# shows for an item with fewer sitelinks than this ("low": 0 or 1, 1.43M items nobody or one project wrote a page
-# about) is marked link_low where the tier appends it, and then:
-#   - brand_site_first() never lifts it above the places ("da vi nails": davinails.com 940.5 over the map row 940.0);
-#   - link_low_yields() takes it out when an article carries the name ("robert lambert" -> robertlambert.com, a
-#     zero-sitelink namesake of four people with articles).
-# All three lookups hand the tier the item's sitelinks as the row's fourth column; none of them changes.
-LINK_SITE_TRUSTED = 2
-LINK_SITE_LOW_GUARD = os.environ.get("SEARCH_LINK_SITE_LOW_GUARD", "1").strip() == "1"
-_TITLE_QUALIFIER = re.compile(r"\s*(?:\(.*\)|,.*)$")
-
-
-def link_low(sitelinks) -> bool:
-    """The link tier's row is one only a floor under LINK_SITE_TRUSTED admits, and the guard is on."""
-    return LINK_SITE_LOW_GUARD and (sitelinks or 0) < LINK_SITE_TRUSTED
-
-
-def link_low_yields(out: list[dict], lists: list[list[dict]], key: str) -> None:
-    """A link_low site is not shown when an article in the fused lists carries the name the tier matched (key):
-    the title itself, or the title before its "(…)" or ", …" qualifier. Either the article is the thing asked for
-    and was not in the exact tier ("médecins sans frontières": norm_key drops the accented letters, the alias
-    lookup misses, and an archive page about MSF stood above the article), or the name is shared by things with
-    articles and the site is a namesake's ("robert lambert", "patrick murphy official site" -> a University of
-    Arizona home page, "cañada website" -> la-canyada.com with Cañada, Alicante in the list). floor-0 dev, rc8:
-    takes out those three namesakes and one right answer of 106 ("frail website": the band, an article about a
-    song)."""
-    if not any(r.get("link_low") for r in out):
-        return
-    for lst in lists:
-        for r in lst:
-            if r.get("source") != "wikipedia":
-                continue
-            title = r["title"].rsplit(" — Wikipedia", 1)[0]
-            if key in (norm_key(title), norm_key(_TITLE_QUALIFIER.sub("", title))):
-                out[:] = [x for x in out if not x.get("link_low")]
-                return
-
-
-# Pages that describe the thing an exact name refers to (Wikidata "described at URL":
-# catalogues, databases, reference entries) — one more fused list, never tier 1.
-DESCRIBED_SQL = """
-SELECT url, name, description FROM wiki_links
-WHERE platform = 'described' AND (key = %(key)s OR wkey = %(key)s)
-ORDER BY sitelinks DESC LIMIT 3
-"""
-
-
-def _described(url, name, desc) -> dict:
-    host = _domain_of(url)
-    return {"url": url, "title": f"{name} — {host}", "content": (desc or "")[:300],
-            "source": "described", "score": 0.0}
-
-
 # The accounts of the thing an exact name refers to, under its article (
 # "paul rudd" gave "a bunch of pauls wikipedia pages" where the web gives Wikipedia,
 # IMDb, Instagram). Keyed on the article, so a namesake never lends its accounts. One
@@ -1891,22 +1189,6 @@ PROFILE_REF = ["gutenberg", "gutenberg-catalog", "gutenberg-author",
                "spotify", "applemusic", "genius", "allmusic", "discogs", "goodreads", "steam",
                "espn-nfl", "nba", "basketball-ref", "mlb", "baseball-ref", "hockey-ref", "transfermarkt", "fbref"]
 PROFILE_SOCIAL = ["instagram", "x", "youtube", "facebook", "tiktok", "twitch", "soundcloud", "bluesky", "github"]
-# The platform's own home page, for the card whose article IS the platform (platform_home; owner 2026-11-10: "YouTube
-# card should have YouTube.com be the official link, same across all the sites that get a social media spot").
-# Hand list, one line per platform, keyed on the Wikipedia article title (lower case): the Wikidata website (P856) is
-# in wiki_sites but official_ok drops every _SOCIAL_HOSTS host, and a profile-path row (instagram.com/instagram) is
-# not a home page. The PROFILE_SOCIAL platforms plus the other big ones.
-PLATFORM_HOME = {
-    "youtube": "https://www.youtube.com/", "facebook": "https://www.facebook.com/", "instagram": "https://www.instagram.com/",
-    "twitter": "https://x.com/", "x (social network)": "https://x.com/", "tiktok": "https://www.tiktok.com/",
-    "twitch": "https://www.twitch.tv/", "soundcloud": "https://soundcloud.com/", "bluesky": "https://bsky.app/",
-    "github": "https://github.com/", "reddit": "https://www.reddit.com/", "reddit (website)": "https://www.reddit.com/", "linkedin": "https://www.linkedin.com/",
-    "pinterest": "https://www.pinterest.com/", "snapchat": "https://www.snapchat.com/", "whatsapp": "https://www.whatsapp.com/",
-    "telegram (software)": "https://telegram.org/", "threads (social network)": "https://www.threads.com/",
-    "tumblr": "https://www.tumblr.com/", "discord": "https://discord.com/", "mastodon (social network)": "https://joinmastodon.org/",
-    "mastodon (software)": "https://joinmastodon.org/", "telegram": "https://telegram.org/",
-    "threads": "https://www.threads.com/", "mastodon": "https://joinmastodon.org/",
-}
 # Public office first: someone who holds or runs for office (or is a public figure the
 # record covers) is looked up there before any film or music site.
 PROFILE_PUBLIC = ["bioguide", "ballotpedia", "govtrack", "opensecrets", "votesmart", "fec", "ukparliament", "cspan"]
@@ -1930,14 +1212,6 @@ def parse_aic(v: str, default: bool) -> bool:
     return {"1": True, "0": False}.get((v or "").strip(), default)
 
 
-def fold_accounts(res: list[dict], card: dict | None) -> list[dict]:
-    """The list without the profile rows the card carries as links. No card, or a card without links: res itself."""
-    if not card or not card.get("links"):
-        return res
-    key = same_page(card.get("url") or "")
-    carried = {l.get("url") for l in card["links"]}
-    kept = [r for r in res if not (r.get("profile") and r.get("of") == key and r.get("url") in carried)]
-    return kept if len(kept) != len(res) else res
 PROFILE_PUBLIC_N, PROFILE_REF_WITH_PUBLIC = 3, 1
 PROFILES_SQL = """
 SELECT DISTINCT ON (platform) platform, url, name, description, value, sitelinks
@@ -1968,21 +1242,6 @@ def profile_results(rows, top_score: float, of_url: str | None = None) -> list[d
         if of_url:
             r["of"] = same_page(of_url)
         out.append(r)
-    return out
-
-
-def profiles_follow_article(res: list[dict]) -> list[dict]:
-    """An article's own accounts sit right under it: the rerankers moved IMDb above
-    the Paul Rudd article (2026-09-25). Profiles whose article is absent stay put."""
-    arts = {same_page(r["url"]): i for i, r in enumerate(res) if not r.get("profile")}
-    moving = sorted((r for r in res if r.get("profile") and r.get("of") in arts), key=lambda r: -r["score"])
-    if not moving:
-        return res
-    rest = [r for r in res if not (r.get("profile") and r.get("of") in arts)]
-    out = []
-    for r in rest:
-        out.append(r)
-        out.extend(p for p in moving if p["of"] == same_page(r["url"]))
     return out
 
 
@@ -2041,51 +1300,6 @@ WHERE n.title = %(t)s ORDER BY n.clicks DESC, n.next_title LIMIT %(n)s
 """
 
 
-_ANCHOR_NONWORD = re.compile(r"[^\w&'+.-]+", re.U)
-
-
-def anchor_key(q: str) -> str:
-    """A query as anchors.norm_anchor stores anchor text: "Wayback  Machine!" -> "wayback machine"."""
-    return re.sub(r"\s+", " ", _ANCHOR_NONWORD.sub(" ", (q or "").lower())).strip(" .-'&+")
-
-
-def exact_anchor(rows) -> dict | None:
-    """EXACT_ANCHOR_SQL rows -> the site a phrase names: used by EXACT_ANCHOR_MIN+ sites and
-    EXACT_ANCHOR_LEAD times as many as for the next site; else None."""
-    if not rows:
-        return None
-    top = rows[0]
-    second = rows[1][1] if len(rows) > 1 else 0
-    if top[1] < EXACT_ANCHOR_MIN or top[1] < EXACT_ANCHOR_LEAD * max(second, 1):
-        return None
-    r = _site(top[2], top[3], top[4], NAV_SCORE - 2, True)
-    r["anchor_named"] = True
-    return r
-
-
-def anchor_list(rows) -> list[dict]:
-    """ANCHORS_SQL rows -> site results, one per URL, best first (their own fused list)."""
-    out, seen = [], set()
-    for url, title, desc, bm25 in rows:
-        if url not in seen:
-            seen.add(url)
-            out.append(_site(url, title, desc, float(bm25)))
-    return out
-
-
-# The one a bare surname means ("trump is the president and the results
-# should reflect that"): a one-word query that ends the name of an article searched
-# FAMOUS_RATIO times more than anything actually named that word — Donald Trump (434k
-# searches) over $Trump (6.9k), Taylor Swift over Swift (bird). "washington" (George vs
-# the state, 5.7x) and "jordan" (3.9x) stay what they are named. From search demand, so
-# it follows who is being searched now; no list of people.
-FAMOUS_RATIO = 10.0
-FAMOUS_MIN = 20000.0
-FAMOUS_SQL = """
-SELECT i.kind, i.name, i.wiki, coalesce(i.demand, 0), k.pos FROM suggest_keys k JOIN suggest_items i USING (id)
-WHERE k.key = %(k)s AND k.pos IN (0, 1) AND i.kind IN ('wiki', 'site', 'youtube')
-ORDER BY i.demand DESC NULLS LAST LIMIT 40
-"""
 FAMOUS_LEAD_SQL = "SELECT lead FROM wiki_docs WHERE title = %(t)s LIMIT 1"
 
 
@@ -2129,23 +1343,6 @@ def org_lookup(c, nq: str) -> tuple:
     return None, None
 
 
-def org_first(out: list[dict], exact_titles: list[str], title: str, lead_of=None) -> None:
-    """Of several articles named exactly the query ("Chase", "Chase Bank", "Chase (video
-    game)"), the organisation's is the one the card and the first article slot get. One not
-    named exactly ("cvs" -> CVS Pharmacy) is added in that slot."""
-    if title in exact_titles:
-        exact_titles.remove(title)
-    elif lead_of is None:
-        return
-    exact_titles.insert(0, title)
-    for r in out:
-        if r.get("source") == "wikipedia" and r["title"].rsplit(" — Wikipedia", 1)[0] == title:
-            r["score"] = round(WIKI_EXACT_SCORE + 0.5, 2)
-            return
-    if lead_of is not None:
-        out.append(_wiki(title, lead_of(title), WIKI_EXACT_SCORE + 0.5))
-
-
 def org_blocks_namesake(org_rank, famous: str | None = None, org_lead: str | None = None) -> bool:
     """A famous namesake does not take a query that names a top site's organisation ("chase" is Chase Bank, not Daveigh
     Chase) -- unless the organisation is the person's own: its article's lead names them (2026-11-14: "trump" gave the
@@ -2161,54 +1358,6 @@ def org_blocks_namesake(org_rank, famous: str | None = None, org_lead: str | Non
     return True
 
 
-# A title that equals the query only once its leading symbol is dropped ("$Trump" for "trump", "#MeToo" for "metoo"):
-# the exact lookup keys on letters and digits. When a famous namesake takes the query, such a title and its official
-# site go to the end; with nothing else named so, it stays (a search for "metoo" still finds #MeToo).
-SIGILS = "$#@¥€£!+"
-
-
-def untyped_sigil(title: str, q: str) -> bool:
-    return bool(title) and title[0] in SIGILS and title[0] not in (q or "")
-
-
-def famous_namesake(key: str, rows) -> str | None:
-    """FAMOUS_SQL rows for a one-word key -> the article that word means, or None."""
-    named = max((d for kind, name, wiki, d, pos in rows if pos == 0), default=0.0)
-    for kind, name, wiki, d, pos in rows:
-        if pos != 1 or kind != "wiki" or not wiki:
-            continue
-        words = re.sub(r"\s*\(.*\)$", "", name).split()
-        if not words or norm_key(words[-1]) != key:
-            continue                                  # "Trump family": not a name ending in it
-        if not 2 <= len(words) <= 4 or not all(w[:1].isupper() for w in words):
-            continue                                  # "Wealth of Elon Musk": not a person's name
-        return wiki if d >= FAMOUS_MIN and d >= FAMOUS_RATIO * max(named, 1.0) else None
-    return None
-
-
-# A major-league team leads for its nickname ("if a major sports team is a
-# possible result it should probably be the top result"): "devils" -> New Jersey Devils over
-# D'Evils (a Jay-Z song), "giants" / "rangers" -> the most searched of the teams with that
-# name. From the article's infobox kind — team-only, unlike Wikidata's league (P118), which
-# players carry too (10,246 MLB items) and NHL teams lack. A basketball club must also be in
-# the NBA (European clubs share the infobox); half the NFL (Giants, Jets, Rams) uses the
-# generic gridiron box, shared with the CFL — those need the NFL as league. Works off-season.
-MAJOR_TEAM_BOXES = ["infobox mlb", "infobox nfl team", "infobox nhl team"]
-MAJOR_TEAM_SQL = """
-SELECT i.wiki, i.name, coalesce(max(i.demand), 0) AS d
-FROM suggest_keys k JOIN suggest_items i USING (id)
-JOIN wiki_docs w ON w.title = i.wiki JOIN wiki_sites ws USING (page_id)
-WHERE k.key = %(k)s AND k.pos IN (0, 1) AND i.kind = 'wiki'
-  AND (ws.box = ANY(%(boxes)s)
-       OR (ws.box IN ('infobox gridiron football team', 'infobox american football team')
-           AND EXISTS (SELECT 1 FROM wiki_facts f WHERE f.title = i.wiki
-               AND f.fact = 'league' AND f.value = 'National Football League'))
-       OR (ws.box = 'infobox basketball club' AND EXISTS (SELECT 1 FROM wiki_facts f WHERE f.title = i.wiki
-               AND f.fact = 'league' AND f.value = 'National Basketball Association')))
-GROUP BY i.wiki, i.name ORDER BY d DESC LIMIT 5
-"""
-
-
 def major_team(key: str, rows) -> str | None:
     """MAJOR_TEAM_SQL rows -> the team article the typed nickname names: the query must be
     the END of the team's name ("devils" / "new jersey devils", not "new jersey"), most
@@ -2219,22 +1368,6 @@ def major_team(key: str, rows) -> str | None:
             return wiki
     return None
 
-
-# A maker's product asked by its bare word ("keep" showed no Google Keep, "drive" no Google Drive,
-# "teams" no Microsoft Teams). The article is "<Maker> <word>" and its own site says both: the maker is a label of
-# the host and the word is another label or a path segment (keep.google.com, google.com/maps, tesla.com/modely).
-# Read from the names and official sites already held: no list of makers. The 400-product sweep that day: 314 sites
-# found by the full name, 115 by the bare word. Shown under the things named exactly the word; it leads only when
-# famous_namesake says the word means it ("maps", "translate").
-PRODUCT_SQL = """
-SELECT i.wiki, i.name, ws.url, coalesce(max(i.demand), 0) AS d
-FROM suggest_keys k JOIN suggest_items i USING (id)
-JOIN wiki_docs w ON w.title = i.wiki JOIN wiki_sites ws USING (page_id)
-WHERE k.key = %(k)s AND k.pos = 1 AND i.kind = 'wiki' AND ws.url IS NOT NULL
-GROUP BY i.wiki, i.name, ws.url ORDER BY d DESC LIMIT 60
-"""
-PRODUCT_TOP = 2                               # "maps": Google Maps and Apple Maps; "mail": Yahoo Mail and Proton Mail
-PRODUCT_SCORE = WIKI_EXACT_SCORE - 2.5        # under the articles named exactly the word, over a demoted name match
 
 # Product rows (follow-up, 2026-11-10; both off by default so an eval arm can measure each alone).
 #   SEARCH_PRODUCT_SITE_FIRST  1: "777x" -> boeing.com/commercial/777x, the article "Boeing 777X" right under it. The
@@ -2251,310 +1384,10 @@ PRODUCT_SCORE = WIKI_EXACT_SCORE - 2.5        # under the articles named exactly
 PRODUCT_SITE_FIRST = os.environ.get("SEARCH_PRODUCT_SITE_FIRST", "0").strip()
 if PRODUCT_SITE_FIRST not in ("0", "1", "2"):
     raise SystemExit(f"SEARCH_PRODUCT_SITE_FIRST={PRODUCT_SITE_FIRST!r}: use 0, 1 or 2")
-PRODUCT_TIER_WIDE = os.environ.get("SEARCH_PRODUCT_TIER_WIDE", "0").strip() == "1"
-PRODUCT_MAKER_MIN = int(os.environ.get("SEARCH_PRODUCT_MAKER_MIN", "4"))
-_OFFICIAL_SUFFIX = " — official site"
 _WIKI_SUFFIX = " — Wikipedia"
 
 
-def maker_in_host(maker: str, url: str, wide: bool = False, min_len: int | None = None) -> bool:
-    """Is the maker's name (letters and digits) a label of the url's host? wide: or a part of the host with its dots
-    and dashes removed ("suzuki" in globalsuzuki.com, "nissan" in nissan-global.com), when it has min_len letters."""
-    host = _domain_of(url)
-    labels = [norm_key(x) for x in host.split(".")[:-1]]
-    if maker and maker in labels:
-        return True
-    return bool(wide and maker and len(maker) >= (PRODUCT_MAKER_MIN if min_len is None else min_len)
-                and maker in norm_key(host.rsplit(".", 1)[0]))
-
-
-def product_tail(key: str, title: str, url: str, wide: bool = True) -> bool:
-    """Is `key` the bare tail of the multi-word title ("777x" of "Boeing 777X") with the title's head (the maker) in the
-    host of url? The qualifier ("(car)") is not part of the name."""
-    words = re.sub(r"\s*\(.*\)$", "", title or "").split()
-    return any(norm_key(" ".join(words[i:])) == key and norm_key(" ".join(words[:i])) != key
-               and maker_in_host(norm_key(" ".join(words[:i])), url, wide)
-               for i in range(1, len(words)))
-
-
-def product_site_lead(key: str, out: list[dict], mode: str = "1") -> None:
-    """SEARCH_PRODUCT_SITE_FIRST: lift the product's own official row to the front of the exact tier. The row is the
-    first official site row (title "<Article> — official site", an exact-tier or product-tier score) whose article title
-    ends in the query and holds the maker in its host. It goes just above the best Wikipedia article of the exact tier
-    (mode 1), or above the unpopular domain-named sites that stand over it as well (mode 2), pinned as site_over_article
-    pins a team's site. Anything else above it (a popular site, a place, an account, another official site) stops it."""
-    if mode == "0" or not key:
-        return
-    best = None
-    for r in out:
-        if (r.get("source") == "site" and (r.get("official") or r.get("product")) and r["title"].endswith(_OFFICIAL_SUFFIX)
-                and WIKI_EXACT_SCORE - 3 <= r["score"] < WIKI_EXACT_SCORE and not r.get("famous")
-                and (r.get("product_table") or product_tail(key, r["title"][:-len(_OFFICIAL_SUFFIX)], r["url"], wide=True))
-                and (best is None or r["score"] > best["score"])):
-            best = r
-    if best is None:
-        return
-    above = [r for r in out if r is not best and r["score"] > best["score"]]
-    lead = best["score"]
-    for r in above:
-        named = (r.get("source") == "site" and not r.get("official") and not r.get("popular")
-                 and norm_key(_domain_of(r["url"]).split(".")[0]) == key)
-        if r.get("source") == "wikipedia" or (mode == "2" and named):
-            lead = max(lead, r["score"])
-        else:
-            return                      # something else is above it: a popular site, a place, an account, a namesake
-    if lead > best["score"]:
-        best["score"] = round(lead + 0.5, 2)
-        best["famous"] = True
-        best["product_lead"] = True
-
-
-# Wikipedia opens a discontinued thing's article in the past tense ("Google Video was a free video hosting service",
-# "Stadia was a cloud gaming service"): its site is dead or someone else's. Without this, "video" led with
-# video.google.com and "desktop" with desktop.google.com.
-_WAS = re.compile(r"^[^.]{0,160}?\b(?:was|were)\s+(?:an?|the|one)\b")
-
-
-def discontinued(lead: str | None) -> bool:
-    return bool(_WAS.match(lead or ""))
-
-
-# Product tables (2026-11-10 follow-up). SEARCH_PRODUCTS=<file>[:<file>] names SQLite product tables
-# (product_table.py: CC0 file, ODbL file); empty is off. A search recognised as "product P by maker M" gets M's own site as a
-# candidate under the product tier's score (product_site_lead places it with SEARCH_PRODUCT_SITE_FIRST) and, when
-# SEARCH_SITE_PAGES names the sitemap pages table, the best page of M's site holding the product's words, through the
-# reranker. ?pt=0 turns it off for one request, ?pt=1 on (eval A/B). Rows with no maker_site show nothing.
-PRODUCTS = [x for x in os.environ.get("SEARCH_PRODUCTS", "").split(":") if x.strip()]
-SITE_PAGES = os.environ.get("SEARCH_SITE_PAGES", "").strip()
 _pt: contextvars.ContextVar = contextvars.ContextVar("pt", default=None)     # eval A/B only (pt=0 / 1)
-_products = None
-_GOV_HOST = re.compile(r"\.(gov|mil)(\.[a-z]{2})?$|\.gov\.[a-z]{2}$")
-
-
-def products_table():
-    """The product tables, opened once; None when none is named or one cannot be opened (logged, search goes on)."""
-    global _products
-    if _products is None:
-        _products = False
-        if PRODUCTS:
-            try:
-                import product_table
-                _products = product_table.Products(PRODUCTS, lambda w: w in typo_words())
-                print(f"product tables: {PRODUCTS}", flush=True)
-            except Exception as e:              # a missing or malformed file must not take the search down
-                print(f"product tables unusable ({type(e).__name__}: {e}): {PRODUCTS}", flush=True)
-    return _products or None
-
-
-def product_leads_list(out: list[dict]) -> bool:
-    """A government or place result already leads: a product link would be noise ("ford county courthouse")."""
-    if not out:
-        return False
-    top = max(out, key=lambda r: r.get("score", 0.0))
-    return top.get("source") == "place" or bool(_GOV_HOST.search(_domain_of(top.get("url", ""))))
-
-
-def product_candidates(hit: dict, q: str, out: list[dict], pages: str = "") -> None:
-    """Add the recognised maker's own site (when no row of that site is in the list) and, with `pages`, the best page of it
-    for the product's words. Rows carry product_* fields so the page can credit the table (the ODbL one must be)."""
-    site = (hit.get("maker_site") or "").strip()
-    if not site:
-        return
-    if "://" not in site:
-        site = "https://" + site
-    if not official_ok(site):
-        return
-    dom = _domain_of(site)
-    meta = {"product_kind": hit["kind"], "product_name": hit["name"], "product_maker": hit["maker"],
-            "product_source": hit["source"], "product_licence": hit["licence"], "product_credit": hit["credit"]}
-    if not any(_domain_of(r["url"]) == dom for r in out):
-        o = _site(site, f"{hit['maker']} — official site", f"{hit['name']} · {hit['category']}"[:300], PRODUCT_SCORE - 0.05)
-        o["product"] = True
-        o["product_table"] = True
-        o.update(meta)
-        out.append(o)
-    if pages:
-        import product_table
-        mk = set(product_table.tokens(hit["maker"]))
-        words = [w for w in product_table.tokens(q) if w not in mk]
-        for url, title in product_table.site_pages(pages, dom, words, 2):
-            if not any(r["url"] == url for r in out):
-                slug = re.sub(r"\.(html?|php|aspx?)$", "", urlsplit(url).path.rstrip("/").rsplit("/", 1)[-1])
-                o = _site(url, title or f"{dom} — {' '.join(re.split(r'[-_]+', slug)).strip() or url}", "", 95.0)
-                o["product_page"] = True
-                o.update(meta)
-                out.append(o)
-
-
-def maker_products(key: str, rows, lead_of=None, wide: bool = False) -> list[tuple[str, str]]:
-    """PRODUCT_SQL rows (most searched first) -> [(article title, official url)] of the products the bare word names:
-    at most PRODUCT_TOP, one per article, none whose article (lead_of) says it is discontinued."""
-    out: list[tuple[str, str]] = []
-    for wiki, name, url, _d in rows:
-        words = re.sub(r"\s*\(.*\)$", "", name or "").split()
-        if not wiki or not url or len(words) < 2 or any(wiki == t for t, _u in out) or not official_ok(url):
-            continue
-        u = urlsplit(url)
-        labels = [norm_key(x) for x in _domain_of(url).split(".")[:-1]]
-        segs = [norm_key(x) for x in u.path.split("/") if x]
-        for i in range(1, len(words)):
-            maker, rest = norm_key(" ".join(words[:i])), norm_key(" ".join(words[i:]))
-            if rest == key and maker_in_host(maker, url, wide) and maker != key and (key in labels or key in segs):
-                if lead_of is None or not discontinued(lead_of(wiki)):
-                    out.append((wiki, url))
-                break
-        if len(out) == PRODUCT_TOP:
-            break
-    return out
-
-
-def product_results(products: list[tuple[str, str]], out: list[dict], famous: str | None, lead_of) -> None:
-    """Add each product's own site (once: a site an earlier tier already answered with is left as it is). The one
-    famous_namesake lifted gets its site over its article, as a team does (site_over_article)."""
-    have = {r["url"].rstrip("/") for r in out}
-    for i, (title, url) in enumerate(products):
-        if url.rstrip("/") not in have:
-            o = _site(url, f"{title} — official site", (lead_of(title) or "")[:300], round(PRODUCT_SCORE - 0.1 * i, 2))
-            o["product"] = True
-            if title == famous:
-                # only the famous one is "the official site" to the tiers that pin one first (official_top,
-                # brand_site_first): as official, "video" led with Google Video and "desktop" with Google Desktop
-                o["official"] = True
-                o["of_kind"] = "org"
-            out.append(o)
-        if title == famous:
-            site_over_article(out, title)
-
-
-def site_over_article(out: list[dict], title: str) -> None:
-    """A team's own site stays the top result, its lifted article (and card) right under it
-    ("yankees" -> mlb.com/yankees first); the learned ranker may move
-    neither."""
-    site = next((r for r in out if r.get("official") and r["title"].startswith(title + " — ")), None)
-    if site is not None:
-        site["score"] = NAV_SCORE + 1.5
-        site["famous"] = True
-
-
-# A site named after the query with a common add-on word in its domain (
-# "if people are searching meadowlands they 80/20 want the site for the actual meadowlands"):
-# playmeadowlands.com, whose homepage calls itself "Meadowlands Racing & Entertainment". Two
-# signals: the domain is the query plus an add-on (play-, visit-, -online …) AND the site's
-# own title begins with the query. Only when no domain matches the query outright.
-SELF_NAMED_PREFIX = ("play", "visit", "go", "get", "my", "the", "shop", "try", "join", "ask", "discover",
-                     "explore", "experience", "official", "we", "i", "e", "hello", "meet", "see", "enjoy")
-SELF_NAMED_SUFFIX = ("online", "hq", "app", "official", "usa", "us", "inc", "co", "group", "live", "tv",
-                     "nj", "ny", "home", "site", "web", "world", "now")
-SELF_NAMED_SQL = """
-SELECT d.url, d.title, d.description, d.domain, s.tranco_rank FROM docs d LEFT JOIN serve_sites s USING (domain)
-WHERE d.error IS NULL AND split_part(d.domain, '.', 1) LIKE %(like)s
-ORDER BY s.tranco_rank NULLS LAST LIMIT 30
-"""
-_TITLE_SPLIT = re.compile(r"\s*(?:[|–—:·•]|\s-\s|::)\s*")
-
-
-def self_named(q: str, rows) -> tuple | None:
-    """SELF_NAMED_SQL rows -> the (url, title, desc) of the best-ranked site named after the
-    query, or None."""
-    key = norm_key(q)
-    words = [w for w in re.split(r"[^\w]+", q.lower()) if w]
-    for url, title, desc, domain, _rank in rows:
-        label = norm_key(domain.split(".")[0])
-        if key not in label or label == key:
-            continue
-        head, _, tail = label.partition(key)
-        if not ((head in SELF_NAMED_PREFIX and not tail) or (tail in SELF_NAMED_SUFFIX and not head)):
-            continue
-        first = _TITLE_SPLIT.split((title or "").strip(), 1)[0]
-        tw = [w for w in re.split(r"[^\w]+", first.lower()) if w]
-        tw = tw[1:] if tw[:1] == ["the"] and words[:1] != ["the"] else tw
-        if tw[:len(words)] == words:
-            return url, title, desc
-    return None
-
-
-def lift_famous(out: list[dict], exact_titles: list[str], famous: str, lead_of) -> None:
-    """Put the famous namesake's article first (score over the named site) and first among
-    the exact titles (its accounts and card follow). "trump" already matched Donald
-    Trump's article as an exact alias, at 899 under $Trump — lift it, never add it twice."""
-    url = _wiki(famous, "", 0.0)["url"]
-    hit = next((r for r in out if r.get("source") == "wikipedia" and r["url"] == url), None)
-    if hit is None:
-        hit = _wiki(famous, lead_of(famous), 0.0)
-        out.append(hit)
-    hit["score"] = NAV_SCORE + 1
-    hit["famous"] = True
-    if famous in exact_titles:
-        exact_titles.remove(famous)
-    exact_titles.insert(0, famous)
-
-
-
-# ---------------------------------------------------------------------------
-# Kinds of site (2026-09-28). "password manager", "video sharing site", "online code
-# editor" name a KIND of site, not a site. Before this the Wikipedia article about the kind
-# won (tier 2: "Password manager"), or a tiny domain that spells the words (tier 1:
-# photo-editor.one, audiobook.com, recipes.net): 34% of 258 hand-written descriptive queries
-# had a real site of that kind first (Jev, testbox). kind_docs (importer kinds.py) holds, per
-# site, the kinds Wikidata, Wikipedia categories and list pages, the Open Directory and
-# awesome lists give it; kind_members maps a normalised kind name to the sites carrying it.
-#   - The query IS a kind name (kind_key in kind_members, >= KIND_MIN_MEMBERS sites) and is
-#     not a question: the best-known sites of that kind go above the article (KIND_SCORE),
-#     and unpopular domain-name matches go below them. Never `confident`: a popularity list
-#     does not skip the web on its own.
-#   - Otherwise the kinds BM25 list is one more list in the fusion.
-# ---------------------------------------------------------------------------
-KIND_FILLER = frozenset("a an the best top good great free cheap online site sites website websites "
-                        "webpage app apps application applications service services platform platforms tool tools "
-                        "software program programs provider providers company companies store stores for to with "
-                        "of and or my".split())
-_KIND_QUESTION = re.compile(r"^(how|what|whats|why|when|who|whom|which|where|is|are|was|were|does|do|did|can|should|"
-                            r"history|definition|define|meaning|examples?|types?|list of|comparison)\b"
-                            r"|\b(history of|vs|versus|invented|examples of|meaning of|near me)\b")
-KIND_SCORE = WIKI_EXACT_SCORE + 4      # above the article about the kind, below named sites
-KIND_UNDER_ARTICLE = WIKI_EXACT_SCORE - 0.1   # no site word: right under the article
-KIND_TOP = 3
-KIND_MIN_MEMBERS = 2      # a kind name needs this many sites to be looked up at all
-KIND_MIN_GOOD = 2         # ... and this many judged good to go above the article
-# Popularity: the SITES_SQL Tranco / Common Crawl terms plus Wikidata sitelinks (how many
-# Wikipedias write about the site) — the best-known sites of a kind lead. Old (Jev-built) tables
-# only; the open tables use KIND_POP_OPEN (no Tranco: D2, docs/legal/SEARCH-DATA-LICENSES.md).
-KIND_POP = ("(0.15 * greatest(0, 14 - ln(coalesce(k.tranco_rank, 2000000)))"
-            " + 0.10 * greatest(0, 18 - ln(coalesce(k.cc_hc_pos, 100000000)))"
-            " + 0.08 * ln(1 + coalesce(k.sitelinks, 0)))")
-# Jev's verdict (kind_members.jev, from the deleted utility/search-kind-members.py; ADR-065) decides the order first:
-# a site judged a real one of the kind (>= 0.7) beats an unjudged one, which beats a doubtful
-# one; below 0.3 it is dropped. Popularity orders within each band.
-KIND_JEV_BAND = "10 * max(CASE WHEN m.jev >= 0.7 THEN 2 WHEN m.jev IS NULL THEN 1 WHEN m.jev >= 0.4 THEN 0.5 ELSE 0 END)"
-KIND_KEY_SQL = f"""
-SELECT k.url, k.title, k.descr, k.domain,
-       {KIND_JEV_BAND}
-       + {KIND_POP} * (1 + 0.5 * ln(sum(m.votes))) @LEAD@ @HOME@
-       + %(exact_w)s * max(CASE WHEN m.key = %(exact)s THEN 1 ELSE 0 END) AS score
-FROM kind_members m JOIN kind_docs k USING (domain)
-WHERE m.key = ANY(%(keys)s) AND coalesce(m.jev, 0.5) >= 0.3
-GROUP BY k.url, k.title, k.descr, k.domain, k.tranco_rank, k.cc_hc_pos, k.sitelinks @HOMEG@
-ORDER BY score DESC LIMIT %(k)s
-"""
-# The open tables (importer/kinds_open.py, ADR-065, 2026-10-01) carry kind_members.conf — a
-# membership confidence from open evidence (direct Wikidata statement, independent source
-# families) — instead of Jev's verdict. A site is lifted only when conf >= KIND_LIFT_CONF: the
-# lift is an explicit predicate, so popularity can never carry an unsupported site over the
-# line (in the Jev formula an unjudged, popular, exact-name site could reach KIND_GOOD).
-# Popularity is Common Crawl host rank + Wikidata sitelinks + Wikipedia pageviews.
-KIND_LIFT_CONF = float(os.environ.get("SEARCH_KIND_LIFT_CONF", "0.7"))
-# The open lead is coarse (own Wikidata class 0.5, named in the first sentence 0.3, agreement 0.2):
-# weighted 1.5, not the Jev verdict's 4, so popularity still orders sites with the same lead
-# (v1 used 2; changed with KIND_POP_OPEN after the v1 eval).
-KIND_LEAD_W_OPEN = float(os.environ.get("SEARCH_KIND_LEAD_W_OPEN", "1.5"))
-KIND_CONF_W = float(os.environ.get("SEARCH_KIND_CONF_W", "3"))
-# Wikipedia pageviews lead (how many people look the site up), Common Crawl host rank only nudges:
-# serve_sites has no rank for many well-known sites (nordvpn.com, italki.com), so a missing rank
-# counts as 1M — not as last. v1 (0.04 pageviews, 0.12 rank, missing = 100M) put ipvanish.com
-# over nordvpn.com and protonvpn.com (2026-10-02).
-KIND_POP_OPEN = ("(0.25 * ln(1 + coalesce(k.pageviews, 0))"
-                 " + 0.05 * greatest(0, 18 - ln(coalesce(k.cc_hc_pos, 1000000)))"
-                 " + 0.08 * ln(1 + coalesce(k.sitelinks, 0)))")
 # Two things the ordering lacked (2026-10-10, rc6):
 # - a site's votes were SUMMED over the kind names a query matched, and one Wikidata class comes under several names
 #   ("breaking news", "latest news", "news update", "news report", "current event", "commentary"): a site of that one
@@ -2563,344 +1396,34 @@ KIND_POP_OPEN = ("(0.25 * ln(1 + coalesce(k.pageviews, 0))"
 #   for most sites and "only nudges"). Our own rank now has that term's weight. Over the 11,095 kinds with a list the
 #   median own rank of the three listed sites goes from 94,151 to 68,843.
 KIND_RANK_W_OPEN = float(os.environ.get("SEARCH_KIND_RANK_W_OPEN", "0.15"))
-# A query that is nothing but news words ("latest news", "breaking news", "news today") asks for news sites. The kind
-# names it matches word for word are thin: "latest news" has 72 members and its list was allkpop.com,
-# coinmarketcap.com, scmp.com; nytimes.com, reuters.com and the BBC are under "daily newspaper", "news agency" and
-# "news channel". Such a query reads those.
-NEWS_KINDS = ("daily newspaper", "news agency", "news channel", "cable news channel", "news magazine", "breaking news")
-KIND_KEY_SQL_OPEN = """
-SELECT k.url, k.title, k.descr, k.domain,
-       CASE WHEN max(m.conf) >= @LIFT@ THEN @GOOD@ ELSE 0 END
-       + least(@GOOD@ - 0.1, @CONFW@ * max(m.conf) + @POP@ * (1 + 0.5 * ln(greatest(1, max(m.votes)))) @LEAD@ @HOME@
-               + %(exact_w)s * max(CASE WHEN m.key = %(exact)s THEN 1 ELSE 0 END)) AS score
-FROM kind_members m JOIN kind_docs k USING (domain)
-WHERE m.key = ANY(%(keys)s) AND m.conf >= 0.3
-GROUP BY k.url, k.title, k.descr, k.domain, k.cc_hc_pos, k.sitelinks, k.pageviews @HOMEG@
-ORDER BY score DESC LIMIT %(k)s
-"""
-# A kind name that contains every word of the query ("online chess" -> "chess playing"):
-# the shortest few with enough members.
-KIND_KEYS_SQL = """
-SELECT key FROM kind_keys WHERE (key = %(key)s OR words @> %(w)s) AND n >= %(min)s
-ORDER BY key = %(key)s DESC, array_length(words, 1), n DESC LIMIT 3
-"""
-# Meaning match (kind_vecs, tools/embed-kinds.py): a query whose words name no kind finds
-# the nearest kind names by embedding ("photo editor" ~ "raster graphics editor"). Only kind
-# names with >= 2 liftable sites are embedded (Jev-approved in the old tables, conf >=
-# KIND_LIFT_CONF in the open ones), and only those sites are ever lifted.
-KIND_SIM = float(os.environ.get("SEARCH_KIND_SIM", "0.86"))
 _kvec = (None, None, None)          # (generation, keys, unit-row matrix)
 _kvec_lock = threading.Lock()
 
 
 KIND_VECS_SQL = "SELECT key, v FROM kind_vecs"
-KIND_KEY_EXACT_SQL = "SELECT key FROM kind_keys WHERE key = %(k)s AND n >= %(m)s"
+KVEC_RETRY_S = float(os.environ.get("SEARCH_KVEC_RETRY_S", "60"))
+_kvec_retry = [0.0]                  # monotonic time before which a failed read is not tried again
 
 
 def kind_vectors(c):
+    """(keys, matrix) of the kind-name vectors, read once per data snapshot. A missing table or numpy is "off" for the
+    snapshot; any other failure (a timeout, a broken connection) is asked again after KVEC_RETRY_S (CORE-A-06)."""
     global _kvec
     gen = generation()
-    if _kvec[0] != gen or _kvec[1] is None:
+    if _kvec[0] != gen or (_kvec[1] is None and time.monotonic() >= _kvec_retry[0]):
         with _kvec_lock:
-            if _kvec[0] != gen or _kvec[1] is None:
+            if _kvec[0] != gen or (_kvec[1] is None and time.monotonic() >= _kvec_retry[0]):
                 try:
                     import numpy as np
                     rows = c.execute(KIND_VECS_SQL).fetchall()
                     _kvec = (gen, [r[0] for r in rows], np.array([r[1] for r in rows], dtype=np.float32))
                 except Exception as e:
                     print(f"kind vectors: off ({type(e).__name__}: {e})", flush=True)
-                    _kvec = (gen, [], None)
-    return _kvec[1], _kvec[2]
+                    permanent = isinstance(e, ImportError) or type(e).__name__ in ("UndefinedTable", "NoPostgres") or "no such table" in str(e)
+                    _kvec = (gen, [], None) if permanent else (gen, None, None)
+                    _kvec_retry[0] = time.monotonic() + KVEC_RETRY_S
+    return (_kvec[1] if _kvec[1] is not None else []), _kvec[2]
 
-
-# Jev's "first choice" verdict (kind_members.lead, from the deleted utility/search-kind-leaders.py) orders the
-# approved sites of a kind; it never admits a site (the Jev-approval band still decides that).
-# Older tables have no lead column: the term is left out, as before (2026-09-30).
-KIND_LEAD_W = float(os.environ.get("SEARCH_KIND_LEAD_W", "4"))
-# A site of the kind the query names exactly beats one that only a broader kind (containment
-# or meaning match) brought in: "internet radio streaming" pulled Prime Video in through a
-# general streaming kind (2026-09-30, r6 dev eval).
-KIND_EXACT_W = float(os.environ.get("SEARCH_KIND_EXACT_W", "5"))
-# Home country (2026-09-30): among a kind's approved sites, those whose owner is in the
-# box's country (kind_docs.country, Wikidata P17) move up — "supermarket chain" from a US box.
-# SEARCH_COUNTRY is the Wikidata English label; empty = no preference.
-KIND_COUNTRY = os.environ.get("SEARCH_COUNTRY", "United States")
-KIND_HOME_W = float(os.environ.get("SEARCH_KIND_HOME_W", "1"))   # a tie-breaker: 3 put fitbit over toggl
-_kind_cols = (None, frozenset())
-
-
-def kind_cols(c) -> frozenset:
-    """Which optional kind columns the tables this connection reads have (its search_path:
-    an eval schema in front of public must not mix the two)."""
-    global _kind_cols
-    gen = generation()
-    if _kind_cols[0] != gen:
-        cols = frozenset(f"{t}.{c}" for t, c in c.execute(
-            "SELECT table_name, column_name FROM information_schema.columns "
-            "WHERE (table_name, column_name) IN (('kind_members', 'lead'), ('kind_docs', 'country'), "
-            "('kind_members', 'conf')) AND table_schema = ("
-            "SELECT n.nspname FROM pg_class r JOIN pg_namespace n ON n.oid = r.relnamespace "
-            "WHERE r.oid = to_regclass('kind_members'))"))
-        _kind_cols = (gen, cols)
-    return _kind_cols[1]
-
-
-def kind_open(c) -> bool:
-    """The open tables (kind_members.conf) rather than the old Jev-built ones."""
-    return "kind_members.conf" in kind_cols(c)
-
-
-def kind_bm25_sql(c) -> str:
-    """KIND_SQL with the popularity of the tables in use (no Tranco on the open tables)."""
-    return KIND_SQL.replace(KIND_POP, KIND_POP_OPEN) if kind_open(c) else KIND_SQL
-
-
-def kind_key_sql(c) -> str:
-    """KIND_KEY_SQL with the optional terms whose columns this database has (older tables
-    have neither kind_members.lead nor kind_docs.country: the terms are left out). The open
-    tables (kind_members.conf) get KIND_KEY_SQL_OPEN."""
-    cols = kind_cols(c)
-    if "kind_members.conf" in cols:
-        sql = (KIND_KEY_SQL_OPEN.replace("@LIFT@", str(KIND_LIFT_CONF)).replace("@GOOD@", str(KIND_GOOD))
-               .replace("@CONFW@", str(KIND_CONF_W)).replace("@POP@", KIND_POP_OPEN))
-    else:
-        sql = KIND_KEY_SQL
-    lead_w = KIND_LEAD_W_OPEN if "kind_members.conf" in cols else KIND_LEAD_W
-    sql = sql.replace("@LEAD@", f"+ {lead_w} * max(coalesce(m.lead, 0.5))"
-                      if "kind_members.lead" in cols else "")
-    home = "kind_docs.country" in cols and bool(KIND_COUNTRY)
-    esc = KIND_COUNTRY.replace("'", "''")
-    sql = sql.replace("@HOME@", f"+ CASE WHEN k.country = '{esc}' THEN {KIND_HOME_W} ELSE 0 END" if home else "")
-    sql = sql.replace("@HOMEG@", ", k.country" if home else "")
-    if "kindjev" in _drop.get():
-        # eval only: no Jev verdicts — every member in the top band, no floor, no lead term
-        sql = (sql.replace(KIND_JEV_BAND, "10 * 2").replace(" AND coalesce(m.jev, 0.5) >= 0.3", "")
-                  .replace(f"+ {KIND_LEAD_W} * max(coalesce(m.lead, 0.5))", ""))
-    return sql
-
-
-def near_kinds(c, kq: str, n: int = 3) -> list[str]:
-    keys, m = kind_vectors(c)
-    if m is None or not len(keys):
-        return []
-    e = embed(kq, prefix="")
-    if e is None:
-        return []
-    import numpy as np
-    sims = m @ np.asarray(e, dtype=np.float32)
-    top = np.argsort(-sims)[:n]
-    return [keys[i] for i in top if sims[i] >= KIND_SIM]
-
-
-# Meaning search over sites (kind_site_vec): a kind-shaped query that names no kind we know
-# ("app for splitting bills with roommates") is compared with every approved site's title,
-# kinds and description. One more fused list — never lifted, never `confident`.
-# Since 2026-09-30 the vectors also carry doc2query's model-written queries, and cover sites
-# that are in no kind (d2q-only): those show their own crawled homepage (docs).
-KIND_SITE_SIM = float(os.environ.get("SEARCH_KIND_SITE_SIM", "0.72"))
-KIND_SITE_SQL = """
-SELECT coalesce(k.url, d.url), coalesce(k.title, nullif(d.title, ''), v.domain), coalesce(k.descr, d.description, ''),
-       v.domain, v.sim
-FROM (SELECT domain, 1 - (v <=> %(e)s::halfvec) AS sim FROM kind_site_vec
-      ORDER BY v <=> %(e)s::halfvec LIMIT 8) v
-LEFT JOIN kind_docs k ON k.domain = v.domain
-LEFT JOIN LATERAL (SELECT url, title, description FROM docs WHERE domain = v.domain AND error IS NULL
-                   ORDER BY fetched_at DESC LIMIT 1) d ON k.domain IS NULL
-WHERE k.domain IS NOT NULL OR d.url IS NOT NULL
-ORDER BY v.sim DESC
-"""
-
-
-def _kind_site_rows(q: str) -> list[tuple]:
-    e = embed(q)
-    if e is None:
-        return []
-    vec = "[" + ",".join(f"{x:.5f}" for x in e) + "]"
-    return [r for r in _rows(KIND_SITE_SQL, {"e": vec}, "SET hnsw.ef_search = 40") if r[4] >= KIND_SITE_SIM]
-
-
-KIND_GOOD = 20.0          # a member Jev judged a real site of the kind (>= 0.7): only these are lifted
-KIND_SQL = f"""
-SELECT url, title, descr, domain, bm25 * (1 + pop) AS score FROM (
-  SELECT k.url, k.title, k.descr, k.domain, {KIND_POP} AS pop,
-         -(k.search_text <@> to_bm25query(%(q)s, 'kind_docs_bm25')) AS bm25
-  FROM kind_docs k
-  ORDER BY k.search_text <@> to_bm25query(%(q)s, 'kind_docs_bm25') LIMIT 200) x
-ORDER BY score DESC LIMIT %(k)s
-"""
-
-
-_NOT_PLURAL = frozenset("news series species gps dns aws ios macos sms bus lens chess glass".split())
-
-
-def _singular(w: str) -> str:
-    if w in _NOT_PLURAL:
-        return w
-    if len(w) > 4 and w.endswith("ies"):
-        return w[:-3] + "y"
-    if len(w) > 3 and w.endswith("s") and not w.endswith(("ss", "us", "is")):
-        return w[:-1]
-    return w
-
-
-def kind_key(text: str) -> str:
-    """A kind name, normalised: "Password Managers" / "password manager app" ->
-    "password manager". Must match importer/kinds.py kind_key() — test_search_kinds.py."""
-    words = [_singular(w) for w in _TOKEN.findall(text.lower()) if w not in KIND_FILLER]
-    return " ".join(words)
-
-
-def kind_query(q: str) -> str | None:
-    """The kind a query names, or None for a question / an empty remainder."""
-    t = q.lower().strip()
-    if _KIND_QUESTION.search(t) or domain_query(t):
-        return None
-    k = kind_key(t)
-    return k if 2 <= len(k) <= 60 else None
-
-
-# Words that say "a site / app / service" — not articles or adjectives ("the learning" is
-# not a request for learning sites, 2026-09-28 regression eval).
-KIND_SITE_WORDS = frozenset("online site sites website websites webpage app apps application applications service "
-                            "services platform platforms tool tools software program programs provider providers "
-                            "store stores".split())
-
-
-def kind_base(q: str, has_article: bool) -> float:
-    """Where the lifted sites of a kind start. "cloud computing", "video game": a topic that is
-    also a kind keeps its article first unless the query asks for a site ("... app",
-    "online ...") — 2026-09-28 (linode.com had topped "cloud computing")."""
-    site_asked = (any(w in KIND_SITE_WORDS for w in _TOKEN.findall(q.lower()))
-                  or sites_intent(q) >= SITES_INTENT_MIN)
-    return KIND_SCORE if site_asked or not has_article else KIND_UNDER_ARTICLE
-
-
-# A task names the tool that does it ("merge pdf files online" -> "pdf merger", "convert video
-# to mp3" -> "video converter" / "file converter"). Only candidate kind names: a lift still
-# needs >= 2 Jev-approved sites of that kind, so a wrong rewrite finds nothing (2026-09-30).
-TASK_TOOL = {"merge": "merger", "combine": "merger", "convert": "converter", "edit": "editor",
-             "record": "recorder", "track": "tracker", "compress": "compressor", "translate": "translator",
-             "shorten": "shortener", "download": "downloader", "generate": "generator", "make": "maker",
-             "create": "maker", "scan": "scanner", "check": "checker", "plan": "planner",
-             "calculate": "calculator", "play": "player", "manage": "manager", "draw": "drawing",
-             "sign": "signature", "host": "hosting", "share": "sharing", "store": "storage"}
-TASK_GENERIC = {"converter": "file converter", "compressor": "file compressor"}
-_TASK_SKIP = KIND_FILLER | frozenset("file files my your a the online free into in on".split())
-
-
-def task_kinds(q: str) -> list[str]:
-    """Candidate tool kind names for a task-shaped query; [] when it does not start with a task verb."""
-    words = _TOKEN.findall(q.lower())
-    if not words or words[0] not in TASK_TOOL:
-        return []
-    noun = TASK_TOOL[words[0]]
-    objs = [w for w in words[1:] if w not in _TASK_SKIP]
-    out = []
-    if objs:
-        out.append(kind_key(" ".join(objs[:2]) + " " + noun))
-        out += [kind_key(o + " " + noun) for o in objs[:2]]
-    if noun in TASK_GENERIC:
-        out.append(TASK_GENERIC[noun])
-    return list(dict.fromkeys(k for k in out if k))
-
-
-def kind_worded(q: str) -> bool:
-    """The query says it wants a site ("... app", "online ...") or names a kind in 2+ words.
-    A bare topic word ("chess", "email") is not lifted: its article stays first."""
-    words = _TOKEN.findall(q.lower())
-    return any(w in KIND_SITE_WORDS for w in words) or len([w for w in words if w not in KIND_FILLER]) >= 2
-
-
-# The kinds tier recommends: "the best-known sites of this kind". Two things it got wrong (2026-10-09: "cnn
-# breaking news" led with dailystormer.in, then bbc.com and allkpop.com, and cnn.com was 4th at 98).
-# 1. Nothing asked what a site IS. The list holds the members with conf >= KIND_LIFT_CONF, and conf is highest (0.85)
-#    for a site whose own Wikidata class is the kind: The Daily Stormer is classed a news website, the BBC (0.75) and
-#    CNN (0.55, never lifted) are broadcasters. UT1's hate list does not hold that domain, and the category data
-#    cannot tell: nytimes.com, facebook.com and whitehouse.gov are in "fake news websites" too. The article's own
-#    first sentence can ("... was an American neo-Nazi commentary and message board website"): of the 108,135
-#    liftable sites of rc6, 43 are described that way (infowars.com, stormfront.org, thegatewaypundit.com,
-#    naturalnews.com, patriotfront.us). They are still found by their name; they are not recommended.
-# 2. The site the query names was ignored: "breaking news" came from the meaning match, which does not see "cnn".
-#    A member of the kind whose domain label is a word of the query leads the list, liftable or not.
-_NOT_RECOMMENDED = re.compile(r"\b(?:neo-?nazi|white[- ]supremac|white[- ]nationalis|holocaust[- ]deni|hate group|"
-                              r"fake[- ]news (?:web)?site|conspiracy[- ]theor)", re.I)
-KIND_NAMED_POOL = 60          # members read to find the one the query names (the list itself stays KIND_TOP)
-
-
-def not_recommended(claims) -> bool:
-    """site_claims rows of a site -> an article about it opens by calling it a hate, hoax or conspiracy site."""
-    return any(_NOT_RECOMMENDED.search(first_sentence(c[3]) + " " + (c[4] or "")) for c in claims)
-
-
-def kind_unfit(url: str) -> bool:
-    lk = lookups()
-    if lk is None or lk.name != "release":
-        return False
-    return not_recommended(lk.site_claims(_domain_of(url))[1])
-
-
-def kind_named_first(q: str, good: list[tuple], rows: list[tuple]) -> list[tuple]:
-    """(url, title, descr, domain, score) rows: the member whose domain label is a word of the query goes first
-    ("cnn breaking news" -> cnn.com, a member at 0.55). Filler words name no site ("best", "online")."""
-    words = {w for w in _TOKEN.findall(q.lower()) if len(w) >= 3 and w not in KIND_FILLER}
-    named = next((r for r in rows if r[3].split(".")[0] in words), None)
-    if named is None or (good and good[0][3] == named[3]):
-        return good
-    return [named] + [r for r in good if r[3] != named[3]]
-
-
-def _kind(url, title, descr, score, popular=False) -> dict:
-    r = _site(url, title or url, descr or "", score, popular)
-    r["kind"] = True
-    return r
-
-
-# "Top <kind>" card (2026-09-30, approved mockup): when a kind's sites are lifted to the top,
-# the page shows them together in one box (up to 5) instead of as the first rows. Titled with
-# the query's own words — kind keys are normalised ("window text editor") and read badly.
-KIND_CARD_N = 5
-
-
-def _plural(w: str) -> str:
-    if w in _NOT_PLURAL or w.endswith("s"):
-        return w
-    if w.endswith("y") and len(w) > 2 and w[-2] not in "aeiou":
-        return w[:-1] + "ies"
-    return w + ("es" if w.endswith(("x", "ch", "sh")) else "s")
-
-
-_CARD_HEAD = KIND_SITE_WORDS | frozenset("company companies".split())
-_CARD_AS_TYPED = frozenset("for with to of that which who".split())
-
-
-def kind_card_title(q: str) -> str:
-    """"password manager" -> "Password managers"; "video sharing site" -> "Video sharing sites"
-    (the site word stays when it ends the query: "Video sharings" is not a name)."""
-    toks = _TOKEN.findall(q.lower())
-    words = [w for w in toks if w not in KIND_FILLER]
-    if not words or task_kinds(q) or _CARD_AS_TYPED & set(toks):
-        t = q.strip()[:60]                  # "app for splitting bills with roommates"
-        return t[:1].upper() + t[1:]
-    if toks[-1] in _CARD_HEAD:
-        words.append(toks[-1])
-    words[-1] = _plural(words[-1])
-    t = " ".join(words)[:60]
-    return t[:1].upper() + t[1:]
-
-
-def kind_card(q: str, rows) -> dict | None:
-    sites = [{"url": url, "title": title or dom, "domain": dom} for url, title, _d, dom, _s in rows]
-    return {"title": kind_card_title(q), "sites": sites} if len(sites) >= KIND_MIN_GOOD else None
-
-
-def demote_name_matches(q: str, out: list[dict], keep: set[str]) -> None:
-    """A kind query ("audiobook app"): a domain-name match (audiobook.com, and cnet.com for
-    "cloud storage service") goes under the best-known sites of that kind — unless the query
-    is exactly that popular site's name ("chess" -> chess.com)."""
-    for r in out:
-        if (r.get("source") == "site" and r["score"] > KIND_SCORE and not exact_name_top(q, r)
-                and not r.get("official") and _domain_of(r["url"]) not in keep):
-            r["score"] = round(KIND_UNDER_ARTICLE - KIND_TOP - 1 - (NAV_SCORE - min(r["score"], NAV_SCORE)) / 100, 2)
 
 def related_results(rows) -> list[dict]:
     out = []
@@ -2911,247 +1434,14 @@ def related_results(rows) -> list[dict]:
     return out
 
 
-# The card over an exact answer (start page, 2026-09-25): what the thing is, from its
-# Wikidata description (suggest_items.descr), its lead, and its accounts and related
-# articles as links — built from the results already found, one lookup more.
-CARD_DESCR_SQL = "SELECT descr FROM suggest_items WHERE wiki = %(t)s AND descr IS NOT NULL ORDER BY demand DESC NULLS LAST LIMIT 1"
-# Its own stored official site (wiki_sites, the table WIKI_EXACT_SITE_SQL joins), for the card whose result list holds no
-# official row of it ("claude": claude.ai is a plain site row and the exact-title path found another article).
-CARD_SITE_SQL = ("SELECT ws.url FROM wiki_sites ws JOIN wiki_docs w USING (page_id) "
-                 "WHERE w.title = %(t)s AND ws.url IS NOT NULL LIMIT 1")
-# Its picture (2026-09-29, importer/card_images.py): free-licensed Commons files only, stored
-# as small WebP and sent inline, with the credit the licence asks for.
-CARD_IMAGE_SQL = "SELECT img, w, h, author, licence, licence_url, file FROM card_images WHERE title = %(t)s"
-
-
-def card_image(row) -> dict | None:
-    """A card_images row -> the card's picture: a data: URI, its size, and the credit
-    (author, licence + deed, the file's Commons page)."""
-    if not row:
-        return None
-    img, w, h, author, licence, licence_url, file = row
-    out = {"src": "data:image/webp;base64," + base64.b64encode(bytes(img)).decode("ascii"), "w": w, "h": h,
-           "licence": licence, "source": "https://commons.wikimedia.org/wiki/File:" + quote(file.replace(" ", "_"))}
-    if author:
-        out["author"] = author
-    if licence_url:
-        out["licence_url"] = licence_url
-    return out
-
-
-CARD_WITHIN = 3
-# What the lead keeps of stripped pronunciation markup: "Roblox (, ) is", "The Eiffel Tower ( ; )
-# is" (card UI audit, 2026-09-30).
-_EMPTY_PARENS = re.compile(r"\s*\(\s*[,;:\s]*\)")
-
-
-def clean_lead(text: str) -> str:
-    """A lead for the card without empty brackets and the spacing they leave."""
-    return re.sub(r"\s+([,;.])", r"\1", _EMPTY_PARENS.sub("", text or "")).strip()
-
-
 def _label(url: str) -> str:
     host = (urlsplit(url).hostname or "").lower().removeprefix("www.")
     return host.split(".")[0]
 
 
-def card_article(res: list[dict]) -> dict | None:
-    """The exact-answer article the card is about: the first one in the top CARD_WITHIN,
-    not counting the top site's sisters: on other endings (starbucks.com.cn, starbucks.co.jp
-    pushed Starbucks' article to 4th, 2026-09-25) and under its own name (plus.cnn.com and
-    cnnespanol.cnn.com pushed CNN's to 4th: "cnn" had no card, 2026-10-10)."""
-    top = _label(res[0]["url"]) if res and res[0].get("source") == "site" else None
-    under = "." + _domain_of(res[0]["url"]) if top else None
-    sister = lambda r: r.get("source") == "site" and (_label(r["url"]) == top or _domain_of(r["url"]).endswith(under))  # noqa: E731
-    # nearby branches are the Nearby box, not rows: "Ikea" with an area put three IKEA stores between the official site
-    # and the article, which then sat 5th and the card was lost (2026-11-06)
-    window = [r for i, r in enumerate(res) if not (i and top and sister(r)) and r.get("source") != "place"]
-    return next((r for r in window[:CARD_WITHIN] if r.get("source") == "wikipedia"
-                 and (r["score"] >= WIKI_EXACT_SCORE or r.get("respelled"))), None)
-
-
-# A misspelled name gets its card (2026-11-06, owner: "on misspellings we should be hitting the correct card"):
-# "sarah j mass" is not respelled (every word is a word), so no exact article answers it, yet the list leads with
-# "Sarah J. Maas — Wikipedia" and sarahjmaas.com. The article counts as the card's when its title is the query
-# word for word with each word at most one letter off (a swap counts once), and the name's own site (its words
-# joined, "sarahjmaas") is among the first six rows (the engine's order: sarahjmaas.com sat 4th). "mass" alone is
-# one word against three: never.
-_RW = re.compile(r"[a-z0-9]+")
-
-
-def _name_words(s: str) -> list[str]:
-    return _RW.findall(unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower())
-
-
-def _one_off(a: str, b: str) -> bool:
-    """a and b equal, or one edit apart (a letter changed, added, dropped, or two neighbours swapped)."""
-    if a == b:
-        return True
-    if abs(len(a) - len(b)) > 1 or min(len(a), len(b)) < 3:
-        return False
-    if len(a) == len(b):
-        d = [i for i in range(len(a)) if a[i] != b[i]]
-        return len(d) == 1 or (len(d) == 2 and d[1] == d[0] + 1 and a[d[0]] == b[d[1]] and a[d[1]] == b[d[0]])
-    s, t = (a, b) if len(a) < len(b) else (b, a)
-    return any(t[:i] + t[i + 1:] == s for i in range(len(t)))
-
-
-def respells_name(q: str, title: str) -> bool:
-    """title (its "(…)" dropped) is q word for word, each word at most one edit off, at least one differing."""
-    qw, tw = _name_words(q), _name_words(re.sub(r"\s*\([^)]*\)\s*$", "", title))
-    return len(qw) >= 2 and len(qw) == len(tw) and qw != tw and all(_one_off(a, b) for a, b in zip(qw, tw))
-
-
-def mark_respelled(q: str, res: list[dict]) -> None:
-    """Marks the first or second row as the card's article when it respells q and the name's own site is in the
-    first six rows (card_article then takes it)."""
-    for r in res[:2]:
-        if r.get("source") != "wikipedia" or r["score"] >= WIKI_EXACT_SCORE:
-            continue
-        title = r["title"].rsplit(" — Wikipedia", 1)[0]
-        if not respells_name(q, title):
-            continue
-        joined = "".join(_name_words(re.sub(r"\s*\([^)]*\)\s*$", "", title)))
-        if any(x.get("source") == "site" and _label(x["url"]) == joined for x in res[:6]):
-            r["respelled"] = True
-        return
-
-
-# The site tree under the card's official site (2026-11-05, owner: "a site tree type of thing that has links to where
-# important parts of the site might be useful"): a few of the site's own sections (Tickets, Shop, Menu, Locations,
-# News, Support, Contact ...), picked from its home page's navigation by tools/site-nav.py at build time. Nothing is
-# fetched at search time. SEARCH_SITENAV: that tool's sitenav.jsonl; unset or missing, cards have no tree.
-SITENAV_PATH = os.environ.get("SEARCH_SITENAV", "").strip()
-SITENAV_MAX = 6
-_sitenav: dict[str, list[dict]] | None = None
-_sitenav_lock = threading.Lock()
-
-
 def _host_key(url: str) -> str:
     h = (urlsplit(url or "").hostname or "").lower()
     return h[4:] if h.startswith("www.") else h
-
-
-def sitenav() -> dict[str, list[dict]]:
-    """{site host (no www.): [{title, url}, ...]}, read once."""
-    global _sitenav
-    if _sitenav is None:
-        with _sitenav_lock:
-            if _sitenav is None:
-                got: dict[str, list[dict]] = {}
-                try:
-                    with open(SITENAV_PATH, encoding="utf-8") as f:
-                        for line in f:
-                            r = json.loads(line)
-                            links = [{"title": x["text"], "url": x["url"], **({"section": x["section"]} if x.get("section") else {})}
-                                     for x in r.get("links") or []
-                                     if x.get("text") and str(x.get("url", "")).startswith("https://")]
-                            if links:
-                                got[r["site"]] = links[:SITENAV_MAX]
-                except (OSError, ValueError, KeyError) as e:
-                    if SITENAV_PATH:
-                        print(f"site tree {SITENAV_PATH}: not read ({type(e).__name__})", flush=True)
-                _sitenav = got
-                if got:
-                    print(f"site tree {SITENAV_PATH}: {len(got)} sites", flush=True)
-    return _sitenav
-
-
-# "nike returns", "chase login", "sony wh-1000xm5" (site_slots.py): a search that is a site's name plus
-# words is answered by lookup. SEARCH_SITE_SLOTS=<site-slots.jsonl> (tools/site-slots.py build) turns on the slot row: the
-# page of the site's own tree that the leftover words ask for (login, returns, support, pricing ...), under the exact rows.
-# SEARCH_SITE_BRIDGE=<site-search.jsonl> (tools/site-slots.py search-table) turns on the "search on <site>" row (bridge: true)
-# when no slot matched. Both unset = off. Neither is in result_store.NOT_RESULTS: they are in the results fingerprint.
-SITE_SLOTS_PATH = os.environ.get("SEARCH_SITE_SLOTS", "").strip()
-SITE_BRIDGE_PATH = os.environ.get("SEARCH_SITE_BRIDGE", "").strip()
-SITE_SLOTS_LEAD = os.environ.get("SEARCH_SITE_SLOTS_LEAD", "").strip().lower() in ("1", "on", "true", "yes")   # the slot row first, not under the entity's own row
-_site_tables: dict[str, object] = {}
-_site_tables_lock = threading.Lock()
-
-
-def _site_table(kind: str):
-    """The slot table or the site-search table, read once; None when unset or unreadable (the feature stays off).
-    site_slots is imported here, so with both settings unset the module is never loaded."""
-    path = SITE_SLOTS_PATH if kind == "slots" else SITE_BRIDGE_PATH
-    if not path:
-        return None
-    with _site_tables_lock:
-        if kind not in _site_tables:
-            import site_slots
-            try:
-                t = (site_slots.load_slots if kind == "slots" else site_slots.load_search)(path)
-                print(f"site {kind} {path}: {len(t)} sites", flush=True)
-            except (OSError, ValueError) as e:
-                print(f"site {kind} {path}: not read ({type(e).__name__})", flush=True)
-                t = None
-            _site_tables[kind] = t
-    return _site_tables[kind]
-
-
-def _official_hosts_of_name(name_key: str) -> list[str]:
-    """The official sites of the articles a name is an alias of (tier 2's own lookup, WIKI_EXACT_SITE_SQL): the engine's
-    answer to "which site does this name mean" for names whose domain is not the name. [] without the table or on error."""
-    try:
-        with _conn() as c:
-            if "wiki_sites" not in tables(c):
-                return []
-            rows = c.execute(pop_sql(WIKI_EXACT_SITE_SQL), {"nq": name_key}).fetchall()
-        return [_host_key(r[2]) for r in rows if r[2]]
-    except Exception:  # noqa: BLE001 - extra: never fail the answer
-        return []
-
-
-def site_intent_rows(q: str, res: list[dict], card: dict | None) -> list[dict]:
-    """The shown list with the slot row, else the bridge row, when the settings are on and the search is a name + words."""
-    if not (SITE_SLOTS_PATH or SITE_BRIDGE_PATH) or not res:
-        return res
-    import site_slots
-    out = site_slots.apply_slots(q, res, card, _site_table("slots"), _official_hosts_of_name, SITE_SLOTS_LEAD)
-    if out is res:
-        out = site_slots.apply_bridge(q, res, card, _site_table("bridge"), _official_hosts_of_name)
-    return out
-
-
-# Every link Wikidata records for a topic (2026-11-06, owner: "If it's legal and ok license wise to use the stuff from
-# Wikidata we should be using all of it"; Wikidata is CC0, and these are links only). tools/card-links.py builds
-# SEARCH_CARDLINKS (sqlite: links(title, p, url), fields(p, label, rank)); read per card, by its English Wikipedia
-# title. Accounts and fan communities join the card's marks; the rest go under "More links".
-CARDLINKS_PATH = os.environ.get("SEARCH_CARDLINKS", "").strip()
-CARDLINKS_MAIN = frozenset(("Reddit", "Fandom", "X", "Instagram", "Facebook", "YouTube", "TikTok", "Threads", "Bluesky",
-                            "Mastodon", "LinkedIn", "GitHub"))
-CARDLINKS_MORE = 16
-# a film or music catalogue only for what it catalogues (account_fits): its label as one of those platforms
-_CARDLINK_KIND = {**{k: "imdb" for k in ("IMDb", "Letterboxd", "TMDB", "Trakt", "Rotten Tomatoes", "Metacritic", "TheTVDB",
-                                         "LUMIERE", "MovieLens", "FilmAffinity")},
-                  **{k: "discogs" for k in ("MusicBrainz", "MusicBrainz release group", "Discogs", "AllMusic", "Songkick",
-                                            "Genius", "Spotify", "Apple Music", "SoundCloud", "Last.fm", "Bandcamp", "Deezer")}}
-_cardlinks_db = threading.local()
-
-
-def card_links(title: str) -> list[tuple[str, str]]:
-    """[(label, url)] for the topic, in the fields' order (most used first); [] without the file."""
-    if not CARDLINKS_PATH or not title:
-        return []
-    import sqlite3
-    db = getattr(_cardlinks_db, "db", None)
-    if db is None:
-        try:
-            db = sqlite3.connect(f"file:{CARDLINKS_PATH}?mode=ro", uri=True, check_same_thread=False)
-            _cardlinks_db.db = db
-        except sqlite3.Error:
-            return []
-    try:
-        # several accounts of one kind (X: GoogleColombia, Google, GoogleArabia...): the card shows the first, so the
-        # shortest address leads, which is the brand's own handle (2026-11-15: "google" showed x.com/GoogleColombia)
-        return db.execute("SELECT f.label, l.url FROM links l JOIN fields f ON f.p = l.p WHERE l.title = ? "
-                          "ORDER BY f.rank, length(l.url), l.url", (title,)).fetchall()
-    except sqlite3.Error:
-        return []
-
-
-def site_tree(url: str) -> list[dict]:
-    """The section links of the site at url (its own host, or its www./bare twin), [] if none."""
-    return sitenav().get(_host_key(url), []) if SITENAV_PATH else []
 
 
 # The card gate (2026-11-05, owner: "only show things that are relevant underneath with high certainty"): under a
@@ -3164,38 +1454,6 @@ def site_tree(url: str) -> list[dict]:
 # (SEARCH_CARD_GATE=0); ?cg=<threshold> per request for an A/B. The first row and places are never gated.
 CARD_GATE = float(os.environ.get("SEARCH_CARD_GATE", "0") or 0)
 _card_gate: contextvars.ContextVar = contextvars.ContextVar("card_gate", default=CARD_GATE)
-_CG_W = (-3.4722, 0.8172, 0.3326, 0.6411, 1.6392, 0.2992, 0.7690, -0.6049, -0.0491, -0.4546, 0.5260)
-_CG_MU = (0.0000, -2.8688, 0.0739, 91.1752, 0.2927, 0.0555, 0.2752, 0.7219, 2.5821, 0.3541, 0.5306)
-_CG_SD = (1.0000, 3.2312, 0.1256, 199.0217, 0.3229, 0.1785, 0.4466, 0.4480, 1.1108, 0.4783, 0.4991)
-_CG_STOP = frozenset("the a an of and in on for to de la le el s".split())
-
-
-def _cg_toks(s: str) -> set[str]:
-    return {t for t in re.findall(r"[\w']+", (s or "").lower()) if t not in _CG_STOP}
-
-
-def card_gate_p(q: str, r: dict, pos: int) -> float:
-    """How likely the gate's model finds row pos (0-based) relevant to q."""
-    qt = _cg_toks(q)
-    host = (urlsplit(r.get("url") or "").hostname or "")
-    ce, lr = r.get("ce"), r.get("lr")
-    x = [1.0, float(ce or 0.0), float(lr or 0.0), float(r.get("score") or 0.0),
-         len(qt & _cg_toks(r.get("title") or "")) / max(len(qt), 1),
-         len(qt & _cg_toks(re.sub(r"[./-]", " ", host))) / max(len(qt), 1),
-         float(r.get("source") == "wikipedia"), float(r.get("source") == "site"), float(pos),
-         float(ce is None), float(lr is None)]
-    z = _CG_W[0] + sum(w * (v - m) / d for w, v, m, d in zip(_CG_W[1:], x[1:], _CG_MU[1:], _CG_SD[1:]))
-    return 1.0 / (1.0 + math.exp(-max(-30.0, min(30.0, z))))
-
-
-def card_gate(q: str, res: list[dict], th: float | None = None) -> list[dict]:
-    """Under a card: the first row, places, and the rows the gate's model is sure of."""
-    th = _card_gate.get() if th is None else th
-    if th <= 0 or len(res) < 2:
-        return res
-    return res[:1] + [r for i, r in enumerate(res[1:], 1) if r.get("source") == "place" or card_gate_p(q, r, i) >= th]
-
-
 # Accounts a card shows (2026-11-06): music and film catalogues only for what they catalogue. "IKEA" had Discogs and
 # SoundCloud, "West Ham United" IMDb. Judged from the entity's Wikidata short description; none known, all stay.
 _MUSIC_PLATFORMS = frozenset(("discogs", "soundcloud", "spotify", "applemusic", "allmusic", "genius"))
@@ -3216,28 +1474,28 @@ def account_fits(platform: str, what: str) -> bool:
     return True
 
 
-_PLATFORM_IS = re.compile(r"\b(social (media|network)|video[- ]sharing|video platform|messaging|instant messag|microblog|"
-                          r"streaming (service|platform)|online (platform|service|community)|photo[- ]sharing|"
-                          r"image[- ]sharing|code hosting|hosting service|social news|networking (service|site|platform)|"
-                          r"voip|chat (app|platform)|mobile app)", re.I)
-_PLATFORM_NOT = re.compile(r"\b(film|novel|album|band|song|newspaper|magazine|letter|concept|"
-                           r"television|tv series|play|poem|disambiguation)\b", re.I)
-
-
-def platform_home(title: str, descr: str | None, lead: str | None) -> list[dict]:
-    """The card's official site when the article IS a social platform (PLATFORM_HOME): the article title is on the
-    list, and its Wikidata description or lead's first 200 characters call it a platform and not a film, a newspaper,
-    a letter. The card carries no Wikidata id, so the title and this wording stand in for it."""
-    url = PLATFORM_HOME.get((title or "").strip().lower())
-    if not url:
-        return []
-    for text in (descr, (lead or "")[:200]):
-        if text and _PLATFORM_IS.search(text) and not _PLATFORM_NOT.search(text):
-            return [{"title": "Official site", "url": url}]
-    return []
-
-
 _HOST_OK = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$")
+
+
+def optional(name: str, fn, fallback, log=None):
+    """An optional block of an answer (audit CORE-B-04, the 2026-11-14 outage class): fn() or, when it raises, the
+    fallback with the exception's TYPE logged (never the query: logs ship to VictoriaLogs). One failing extra degrades
+    that extra; it never fails the search or drops the reply. PartStale (the builder's own question) goes through."""
+    try:
+        return fn()
+    except PartStale:
+        raise
+    except Exception as e:  # noqa: BLE001
+        (log or (lambda m, *a: print(m % a, file=sys.stderr, flush=True)))("%s failed: %s", name, type(e).__name__)
+        return fallback
+
+
+def _host_of(url: str) -> str:
+    """The url's host, lower case; "" for an address urlsplit rejects ("http://[abc/x")."""
+    try:
+        return (urlsplit(url or "").hostname or "").lower()
+    except ValueError:
+        return ""
 
 
 def url_host_ok(url: str) -> bool:
@@ -3249,237 +1507,10 @@ def url_host_ok(url: str) -> bool:
         return False
 
 
-DESCR_MAX = 120
-DESCR_STORED_CUT = 60                                    # the release keeps a card's description to this many characters
-
-
-def card_description(descr: str | None, what: str | None) -> str:
-    """The card's one line: the stored description, or the whole one an account row carries when the stored one is its
-    start (the release cuts it at 60: Google's read "American multinational technology company, a subsidiary of A",
-    owner 2026-11-15), cut at a word with "…" past DESCR_MAX or when only a cut one is known."""
-    d = (descr or what or "").strip()
-    if descr and what and len(what) > len(descr) and what.startswith(descr.rstrip()):
-        d = what.strip()
-    if not (len(d) > DESCR_MAX or (d == (descr or "").strip() and len(d) == DESCR_STORED_CUT)):
-        return d
-    head = d[:DESCR_MAX]
-    head = head.rsplit(" ", 1)[0] if " " in head else head     # its last word may be cut: it goes
-    return head.rstrip(" ,;:") + "…"
-
-
-def whole_description(lk, title: str, descr: str | None) -> str | None:
-    """The release keeps a card's description to DESCR_STORED_CUT characters; its accounts carry the whole Wikidata
-    one ("google": "..., a subsidiary of A" -> "..., a subsidiary of Alphabet Inc."). The stored one when none does."""
-    if not descr or len(descr) < DESCR_STORED_CUT:
-        return descr
-    try:
-        rows = lk.h[PROFILES_SQL]({"t": title, "p": PROFILE_PLATFORMS})
-    except Exception:  # noqa: BLE001 - the stored one is still a description
-        return descr
-    return next((r[3] for r in rows if r[3] and len(r[3]) > len(descr) and r[3].startswith(descr.rstrip())), descr)
-
-
-def with_own_accounts(rows: list[dict], top: dict, fetch) -> list[dict]:
-    """The rows the card is built from, with the article's own accounts when the list carries none of them ("google":
-    its list had no account rows, and the card's X and Facebook came from the card-links file, which holds
-    x.com/GoogleColombia and facebook.com/GoogleArabia; the accounts table has x.com/Google). Only for the card."""
-    key = same_page(top["url"])
-    if any(r.get("profile") and r.get("of") == key for r in rows):
-        return rows
-    try:
-        return rows + profile_results(fetch(), WIKI_EXACT_SCORE, top["url"])
-    except Exception:  # noqa: BLE001 - the card is built without them, as before
-        return rows
-
-
-def own_name_site(title: str, official: list[dict], res: list[dict]) -> list[dict]:
-    """The card's official site is the subject's own-name domain when the stored one is a page on someone else's site
-    (owner 2026-11-14, "gmail": "the official site should just be gmail.com"; Wikidata's is
-    workspace.google.com/products/gmail/, whose site tree then gave the card Calendar, Blog, Pricing). Only then: a
-    stored site on another domain that is a page, not a front page, and a site row among the first five that is the
-    title's letters at .com (gmail.com for Gmail; iphone.cz is not the iPhone's). A stored front page, or one on the own-name domain, stays.
-    The stored site is kept as the next link, named by its host."""
-    official = [l for l in official if url_host_ok(l.get("url") or "")]
-    key = norm_key(title)
-    if not official or len(key) < 3 or not _plain_name(title):
-        return official
-    url = official[0]["url"]
-    host = (urlsplit(url).hostname or "").lower().removeprefix("www.")
-    if _label(url) == key:
-        return official
-    # a front page stays, unless the name is one of its host's labels but not the first ("about.google" for Google,
-    # owner 2026-11-15: "google" showed about.google and its Products / Locations / Contact us, while google.com led
-    # the list): the brand's own .com is the official site then
-    if urlsplit(url).path.strip("/") == "" and key not in host.split(".")[1:]:
-        return official
-    own = next((r for r in res[:5] if r.get("source") == "site" and _domain_of(r.get("url") or "") == key + ".com"
-                and url_host_ok(r.get("url") or "")), None)                     # gmail.com; not iphone.cz for the iPhone
-    if not own:
-        return official
-    # the stored site stays as a second link, under its own name
-    return [{"title": "Official site", "url": own["url"]}, {"title": host, "url": url}] + official[1:]
-
-
-# A bare short name that is the everyday name of a big maker's product (owner 2026-11-14: "outlook" had no card, "keep"
-# carried the KEEP radio station, "premiere" the dictionary word, "teams" the article Team): "<Maker> <name>" or
-# "<Maker> <name> Pro" is an article, and it is read far more than the article the card would show (Wikipedia
-# pageviews, the release's signal; SHORT_RATIO times, and at least SHORT_FLOOR). Then it is the card. "music" stays
-# Music (63,689 against Apple Music's 10,495); "word" was already Microsoft Word. Release lookups only (pageviews).
-SHORT_MAKERS = ("Microsoft", "Google", "Apple", "Amazon", "Adobe", "Nintendo", "Sony", "Samsung", "Meta")
-SHORT_SUFFIXES = ("", " Pro")
-SHORT_RATIO = float(os.environ.get("SEARCH_SHORT_RATIO", "3"))
-SHORT_FLOOR = int(os.environ.get("SEARCH_SHORT_FLOOR", "1000"))
-SHORT_NAMES = os.environ.get("SEARCH_SHORT_NAMES", "1") == "1"
-
-
-def _title_views(lk, title: str):
-    from lookups_release import N_TITLE
-    ds = lk.names1(title, N_TITLE)[:1]
-    return (lk.S(ds[0], "pageviews") or 0) if ds else None
-
-
 def _plain_name(title: str) -> bool:
     """A title whose letters are all the name: "Google" and "Microsoft Outlook", not "Google+" (norm_key drops the
     plus, and "google" then matched Google+, 2026-11-15)."""
     return bool(title) and norm_key(title) == re.sub(r"\s+", "", title.lower())
-
-
-def plain_title_first(q: str, top: dict | None, rows: list[dict]) -> dict | None:
-    """The article titled exactly the search wins the card over another exact one read far less (owner 2026-11-15,
-    "google": the list ranked Google+ — Wikipedia (23,573 views) above Google (1,423,778), and the card was the dead
-    social network's). Only among the exact articles the list already has, and only SHORT_RATIO times more read."""
-    lk = lookups()
-    if top is None or lk is None or lk.name != "release":
-        return top
-    k = " ".join((q or "").lower().split())
-    cur = top["title"].rsplit(" — Wikipedia", 1)[0]
-    if cur.lower() == k:
-        return top
-    plain = next((r for r in rows[:CARD_WITHIN + 4] if r.get("source") == "wikipedia" and r.get("score", 0) >= WIKI_EXACT_SCORE
-                  and r.get("title", "").rsplit(" — Wikipedia", 1)[0].lower() == k), None)
-    if plain is None:
-        return top
-    try:
-        a = _title_views(lk, plain["title"].rsplit(" — Wikipedia", 1)[0]) or 0
-        b = _title_views(lk, cur) or 0
-    except Exception:  # noqa: BLE001 - a card is extra
-        return top
-    return plain if a >= SHORT_RATIO * max(b, 1) else top
-
-
-# Two- and three-letter names (owner 2026-11-15: "two letter searches should be able to get their own card"; "lg" had
-# none, "ea" showed E&A): the article whose official site is the name's own .com front page, when that .com is among
-# the first three rows and the article is read at least SHORT_ENTITY_VIEWS times (LG Electronics 15,034; Go.com 1,843
-# and MobileMe 2,019 are not). A two-letter search with no such article and a card on another site gets no card ("is",
-# "go", "us"). Release lookups only.
-SHORT_ENTITY_VIEWS = int(os.environ.get("SEARCH_SHORT_ENTITY_VIEWS", "10000"))
-
-
-def top_is(top: dict | None, title: str) -> bool:
-    return bool(top) and top["title"].rsplit(" — Wikipedia", 1)[0] == title
-
-
-def short_entity(q: str, rows: list[dict], current: str | None):
-    """None when the rule does not apply (longer than 3, not letters and digits, no release); else (title, drop):
-    the article to show (or None), and whether a two-letter search's current card should go."""
-    k = (q or "").lower().strip()
-    lk = lookups()
-    if not re.fullmatch(r"[a-z0-9]{2,3}", k) or lk is None or lk.name != "release":
-        return None
-    host = k + ".com"
-    best = None
-    if any(r.get("source") == "site" and _domain_of(r.get("url") or "") == host for r in rows[:3]):
-        try:
-            claims = lk.site_claims(host)[1]
-        except Exception:  # noqa: BLE001 - a card is extra
-            claims = ()
-        titles = [c[0] for c in claims]
-        if current in titles:                   # "hp": HP Inc. is hp.com's, it stays (not Hewlett-Packard)
-            return (current, False)
-        for t in titles:
-            v = _title_views(lk, t) or 0
-            if v >= SHORT_ENTITY_VIEWS and (best is None or v > best[1]):
-                best = (t, v)
-    if best:
-        return (best[0], False)
-    if len(k) == 2 and current is not None:
-        site = None
-        try:
-            site = (lk.h[CARD_SITE_SQL]({"t": current}) or [(None,)])[0][0]
-        except Exception:  # noqa: BLE001
-            pass
-        return (None, not (site and _domain_of(site) == host))
-    return (None, False)
-
-
-def short_name_title(q: str, current: str | None) -> str | None:
-    """The maker's product article the bare name means, or None (see SHORT_MAKERS). A maker's own name is never one of
-    its products ("google" is Google)."""
-    k = " ".join((q or "").lower().split())
-    if not SHORT_NAMES or not re.fullmatch(r"[a-z]{2,}( [a-z]{2,})?", k) or k in {m.lower() for m in SHORT_MAKERS}:
-        return None
-    lk = lookups()
-    if lk is None or lk.name != "release":
-        return None
-    def look():
-        name = " ".join(w.capitalize() for w in k.split())
-        best = None
-        for m in SHORT_MAKERS:
-            for suf in SHORT_SUFFIXES:
-                t = f"{m} {name}{suf}"
-                v = _title_views(lk, t)
-                if v is not None and (best is None or v > best[1]):
-                    best = (t, v)
-        return [best]
-    best = cached(("short_name", k), look, static=True)[0]
-    if best is None or best[0] == current or best[1] < SHORT_FLOOR:
-        return None
-    # read SHORT_RATIO times more than the card shown, and the plain word's own article not read SHORT_RATIO times
-    # more than it ("music": the card was the domain .music, but Music is read 63,689 times to Sony Music's 19,628;
-    # "keep": Keep, the castle tower, 8,250 to Google Keep's 3,925, and the card was KEEP, 37)
-    now = (_title_views(lk, current) or 0) if current else 0
-    plain = _title_views(lk, " ".join(w.capitalize() for w in k.split())) or 0
-    return best[0] if best[1] >= SHORT_RATIO * now and plain <= SHORT_RATIO * best[1] else None
-
-
-# "gmail login", "chase sign in" (owner 2026-11-14: "gmail login" is the README's example and had no card): the card
-# is the card of the name without the account words.
-_LOGIN_TAIL = re.compile(r"\s+(log ?in|sign ?in|sign ?on|log ?on|account|my account|login page|sign in page)$")
-
-
-def account_base(q: str) -> str | None:
-    k = " ".join((q or "").lower().split())
-    m = _LOGIN_TAIL.search(k)
-    base = k[:m.start()].strip() if m else ""
-    return base if len(base) >= 2 else None
-
-
-def wiki_top(lk_or_conn, title: str) -> dict | None:
-    """A card article row for a title found by lookup (not in the list): its url and lead."""
-    try:
-        if hasattr(lk_or_conn, "h"):
-            rows = lk_or_conn.h[FAMOUS_LEAD_SQL]({"t": title})
-        else:
-            rows = lk_or_conn.execute(FAMOUS_LEAD_SQL, {"t": title}).fetchall()
-    except Exception:  # noqa: BLE001 - a card is extra
-        return None
-    if not rows:
-        return None
-    return {"title": title + " — Wikipedia", "url": "https://en.wikipedia.org/wiki/" + quote(title.replace(" ", "_"), safe="()_,'!-.:"),
-            "content": rows[0][0] or "", "source": "wikipedia"}
-
-
-def lead_with_official(res: list[dict], card: dict | None) -> list[dict]:
-    """A short name's card (short_name_title) leads the list with its official site: "keep" listed KEEP's radio site
-    and article first and Google Keep's site third, "premiere" never listed Adobe's site at all (2026-11-14)."""
-    off = next((l["url"] for l in (card or {}).get("links", []) if l.get("title") == "Official site"), None)
-    if not off:
-        return res
-    places = [r for r in res if r.get("source") == "place"]
-    have = next((r for r in res if r.get("url") == off), None)
-    row = have or {"url": off, "title": f"{card['title']} — official site", "source": "site", "official": True,
-                   "content": card.get("description") or "", "score": max((r.get("score") or 0 for r in res), default=0)}
-    return places + [row] + [r for r in res if r is not have and r.get("source") != "place"]
 
 
 def name_bare_rows(res: list[dict], card: dict | None) -> list[dict]:
@@ -3497,7 +1528,7 @@ def name_bare_rows(res: list[dict], card: dict | None) -> list[dict]:
     out = []
     for r in res:
         t, u = (r.get("title") or "").strip(), r.get("url") or ""
-        host = (urlsplit(u).hostname or "").lower()
+        host = _host_of(u)
         bare = r.get("source") == "site" and (t.rstrip("/") in (u.rstrip("/"), host, host.removeprefix("www.")) or t == "")
         if off and t == f"{title} — official site" and _domain_of(off) != _domain_of(u):
             r = dict(r, title=f"{title} — {_domain_of(u)}")     # the stored site the card's own-name site replaced
@@ -3508,65 +1539,6 @@ def name_bare_rows(res: list[dict], card: dict | None) -> list[dict]:
                 r = dict(r, title=names[_label(u)])
         out.append(r)
     return out
-
-
-def card_of(res: list[dict], descr: str | None = None, related: list[dict] | None = None,
-            image: dict | None = None, site: str | None = None, top: dict | None = None) -> dict | None:
-    """An exact article among the first CARD_WITHIN results -> {title, url, description,
-    lead, links: its official site then its accounts, related: readers' next articles,
-    image: its picture + credit (card_image)}; else None. ("taylor swift" leads with her official site, the article second.)"""
-    top = top or card_article(res)
-    if top is None:
-        return None
-    title = top["title"].rsplit(" — Wikipedia", 1)[0]
-    key = same_page(top["url"])
-    # its official site wherever it ranked: donaldjtrump.com sat 4th and never reached the card
-    official = [{"title": "Official site", "url": r["url"]} for r in res
-                if r.get("official") and r["title"].startswith(title + " — ")][:1]
-    if not official and site and official_ok(site) and not official_inner_page(site):
-        official = [{"title": "Official site", "url": site}]       # the article's own stored site (CARD_SITE_SQL)
-    if not official:
-        official = platform_home(title, descr, top.get("content"))     # a platform whose own site is a social host
-    official = own_name_site(title, official, res)
-    mine = [r for r in res if r.get("profile") and r.get("of") == key]
-    # what it is, in one line (2026-11-06): its Wikidata short description, which every account row of it carries
-    what = next((r["content"].strip() for r in mine if (r.get("content") or "").strip()), "")
-    links = official + [{"title": ACCOUNT_LABEL.get(r.get("platform", ""), r["title"].rsplit(" on ", 1)[-1].split(" (@")[0]),
-                         "url": r["url"]} for r in mine if account_fits(r.get("platform", ""), what)]
-    # related: looked up for the card (the top-8 cut and the rerankers keep only some of
-    # them in res — "paul rudd" showed 1 of 4); else whichever made it into res
-    if related is None:
-        related = [r for r in res if r.get("related")]
-    related = [{"title": r["title"].rsplit(" — Wikipedia", 1)[0], "url": r["url"]} for r in related]
-    more = []
-    if CARDLINKS_PATH:                                   # Wikidata's other links for it (card_links)
-        have = {_host_key(l["url"]) for l in links} | {l["title"] for l in links}
-        for label, url in card_links(title):
-            h = _host_key(url)
-            kind = _CARDLINK_KIND.get(label, "")
-            # a film or music catalogue only for what it catalogues; unknown (no description) = left out
-            if h in have or label in have or (kind and not (descr or what)) or not account_fits(kind, descr or what):
-                continue
-            have |= {h, label}
-            if label in CARDLINKS_MAIN:
-                links.append({"title": label, "url": url})
-            elif len(more) < CARDLINKS_MORE:
-                more.append({"title": label, "url": url})
-    card = {"title": title, "url": top["url"], "lead": clean_lead(top.get("content", "")), "links": links, "related": related}
-    if more:
-        card["more_links"] = more
-    if official and (tree := site_tree(official[0]["url"])):
-        card["nav"] = tree
-    if descr or what:
-        card["description"] = card_description(descr, what)
-    if image:
-        card["image"] = image
-    return card
-
-
-# Wikipedia in the result list ("6 or 7 in a row as the top results").
-WIKI_MIX_MAX = 2                # other articles kept in the list once the card has its own
-WIKI_MIX_SLOTS = (1, 4)         # 0-based places among the rest: one early, one in the middle
 
 
 # The first row of the /instant list (audit 2026-10-20 #1): the ranked list's first result, when it is an article
@@ -3602,384 +1574,7 @@ BREADTH = os.environ.get("SEARCH_BREADTH", "").strip().upper()
 # removes 78% of the junk but 125 relevant rows. A floor belongs to one reranker's scale: refit it when the model changes.
 BREADTH_FLOOR = float(os.environ.get("SEARCH_BREADTH_FLOOR", "-2.7"))
 _breadth_floor: contextvars.ContextVar = contextvars.ContextVar("breadth_floor", default=BREADTH_FLOOR)
-BREADTH_LINKS = 3
 _breadth: contextvars.ContextVar = contextvars.ContextVar("breadth", default=BREADTH)
-_BREADTH_SKIP = frozenset(("Official site", "X", "Instagram", "Facebook", "TikTok", "Threads", "LinkedIn", "YouTube",
-                           "Pinterest", "Giphy", "Bluesky", "Mastodon", "GitHub", "Amazon", "Vikidia"))
-_BREADTH_STOP = frozenset(("the", "and", "for", "with", "how", "what", "who", "when", "where", "why", "near", "best",
-                           "from", "into", "your", "you", "are", "was", "does", "can", "of", "in", "on", "to", "a",
-                           "an", "is", "it", "my", "me", "do", "vs", "man", "men", "new", "one", "out", "get", "all"))
-_BREADTH_UNCAPPED = frozenset(("wikipedia", "stackexchange", "gov", "account", "youtube", "subreddit"))
-_BREADTH_QUESTION = re.compile(r"^(how|what|why|when|where|can|should|does|do|is)\b", re.I)
-
-
-def _site_of(url: str) -> str:
-    h = (urlsplit(url or "").hostname or "").lower()
-    for pre in ("www.", "m.", "cdn.", "static.", "assets.", "en."):
-        if h.startswith(pre) and h.count(".") >= 2:
-            h = h[len(pre):]
-    p = h.split(".")
-    return ".".join(p[-3:]) if len(p) >= 3 and p[-2] in ("co", "com", "org", "ac", "gov", "net", "edu") and len(p[-1]) == 2 else ".".join(p[-2:])
-
-
-def _uncapped_row(r: dict, st: str, is_gov: bool = False) -> bool:
-    """Wikipedia, Stack Exchange Q&A, channel/account rows, and (on a government search) .gov/.mil portals hold distinct
-    pages or agencies under one root domain: D does not cap them at one row per root domain, and J leaves them."""
-    return r.get("source") in _BREADTH_UNCAPPED or (is_gov and st.endswith((".gov", ".mil")))
-
-
-def card_pre(q: str, res: list[dict]):
-    """The card's first step, run for every answer (never stored): marks a respelled name's rows in place, finds the
-    article that heads the list and, for "gmail login", the rows of the account's base name ("gmail"). Returns
-    (top, cres, base): the article row, the rows the card is built from, the base name or None."""
-    if card_article(res) is None:
-        mark_respelled(q, res)                          # "sarah j mass": Sarah J. Maas's card
-    top = card_article(res)
-    cres = res                                          # the rows the card is built from; a short name's card
-    base = account_base(q) if top is None else None
-    if base and any(r.get("source") == "site" and _label(r.get("url") or "") == norm_key(base) for r in res[:3]):
-        # "gmail login": the card of "gmail", when the name's own domain leads the list
-        cres = cached(("account_base", base), lambda: [search(base, 8)])[0]
-        top = card_article(cres)
-    return top, cres, base
-
-
-def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base: str | None):
-    """The card stage (parts stage "card" phase 2): a pure function of its arguments, the release data and the
-    settings it reads. Returns (card, res, failed): the card or None, the rows after a short name's official site
-    leads (the same list when it did not), and the exception's name when the last step failed (then nothing is kept).
-    It never calls search(): the account base's rows come in as cres, so a change to the search code does not
-    change this stage's version."""
-    card, swapped = None, False
-    lk = lookups()
-    alt = short_name_title(base or q, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None)
-    if not alt:                                 # "google": Google, not Google+ (a maker's name never swaps above)
-        top = plain_title_first(base or q, top, cres)
-    short = short_entity(base or q, cres, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None) if not alt else None
-    if short and short[0] and not top_is(top, short[0]):
-        alt = short[0]                          # "lg": LG Electronics (lg.com's own article); "ea": Electronic Arts
-    if alt:                                     # "outlook" -> Microsoft Outlook, "keep" -> Google Keep
-        swapped = True
-        if lk is not None:
-            top = wiki_top(lk, alt) or top
-        else:
-            with _conn() as c:
-                top = wiki_top(c, alt) or top
-    if top is not None:
-        t = top["title"].rsplit(" — Wikipedia", 1)[0]
-        if lk is not None and lk.name == "release":     # the card is one precomputed record
-            descr, rel_rows, img_row, _person = lk.card_parts(t, RELATED_N)
-            descr = whole_description(lk, t, descr)
-            row, rel, img = (descr,) if descr else None, related_results(rel_rows), card_image(img_row)
-            site_row = (lk.h[CARD_SITE_SQL]({"t": t}) or [None])[0]
-            cres = with_own_accounts(cres, top, lambda: lk.h[PROFILES_SQL]({"t": t, "p": PROFILE_PLATFORMS}))
-        else:
-            with _conn() as c:
-                has = tables(c)
-                row = c.execute(CARD_DESCR_SQL, {"t": t}).fetchone() if "suggest_items" in has else None
-                rel = (related_results(c.execute(RELATED_SQL, {"t": t, "n": RELATED_N}))
-                       if "wiki_next" in has else None)
-                img = (card_image(c.execute(CARD_IMAGE_SQL, {"t": t}).fetchone())
-                       if "card_images" in has else None)
-                site_row = c.execute(CARD_SITE_SQL, {"t": t}).fetchone() if "wiki_sites" in has else None
-                if "wiki_links" in has:
-                    cres = with_own_accounts(cres, top, lambda: c.execute(PROFILES_SQL, {"t": t, "p": PROFILE_PLATFORMS}).fetchall())
-        card = card_of(cres, row[0] if row else None, rel, img, site_row[0] if site_row else None, top=top)
-        if short is not None and not short[0] and short[1]:
-            return None, res, None              # "is", "go", "us": a two-letter word gets no card without the entity rule
-        if swapped:
-            try:
-                res = lead_with_official(res, card)
-            except Exception as e:                  # as before the split: the card stays, the rows stay as they were
-                return card, res, type(e).__name__
-    return card, res, None
-
-
-def card_stage(q: str, res: list[dict], top, cres, base):
-    """card_build, through the parts store when SEARCH_PARTS has "card" (and live otherwise or on any trouble). The key's
-    inputs are the content of q, the rows after card_pre and the account base's rows."""
-    P = parts_for("card")
-    if P is None or _parts_off.get():
-        if _pcheck.get():
-            raise PartStale("card")
-        card, res2, failed = card_build(q, res, top, cres, base)
-        if failed:
-            print(f"card failed: {failed}", flush=True)
-        return card, res2
-    import parts as _parts
-    try:
-        before = _parts.canon(res)
-        key = P.key("card", [q, before.decode(), None if cres is res else _parts.canon(cres).decode(), base])
-        got = P.get("card", key)
-    except Exception:  # noqa: BLE001
-        P.stats["error"] += 1
-        key, got = None, None
-    if got is not None:
-        note_part("card", key)
-        return got["card"], (got["res"] if got.get("res") is not None else res)
-    if _pcheck.get():
-        raise PartStale("card")
-    card, res2, failed = card_build(q, res, top, cres, base)
-    if failed:
-        print(f"card failed: {failed}", flush=True)
-    elif key is not None and _warm.get():                # only the builder writes (a visitor's search is never kept)
-        try:
-            if P.put("card", key, {"card": card, "res": None if _parts.canon(res2) == before else res2}):
-                note_part("card", key)
-        except Exception:  # noqa: BLE001
-            P.stats["error"] += 1
-    return card, res2
-
-
-def list_build(q: str, res: list[dict], card: dict | None, cur: list[dict] | None):
-    """The list stage (parts stage "list" phase 2): the rows as shown, from the base rows after the card and the
-    place, the card and the offline curated list (None when there is none). Returns (rows, sig). A function of its
-    arguments, the settings and data it reads and the models (through the compute cache); the order of the steps is
-    the one _instant had inline before the split."""
-    def usual(rows):                                 # the list as it is without a curated one
-        # kept per search for the cache's time (2026-11-11): the links of the card's article are scored by the
-        # reranker in breadth_list, about 0.6 s on the public engine, and that was paid again on EVERY request of
-        # a carded name, cached base rows or not. The key is everything the steps below read.
-        key = ("usual", q, _breadth.get(), _breadth_floor.get(), bool(_score_all.get()), usual_gate(), same_page((card or {}).get("url") or ""),
-               tuple(r.get("url") for r in rows))
-        return cached(key, lambda: usual_now(rows))
-
-    def usual_now(rows):
-        rows = mix_wikipedia(rows, card)
-        if card:
-            rows = card_gate(q, rows)                # off unless SEARCH_CARD_GATE or ?cg= (2026-11-05)
-        if _score_all.get() and rows:                # off unless SEARCH_SCORE_ALL or ?sa=1
-            with stage("score_all"):
-                rows = score_unscored(q, rows[:SCORE_ALL_TOP] if SCORE_ALL_TOP > 0 else rows)
-        return breadth_list(q, rows, card, _breadth.get())   # off unless SEARCH_BREADTH or ?bl= (2026-11-07)
-    if cur:
-        # the offline list as chosen, in its order (no Wikipedia mix, no gate: the large model already decided);
-        # the engine's places stay on top and the card's own article is not repeated under it
-        places = [r for r in res if r.get("source") == "place"]
-        shown = {same_page(card.get("url") or "")} if card else set()
-        top = places + [r for r in cur if r.get("source") != "place" and same_page(r["url"]) not in shown]
-        res = curated_fill(top, usual(res), shown) if _cur_fill.get() else top
-    else:
-        res = usual(res)
-    res = with_office_rows(res, card)      # "trump": whitehouse.gov just under the card (after the list is final)
-    sig = {}
-    if web_only(q, res):           # on the shown list, after the Wikipedia mix: that is what the fit saw
-        res = web_rerank(q, res)
-        sig = web_signal(q, res)
-    if not cur:                    # after the web rerank (it must not move the row); a curated list is the large model's, left as chosen
-        res = site_intent_rows(q, res, card)       # off unless SEARCH_SITE_SLOTS / SEARCH_SITE_BRIDGE
-        res = se_howto(q, res)     # off unless SEARCH_SE_INDEX; how-to searches only (2026-11-10)
-    return res, sig
-
-
-def conf_of(q: str, res: list[dict]) -> bool:
-    return bool(res) and is_confident(res) and intent_of(q, res) == "nav"
-
-
-def intent_kinds(q: str, res: list[dict]):
-    intent = intent_of(q, res) if res else ""        # judged on the list as ranked, before the mix
-    kinds = res[0].get("kind_card") if res and res[0].get("kind_top") else None
-    return intent, kinds
-
-
-def verdict_build(q: str, pre: list[dict], res: list[dict]) -> dict:
-    """The verdict stage (parts stage "verdict"): the confidence flag (judged on the base rows, before the card),
-    the intent and the kind card (on the rows after the card)."""
-    intent, kinds = intent_kinds(q, res)
-    return {"conf": conf_of(q, pre), "intent": intent, "kinds": kinds}
-
-
-def place_build(q: str, card: dict | None, want: bool):
-    """The place stage (parts stage "place"): a place searched by name, and what the card says of it. Returns
-    (card, place, failed): failed names the exception when the step could not finish (then nothing is kept)."""
-    place = None
-    try:
-        pl = cached(("place", q.lower(), home_point()), lambda: [place_exact(q)], static=True)[0] if want and len(q) >= 3 else None
-        person = False
-        if pl and card is not None:
-            with _conn() as c:
-                person = "wiki_facts" in tables(c) and c.execute(PERSON_SQL, {"t": card["title"]}).fetchone() is not None
-        org = org_named(q) if (pl or card) else False
-        if org and card is not None:
-            # branches go by the organisation's full name too: "cvs" -> CVS Pharmacy
-            oname = re.sub(r"\s*\(.*\)$", "", card["title"])
-            alt = cached(("place", oname.lower(), home_point()), lambda: [place_exact(oname)], static=True)[0] if oname.lower() != q.lower() else None
-            if alt and (not pl or (alt.get("miles") or 1e9) < (pl.get("miles") or 1e9)):
-                pl = alt
-        card, place = place_answer(q, card, pl, person, org)
-    except Exception as e:  # noqa: BLE001
-        return card, None, type(e).__name__
-    return card, place, None
-
-
-def local_build(q: str) -> bool:
-    """The local stage (parts stage "local"): does q name a business with branches (names_places)?"""
-    return bool(cached(("names_places", q.lower()),
-                       lambda: stored("names_places", (q.lower(),), lambda: [names_places(q)]), static=True)[0])
-
-
-def local_part(q: str) -> bool:
-    return part_run("local", [q], lambda: local_build(q))
-
-
-def place_stage(q: str, card: dict | None, want: bool, log):
-    import parts as _parts
-    if parts_for("place") is None:
-        card2, place, failed = place_build(q, card, want)
-    else:
-        card2, place, failed = part_run("place", [q, _parts.canon(card).decode(), want], lambda: list(place_build(q, card, want)),
-                                        keep=lambda v: not v[2])
-    if failed:
-        log("place failed: %s", failed)
-    return card2, place
-
-
-def verdict_stage(q: str, pre: list[dict], res: list[dict]):
-    import parts as _parts
-    v = part_run("verdict", [q, _parts.canon(pre).decode(), _parts.canon(res).decode()], lambda: verdict_build(q, pre, res))
-    return v["conf"], v["intent"], v["kinds"]
-
-
-def glue_build(q: str, res: list[dict], card: dict | None) -> list[dict]:
-    """The steps between the stages, run for every answer and not stored (cheap, and their effect is in the content the
-    list stage is keyed by): the kind card is taken off the rows, the card carries the accounts, branches, rows named
-    by their bare address, accounts the card leaves out."""
-    res = [{k: v for k, v in r.items() if k != "kind_card"} if "kind_card" in r else r for r in res]
-    if _accounts_in_card.get():                      #: the card carries the accounts, the list keeps sites and the article
-        res = fold_accounts(res, card)
-    res = branches_only(res)
-    # a site row whose address is not a host name is not a link ("https://1=microsoft.com/...", 2026-11-14), and a
-    # row titled with its bare address is named after the card it belongs to
-    res = name_bare_rows([r for r in res if r.get("source") != "site" or url_host_ok(r.get("url") or "")], card)
-    if card:                                         # an account the card leaves out is not a result either ("IKEA on Discogs")
-        what = card.get("description") or ""
-        key = same_page(card.get("url") or "")
-        res = [r for r in res if not (r.get("profile") and r.get("of") == key and not account_fits(r.get("platform", ""), what))]
-    return res
-
-
-def finished_answer(q: str, qs, want: bool, full: bool, plain: bool, fin_full: bool, log):
-    """The visitor-independent part of an /instant answer, stage by stage (phase 2). Returns (res, conf, card, place,
-    intent, kinds, local, sig): the fields of a finished answer. Each stage that is on goes through the parts store;
-    this function's own body (the order of the stages, which fields come from which) is the residual (parts stage
-    "rest"), the only code a re-stamp trusts rather than re-checks."""
-    # local (does q name a business with branches?) beside the search, not after it (2026-11-03: a whole-world
-    # places lookup, 0.15-0.4 s for "home depot", ran after the clock stopped). Only when results are wanted.
-    f_local = (_EXEC.submit(contextvars.copy_context().run, _staged, "names_places", local_part, q)
-               if want and q and home_point() is None else None)
-    # results=0: suggestions only; full=1: a submitted search, results whatever the length and more of them;
-    # as-you-type keeps the wordy gate
-    if want and (full or wordy(q) or short_org(q)):
-        res = search(q, MAX_K if full else 8)
-    else:
-        res = []
-        note_part("base", "none")                    # no search ran: the answer says so, and a change to the gate shows
-    pre = None
-    if parts_for("verdict") is None:
-        conf = conf_of(q, res)
-    else:
-        import copy
-        pre = copy.deepcopy(res)                     # the verdict is judged on the rows before the card marks them
-    card = None
-    with stage("card"):
-        try:                                                    # a card is extra: never fail the answer
-            top, cres, base = card_pre(q, res)
-            card, res = card_stage(q, res, top, cres, base)
-        except PartStale:
-            raise
-        except Exception as e:
-            log("card failed: %s", type(e).__name__)
-    with stage("place"):
-        card, place = place_stage(q, card, want, log)
-    if pre is None:
-        intent, kinds = intent_kinds(q, res)
-    else:
-        conf, intent, kinds = verdict_stage(q, pre, res)
-    res = glue_build(q, res, card)
-    cur = (curated_rows(q) or curated_by_card(q, card)) if res and not (qs.get("cur") or [""])[0] == "0" else None
-    res, sig = list_stage(q, res, card, cur)
-    # local: this search names a business with branches and came with no position (names_places, started above)
-    with stage("local_wait"):
-        local = False
-        if f_local is not None:
-            try:
-                lv = f_local.result()
-                local = bool(lv) if res else False
-            except PartStale:
-                if res:
-                    raise
-            except Exception as e:                         # a lookup that failed says nothing, as before it ran
-                log("names_places failed: %s", type(e).__name__)
-            if not res:
-                (_part_keys.get() or {}).pop("local", None)      # not part of this answer: its thread may or may not have noted it
-    if _warm.get() and plain and (qs.get("fin") or [""])[0] == "1":     # the builder (twin/ship.sh) keeps what it computed
-        fin_put(q, fin_full, {"results": res, "confident": conf, "card": card, "place": place, "intent": intent, "kinds": kinds,
-                              "local": local, "sig": sig, "pk": part_stamp()})
-    return res, conf, card, place, intent, kinds, local, sig
-
-
-def part_run(stage: str, inputs: list, build, keep=lambda v: True):
-    """One stage through the parts store. build() -> the stage's value (JSON-like); returns it. Key from the inputs'
-    content; a hit replaces the computation; on a miss the builder (warm=1) keeps the value. In ?pcheck=1 mode a miss
-    raises PartStale (the engine is asked only whether every part of an answer is current). Stage off = build()."""
-    P = parts_for(stage)
-    if P is None or _parts_off.get():
-        if _pcheck.get():
-            raise PartStale(stage)
-        return build()
-    try:
-        key = P.key(stage, inputs)
-        got = P.get(stage, key)
-    except Exception:  # noqa: BLE001 - a part is extra: compute it live
-        P.stats["error"] += 1
-        key, got = None, None
-    if got is not None:
-        note_part(stage, key)
-        return got["v"]
-    if _pcheck.get():
-        raise PartStale(stage)
-    val = build()
-    if key is not None and _warm.get() and keep(val):    # only the builder writes (a visitor's search is never kept)
-        if P.put(stage, key, {"v": val}):
-            note_part(stage, key)
-    return val
-
-
-def list_stage(q: str, res: list[dict], card: dict | None, cur: list[dict] | None):
-    import parts as _parts
-    if parts_for("list") is None:
-        return list_build(q, res, card, cur)
-    inputs = [q, _parts.canon(res).decode(), _parts.canon(card).decode(), _parts.canon(cur).decode()]
-    out = part_run("list", inputs, lambda: list(list_build(q, res, card, cur)))
-    return out[0], out[1]
-
-
-def _link_rows(card: dict) -> list[dict]:
-    """The card's Wikidata community/reference links as list rows, with a title a reader recognises."""
-    name = card.get("title") or ""
-    rows = []
-    for l in (card.get("links") or []) + (card.get("more_links") or []):
-        label, url = l.get("title") or "", l.get("url") or ""
-        if label in _BREADTH_SKIP or not url.startswith("https://"):
-            continue
-        if label == "Reddit":
-            title = "r/" + url.rstrip("/").rsplit("/", 1)[-1] + " — Reddit"
-        elif label == "Fandom":
-            title = f"{name} Wiki — Fandom"
-        else:
-            title = f"{name} — {label}"
-        rows.append({"url": url, "title": title, "content": card.get("description") or "", "source": "site",
-                     "score": 0.0, "wikidata_link": label})
-    return rows
-
-
-def _scores(q: str, rows: list[dict], scorer=None):
-    scorer = scorer if scorer is not None else cross_encoder()
-    if not scorer or not rows:
-        return None
-    return [float(v) for v in scorer(q, [ce_text(r) for r in rows])]
-
-
 # SEARCH_SCORE_ALL=1 (or ?sa=1, eval A/B; default off): every row of the shown list that has no reranker score gets one
 # before the list is cleaned (breadth_list), so the F floor reads a score for every row and never a guess. Without it a
 # third of the rows of mix-300's lists (789 of 2,434, 25% relevant) carry none: ce_rerank scores only the 8 candidates
@@ -3991,423 +1586,10 @@ def _scores(q: str, rows: list[dict], scorer=None):
 # wordings, but the score only decides what F cuts, never the order, and on mix-300 the filled score is 41%
 # relevant above -2.7 and 5% below it for exactly those rows.
 SCORE_ALL = os.environ.get("SEARCH_SCORE_ALL", "").strip() == "1"
-# SEARCH_SCORE_ALL_TOP=N (2026-11-14): with SCORE_ALL, only the list's first N rows are scored and kept; the rest go. A page
-# shows about 8 rows, and scoring every row was the costliest step of a new search on public (median 142 ms, slowest tenth
-# 1.8 s; new searches held fell from 4 to 2 a second). Simulated on the judged lists of 2026-11-13 (floor 0, first 8 shown):
-# N=10 -> everyday-100 pass 69 -> 71, relevant rows 426 -> 402, rows sent to the model -42%; mix-300 pass 185 -> 187,
-# relevant 950 -> 900, model rows -44%. 0 = every row, as before.
-SCORE_ALL_TOP = int(os.environ.get("SEARCH_SCORE_ALL_TOP", "0") or 0)
 _score_all: contextvars.ContextVar = contextvars.ContextVar("score_all", default=SCORE_ALL)
 
 
-def score_unscored(q: str, res: list[dict], scorer=None) -> list[dict]:
-    """res with a reranker score (ce) on every row that should have one and has none. One batch; the extra pairs are
-    the rows returned without ce, and a search with nothing to score asks the model nothing."""
-    if len(res) < 2:
-        return res
-    todo = [i for i, r in enumerate(res)
-            if i > 0 and r.get("ce") is None and r.get("score", 0) < CE_EXACT and not r.get("curated")
-            and r.get("source") not in ("place", "stock") and not r.get("stock")]
-    if not todo:
-        return res
-    sc = _scores(q, [res[i] for i in todo], scorer)
-    if sc is None:
-        return res
-    out = list(res)
-    for i, v in zip(todo, sc):
-        out[i] = dict(res[i], ce=round(v, 2))
-    return out
-
-
-def _scores_reuse(q: str, rows: list[dict], scorer=None):
-    """Like _scores, but a row that already has a ce keeps it: the model is asked about the rows without one only."""
-    need = [i for i, r in enumerate(rows) if not isinstance(r.get("ce"), (int, float)) and (r.get("score") or 0) < CE_EXACT]
-    sc = _scores(q, [rows[i] for i in need], scorer) if need else []
-    if sc is None:
-        return None
-    out = [float(r["ce"]) if isinstance(r.get("ce"), (int, float)) else 0.0 for r in rows]
-    for i, v in zip(need, sc):
-        out[i] = v
-    return out
-
-
-# The card's Wikipedia article's own outbound links (importer/wikiext.py, 2026-11-09). SEARCH_WIKILINKS is a sqlite file:
-# links(title, kind, pos, url, label, domain) and trust(domain, n = distinct articles citing it). Read per card by its
-# English Wikipedia title, only when the W or C breadth letter is on.
-WIKILINKS_PATH = os.environ.get("SEARCH_WIKILINKS", "").strip()
-BREADTH_WIKI = int(os.environ.get("SEARCH_BREADTH_WIKI", "3"))
-BREADTH_CITE = int(os.environ.get("SEARCH_BREADTH_CITE", "3"))
-BREADTH_WIKI_MIN = float(os.environ.get("SEARCH_BREADTH_WIKI_MIN", "-1.5"))
-# A first run (2026-11-09, sq-eval place set) let candidates land above an expected answer (kiehl's 4th -> 7th,
-# tornado 4th -> 6th): they only go from this 0-based place of the rows after the first on (default: behind three rows).
-BREADTH_WIKI_FROM = int(os.environ.get("SEARCH_BREADTH_WIKI_FROM", "3"))
-_wikilinks_db = threading.local()
-_GENERIC_LABEL = re.compile(r"^(official\s+(web\s*)?site|official page|website|web site|home\s*page|homepage|home|link|"
-                            r"profile|page|site|here|online|web|pdf|full text|text|source|archived|archive|"
-                            r"main page|main site)$", re.I)
-_WIKI_SKIP_DOMAINS = frozenset(("facebook.com", "twitter.com", "x.com", "instagram.com", "linkedin.com", "youtube.com",
-                                "tiktok.com", "threads.net", "pinterest.com", "doi.org", "jstor.org", "worldcat.org",
-                                "handle.net", "ssrn.com", "semanticscholar.org", "archive.org", "googleusercontent.com",
-                                "imdb.com", "wikimedia.org", "amazon.com", "goodreads.com"))
-
-
-def wiki_links(title: str) -> list[tuple[str, str, str, str, int]]:
-    """[(kind, url, label, domain, trust)] the article lists, page order within a kind; [] without the file."""
-    if not WIKILINKS_PATH or not title:
-        return []
-    import sqlite3
-    db = getattr(_wikilinks_db, "db", None)
-    if db is None:
-        try:
-            db = sqlite3.connect(f"file:{WIKILINKS_PATH}?mode=ro", uri=True, check_same_thread=False)
-            _wikilinks_db.db = db
-        except sqlite3.Error:
-            return []
-    try:
-        return db.execute("SELECT l.kind, l.url, l.label, l.domain, coalesce(t.n, 0) FROM links l "
-                          "LEFT JOIN trust t ON t.domain = l.domain WHERE l.title = ? ORDER BY l.kind, l.pos",
-                          (title,)).fetchall()
-    except sqlite3.Error:
-        return []
-
-
-def _wiki_rows(card: dict, flags: str, have: set) -> tuple[list[dict], list[dict]]:
-    """(W rows, C rows): the card's article's links as list rows. The row title is the editors' link text (never the
-    card's name: a candidate must earn its place by what it says); a generic text ("official website") becomes the
-    site's name, and a citation without a usable text is left out."""
-    ext, cite, seen = [], [], set(have)
-    for kind, url, label, dom, trust in wiki_links(card.get("title") or ""):
-        if dom in _WIKI_SKIP_DOMAINS or not url.startswith(("https://", "http://")):
-            continue
-        st = _site_of(url)
-        if st in seen:
-            continue
-        host = (urlsplit(url).hostname or "").removeprefix("www.")
-        if kind == "citation":
-            if not label or _GENERIC_LABEL.match(label) or len(label) < 6:
-                continue
-            title = label
-        else:
-            title = host if (not label or _GENERIC_LABEL.match(label)) else label
-        seen.add(st)
-        row = {"url": url, "title": title, "content": "", "source": "site", "score": 0.0,
-               "wikipedia_link": kind, "trust": trust}
-        (cite if kind == "citation" else ext).append(row)
-    if "W" not in flags:
-        ext = []
-    if "C" not in flags:
-        cite = []
-    return ext, cite
-
-
-def _merge_wiki(q: str, rest: list[dict], sc, card: dict, flags: str, have: set, scorer=None):
-    """W / C: score the article's links with the list's rows and put the best of each kind where their score falls;
-    a candidate under BREADTH_WIKI_MIN is not added. Returns (rest, scores or None)."""
-    ext, cite = _wiki_rows(card, flags, have)
-    cands = ext + cite
-    if not cands:
-        return rest, sc
-    allsc = _scores(q, rest + cands, scorer)
-    if allsc is None:
-        return rest, sc
-    rs, cs = allsc[:len(rest)], allsc[len(rest):]
-    take = []
-    for pool, n, off in ((ext, BREADTH_WIKI, 0), (cite, BREADTH_CITE, len(ext))):
-        ranked = sorted(((cs[off + i], i) for i in range(len(pool)) if cs[off + i] >= BREADTH_WIKI_MIN), reverse=True)
-        take += [(v, pool[i]) for v, i in ranked[:n]]
-    merged = list(zip(rs, rest))
-    for v, row in sorted(take, key=lambda t: -t[0]):
-        pos = max(next((k for k, (rv, _r) in enumerate(merged) if v > rv), len(merged)), min(BREADTH_WIKI_FROM, len(merged)))
-        merged.insert(pos, (v, dict(row, ce=round(v, 2))))
-    return [r for _v, r in merged], [v for v, _r in merged]
-
-
-def breadth_list(q: str, res: list[dict], card: dict | None, flags: str, scorer=None) -> list[dict]:
-    """The shown list after the Wikipedia mix, shaped by the SEARCH_BREADTH flags (above). Places and a stock
-    answer stay on top as they are; the first row stays first."""
-    if not flags or not res:
-        return res
-    n = 0
-    while n < len(res) and (res[n].get("source") == "place" or res[n].get("stock")):
-        n += 1
-    head, rows = res[:n], res[n:]
-    # places under a site or an article ("taco bell": the official site, then its three branches) are no list rows
-    # either: D kept one row of openstreetmap.org and the page, which needs two places for its Nearby box, drew none
-    # (owner 2026-11-13, "why no near me"). They sit out the shaping and go back after the row they followed.
-    mid, kept = {}, []
-    for r in rows:
-        if r.get("source") == "place":
-            mid.setdefault(len(kept) - 1, []).append(r)
-        else:
-            kept.append(r)
-    rows = kept
-    if not rows:
-        return res
-    official = {_site_of(l["url"]) for l in (card or {}).get("links", []) if l.get("title") == "Official site"}
-    first, rest = rows[0], rows[1:]
-    # the search's words, and the card's name ("taylor swfit" is answered as Taylor Swift: her name's words count)
-    words = {w for w in re.findall(r"[a-z0-9]+", ((q or "") + " " + ((card or {}).get("title") or "")).lower())
-             if len(w) >= 3 and w not in _BREADTH_STOP}
-
-    def has_word(r: dict) -> bool:
-        text = " ".join((r.get("title") or "", r.get("url") or "", (r.get("content") or "")[:300])).lower()
-        flat = re.sub(r"[^a-z0-9]", "", text)              # "spiderman" is in "Spider-Man", "westham" in "West Ham"
-        return any(w in text or w in flat for w in words)
-    is_gov = any(r.get("source") == "gov" or _site_of(r.get("url") or "").endswith((".gov", ".mil")) for r in rows[:3])
-    if "J" in flags:
-        # when no row beyond the first shares a word and there is no card, or the search is a question / government task,
-        # the query words are not the results' vocabulary: J's word check stays out. With a card (or >=2 matching rows),
-        # J stays on even when more than half of rest is junk ("spiderman" had 8 junk rows of 13, 2026-11-08)
-        word_ok = (bool(words) and not is_gov and not _BREADTH_QUESTION.match((q or "").strip())
-                   and (card is not None or sum(1 for r in rows if has_word(r)) >= 2))
-        seen, out = {_site_of(first["url"])}, []
-        for r in rest:
-            st = _site_of(r["url"])
-            if word_ok and not _uncapped_row(r, st, is_gov) and not has_word(r):
-                continue
-            path = urlsplit(r["url"]).path.strip("/").lower()
-            if st in seen and st not in official and path in ("", "en", "en-us", "en-gb", "home", "index.html"):
-                continue
-            seen.add(st); out.append(r)
-        rest = out
-    if "D" in flags:
-        # one row per site (the card's own site excepted). Wikipedia, Stack Exchange Q&A, government (.gov/.mil) and
-        # channel/account rows are NOT capped: Clef 27B judged a second state agency page (courts.oregon.gov after
-        # oregon.gov/boli), a second Stack Exchange question or a second article better than what replaced them
-        # (2026-11-08, mix-300: government 2.26 -> 3.46, howto 1.64 -> 1.80, people 2.06 -> 2.50)
-        out, per = [], {_site_of(first["url"]): 1}
-        for r in rest:
-            st = _site_of(r["url"])
-            if not _uncapped_row(r, st, is_gov) and per.get(st, 0) >= 1 and st not in official:
-                continue
-            per[st] = per.get(st, 0) + 1; out.append(r)
-        rest = out
-    links = []
-    if card and ("L" in flags or "S" in flags):
-        have = {same_page(r["url"]) for r in rows} | {_site_of(r["url"]) for r in rows}
-        links = [l for l in _link_rows(card) if same_page(l["url"]) not in have and _site_of(l["url"]) not in have]
-    sc = None
-    if "L" in flags and links:
-        sc = _scores(q, rest + links, scorer)
-        if sc is not None:
-            rs, ls = sc[:len(rest)], sc[len(rest):]
-            best = sorted(zip(ls, range(len(links))), reverse=True)[:BREADTH_LINKS]
-            merged = list(zip(rs, rest))
-            for v, i in best:
-                pos = next((k for k, (rv, _r) in enumerate(merged) if v > rv), len(merged))
-                merged.insert(pos, (v, dict(links[i], ce=round(v, 2))))
-            rest = [r for _v, r in merged]
-            sc = [v for v, _r in merged]
-    elif "S" in flags and links:
-        for k, l in enumerate([l for l in links if l["wikidata_link"] in ("Reddit", "Fandom")][:2]):
-            rest.insert(min(k, len(rest)), l)
-    if card and ("W" in flags or "C" in flags) and WIKILINKS_PATH:
-        have = {_site_of(r["url"]) for r in rows} | {_site_of(l["url"]) for l in links} | official
-        rest, got = _merge_wiki(q, rest, sc, card, flags, have, scorer)
-        if got is not None:
-            sc = got
-    if "F" in flags:
-        if sc is None or len(sc) != len(rest):
-            sc = _scores_reuse(q, rest, scorer) if _score_all.get() else _scores(q, rest, scorer)
-        if sc is not None:
-            floor = _breadth_floor.get()
-            pin = _score_all.get()                         # with SCORE_ALL an exact-tier row is never under the floor
-            rest = [r for k, (r, v) in enumerate(zip(rest, sc))
-                    if k < 2 or v >= floor or r.get("wikidata_link") or (pin and (r.get("score") or 0) >= CE_EXACT)]
-    out = [first] + rest
-    if mid:
-        left = {r["url"] for r in out}
-        follow = {}
-        for k in sorted(mid):                              # after the row it followed, or the nearest one above still shown
-            at = next(kept[i]["url"] for i in range(k, -1, -1) if kept[i]["url"] in left or i == 0)
-            follow.setdefault(at, []).extend(mid[k])
-        out = [x for r in out for x in [r] + follow.pop(r["url"], [])]
-    return head + out
-
-
-# Stack Exchange how-to index (2026-11-10, owner decisions, ADR-081): SEARCH_SE_INDEX=<sqlite> (tools/se-howto.py cut)
-# gives how-to and question searches candidate rows from 45 sites' questions, each with a snippet of its best answer.
-# Off unless the path is set; per request ?se=0|1 (eval A/B). A candidate goes through the reranker with the rows already
-# in the list and is added only when its score clears SEARCH_SE_MIN (default the breadth floor: "ring size" must not
-# bring ring flashes); at most SEARCH_SE_ROWS are added. A row the release already lists (same page) is not repeated: it
-# gets the snippet and the licence fields. A row carries, besides url / title: content (the snippet), snippet (the same,
-# an excerpt), the credit fields of se_credit (author, answer_author and their profile links), answer_url, licence,
-# licence_url, excerpt: true. The page must show the question link, both authors, the licence mark and "excerpt" with it.
-SE_INDEX_PATH = os.environ.get("SEARCH_SE_INDEX", "").strip()
-SE_INDEX_ROWS = int(os.environ.get("SEARCH_SE_ROWS", "3"))
-SE_INDEX_MIN = float(os.environ.get("SEARCH_SE_MIN", str(BREADTH_FLOOR)))
-SE_INDEX_POOL = int(os.environ.get("SEARCH_SE_POOL", "20"))      # candidates read from the index and scored (each is one reranker pair)
-# SEARCH_SE_REUSE=1: a row of the shown list that already carries a reranker score keeps it, and the model is
-# asked about the candidates and the unscored rows only. Off = every row is scored again with the candidates.
-SE_INDEX_REUSE = os.environ.get("SEARCH_SE_REUSE", "").strip() == "1"
 _se_on: contextvars.ContextVar = contextvars.ContextVar("se_index_on", default=True)
-_se_ix_db = threading.local()
-_SE_STOP = frozenset(("the", "a", "an", "of", "and", "in", "on", "for", "to", "is", "are", "was", "how", "do", "does", "what",
-                      "who", "why", "when", "where", "can", "i", "my", "me", "you", "with", "at", "by", "from", "it", "this",
-                      "that", "be", "or", "as", "get", "your"))
-_SE_LICENCES = ((("2011-04-08",), "2.5"), (("2018-05-02",), "3.0"))      # answers before the date: that version; later: 4.0
-
-
-def se_ix_licence(date: str) -> tuple[str, str]:
-    """(name, deed url) of the CC BY-SA version an answer written on `date` (YYYY-MM-DD) carries: 2.5 before 2011-04-08,
-    3.0 before 2018-05-02, 4.0 after (the network's public terms as we read them; the date is stored per answer)."""
-    d = (date or "")[:10]
-    v = "4.0"
-    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", d):
-        for (cut,), ver in _SE_LICENCES:
-            if d < cut:
-                v = ver
-                break
-    return f"CC BY-SA {v}", f"https://creativecommons.org/licenses/by-sa/{v}/"
-
-
-def se_ix_lookup(q: str, n: int | None = None) -> list[tuple]:
-    """The index's best rows for q: bm25 with the title weighted most; AND of the content words, OR when AND gives
-    fewer than 5. [] without the file or without a content word."""
-    import sqlite3
-    if not SE_INDEX_PATH:
-        return []
-    n = SE_INDEX_POOL if n is None else n
-    words = [w for w in re.findall(r"[a-z0-9]+", (q or "").lower()) if w not in _SE_STOP]
-    if not words:
-        return []
-    db = getattr(_se_ix_db, "db", None)
-    if db is None:
-        try:
-            db = sqlite3.connect(f"file:{SE_INDEX_PATH}?mode=ro", uri=True, check_same_thread=False)
-            _se_ix_db.db = db
-        except sqlite3.Error:
-            return []
-    rows: list[tuple] = []
-    for op in (" AND ", " OR "):
-        try:
-            rows = db.execute("SELECT s.site, s.qid, s.title, s.score, s.acc, s.asker, s.answerer, s.aid, s.adate, s.snip "
-                              "FROM fts JOIN s ON s.id = fts.rowid WHERE fts MATCH ? ORDER BY bm25(fts, 6.0, 2.0, 1.0, 1.0) LIMIT ?",
-                              (op.join(f'"{w}"' for w in words[:12]), n)).fetchall()
-        except sqlite3.Error:
-            rows = []
-        if len(rows) >= 5:
-            break
-    return rows
-
-
-def _se_ix_credit(packed: str) -> tuple:
-    """'<user id>|<name>' -> (user id or None, name or None)."""
-    uid, _, name = (packed or "").partition("|")
-    return (int(uid) if uid.isdigit() else None), (name.strip() or None)
-
-
-def se_ix_row(r: tuple) -> dict:
-    """One index row -> a result row with its snippet, credits and licence fields."""
-    site, qid, title, score, acc, asker, answerer, aid, adate, snip = r
-    url = f"https://{site}/questions/{qid}"
-    lic, lic_url = se_ix_licence(adate)
-    row = {"url": url, "title": f"{title} \u2014 {site}", "content": snip or "", "source": "stackexchange", "score": 0.0,
-           "se_index": True, "accepted": bool(acc), "votes": score, "answer_url": f"https://{site}/a/{aid}" if aid else None,
-           "licence": lic, "licence_url": lic_url, "excerpt": True}
-    if snip:
-        row["snippet"] = snip
-    row.update(se_credit(url, {1: _se_ix_credit(asker), 2: _se_ix_credit(answerer)}))
-    return row
-
-
-def se_howto(q: str, res: list[dict], scorer=None) -> list[dict]:
-    """The shown list with index rows for a how-to or question search (intent_of, the engine's own signal). Returns the
-    list as it was when the index is off, the search is another kind, or no candidate clears the floor."""
-    if not SE_INDEX_PATH or not _se_on.get() or not res or intent_of(q, res) != "howto":
-        return res
-    cands = [se_ix_row(r) for r in se_ix_lookup(q)]
-    if not cands:
-        return res
-    have = {same_page(r["url"]): r for r in res}
-    out = list(res)                                       # rows may be shared with the result cache: copy before changing one
-    for k, old in enumerate(out):
-        c = next((c for c in cands if same_page(c["url"]) == same_page(old["url"])), None)
-        if c is not None and (old.get("source") == "stackexchange" or "author" in old or "answer_author" in old):
-            # a row the release lists already (a release page row is source "site" with its credits): snippet + licence on it
-            upd = {f: c[f] for f in ("content", "snippet", "answer_url", "licence", "licence_url", "excerpt", "accepted",
-                                     "votes", "se_index") if f in c}
-            upd.update({f: c[f] for f in ("author", "author_url", "answer_author", "answer_author_url") if f in c and f not in old})
-            out[k] = dict(old, **upd)
-    new = [c for c in cands if same_page(c["url"]) not in have]
-    if not new or SE_INDEX_ROWS <= 0:
-        return out
-    if SE_INDEX_REUSE:                                    # the rows' own scores stand; only what has none is asked
-        todo = [k for k, r in enumerate(out) if not isinstance(r.get("ce"), (int, float))]
-        sc = _scores(q, [out[k] for k in todo] + new, scorer)
-        if sc is not None:
-            rs = [float(r["ce"]) if isinstance(r.get("ce"), (int, float)) else 0.0 for r in out]
-            for k, v in zip(todo, sc):
-                rs[k] = v
-            sc = rs + sc[len(todo):]
-    else:
-        sc = _scores(q, out + new, scorer)
-    if sc is None:
-        return out
-    rs, ns = sc[:len(out)], sc[len(out):]
-    take = sorted(((v, i) for i, v in enumerate(ns) if v >= SE_INDEX_MIN), reverse=True)[:SE_INDEX_ROWS]
-    if not take:
-        return out
-    n_head = 0
-    while n_head < len(out) and (out[n_head].get("source") == "place" or out[n_head].get("stock")):
-        n_head += 1
-    merged = list(zip(rs, out))
-    for v, i in take:                                     # best first; the first row after the places stays first
-        pos = next((k for k, (rv, _r) in enumerate(merged) if k > n_head and v > rv), len(merged))
-        merged.insert(pos, (v, dict(new[i], ce=round(v, 2))))
-    return [r for _v, r in merged]
-
-
-_SEASON = re.compile(r"^((?:1[89]|20)\d\d)[–-](?:\d{2}|\d{4})\b.*\bseason\b", re.I)
-
-
-def old_season(r: dict, year: int | None = None) -> bool:
-    """A "1964–65 West Ham United F.C. season" article more than a year old (it took the list's second row for
-    "west ham united"): it follows the other articles instead of taking one of the early slots."""
-    m = _SEASON.match(r.get("title") or "")
-    return bool(m) and int(m.group(1)) < (year or time.gmtime().tm_year) - 1
-
-
-def mix_wikipedia(res: list[dict], card: dict | None, list_first: bool | None = None) -> list[dict]:
-    """The list as shown: the card's article, and the articles the card already lists as
-    related, are not repeated; of the remaining articles at most WIKI_MIX_MAX stay near the
-    top, each between websites; the rest follow the websites. With no card, a leading exact
-    article is the answer itself and stays first. With list_first (SEARCH_INSTANT_LIST_FIRST,
-    ?ilf=), a leading article stays first whatever its score, and the card's own article stays
-    as the first row flagged in_card instead of leaving the list."""
-    if not any(r.get("source") == "wikipedia" for r in res):
-        return res
-    if list_first is None:
-        list_first = _instant_list_first.get()
-    lead = [r for r in res if r.get("stock")]          # a stock answer's three links stay together on top
-    if lead and res[0].get("stock"):
-        return lead + mix_wikipedia([r for r in res if not r.get("stock")], card, list_first)
-    n = 0                                              # nearby places lead as one block: a list-only client
-    while n < len(res) and res[n].get("source") == "place":      # (launcher, start page) must not see an article
-        n += 1                                                   # between two of them
-    if n:
-        return res[:n] + mix_wikipedia(res[n:], card, list_first)
-    shown = set()
-    if card:
-        shown = {same_page(card.get("url") or "")} | {same_page(r["url"]) for r in (card.get("related") or []) if r.get("url")}
-    first = res[0]
-    if list_first and first.get("source") == "wikipedia" and not first.get("namesake"):
-        # the ranked list's first result is the answer: it stays first; the card's own article is marked
-        lead = [dict(first, in_card=True) if card and same_page(first["url"]) in shown else first]
-    else:
-        lead = [first] if not card and first.get("source") == "wikipedia" and first["score"] >= WIKI_EXACT_SCORE else []
-    rest = [r for r in res[len(lead):] if same_page(r["url"]) not in shown or r.get("source") != "wikipedia"]
-    web = [r for r in rest if r.get("source") != "wikipedia"]
-    articles = [r for r in rest if r.get("source") == "wikipedia" and not r.get("namesake")]
-    old = [r for r in articles if old_season(r)]                #: never in an early slot, even when every
-    articles = [r for r in articles if not old_season(r)]       # article left is one ("west ham united")
-    articles += [r for r in rest if r.get("namesake")]          # a namesake never takes a slot
-    out = list(web)
-    for slot, art in zip(WIKI_MIX_SLOTS[:WIKI_MIX_MAX], articles):
-        out.insert(min(slot, len(out)), art)
-    return lead + out + articles[WIKI_MIX_MAX:] + old
-
-
 def _account(platform, url, name, desc, value, sitelinks, score) -> dict:
     label = ACCOUNT_LABEL.get(platform, platform)
     handle = f" (@{value})" if platform in ("x", "instagram", "tiktok", "twitch", "github", "bluesky") else ""
@@ -4418,27 +1600,6 @@ def _account(platform, url, name, desc, value, sitelinks, score) -> dict:
     return r
 
 
-# Stack Exchange Q&A (se_docs): keyword tier, beside homepages. A well-voted question
-# gets a small lift; the link back to the question is the CC BY-SA attribution.
-SE_SQL = """
-SELECT site, qid, title, answer, -(search_text <@> to_bm25query(%(q)s, 'se_docs_bm25')) AS bm25, score
-FROM se_docs
-ORDER BY search_text <@> to_bm25query(%(q)s, 'se_docs_bm25') LIMIT %(k)s
-"""
-
-# ---------------------------------------------------------------------------
-# Places (OpenStreetMap): "aldi", "harbor freight", "restaurants", "gym near me"
-# answered with the nearest matches to a TOWN-LEVEL home point (SEARCH_HOME="lat,lon"
-# in the search-api environment; unset = no place results). Category words map to OSM
-# kinds; anything else is tried as a place name or brand.
-# ---------------------------------------------------------------------------
-PLACE_CATEGORY_SCORE, PLACE_NAME_SCORE = 950.0, 940.0
-# "wells fargo": branches just under the bank's article and site. Places start at WIKI_EXACT_SCORE minus this, so a
-# negative value is an order above the article (-40: the place tier, 940; -105: above the named sites). sweeps it.
-# rc9 default -40 (was 20). SEARCH_PLACE_UNDER_THING=20 restores rc8.
-PLACE_UNDER_THING = float(os.environ.get("SEARCH_PLACE_UNDER_THING", "-40"))
-NEAR_FUZZY_KM = 10.0         # a loosely matched name beyond this is dropped when the query says "near me"
-PLACE_LEAD = 5               # local intent: nearby places above every named-site tier (NAV_SCORE + 5)
 PLACE_RADIUS_KM = float(os.environ.get("SEARCH_PLACE_RADIUS_KM", "56"))     # 35 miles (was 40 km, 2026-10-11)
 _HOME = os.environ.get("SEARCH_HOME", "")
 HOME = tuple(float(x) for x in _HOME.split(",")) if _HOME.count(",") == 1 else None
@@ -4560,9 +1721,6 @@ PLACE_KINDS = {
     "selfstorage": ["shop=storage_rental"], "storageunits": ["shop=storage_rental"], "storageunit": ["shop=storage_rental"],
     "massage": ["shop=massage"],
 }
-# A category with no place of its own kind nearby asks again with these (OSM-only data has no
-# cuisine=pizza kind: "pizza" then means any restaurant, as before 2026-10-02).
-PLACE_KIND_FALLBACK = {"pizza": ["amenity=restaurant"]}
 # Phrases that mean a kind of place only beside a near-word ("fast food near me"); alone they are
 # an article, a film or a site ("diner", "dinner"). Without these "fast food near me" matched a
 # business NAMED "Fast Food, Inc" 21 mi away and "takeout near me" no place at all.
@@ -4618,20 +1776,6 @@ def place_query(q: str) -> tuple[str, str] | None:
     return "name", " ".join(words)
 
 
-def possessive_variant(name: str) -> str | None:
-    """"wendys" -> "wendy's", "dunkin donuts" -> None: the name a brand is stored under when its last word
-    was typed without the apostrophe (OSM names are "Wendy's", "McDonald's"; the trigram test is 0.5, under the
-    0.6 the name match needs, so a bare "wendys" found no branch at all, owner 2026-10-11). None when the
-    name already has one or is too short to guess."""
-    words = name.split()
-    if not words or "'" in name or "\u2019" in name:
-        return None
-    last = words[-1]
-    if len(last) < 5 or not last.endswith("s") or last.endswith("ss"):
-        return None
-    return " ".join(words[:-1] + [last[:-1] + "'s"])
-
-
 # Words that follow a business's name without being part of it: "t mobile store", "verizon locations".
 PLACE_TAIL = frozenset({"store", "stores", "shop", "shops", "location", "locations", "hours", "branch", "branches"})
 
@@ -4642,172 +1786,6 @@ def place_name_core(name: str) -> str:
     while len(words) > 1 and words[-1] in PLACE_TAIL:
         words = words[:-1]
     return " ".join(words)
-
-
-# Distance in km (equirectangular — exact enough inside a county-sized radius).
-PLACES_SQL = """
-SELECT osm, name, kind, street, city, hours, website, phone, d_km, lat, lon FROM (
-    SELECT p.*, 111.32 * sqrt(power(p.lat - %(lat)s, 2)
-                              + power((p.lon - %(lon)s) * cos(radians(%(lat)s)), 2)) AS d_km
-    FROM places p
-    WHERE p.lat BETWEEN %(lat)s - %(dlat)s AND %(lat)s + %(dlat)s
-      AND p.lon BETWEEN %(lon)s - %(dlon)s AND %(lon)s + %(dlon)s
-      AND {match}) x
-WHERE d_km <= %(r)s ORDER BY d_km LIMIT 3
-"""
-PLACE_MATCH_KINDS = ("(p.kind = ANY(%(kinds)s) OR (%(hint)s <> '' AND p.kind = ANY(%(hint_kinds)s) "
-                     "AND lower(p.name) LIKE %(hint)s))")
-# A category OSM never tags as a kind: "pizza" is also a restaurant with "pizz" in its name
-# (an Overture pizza place at an OSM restaurant's address is dropped as its duplicate, and the
-# OSM row says only "restaurant": Rockville found 1 pizza place, 2026-10-02).
-PLACE_NAME_HINT = {"pizza": ("%pizz%", ["amenity=restaurant", "amenity=fast_food"])}
-# The first group is what the indexes answer (name, brand, trigram — run with
-# PLACE_NAME_SETUP): without it the similarity test ran on every place in the 40 km box,
-# 98k rows over 45k heap blocks, 332 ms p50 on indexhost for the 77% of queries shaped like
-# a name (2026-09-26); with it 30 ms. The second group is the exact test, unchanged.
-PLACE_MATCH_NAME = ("(lower(p.name) = %(name)s OR (p.brand <> '' AND lower(p.brand) = %(name)s) "
-                    "OR lower(p.name) %% %(name)s) "
-                    "AND (lower(p.name) = %(name)s OR (p.brand <> '' AND lower(p.brand) = %(name)s) "
-                    "OR similarity(lower(p.name), %(name)s) >= 0.6)")
-PLACE_NAME_SETUP = "SET pg_trgm.similarity_threshold = 0.6"
-
-
-# ---------------------------------------------------------------------------
-# Opening hours: which to show, how old they are, whether to trust them (2026-10-02).
-# Sources, kept apart (docs/legal/PLACES-AND-HOURS-LICENSING.md): OpenStreetMap's
-# opening_hours (+ hours_checked: the newest check_date / survey:date tag; edited: the
-# element's last edit) and hours_web (the business's own schema.org hours, from Common Crawl,
-# with the crawl date). The newer plausible one wins; one older than HOURS_STALE_DAYS is shown
-# as "may have changed". Never "open now" from a stale or unreadable value (that's the page's).
-# ---------------------------------------------------------------------------
-HOURS_STALE_DAYS = int(os.environ.get("SEARCH_HOURS_STALE_DAYS", "548"))      # ~18 months
-HOURS_INFO_SQL = ("SELECT p.osm, p.hours_checked, p.edited, coalesce(w.hours, ''), coalesce(w.crawled, ''), "
-                  "coalesce(w.url, '') FROM places p LEFT JOIN hours_web w ON w.osm = p.osm WHERE p.osm = ANY(%(ids)s)")
-# "24/7" is rare for these and was common in stale OSM data (1,531 CVS: most-common value "24/7")
-SUSPECT_ALWAYS_OPEN = frozenset({"amenity=dentist", "healthcare=dentist", "amenity=bank", "amenity=library",
-                                 "amenity=post_office", "shop=hardware", "shop=doityourself", "shop=pet",
-                                 "amenity=cafe", "amenity=restaurant", "cuisine=pizza", "amenity=pharmacy",
-                                 "amenity=marketplace", "amenity=veterinary", "shop=laundry",
-                                 "amenity=bar", "amenity=pub"})
-ALWAYS_OPEN_IF_STATED = frozenset({"amenity=pharmacy", "amenity=veterinary", "shop=laundry"})
-# Kinds that really keep late hours (07:00-02:00 is a normal drive-thru, bar or hotel desk). For any
-# other kind a day that opens in the morning and "closes" 01:00-07:00 is a 5 PM written as 05:00
-# ("Mo,We,Th 08:00-05:00", a dentist; web crawl 2026-10-03: ~900 such rows outside these kinds).
-LATE_HOURS_KINDS = frozenset({"amenity=fast_food", "amenity=restaurant", "cuisine=pizza", "amenity=bar", "amenity=pub",
-                              "amenity=cafe", "amenity=fuel", "amenity=hospital", "tourism=hotel", "amenity=nightclub",
-                              "amenity=casino", "amenity=ice_cream", "leisure=fitness_centre", "shop=convenience",
-                              "shop=supermarket", "amenity=pharmacy"})
-_SPAN = re.compile(r"(\d{2}):(\d{2})-(\d{2}):(\d{2})")
-
-
-def pm_misread(hours: str, kind: str) -> bool:
-    """Opens 06:00-13:00 and closes 01:00-07:00 on the same line, for a kind that does not keep late hours."""
-    if kind in LATE_HOURS_KINDS:
-        return False
-    for m in _SPAN.finditer(hours):
-        a, b = int(m[1]) * 60 + int(m[2]), int(m[3]) * 60 + int(m[4])
-        if b < a and 6 * 60 <= a <= 13 * 60 and 60 <= b <= 7 * 60:
-            return True
-    return False
-
-
-def hours_plausible(hours: str, kind: str, src: str) -> bool:
-    h = " ".join((hours or "").split())
-    if not h:
-        return False
-    if re.fullmatch(r"(?:(?:Mo|Tu|We|Th|Fr|Sa|Su)[-,A-Za-z]* )?(?:off|closed)", h, re.I):
-        return False                                           # "closed" every day: not a business's hours
-    if h in ("24/7", "Mo-Su 00:00-24:00", "00:00-24:00") and kind in SUSPECT_ALWAYS_OPEN:
-        # a business's own site saying 24/7 is believed where round-the-clock places exist
-        # (emergency vets, 24-hour pharmacies); for a restaurant, bank or bar it was a site error
-        # (crawl 2026-10-03: 106 restaurants, 34 banks, 34 bars "24/7")
-        if src != "web" or kind not in ALWAYS_OPEN_IF_STATED:
-            return False
-    if pm_misread(h, kind):
-        return False
-    # "opens" left empty on a site's form reads as midnight: "Mo 00:00-20:00" (crawl, 2026-10-02)
-    if re.search(r"(?:^|[ ,])00:00-(1[2-9]|2[0-3]):\d{2}", h):
-        return False
-    return True
-
-
-def place_hours_info(ids: list[str]) -> dict:
-    """osm -> (hours_checked, edited, web_hours, web_crawled, web_url); {} when the table or
-    backend has none of it (older databases, the SQLite lookup file)."""
-    if not ids:
-        return {}
-    try:
-        return {r[0]: r[1:] for r in _rows(HOURS_INFO_SQL, {"ids": ids})}
-    except Exception:
-        return {}
-
-
-def _days_since(iso: str) -> int | None:
-    try:
-        return (dt.date.today() - dt.date.fromisoformat(iso[:10])).days
-    except (TypeError, ValueError):
-        return None
-
-
-def choose_hours(osm_hours: str, kind: str, info: tuple | None) -> tuple[str, str, str]:
-    """-> (hours, as_of, source) — source "web" (the business's site), "osm" (checked on the
-    ground) or "osm-edited" (only the map edit date); ("", "", "") when none is believable."""
-    checked, edited, web, crawled, _url = info or ("", "", "", "", "")
-    cands = []
-    if web and hours_plausible(web, kind, "web"):
-        cands.append((crawled, web, "web"))
-    if osm_hours and hours_plausible(osm_hours, kind, "osm"):
-        cands.append((checked, osm_hours, "osm") if checked else (edited, osm_hours, "osm-edited"))
-    if not cands:
-        return "", "", ""
-    # newest evidence wins; on a tie the business's own word
-    as_of, hours, src = max(cands, key=lambda c: (c[0] or "", c[2] == "web"))
-    return hours, as_of, src
-
-
-def with_hours(r: dict, osm_hours: str, kind: str, info: tuple | None) -> dict:
-    """The place result with the chosen hours: content says them (list-only clients), and
-    hours / hours_asof / hours_src / hours_stale let the page say how sure it is."""
-    hours, as_of, src = choose_hours(osm_hours, kind, info)
-    # "Mo-Th 09:00-17:00, Fr 09:00-18:00": rules split by commas (common in OSM) read as one
-    # malformed rule by the page; the standard separator is "; "
-    hours = re.sub(r",\s+(?=(?:Mo|Tu|We|Th|Fr|Sa|Su|PH)\b)", "; ", hours)
-    if osm_hours and hours != osm_hours:                       # the row's own text named the OSM value
-        r["content"] = " · ".join(x for x in r["content"].split(" · ") if x != osm_hours)
-        if hours:
-            what, _, rest = r["content"].partition(" · ")
-            r["content"] = " · ".join(x for x in (what, hours, rest) if x)
-    elif hours and not osm_hours:
-        what, _, rest = r["content"].partition(" · ")
-        r["content"] = " · ".join(x for x in (what, hours, rest) if x)
-    if hours:
-        age = _days_since(as_of)
-        r.update(hours=hours, hours_asof=as_of, hours_src=src,
-                 hours_stale=bool(age is None or age > HOURS_STALE_DAYS))
-    return r
-
-
-def _place(osm, name, kind, street, city, hours, website, phone, d_km, score=0.0, lat=None, lon=None) -> dict:
-    where = ", ".join(x for x in (street, city) if x)
-    miles = float(d_km) * 0.621371
-    title = f"{name} — {where + ' — ' if where else ''}{miles:.1f} mi"
-    what = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", kind.split("=", 1)[-1]).replace("_", " ").lower()
-    detail = " · ".join(x for x in (what, hours, phone) if x)
-    # A place opens on a map ("physical locations should be clickable and
-    # open in default maps"): its OpenStreetMap page, or for a Web Data Commons business
-    # (no OSM page) OpenStreetMap at its point; the launcher turns lat/lon into geo:.
-    # Overture (ov:, 2026-10-02) has no OSM page either.
-    if not osm.startswith(("node/", "way/", "relation/")) and lat is not None:
-        url = f"https://www.openstreetmap.org/?mlat={lat:.5f}&mlon={lon:.5f}#map=17/{lat:.5f}/{lon:.5f}"
-    else:
-        url = f"https://www.openstreetmap.org/{osm}"
-    r = {"url": url, "title": title, "content": detail[:300], "source": "place", "score": round(score, 2), "pid": osm}
-    if lat is not None and lon is not None:
-        r["lat"], r["lon"] = round(float(lat), 5), round(float(lon), 5)
-    # the business's own site (2026-10-10): where the hours are when we hold none ("Hours on their site")
-    if website and re.match(r"https?://[^\s]+$", website) and len(website) <= 300:
-        r["site"] = website
-    return r
 
 
 # A place searched by its whole name ("parx casino", 2026-09-25): found wherever it is within
@@ -4990,25 +1968,6 @@ def chain_hours(listed: list[str], strong: bool = False) -> str | None:
     return next(h for g, h in sigs if g == best)
 
 
-def chain_fill(results: list[dict], names: dict) -> None:
-    """In a list of places ("pharmacy", "walgreens near me"): a branch with no hours of its own gets its chain's
-    usual hours, marked hours_src "chain" and stale (the page shows them as typical and claims no open/closed).
-    names: pid -> the place's name. A branch that has hours keeps them; a name with no agreeing chain gets nothing."""
-    usual: dict = {}
-    for r in results:
-        name = names.get(r.get("pid"))
-        if r.get("source") != "place" or r.get("hours") or not name:
-            continue
-        keys = tuple(place_keys(name))
-        if keys not in usual:
-            try:
-                usual[keys] = chain_hours([h for (h,) in _rows(CHAIN_HOURS_SQL, {"keys": list(keys)})])
-            except Exception:                                   # no hours_web in this database
-                usual[keys] = None
-        if usual[keys]:
-            r.update(hours=usual[keys], hours_src="chain", hours_asof="", hours_stale=True)
-
-
 def chain_check(pl: dict, usual: str | None, strong: bool = False) -> dict:
     """A branch whose own entry says 24 hours (or nothing) against its chain's usual hours —
     or, when the chain agrees strongly, any map hours that differ — gets the usual hours,
@@ -5102,16 +2061,6 @@ def place_town(q: str) -> tuple[str, list[tuple]] | None:
     return None
 
 
-def town_reading_far(rows: list[tuple], near_km: float | None, stated: bool) -> bool:
-    """"<name> <town>" is not what was asked (2026-10-11): "walmart center" from New Jersey answered with the
-    Walmart Supercenter of Center, Texas, above the Walmart Garden Center 6 miles off. The town reading is dropped
-    when a place nearby is named by the whole query (near_km: the nearest such), every place it found is farther than
-    a named place is looked for (PLACE_EXACT_KM), and the query names no state. "wawa orlando" and "sun spa cedar
-    mills" asked from far away keep theirs: nothing nearby is called that. rows: place_town()'s, d_km last."""
-    return (not stated and near_km is not None and near_km <= PLACE_EXACT_KM
-            and bool(rows) and min(r[10] for r in rows) > PLACE_EXACT_KM)
-
-
 def place_exact(q: str) -> dict | None:
     """The place named exactly q — or named by q's first words in the town its last words name — or None
     (no home point, not a name, nothing that close)."""
@@ -5144,106 +2093,6 @@ def place_exact(q: str) -> dict | None:
         strong = chain_hours(listed, strong=True)
         pl = chain_check(pl, strong or chain_hours(listed), strong=bool(strong))
     return pl
-
-
-# The middle of the lower 48: only a point to measure from, for a question that has none of its own.
-_NOWHERE = (39.83, -98.58)
-NAMES_PLACES_MIN = 20         # at 3, "python" was a business with branches (2026-10-11)
-
-
-def names_places(q: str) -> bool:
-    """Does q name a business with branches — NAMES_PLACES_MIN or more places of that name or brand, anywhere?
-    Asked for a search that came with no position: the public page then knows the answer depends on where
-    the searcher is and may send its area ("t mobile store", "autozone": owner 2026-10-11, a fixed list of
-    chains on the page missed them). Exact names only (letters and digits), with and without a trailing
-    "store" / "locations"; never a category word, never more than four words."""
-    pq = place_query(q)
-    if not pq or pq[0] != "name":
-        return False
-    keys = list(dict.fromkeys(place_keys(pq[1]) + place_keys(place_name_core(pq[1]))))
-    try:
-        rows = _rows(PLACE_EXACT_SQL, {"lat": _NOWHERE[0], "lon": _NOWHERE[1], "keys": keys, "r": 1e6})
-    except Exception:                                       # no places in this database
-        return False
-    return len({(round(r[8], 3), round(r[9], 3)) for r in rows}) >= NAMES_PLACES_MIN
-
-
-def place_site(pl: dict | None, out: list[dict]) -> dict | None:
-    """A named place's own site ("parx casino" -> parxcasino.com, not crawled) as a first
-    answer, unless a result is already on it."""
-    if not pl or not pl["own_site"]:
-        return None
-    host = same_page(pl["own_site"])
-    if any(same_page(r["url"]).split("/")[0] == host for r in out):
-        return None
-    r = _site(pl["own_site"], f"{pl['name']} — official site",
-              ", ".join(x for x in (pl["street"], pl["city"]) if x), NAV_SCORE)
-    r["official"] = True
-    return r
-
-
-def place_in_card(card: dict | None, pl: dict | None) -> bool:
-    """The card is about the place ("Parx Casino and Racing" / PARX Casino), not a namesake
-    ("trump" is not a business called Trump)."""
-    if not card or not pl:
-        return False
-    strip = lambda t: re.sub(r"^the\s+", "", t.strip(), flags=re.I)        # "The Home Depot"
-    a, b = norm_key(strip(card["title"])), norm_key(strip(pl["name"]))
-    return len(b) >= 3 and (a.startswith(b) or b.startswith(a))
-
-
-PERSON_SQL = "SELECT 1 FROM wiki_facts WHERE title = %(t)s AND fact = 'born' LIMIT 1"
-
-
-LONE_PLACE_MI = 10           # a one-word name with no card answers with a place this close
-ORG_PLACE_MI = 25            # an organisation's lone location farther than this is not "its" place (SoFi, Delaware)
-CARD_PLACE_MI = 30           # a card's chain branch farther than this is no help ("apple": a store 66 mi off)
-# A practice named after a person ("james bond" got a doctor's office in
-# Oklahoma): it joins a card only when the card is about an organisation.
-PLACE_PRACTICE = re.compile(r"^(amenity=(doctors|dentist|clinic)|healthcare=|office=|craft=|shop=hairdresser"
-                            r"|schema=(Physician|Dentist|Attorney|LegalService|InsuranceAgency|RealEstateAgent"
-                            r"|AccountingService|MedicalBusiness|MedicalClinic|FinancialService))")
-
-
-def place_answer(q: str, card: dict | None, pl: dict | None, person: bool,
-                 org: bool = False) -> tuple[dict | None, dict | None]:
-    """(card, place) for the page. A person's card never takes a place (a law office called
-    "John Smith"); a card about the place takes it; with no card the place is its own card;
-    a place named exactly by several words ("parx casino shippensburg") replaces a card
-    about something else (the Bensalem casino's article)."""
-    if not pl or person or (org and not pl.get("chain") and (pl.get("miles") or 0) > ORG_PLACE_MI):
-        return card, None
-    if card is not None and ((not org and PLACE_PRACTICE.match(pl.get("kind") or ""))
-                             or (pl.get("chain") and (pl.get("miles") or 0) > CARD_PLACE_MI)):
-        return card, None
-    if card is None:
-        # a place as the whole answer: named by several words ("parx casino shippensburg"),
-        # or a chain, or close by ("wawa") — not a business called Sun 85 miles off for "sun"
-        if len(q.split()) >= 2 or pl.get("chain") or (pl.get("miles") or 0) <= LONE_PLACE_MI:
-            return None, pl
-        return None, None
-    if place_in_card(card, pl) or org:            # an organisation's card keeps its nearest branch
-        card["place"] = pl
-        if pl["own_site"] and not any(l["title"] == "Official site" for l in card["links"]):
-            card["links"].insert(0, {"title": "Official site", "url": pl["own_site"]})
-        return card, None
-    if len(q.split()) >= 2:
-        return None, pl
-    return card, None
-
-
-FUZZY_SIM = float(os.environ.get("SEARCH_FUZZY_SIM", "0.45"))   # the tier-4 fallback's pg_trgm threshold (both lists below)
-FUZZY_SITE_SQL = """
-SELECT d.url, d.title, d.description, similarity(split_part(d.domain, '.', 1), %(key)s) AS sim
-FROM docs d
-WHERE d.error IS NULL AND split_part(d.domain, '.', 1) %% %(key)s
-ORDER BY sim DESC LIMIT 3
-"""
-
-FUZZY_WIKI_SQL = """
-SELECT title, lead, similarity(title, %(q)s) AS sim FROM wiki_docs
-WHERE title %% %(q)s ORDER BY sim DESC LIMIT 2
-"""
 
 
 # ---------------------------------------------------------------------------
@@ -5433,6 +2282,8 @@ _stages_cpu: contextvars.ContextVar = contextvars.ContextVar("stages_cpu", defau
 
 @contextlib.contextmanager
 def stage(name: str):
+    if _warm.get():
+        _warm_yield()                               # the warmer pauses between stages while a visitor's search is in flight (RT-01)
     st, t, sc, c = _stages.get(), time.monotonic(), _stages_cpu.get(), time.thread_time()
     try:
         yield
@@ -5441,19 +2292,6 @@ def stage(name: str):
             st[name] = st.get(name, 0.0) + (time.monotonic() - t) * 1000
         if sc is not None:
             sc[name] = sc.get(name, 0.0) + (time.thread_time() - c) * 1000
-
-
-# _search's own stretches (2026-10-08): a misspelt query logged search:10431 with 0.6 s of named stages
-# inside it. With the fuzzy fallback timed, a 14.3 s request had 12.8 s in fuzzy_wiki. setup, exact (the named
-# tiers, names included), lists_wait (collecting the lists started in setup), fuzzy_site and fuzzy_wiki
-# (fuzzy_read: their trigram lists) now add up, with ranker and ce, to search.
-def stage_since(name: str, t: float) -> float:
-    """Adds the time since t to stage `name` and returns the time now, to start the next stretch from: for
-    stretches of _search too long to indent under stage()."""
-    st, now = _stages.get(), time.monotonic()
-    if st is not None:
-        st[name] = st.get(name, 0.0) + (now - t) * 1000
-    return now
 
 
 def _staged(name: str, fn, *args):
@@ -5486,18 +2324,6 @@ def trace_rows(rows: list[dict]) -> dict:
              **({"flags": fl} if (fl := [f for f in TRACE_FLAGS if r.get(f)]) else {}),
              **(more(r) if more else {}))
         for r in rows[:_trace_n.get()]]}
-
-
-def _tr(step: str, rows: list[dict] | None = None, **info) -> None:
-    tr = _trace.get()
-    if tr is not None:
-        tr.append(dict(info, step=step, **(trace_rows(rows) if rows is not None else {})))
-
-
-def _tl(name: str, lst: list[dict]) -> list[dict]:
-    """One of the lists the fusion blends, noted under its name when a trace is on."""
-    _tr("list", lst, name=name)
-    return lst
 
 
 def trace_run(tr: list[dict], q: str) -> list[dict]:
@@ -5735,7 +2561,7 @@ def news_text(title: str, summary) -> str:
 def news_vec_fill_once(batch: int = 32) -> int:
     """Embed the window's headlines not cached yet; how many were embedded."""
     rows = _news_rows(NEWS_RECENT_SQL, {"h": NEWS_HOURS, "n": _NEWS_VEC_MAX})
-    if not rows or embed("warm") is None:
+    if not rows or not embedder_ready():
         return 0
     with _news_vec_lock:
         todo = [(u, news_text(t, sm)) for u, t, sm in rows if u not in _news_vecs]
@@ -5833,27 +2659,6 @@ def news_hot(q: str, rows) -> bool:
             n += 1
             outlets.add(outlet(source))
     return n >= NEWS_HOT_ITEMS and len(outlets) >= NEWS_HOT_OUTLETS
-
-
-def _news_rows(sql: str, params: dict) -> list | None:
-    """Rows from the news database (search-news keeps it; a search only reads it, never
-    fetches a feed), or None when it is absent or failing."""
-    with _pool_lock:
-        c = _news_pool.pop() if _news_pool else None
-    try:
-        if c is None or c.closed or c.broken:
-            c = _news_connect(NEWS_DB)
-        rows = c.execute(sql, params).fetchall()
-    except psycopg.Error:
-        if c is not None:
-            c.close()
-        return None
-    with _pool_lock:
-        if len(_news_pool) < 4:
-            _news_pool.append(c)
-        else:
-            c.close()
-    return rows
 
 
 # A weather search's stories: local outlets only, about the weather — the storm on the shore,
@@ -6347,72 +3152,6 @@ def facts_card(q: str) -> dict | None:
     return _facts_store[0].answer(q, lk) if _facts_store[0] else None
 
 
-# The office a person holds now, and its own site (2026-11-14, owner: "whitehouse.gov should be up there" for "trump").
-# From the facts file: Wikidata's position held (P39), the ones with no end date that have begun; each position's
-# article and its official site from the release's cards ("President of the United States" -> whitehouse.gov). The
-# row goes just under the person's article when the card is that person. A former office gives nothing ("biden").
-# SEARCH_OFFICE_SITES=0 turns it off.
-OFFICE_SITES = os.environ.get("SEARCH_OFFICE_SITES", "1") == "1"
-OFFICE_MAX = 2
-
-
-def office_rows(t: str, today: dt.date | None = None) -> list[dict]:
-    """Rows for the official sites of the offices the article t's subject holds now (release backend only)."""
-    if not (OFFICE_SITES and FACTS_ON):
-        return []
-    lk = lookups()
-    if lk is None or lk.name != "release":
-        return []
-    if not _facts_store:
-        import facts
-        _facts_store.append(facts.Facts.open(lk.root))
-    fx = _facts_store[0]
-    if not fx:
-        return []
-    import lookups_release as lr
-    docs = lk.names1(t, lr.N_TITLE)[:1]
-    pid = fx.props and next((k for k, v in fx.props.items() if v["prop"] == "P39"), None)
-    if not docs or pid is None:
-        return []
-    today = today or dt.date.today()
-    out, seen = [], set()
-    for _v, _unit, _prec, at, until, vdoc in fx.facts_of(docs[0], pid):
-        if until or vdoc is None:
-            continue                                             # an office held before
-        if at and str(at)[:10] > today.isoformat():
-            continue                                             # elected, not yet in office
-        card = lk.card(vdoc) or {}
-        url = (card.get("o") or [None])[0]
-        office = lk.title(vdoc)
-        if not url or not office or url in seen or not official_ok(url):
-            continue
-        seen.add(url)
-        out.append({"url": url, "title": f"{office} — official site", "content": (card.get("l") or "")[:300],
-                    "source": "site", "office": True, "score": 0.0})
-        if len(out) >= OFFICE_MAX:
-            break
-    return out
-
-
-def with_office_rows(res: list[dict], card: dict | None) -> list[dict]:
-    """The offices' sites just under the card's article (or first, when the article is not listed); a site already in
-    the list moves up instead of showing twice."""
-    if not card or not card.get("title") or not res:
-        return res
-    try:
-        rows = cached(("office", card["title"]), lambda: office_rows(card["title"]), static=True)
-    except Exception:  # noqa: BLE001 - an office row is extra: never fail the answer
-        return res
-    if not rows:
-        return res
-    urls = {r["url"].rstrip("/") for r in rows}
-    rest = [r for r in res if (r.get("url") or "").rstrip("/") not in urls]
-    art = next((i for i, r in enumerate(rest) if r.get("source") == "wikipedia"
-                and r.get("title", "").rsplit(" — Wikipedia", 1)[0] == card["title"]), None)
-    at = (art + 1) if art is not None else 0
-    return rest[:at] + [dict(r) for r in rows] + rest[at:]
-
-
 # Where the older box and the facts file both answer and the older box's value is the build's weaker choice:
 # wiki_facts keeps ONE date or amount per fact and picks it without Wikidata's rank (importer/facts.py: the latest
 # "point in time", else the most precise, else the smallest), so a rescheduled release keeps its first announced
@@ -6645,12 +3384,10 @@ STATE_NAME = {abbr: name.title() for name, abbr in US_STATES.items() if len(name
 STATE_NAME["DC"] = "Washington, D.C."
 TOWN_SQL = """SELECT name, kind, county, pop FROM wx_towns WHERE key = %(k)s AND state = %(s)s
 ORDER BY pop DESC NULLS LAST LIMIT 1"""
-TOWN_TITLE_SQL = "SELECT title FROM wiki_docs WHERE title = ANY(%(t)s)"
 # State codes that are also words: "sign in", "log in", "call me" are not towns in Indiana
 # and Maine; "portland me", "scranton pa", "tulsa ok" are — a real town is big enough.
 TOWN_WORD_CODES = {"in", "or", "me", "ok", "hi", "la", "co", "oh", "id", "ma", "pa", "al", "ar", "mo", "ne",
                    "ut", "wa", "mi", "mt", "ms", "de", "ga"}
-TOWN_WORD_MIN_POP = 5000
 _TOWN_TYPE = re.compile(r"\s+(?:twp|twsp|township|boro|borough|village|city|town|cdp)$")
 
 
@@ -6664,37 +3401,6 @@ def town_query(q: str) -> tuple[str, str, bool] | None:
         if len(words) > n and tail in US_STATES and len(words) - n <= 4:
             return " ".join(words[:-n]), US_STATES[tail], tail in TOWN_WORD_CODES
     return None
-
-
-def town_titles(name: str, kind: str, county: str, state: str) -> list[str]:
-    """Wikipedia's titles for a US municipality, most specific first: "Marsh Township,
-    Marlow County, New Jersey", "Stone Township, New Jersey", "Paris, Lamar County,
-    Texas", "Twin Falls, New Jersey"."""
-    st = STATE_NAME.get(state, "")
-    if not st:
-        return []
-    out = []
-    if kind == "township":
-        out += [f"{name} Township, {county}, {st}", f"{name} Township, {st}"]
-    if county:
-        out.append(f"{name}, {county}, {st}")
-    out.append(f"{name}, {st}")
-    return [t for t in out if ", ," not in t]
-
-
-def town_article(q: str, c) -> str | None:
-    tq = town_query(q)
-    if not tq:
-        return None
-    row = _news_rows(TOWN_SQL, {"k": tq[0], "s": tq[1]})
-    bare = _TOWN_TYPE.sub("", tq[0]).strip()
-    if not row and bare and bare != tq[0]:          # "marsh twp" is no town name; "ocean city" is
-        row = _news_rows(TOWN_SQL, {"k": bare, "s": tq[1]})
-    if not row or (tq[2] and (row[0][3] or 0) < TOWN_WORD_MIN_POP):
-        return None
-    titles = town_titles(row[0][0], row[0][1] or "", row[0][2] or "", tq[1])
-    have = {r[0] for r in c.execute(TOWN_TITLE_SQL, {"t": titles})}
-    return next((t for t in titles if t in have), None)
 
 
 def _news_rows(sql: str, params: dict) -> list[tuple]:
@@ -6761,7 +3467,6 @@ WHERE lat BETWEEN %(lat)s - 0.4 AND %(lat)s + 0.4 AND lon BETWEEN %(lon)s - 0.5 
 ORDER BY power(lat - %(lat)s, 2) + power((lon - %(lon)s) * cos(radians(%(lat)s)), 2) LIMIT 1"""
 # a town the query names (home_gov_state): one of NAMED_TOWN_MIN_POP or more keeps its own place
 NAMED_TOWN_SQL = "SELECT 1 FROM wx_towns WHERE key = ANY(%(k)s) AND pop >= %(p)s LIMIT 1"
-NAMED_TOWN_MIN_POP = 10000
 WX_AWAY_KM = 40               # nearer to home than this, "weather" is the home forecast
 
 
@@ -7243,17 +3948,6 @@ TEXT_FORMS = {
 }
 _STORED_SQL = ("SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' "
                "AND column_name = 'search_text'")
-_stored = (_NEVER, frozenset())
-
-
-def stored_text(c) -> frozenset:
-    """Tables that still carry a stored search_text column; asked once per TABLES_TTL_S."""
-    global _stored
-    if time.monotonic() - _stored[0] > TABLES_TTL_S:
-        _stored = (time.monotonic(), frozenset(r[0] for r in c.execute(_STORED_SQL)))
-    return _stored[1]
-
-
 def with_text(sql: str, stored: frozenset) -> str:
     for tok, (table, col, expr) in TEXT_FORMS.items():
         sql = sql.replace(tok, col if table in stored else expr)
@@ -7332,6 +4026,8 @@ _cache_lock = threading.Lock()
 # computed again, so a popular name never expires between the warmer's visits (a hit does not renew an entry).
 # Only the engine's own network reaches it: the public gateway forwards q/results/full/near/reach and nothing else.
 _warm: contextvars.ContextVar = contextvars.ContextVar("warm", default=False)
+# The builder (warm=1&fin=1) collects the candidate lists the retrieval returned, for the stored answer's provenance (phase 4).
+_prov: contextvars.ContextVar = contextvars.ContextVar("prov", default=None)
 # Precomputed results on disk (result_store.py, 2026-11-04): SEARCH_STORE=<file> keeps the warmer's searches (only
 # warm=1 writes; a visitor's search is never written) under the engine's fingerprint, read after memory and before
 # computing. A warm request recomputes a row older than SEARCH_STORE_REFRESH_S; nothing older than
@@ -7348,8 +4044,29 @@ _store_lock = threading.Lock()
 _audit: contextvars.ContextVar = contextvars.ContextVar("audit", default=False)
 _store_note: contextvars.ContextVar = contextvars.ContextVar("store_note", default=None)   # "disk" / "prev" / "same" / "diff"
 _prev_served: contextvars.ContextVar = contextvars.ContextVar("prev_served", default=None)   # a [bool] cached() reads
-_busy = [0]                                 # visitors' /instant requests in flight (the warmer waits for 0)
+_busy = [0]                                 # visitors' search requests in flight (/instant, /more, /explain, /search; the warmer waits for 0)
+_last_visitor = [0.0]                       # monotonic time a visitor request last started or ended (the warmer backs off for a while after)
 _busy_lock = threading.Lock()
+# RT-01: a warm request (the warmer, the builder's own engine) gives way to visitors. Between its stages it waits while any
+# visitor search is in flight (WARM_YIELD_STEP_S steps, at most WARM_YIELD_TOTAL_S per request so it still ends), and while a
+# visitor was seen in the last WARM_VISITOR_WINDOW_S only WARM_SLOTS_WITH_VISITORS warm requests run at once. A box nobody
+# visits (the builders) is unaffected: both rules need a visitor.
+WARM_YIELD_STEP_S = float(os.environ.get("SEARCH_WARM_YIELD_STEP_S", "0.05"))
+WARM_YIELD_TOTAL_S = float(os.environ.get("SEARCH_WARM_YIELD_TOTAL_S", "15"))
+WARM_VISITOR_WINDOW_S = float(os.environ.get("SEARCH_WARM_VISITOR_WINDOW_S", "60"))
+WARM_SLOTS_WITH_VISITORS = int(os.environ.get("SEARCH_WARM_SLOTS_WITH_VISITORS", "1"))
+_warm_slots = threading.Semaphore(max(1, WARM_SLOTS_WITH_VISITORS))
+_warm_waited: contextvars.ContextVar = contextvars.ContextVar("warm_waited", default=None)   # [seconds waited] of this request
+
+
+def _warm_yield() -> None:
+    w = _warm_waited.get()
+    if w is None or _busy[0] <= 0:
+        return
+    t = time.monotonic()
+    while _busy[0] > 0 and w[0] < WARM_YIELD_TOTAL_S:
+        time.sleep(WARM_YIELD_STEP_S)
+        w[0] += WARM_YIELD_STEP_S
 
 
 def result_store():
@@ -7358,9 +4075,10 @@ def result_store():
         return _store[0]
     with _store_lock:
         if not _store[1]:
-            _store[1] = True
-            if STORE_PATH:
-                try:
+            # the flag is set when the store is READY (audit B-10): it was set first, so a request arriving while another thread
+            # was opening (and pruning) saw "done, none" and ran without the store; parts_for then kept None for the process
+            try:
+                if STORE_PATH:
                     import result_store as rs
                     models = [d for d in ("/models", NOMIC_DIR, CE_DIR, CE_GOV_DIR) if d and os.path.exists(d)]
                     fp = rs.fingerprint(os.path.dirname(os.path.abspath(__file__)), RELEASE_DIR, models)
@@ -7368,8 +4086,10 @@ def result_store():
                     st.prune()
                     _store[0] = st
                     print(f"result store {STORE_PATH}: fingerprint {fp}", flush=True)
-                except Exception as e:
-                    print(f"result store {STORE_PATH} off: {type(e).__name__}: {e}", flush=True)
+            except Exception as e:
+                print(f"result store {STORE_PATH} off: {type(e).__name__}: {e}", flush=True)
+            finally:
+                _store[1] = True
     return _store[0]
 
 
@@ -7383,15 +4103,17 @@ PARTS_SPEED_ONLY = ("SEARCH_CACHE_MAX", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CAC
                     "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_OV_CACHE", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
                     "SEARCH_PARTS", "SEARCH_POOL_MAX", "SEARCH_STATEMENT_TIMEOUT_MS", "SEARCH_STORE", "SEARCH_STORE_FOLD_CASE",
                     "SEARCH_STORE_MAX_AGE_S", "SEARCH_STORE_PREV", "SEARCH_STORE_REFRESH_S", "SEARCH_WORKERS", "SEARCH_LOG",
-                    "SEARCH_SQLITE_CACHE_KB", "SEARCH_MEMSTAT")
-PARTS_CLOCK_OK = ("cached", "generation", "tables", "stage", "stage_since", "stored_text", "junk_domains", "junk_domains_ut1", "suggest_candidates")   # cache expiry and timing only
+                    "SEARCH_SQLITE_CACHE_KB", "SEARCH_MEMSTAT", "SEARCH_CACHE_FLIGHT_WAIT_S", "SEARCH_WARM_YIELD_STEP_S",
+                    "SEARCH_WARM_YIELD_TOTAL_S", "SEARCH_WARM_VISITOR_WINDOW_S", "SEARCH_WARM_SLOTS_WITH_VISITORS",
+                    "SEARCH_KVEC_RETRY_S", "SEARCH_EMBED_RETRY_S")
+PARTS_CLOCK_OK = ("cached", "_warm_yield", "_load_embedder", "kind_vectors", "generation", "tables", "stage", "stage_since", "stored_text", "junk_domains", "junk_domains_ut1", "suggest_candidates")   # cache expiry and timing only
 PART_STAGES = {
     # card_build reaches no search code: its code version moves only with the card's own code and what it calls
     "card": dict(roots=("card_build",), settings=(
                            "SEARCH_ACCOUNTS_IN_CARD", "SEARCH_CARDLINKS", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
                            "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OWN_RANK_TSV", "SEARCH_POSTGRES",
                            "SEARCH_RELEASE_DIR", "SEARCH_SHORT_ENTITY_VIEWS", "SEARCH_SHORT_FLOOR", "SEARCH_SHORT_NAMES", "SEARCH_SHORT_RATIO",
-                           "SEARCH_SITENAV", "SEARCH_SITES_BACKEND", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),
+                           "SEARCH_SITE_RANK", "SEARCH_SITENAV", "SEARCH_SITES_BACKEND", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),
     # the ranked candidates of one search: retrieval, fusion, the models (their real devices are in the key)
     "base": dict(roots=("_search_retry",), settings=(
                            "SEARCH_ACCOUNTS_IN_CARD", "SEARCH_ANSWER_DEAD", "SEARCH_BRAND_SITES",
@@ -7430,9 +4152,9 @@ PART_STAGES = {
                            "SEARCH_BREADTH_WIKI_FROM", "SEARCH_BREADTH_WIKI_MIN", "SEARCH_CARD_GATE",
                            "SEARCH_CE_DEVICE", "SEARCH_CE_DIR", "SEARCH_CE_DIR_IGPU", "SEARCH_CE_MAX_TOKENS",
                            "SEARCH_CE_TEXT", "SEARCH_CE_TOP", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
-                           "SEARCH_CURATED_FILL", "SEARCH_FACTS", "SEARCH_INSTANT_LIST_FIRST", "SEARCH_INTENT_DIR",
+                           "SEARCH_CURATED_FILL", "SEARCH_FACTS", "SEARCH_HOME", "SEARCH_INSTANT_LIST_FIRST", "SEARCH_INTENT_DIR",
                            "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OFFICE_SITES", "SEARCH_OWN_RANK_TSV",
-                           "SEARCH_POSTGRES", "SEARCH_RELEASE_DIR", "SEARCH_SCORE_ALL", "SEARCH_SCORE_ALL_TOP",
+                           "SEARCH_PLACE_RADIUS_KM", "SEARCH_POSTGRES", "SEARCH_RELEASE_DIR", "SEARCH_SCORE_ALL", "SEARCH_SCORE_ALL_TOP",
                            "SEARCH_SE_INDEX", "SEARCH_SE_MIN", "SEARCH_SE_POOL", "SEARCH_SE_REUSE", "SEARCH_SE_ROWS",
                            "SEARCH_SITES_BACKEND", "SEARCH_SITES_BLOCK_WEB", "SEARCH_SITE_BRIDGE", "SEARCH_SITE_RANK",
                            "SEARCH_SITE_SLOTS", "SEARCH_SITE_SLOTS_LEAD", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND",
@@ -7461,38 +4183,6 @@ PART_STAGES = {
 }
 if PARTS_ON - PART_STAGES.keys():
     raise SystemExit(f"SEARCH_PARTS names a stage that does not exist: {sorted(PARTS_ON - PART_STAGES.keys())}")
-class PartStale(Exception):
-    """?pcheck=1: a part of this answer is not stored under the current key."""
-
-
-_pcheck: contextvars.ContextVar = contextvars.ContextVar("pcheck", default=False)       # ?pcheck=1: answer only whether every part is current
-_part_keys: contextvars.ContextVar = contextvars.ContextVar("part_keys", default=None)  # the keys of the parts this answer was made from
-
-
-def _warm_q(qs) -> bool:
-    return (qs.get("warm") or ["0"])[0] == "1"
-
-
-def part_stamp():
-    """The provenance of the answer being built: the key of every stage's part and of the residual (the rest of
-    _instant's code, settings and data), or None when a stage is off or its part was not stored (nothing then says
-    the answer can be re-stamped)."""
-    box = _part_keys.get()
-    P = _parts_state[0] if _parts_state else None
-    if not box or P is None or not set(PART_STAGES) <= PARTS_ON or not {"base", "card", "place", "verdict", "list"} <= set(box):
-        return None
-    try:                                            # "local" is absent when no names_places lookup ran (a position was sent, or no results)
-        return {"v": 2, "rest": P.key("rest", []), **{k: box[k] for k in sorted(box)}}
-    except Exception:  # noqa: BLE001
-        return None
-
-
-def note_part(stage: str, key: str) -> None:
-    box = _part_keys.get()
-    if box is not None:
-        box.setdefault(stage, []).append(key)
-
-
 def base_runtime() -> dict:
     """What only run time knows: the device each model really runs on (a GPU that failed to load falls back to the CPU
     whatever the setting says). The cross-encoder's int8 CPU scores and its fp32 CUDA scores differ, so the device is in
@@ -7519,11 +4209,6 @@ def base_runtime() -> dict:
     return out
 
 
-_parts_off: contextvars.ContextVar = contextvars.ContextVar("parts_off", default=False)       # ?parts=0: the old path (shadow compare)
-_parts_state: list = []
-_parts_lock = threading.Lock()
-
-
 def parts_for(stage: str):
     """The Parts object when SEARCH_PARTS has this stage and the store is open, else None (the stage runs live)."""
     if stage not in PARTS_ON:
@@ -7532,6 +4217,8 @@ def parts_for(stage: str):
         if not _parts_state:
             _parts_state.append(None)
             st = result_store()
+            if st is None:
+                print("parts off: the result store is not open (SEARCH_STORE unset or the file failed to open)", flush=True)
             if st is not None:
                 try:
                     import parts as _p
@@ -7549,24 +4236,6 @@ def parts_for(stage: str):
 # (/instant) shows it instead of the engine's ranked list; the card, places and answers are worked out as always.
 # /search, which every eval asks, never reads it. SEARCH_CURATED=1 turns it on; the release is SEARCH_RELEASE_ID.
 CURATED_RELEASE = (os.environ.get("SEARCH_RELEASE_ID") or "") if os.environ.get("SEARCH_CURATED", "0") == "1" else ""
-
-
-# A stop or a car park named after the store is not a branch of it (2026-11-06: "Ikea" listed "IKEA · ferry terminal",
-# the Red Hook water-taxi stop, between two stores). Dropped only when real branches are listed beside it.
-NOT_BRANCH = frozenset(("ferry terminal", "bus stop", "bus station", "station", "train station", "platform", "stop position",
-                        "tram stop", "subway entrance", "halt", "taxi", "parking", "parking entrance", "parking space",
-                        "bicycle parking", "motorcycle parking"))
-
-
-def place_kind(r: dict) -> str:
-    return (r.get("content") or "").split(" · ", 1)[0].strip().lower()
-
-
-def branches_only(res: list[dict]) -> list[dict]:
-    places = [r for r in res if r.get("source") == "place"]
-    if len(places) < 2 or all(place_kind(r) in NOT_BRANCH for r in places):
-        return res
-    return [r for r in res if not (r.get("source") == "place" and place_kind(r) in NOT_BRANCH)]
 
 
 def curated_key(q: str) -> str:
@@ -7818,7 +4487,10 @@ _SOLD = re.compile(r"\b(products?|brand|line of|series of|models?|devices?|conso
                    r"appliances?|vehicles?|cars?|automobiles?|trucks?|motorcycles?|bicycles?|shoes?|sneakers?|clothing|"
                    r"apparel|footwear|toys?|dolls?|video games?|board games?|beverages?|drinks?|soda|beer|wine|snacks?|"
                    r"cereals?|cand(y|ies)|chocolates?|cosmetics?|fragrances?|perfumes?|tools?|furniture|mattress\w*|"
-                   r"guitars?|instruments?|manufacturer|manufactures)\b", re.I)
+                   r"guitars?|instruments?|manufacturer|manufactures|"
+                   r"cookies?|biscuits?|crackers?|juices?|detergents?|soaps?|sauces?|condiments?|foods?|electronics?|"       # CORE-B-12
+                   r"household (goods|products)|cleaning|toothpaste|shampoos?|coffee|tea|chips|pastas?|noodles?|cheeses?|"
+                   r"sweeteners?|spirits?|liquors?|vodka|whisk(e)?y|energy drinks?)\b", re.I)
 
 
 def card_sells(card) -> bool:
@@ -7872,6 +4544,10 @@ def fin_get(q: str, full: bool) -> dict | None:
             return None
         if st.curated_at(CURATED_RELEASE, curated_key(q)) != b.get("cur_at"):
             return None
+        if "cur_at_card" in b:                           # the list of the card's own name too (audit B-07; rows built before it have none)
+            t = (b.get("card") or {}).get("title")
+            if isinstance(t, str) and st.curated_at(CURATED_RELEASE, curated_key(t)) != b["cur_at_card"]:
+                return None
         if HOME and (b.get("local") or b.get("place") or any(r.get("source") == "place" for r in b["results"])):
             return None                                  # built with no position: here a position would change it
         return b
@@ -7879,49 +4555,37 @@ def fin_get(q: str, full: bool) -> dict | None:
         return None
 
 
-def fin_put(q: str, full: bool, answer: dict) -> bool:
-    """Keep the finished answer for q (the builder only: warm=1&fin=1)."""
+PROVCHECK = os.environ.get("SEARCH_PROVCHECK", "0") == "1"     # off unless the builder's engine sets it: the call is not for visitors
+
+
+def provcheck(calls_json: str) -> dict:
+    """Run the base searches a stored answer ran (its prov row's calls) under THIS release and return their hash, the same
+    one cand_summary stored: equal = the retrieval and ranking of the answer is the same under this release. Retrieval, ranking
+    and the cross-encoder (compute cache) only; no card, place, news or list work."""
+    _warm.set(True)
+    calls = json.loads(calls_json)
+    if not isinstance(calls, list) or len(calls) > 8 or cand_summary is None:
+        return {"error": "bad calls"}
+    done = []
+    for a in calls:
+        if not (isinstance(a, list) and len(a) == 6 and isinstance(a[0], str) and len(a[0]) <= 200):
+            return {"error": "bad call"}
+        done.append((a, base_part(a[0], int(a[1]), bool(a[2]), bool(a[3]), bool(a[4]), bool(a[5]))))
+    h, _t, _c = cand_summary(done)
+    return {"hash": h}
+
+
+def prov_put(q: str, full: bool) -> bool:
+    """Keep what this request's retrieval returned (provenance.cand_summary), for release deltas (phase 4). Extra: never fails."""
     st = result_store() if CURATED_RELEASE else None
-    if st is None:
+    _p = _prov.get()
+    if st is None or not _p or cand_summary is None:
         return False
-    # eng: the engine (results fingerprint) that built it. Not read when serving; the builder rebuilds, or after its impact
-    # check re-stamps, the answers another engine built
-    body = {"v": FIN_V, "cur_at": st.curated_at(CURATED_RELEASE, curated_key(q)), "eng": st.fp,
-            **{k: answer[k] for k in FIN_FIELDS}}
-    if answer.get("pk"):
-        body["pk"] = answer["pk"]       # the parts it was made from (part_stamp): a deploy that changes none of them re-stamps it
-    return st.put_finished(CURATED_RELEASE, fin_key(q, full), body)
-
-
-def _compact(s: str) -> str:
-    return "".join(ch for ch in (s or "").lower() if ch.isalnum())
-
-
-def _within(a: str, b: str, k: int) -> bool:
-    """Edit distance of a and b at most k (small k: banded)."""
-    if abs(len(a) - len(b)) > k:
+    try:
+        st.put_prov(CURATED_RELEASE, fin_key(q, full), *cand_summary(_p))
+        return True
+    except Exception:  # noqa: BLE001 - provenance is extra
         return False
-    prev = list(range(len(b) + 1))
-    for i, ca in enumerate(a, 1):
-        cur = [i] + [0] * len(b)
-        for j, cb in enumerate(b, 1):
-            cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb))
-        prev = cur
-    return prev[-1] <= k
-
-
-def curated_by_card(q: str, card: dict | None) -> list[dict] | None:
-    """The curated list of the card's own name, when the query IS that name typed another way (owner 2026-11-06:
-    "spiderman" has no list, "spider-man" has a good one): the same letters and digits ("spider man", "spiderman"),
-    or within two edits for a name of 8 or more ("sarah j mass"). Never for a query that says more ("spiderman
-    costume kids" keeps its own list)."""
-    title = (card or {}).get("title") or ""
-    a, b = _compact(q), _compact(title)
-    if not a or not b or curated_key(q) == curated_key(title):
-        return None
-    if a != b and not (len(b) >= 8 and _within(a, b, 2)):
-        return None
-    return curated_rows(title)
 
 
 # SEARCH_CURATED_FILL=1 (or ?cf=0|1; 2026-11-11): a curated list is short by design (3.4 rows on 150 judged names, 80%
@@ -7937,23 +4601,6 @@ def usual_gate():
     """The card gate's setting for this request, for the cleaned list's cache key (usual, in the handler)."""
     g = globals().get("_card_gate")
     return g.get() if g is not None else None
-
-
-def curated_fill(top: list[dict], base: list[dict], skip=()) -> list[dict]:
-    """top (the places and the curated rows) followed by the rows of base (the engine's own list) that top does not
-    show already, to the length the engine's own list has (never shorter than top). A place in base is in top already.
-    skip: pages never added (the card's own article, which the curated list leaves out on purpose)."""
-    have = {same_page(r.get("url") or "") for r in top} | set(skip)
-    out = list(top)
-    for r in base:
-        if len(out) >= max(len(top), len(base)):
-            break
-        k = same_page(r.get("url") or "")
-        if k in have or r.get("source") == "place":
-            continue
-        have.add(k)
-        out.append(r)
-    return out
 
 
 def curated_rows(q: str) -> list[dict] | None:
@@ -7986,7 +4633,7 @@ def store_inbox_once() -> list:
     for f in names:
         p = os.path.join(inbox, f)
         try:
-            r = st.reset_lists(p, CURATED_RELEASE) if CURATED_RELEASE else {}   # a lists base replaces what came before (install.py lists)
+            r = st.reset_lists(p, CURATED_RELEASE, FIN_V) if CURATED_RELEASE else {}   # a lists base replaces what came before (install.py lists)
             n = dict(st.import_file(p), **r)
             c = st.import_dept(p)                            # shopping departments (2026-11-13): not tied to a release
             if any(c.values()):
@@ -7998,6 +4645,9 @@ def store_inbox_once() -> list:
                 c = st.import_finished(p, CURATED_RELEASE, FIN_V)    # finished answers too (2026-11-12)
                 if any(c.values()):
                     n = dict(n, **{f"finished_{k}": v for k, v in c.items()})
+                c = st.import_verified(p, CURATED_RELEASE)   # answers the builder rebuilt unchanged (audit DB-03)
+                if c.get("verified"):
+                    n = dict(n, verified=c["verified"])
             os.remove(p)
         except Exception as e:  # noqa: BLE001 - a bad file must not stop the engine
             print(f"store inbox {f}: refused ({type(e).__name__}: {e})", flush=True)
@@ -8055,111 +4705,93 @@ def stored(kind: str, parts, compute):
     return val
 
 
+_CONTAINERS = (dict, list, tuple, set)
+
+
+def _clone(v):
+    """A private copy of a cached value: dicts, lists, tuples and sets are rebuilt, every other leaf (str, number, None,
+    an object of another type) is shared as it was. About 0.12 ms for a 20-row result list (copy.deepcopy: 0.41 ms)."""
+    t = type(v)
+    if t is dict:
+        d = v.copy()
+        for k, x in d.items():
+            if type(x) in _CONTAINERS:
+                d[k] = _clone(x)
+        return d
+    if t is list:
+        return [_clone(x) if type(x) in _CONTAINERS else x for x in v]
+    if t is tuple:
+        return tuple([_clone(x) if type(x) in _CONTAINERS else x for x in v])
+    if t is set:
+        return set(v)
+    return v
+
+
+# One computation per key at a time (audit CORE-B-05, RT-06): the first caller of an uncached key computes, the others
+# wait for it up to CACHE_FLIGHT_WAIT_S and take its result; a follower whose leader failed, timed out or kept nothing
+# (a "prev" row) computes for itself, once, so a slow failure is never queued N times behind each other.
+CACHE_FLIGHT_WAIT_S = float(os.environ.get("SEARCH_CACHE_FLIGHT_WAIT_S", "20"))
+_inflight: dict = {}
+_MISS = object()
+
+
 def cached(key, compute, static: bool = False):
-    """compute() once per key per CACHE_TTL_S; static: per CACHE_STATIC_TTL_S and snapshot."""
+    """compute() once per key per CACHE_TTL_S; static: per CACHE_STATIC_TTL_S and snapshot. Every caller gets its own
+    copy of the value: rows are never shared between requests (audit DB-12, CORE-A-04), so an edit of a row by
+    one request cannot show in another, and what the cache holds is never exposed."""
     now = time.monotonic()
     gen = generation() if static else None
     ttl = CACHE_STATIC_TTL_S if static else CACHE_TTL_S
     if static and _warm.get():
         ttl = ttl / 2
-    with _cache_lock:
-        hit = _cache.get(key)
-        if hit and now - hit[0] < ttl and hit[1] == gen:
-            _cache.move_to_end(key)
-            return list(hit[2])
+    flight = None
+    for _round in (0, 1):
+        with _cache_lock:
+            hit = _cache.get(key)
+            if hit and now - hit[0] < ttl and hit[1] == gen:
+                _cache.move_to_end(key)
+                held = hit[2]
+                break
+            fl = _inflight.get(key)
+            if fl is None:
+                flight = _inflight[key] = (threading.Event(), threading.get_ident())
+                held = _MISS
+                break
+            held = _MISS
+        if fl[1] == threading.get_ident() or _round:     # our own compute asks for its own key, or already waited once
+            break
+        fl[0].wait(CACHE_FLIGHT_WAIT_S)
+        now = time.monotonic()                           # the leader's entry is dated after our first look
+    if held is not _MISS:
+        return _clone(held)
     box = [False]
     tok = _prev_served.set(box)
     try:
         val = compute()
+        if box[0]:                                  # held the old build's row: not kept in memory (the warmer recomputes it)
+            outer = _prev_served.get()
+            if outer is not None:
+                outer[0] = True
+            return val
+        with _cache_lock:
+            _cache[key] = (now, gen, _clone(val))
+            _cache.move_to_end(key)
+            while len(_cache) > CACHE_MAX:
+                _cache.popitem(last=False)
+        return val
     finally:
         _prev_served.reset(tok)
-    if box[0]:                                      # held the old build's row: not kept in memory (the warmer recomputes it)
-        outer = _prev_served.get()
-        if outer is not None:
-            outer[0] = True
-        return list(val)
-    with _cache_lock:
-        _cache[key] = (now, gen, val)
-        _cache.move_to_end(key)
-        while len(_cache) > CACHE_MAX:
-            _cache.popitem(last=False)
-    return list(val)
-
-
-# An exact title match far less searched than the first one is a namesake, not a second
-# meaning (2026-10-01: "att" put the AT-T tractor, 268 searches/month, and Melanie and Martina
-# Grant via their album "A Twin Thing", 1,604, beside AT&T's 17,970). Real ambiguities are
-# close: Mercury the element and the planet ~1:1, Python the language and the snake ~7:1.
-NAMESAKE_RATIO = 10
-NAMESAKE_SCORE = 1.0                # below every result: the end of the list
-WIKI_DEMAND_SQL = "SELECT wiki, max(demand) FROM suggest_items WHERE kind = 'wiki' AND wiki = ANY(%(t)s) GROUP BY wiki"
-
-
-def namesakes(titles: list[str], demand: dict, sited: set[str] = frozenset()) -> set[str]:
-    """Exact matches after the first with under 1/NAMESAKE_RATIO of its demand. Nothing when
-    the first has no demand figure (no basis to judge). An article with a popular official site
-    never is one: "apple" -> Apple Inc., "jaguar" -> Jaguar Cars, "chase" -> Chase Bank are each
-    searched less as articles than the fruit, the cat and the word, and are what most mean."""
-    lead = demand.get(titles[0]) if titles else None
-    if not lead:
-        return set()
-    return {t for t in titles[1:] if t not in sited and (demand.get(t) or 0) * NAMESAKE_RATIO < lead}
-
-
-def spaced_as_asked(rows: list, q: str) -> list:
-    """Exact-title rows with the titles written in the query's own words first (2026-11-09). The exact lookup keys
-    on letters and digits only, so "west ham" finds both "Westham" (a Sussex parish) and "West Ham": the parish led,
-    with its council's site above everything and its card. A title whose words are the query's words, in order, is
-    the one that was typed; the joined or split spelling follows. Order is otherwise kept, and nothing moves when no
-    title is written as asked ("wellsfargo", a typo'd spacing)."""
-    asked = _TOKEN.findall(q.lower())
-    as_asked = [_TOKEN.findall(re.sub(r"\s*\([^)]*\)\s*$", "", r[0]).lower()) == asked for r in rows]
-    if not any(as_asked) or all(as_asked):
-        return list(rows)
-    return [r for r, a in zip(rows, as_asked) if a] + [r for r, a in zip(rows, as_asked) if not a]
+        if flight is not None:                      # after the entry is in: a woken follower must find it
+            with _cache_lock:
+                if _inflight.get(key) is flight:
+                    del _inflight[key]
+            flight[0].set()
 
 
 def _wiki(title: str, lead: str, score: float) -> dict:
     return {"url": "https://en.wikipedia.org/wiki/" + title.replace(" ", "_"),
             "title": f"{title} — Wikipedia", "content": (lead or "")[:300],
             "source": "wikipedia", "score": round(float(score), 2)}
-
-
-def _site(url: str, title: str, desc: str, score: float, popular: bool = False) -> dict:
-    r = {"url": url, "title": title or url, "content": (desc or "")[:300],
-         "source": "site", "score": round(float(score), 2)}
-    if popular:
-        r["popular"] = True
-    return r
-
-
-# A site found by one word of a name (2026-11-06, "west ham united" -> unitedutilities.com on "united",
-# westpoint.edu on "west", accesskent.com from the kind list): when the query is an entity's name (an exact
-# article title), a site from the word lists must hold two of the article title's words side by side ("West Ham
-# News"), or them joined in its host ("westham…"). The title, not the query: a typo ("beyonce knowels", answered
-# as Beyoncé) pairs nothing. A one-word query or title, and one-letter words ("F.C."), have nothing to pair.
-_WORDS = re.compile(r"[a-z0-9]+")
-
-
-def _plain_words(s: str) -> list[str]:
-    return _WORDS.findall(unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower())
-
-
-def name_pairs(name: str) -> list[str]:
-    """A name's neighbouring word pairs ("west ham", "ham united"), its "(…)" and one-letter words dropped."""
-    w = [x for x in _plain_words(re.sub(r"\s*\([^)]*\)\s*$", "", name or "")) if len(x) > 1]
-    return [f"{a} {b}" for a, b in zip(w, w[1:])]
-
-
-def holds_a_pair(r: dict, pairs: list[str]) -> bool:
-    host = (urlsplit(r.get("url") or "").hostname or "").lower()
-    text = " " + " ".join(_plain_words(f"{r.get('title') or ''} {r.get('content') or ''}")) + " "
-    return any(f" {p} " in text or p.replace(" ", "") in host for p in pairs)
-
-
-def named_only(lst: list[dict], pairs: list[str]) -> list[dict]:
-    """A word list's sites that hold a pair of the name's words (pairs empty: the list as it is)."""
-    return [r for r in lst if holds_a_pair(r, pairs)] if pairs else lst
 
 
 SE_QUESTION = re.compile(r"/questions/[0-9]+")
@@ -8197,47 +4829,6 @@ def same_page(url: str) -> str:
     host = (u.hostname or "").lower()
     host = host[4:] if host.startswith("www.") else host
     return host + (u.path.rstrip("/") or "")
-
-
-# One site's home page under other names ("west ham united": whufc.com, whufc.com/en and cdn.whufc.com/en were
-# three results): a language root and a CDN or asset host are the same entry as the site's home page. The language
-# codes are listed (not any two letters), so a section such as /tv stays its own page.
-_LANG_ROOT = re.compile(r"^/(?:en|es|fr|de|it|pt|nl|ja|zh|ko|ru|pl|sv|da|no|fi|tr|ar|he|hi|id|th|vi|cs|el|hu|ro|uk|"
-                        r"intl|global|home|index\.html?)(?:[-_][a-z]{2})?/?$", re.I)
-_ASSET_HOST = re.compile(r"^(?:cdn|static|assets|img|images)\d*\.(?=[^.]+\.[^.]+)", re.I)
-
-
-def result_key(r: dict) -> str:
-    """What makes two results the same entry: the page — but a place is itself, not its map link. A place with no
-    OpenStreetMap page of its own (the gap-fill file: Overture, All the Places) links to the map at its point, and
-    every such link is one page to same_page(): three Starbucks in a row were kept as one (2026-10-10)."""
-    if r.get("source") == "place" and r.get("pid"):
-        return "place:" + r["pid"]
-    return same_page(r["url"])
-
-
-def home_key(r: dict) -> str:
-    """result_key(), with a site's language root and its CDN host read as its home page."""
-    key = result_key(r)
-    if key.startswith("place:"):
-        return key
-    host, _, path = key.partition("/")
-    host = _ASSET_HOST.sub("", host)
-    return host if _LANG_ROOT.match("/" + path) else host + ("/" + path if path else "")
-
-
-def one_home_page(res: list[dict]) -> list[dict]:
-    """A site's home page once, the first of its names kept where it stands. Run after the rerankers, so it
-    only drops a later copy: merged before them, the copy kept could be the one the rerankers like less, and the
-    site lost the first row ("brow gel": benefitcosmetics.com/en-au first became maybelline.com, 2026-11-04)."""
-    seen: set[str] = set()
-    out = []
-    for r in res:
-        key = home_key(r)
-        if key not in seen:
-            seen.add(key)
-            out.append(r)
-    return out
 
 
 def is_popular(tranco_rank, history_visits) -> bool:
@@ -8356,13 +4947,6 @@ def web_intent(q: str) -> float:
     return 0.0 if _no_intent.get() or "intent" in _drop.get() else intent_probs(q).get("web", 0.0)
 
 
-# "Wants sites of a kind" (2026-09-30): the intent model's sixth label, Jev's answer to "is the
-# best answer a short list of real websites or apps of a certain kind?" (password manager,
-# video sharing site). A query that says so without a site word ("tollywood ott", "discord
-# bots") gets its kind's sites above the article, like "... app" does. 0.0 on older models.
-SITES_INTENT_MIN = float(os.environ.get("SEARCH_SITES_INTENT_MIN", "0.7"))
-
-
 def sites_intent(q: str) -> float:
     return 0.0 if _no_intent.get() or "intent" in _drop.get() else intent_probs(q).get("sites", 0.0)
 
@@ -8392,215 +4976,6 @@ def _domain_of(url: str) -> str:
     return h[4:] if h.startswith("www.") else h
 
 
-def demote_weak_names(out: list[dict]) -> None:
-    """When the query is exactly a Wikipedia title, an unpopular domain-name match that
-    is NOT that article's own official site goes below the article: "fdr" meant
-    Franklin D. Roosevelt, not fdr.com.br; "get out" the film, not getout.com
-    (2026-09-24 eval). Popular sites and the article's official site keep tier 1."""
-    if not any(r.get("source") == "wikipedia" and r["score"] >= WIKI_EXACT_SCORE - 3 for r in out):
-        return
-    official = {_domain_of(r["url"]) for r in out if r.get("official") and not r.get("place")}
-    # a place's own site: neither its popularity nor being the article's official domain keeps it above the
-    # article ("cadiz" -> the article, then cadiz.es; owner 2026-10-07)
-    place = {_domain_of(r["url"]) for r in out if r.get("official") and r.get("place")}
-    for r in out:
-        # every domain-name match, not just the first three: a country ending starts a point
-        # lower, and monopoly.ru (996.7) kept "monopoly" from the article (2026-09-26)
-        if (r.get("source") == "site" and r["score"] > WIKI_EXACT_SCORE + 50 and not r.get("official") and not r.get("stock")
-                and (_domain_of(r["url"]) in place
-                     or (not r.get("popular") and _domain_of(r["url"]) not in official))):
-            r["score"] = round(WIKI_EXACT_SCORE - 5 - (NAV_SCORE - r["score"]), 2)
-
-
-def named_place_leads(q: str, pl: dict | None, r: dict) -> bool:
-    """A one-off place nearby asked by its own name leads a site that is merely named like it (2026-10-08: of
-    1,300 real places near home asked by name the place was first for 60%; "vics" led with vics.or.jp over Vic's 21 mi
-    away, "ikko" with ikko.com, and "gold cafeteria" with gold.org, lifted as its "brand"). Not a blanket rule: a
-    chain keeps its brand's site ("rita's", "mavis discount tire"), and so do a popular site, an article's official
-    site and the place's own website. Nearby is the radius the name list reads; a place found by its town
-    ("wawa twin falls") or its brand tag is not named by the whole query and changes nothing. With exact_name_first():
-    place first for 59.6% -> 75.5% of 661 (dev half) and 60.4% -> 76.5% of 639 (test half); no row of head-brand,
-    site-nav, wiki-redirect or place-town changed."""
-    if not pl or pl.get("chain") or r.get("source") != "site" or r.get("popular") or r.get("official"):
-        return False
-    if norm_key(pl.get("name") or "") not in place_keys(q) or (pl.get("miles") or 0) > place_radius_km() * 0.621371:
-        return False
-    return not pl.get("website") or _domain_of(pl["website"]) != _domain_of(r["url"])
-
-
-def name_sites_under_place(q: str, pl: dict | None, out: list[dict]) -> None:
-    """The name-match sites named_place_leads() says yield go under the place tier, in their order, the way
-    demote_weak_names() puts them under an article. A typed domain (NAV_SCORE + 1) is asked for and stays."""
-    for r in out:
-        if PLACE_NAME_SCORE < r["score"] <= NAV_SCORE and named_place_leads(q, pl, r):
-            r["score"] = round(PLACE_NAME_SCORE - 5 - (NAV_SCORE - r["score"]), 2)
-
-
-def exact_name_first(rows: list[tuple], q: str) -> list[tuple]:
-    """PLACES_SQL rows (nearest first) with the places named exactly q ahead of the loose matches: "don's pizza" led
-    with Donato's Pizza 5.6 mi away over Don's Pizza at 20, "federico's" with Federico's Pizza (2026-10-08:
-    another place led 53 of the 1,300 named places). Each group keeps its nearest-first order."""
-    keys = place_keys(q)
-    return sorted(rows, key=lambda r: norm_key(r[1] or "") not in keys)
-
-
-def brand_site_first(q: str, out: list[dict], pl: dict | None = None) -> None:
-    """A query naming a place brand ("mavis discount tire") put the nearest OSM location
-    first and the brand's own site at 2-4 (eval 2026-09-24: mavis.com 0.94 under a
-    node at 0.49; kindercare.com 0.88 under 0.42; speedway.com 0.77 under 0.49). When a
-    place leads and a site whose first label IS a query word (or the words run together)
-    is on a generic ending and at most one path segment deep, it goes just above the
-    places. costco.com.au for "costco gasoline" stays put (foreign ending)."""
-    if not out:
-        return
-    top = max(out, key=lambda r: r["score"])
-    if top.get("source") != "place":
-        return
-    # "7-eleven near me" asks for a location: the places stay first. (Its words also matched
-    # near.org's first label, which went above every 7-Eleven — local yardstick, 2026-10-02.)
-    if _NEAR.search(q.lower()):
-        return
-    # "xina <town>": the town's words name no brand (sites named after the town's words led 2026-10-07) — only the name's do
-    # and asked with its town it is a location that is wanted: only the whole name is a brand ("wawa twin falls" ->
-    # wawa.com), not one word of it ("ko sushi twin falls" -> sushi.com)
-    words = _TOKEN.findall((top.get("town_name") or q).lower())
-    # a brand leads its name ("mavis discount tire", "costco gasoline", "speedway"): the first word or the whole name run
-    # together, never a later word ("old time photos" is not time.gov, "radio technology museum" not museum.tv)
-    names = {"".join(words)} if top.get("town_name") else set(words[:1]) | {"".join(words)}
-    # ... and the first word alone only with evidence that the site is the place's brand ("<town> mvc" -> the
-    # site named after the town, "<name>'s taqueria" -> <name>.edu, "go fresh expess" -> go.dev; 31 of the 32 such lifts in the dev halves
-    # of place and typo-place were misses): the leading place is called just that ("speedway gas" -> Speedway), a
-    # listed place gives that site as its own website, or the place named exactly is a chain around here. The whole
-    # name run together needs none.
-    chain = bool(pl and pl.get("chain"))
-    place_name = norm_key((top.get("title") or "").split(" — ")[0])
-    place_sites = {_domain_of(r["site"]) for r in out if r.get("source") == "place" and r.get("site")}
-    if pl and pl.get("website"):
-        place_sites.add(_domain_of(pl["website"]))
-    best = None
-    for r in out:
-        if r.get("source") != "site" or r["score"] >= top["score"]:
-            continue
-        # nor a site the link tier shows only under a lowered floor: its item is no known brand, and the
-        # place named by the query stays first ("da vi nails" -> the salon 6.4 mi away, davinails.com under it)
-        if r.get("link_low"):
-            continue
-        host = _domain_of(r["url"])
-        path = urlsplit(r["url"]).path.strip("/")
-        # the SITE is named after the brand, not a host under someone else's site: deli.yango.com is not a brand called
-        # "deli" (rc5 acceptance, 2026-10-08: inner pages brought such hosts in and 21 named places lost first place to
-        # arcade.hsn.com, dental.nova.edu, courts.delaware.gov ...)
-        if host.count(".") != 1:
-            continue
-        # nor is the first word of a one-off place's own name: "gold cafeteria" 5.5 mi away is not gold.org, "perk cafe"
-        # not perk.com (2026-10-08: 165 of the 520 named places that were not first lost to such a site)
-        if named_place_leads(q, pl, r):
-            continue
-        if (host.split(".")[0] not in ("".join(words), place_name) and not chain
-                and not any(h == host or h.endswith("." + host) for h in place_sites)):
-            continue
-        if (host.split(".")[0] in names and is_generic(host) and path.count("/") == 0 and len(path) <= 5
-                and (best is None or r["score"] > best["score"])):
-            best = r
-    if best is not None:
-        best["score"] = round(top["score"] + 0.5, 2)
-        best["brand_site"] = True      # the learned ranker put the places back on top: it keeps this
-
-
-def official_subdomain_yields(out: list[dict]) -> None:
-    """An article's official site on a SUBDOMAIN of a site the query names outranked that
-    site: plus.google.com (Google's infobox) over google.com for "google". It now
-    sits just below the name match."""
-    names = [r for r in out if r.get("source") == "site" and not r.get("official") and r["score"] >= NAV_SCORE - 3]
-    for o in out:
-        if not o.get("official"):
-            continue
-        oh = _domain_of(o["url"])
-        for r in names:
-            d = _domain_of(r["url"])
-            if oh != d and oh.endswith("." + d):
-                o["score"] = min(o["score"], round(r["score"] - 0.1, 2))
-
-
-def name_sans_ending(url: str) -> str:
-    """A site's name without its ending: ebay.co.uk and ebay.de are both "ebay",
-    maps.google.de is "maps.google". The path stays, so an inner page only matches the
-    same inner page."""
-    host = _domain_of(url)
-    m = _CC_SLD.search(host)
-    return (host[:m.start()] if m else host.rpartition(".")[0]) + urlsplit(url).path.rstrip("/")
-
-
-def is_country_ending(host: str) -> bool:
-    """ebay.de, ebay.co.uk, google.com.ai: a country code or a country second level. The
-    two-letter endings the nav tier counts as generic (.io, .co, .ai, .tv, .me) are not."""
-    return not is_generic(host) and (bool(_CC_SLD.search(host)) or len(host.rpartition(".")[2]) == 2)
-
-
-def other_endings_last(res: list[dict]) -> list[dict]:
-    """One site, one row on page one (2026-10-08): 233 of 1,372 brand and product
-    queries (17%) showed the same name on two or more endings in the first five ("ebay" ->
-    ebay.com, ebay.co.uk, ebay.de; "google maps" -> maps.google.com, .co.uk, .de). Under a
-    popular or official .com the country endings of the same name go to the end of the
-    list, so they show only when the page would otherwise be short. Nothing else is
-    folded, because the same name on another ending is as often another site: sending
-    every later ending down lost 4 more of 1,000 head-brand answers from the first five
-    ("ms" -> ms.now under ms.gov, "plaid" -> plaid.cymru, "obsidian" -> obsidian.md under
-    obsidian.net, "aldi" -> aldi.com under the official aldi.de) and under an unpopular
-    .com the country ending was the site asked for ("banca etica website" ->
-    bancaetica.it). An article's official site never moves, and places are not looked at."""
-    coms, kept, later = set(), [], []
-    for r in res:
-        host = "" if r.get("source") == "place" else _domain_of(r["url"])
-        if host.endswith(".com") and (r.get("popular") or r.get("official")):
-            coms.add(name_sans_ending(r["url"]))
-        if host and is_country_ending(host) and not r.get("official") and name_sans_ending(r["url"]) in coms:
-            later.append(r)
-        else:
-            kept.append(r)
-    return kept + later
-
-
-def is_untitled(r: dict) -> bool:
-    """A site row with nothing to read: its host as its title and no description (a Tranco
-    site we hold no homepage for, or a homepage that gave neither)."""
-    host = _domain_of(r.get("url", ""))
-    return (r.get("source") == "site" and not (r.get("content") or "").strip()
-            and (r.get("title") or "").strip().lower() in ("", host, "www." + host, r["url"].lower()))
-
-
-def untitled_last(q: str, res: list[dict]) -> list[dict]:
-    """A name and nothing else is a weak answer (2026-10-08): 387 of 1,372 brand and
-    product queries (28%) had an untitled row in the first five ("keep" -> keep.pt, "drive"
-    -> drive.ai, "chrome" -> chrome.dev beside the article and the product's own site).
-    When the page has a named answer with a title, the untitled name matches follow every
-    other row of the page. Four stay where they are: a popular site (half of the top
-    1,000 have no fetched homepage: google.com, facebook.com, apple.com, amazon.com), an
-    article's official site, the domain that was typed ("aldi.de"), and the generic ending
-    of an official site that is on a country ending ("aldi" -> aldi.com beside the official
-    aldi.de, "shiv sena" -> shivsena.org beside shivsena.in: both left the first five
-    without this). With no named answer on the page the untitled name match is the best
-    guess and stays first: sending it down regardless lost 26 first places of 1,505 on
-    site-nav ("jbpm website" -> jbpm.org under squarespace.com, "belfond" -> belfond.fr).
-    An untitled row that is not a name match was ranked on other evidence and stays too:
-    moving those took 4 of 372 product answers out of the first five ("motorrad" ->
-    bmw-motorrad.com, "chem" -> lgchem.com). Places are not looked at."""
-    if domain_query(q):
-        return res
-    abroad = {name_sans_ending(r["url"]) for r in res if r.get("official") and r.get("source") != "place"
-              and is_country_ending(_domain_of(r["url"]))}
-    weak = [r for r in res if is_untitled(r) and query_names_domain(q, _domain_of(r["url"]))
-            and not r.get("popular") and not r.get("official")
-            and not (is_generic(_domain_of(r["url"])) and name_sans_ending(r["url"]) in abroad)]
-    # A front page that only got its name from name_front_pages() (`named`) is not the titled answer that
-    # sends the others down: merged, "diego torres" lost diegotorres.com from 1st to 10th under the newly named
-    # diegotorres.com.ar (combined run, 2026-10-09). It is not weak either: it has a name now.
-    if not weak or not any(r["score"] >= WIKI_EXACT_SCORE - 3 and r.get("source") != "place" and not r.get("named")
-                           and not any(r is w for w in weak) for r in res):
-        return res
-    return [r for r in res if not any(r is w for w in weak)] + weak
-
-
 def exact_name_top(q: str, r: dict) -> bool:
     """A popular site whose name IS the query ("google" -> google.com) stays first: the
     learned ranker put google.com.ai above it."""
@@ -8610,182 +4985,6 @@ def exact_name_top(q: str, r: dict) -> bool:
     labels = {x.replace("-", "") for x in host.split(".")[:-1]}
     return (r.get("source") == "site" and r["score"] >= NAV_SCORE - 1 and bool(r.get("popular"))
             and bool(norm_key(q)) and norm_key(q) in labels)
-
-
-# Stock and ticker searches (2026-09-30, ADR-061): "netflix stock", "nflx share price",
-# "$nflx". Answered with three links, never a price we fetch: the Google Finance quote (live for
-# NYSE/Nasdaq trades and the fewest trackers of 17 quote pages measured), the company's official
-# site, and its SEC filings. Reasoning and measurements: docs/internal/search-jev/12-stock-queries.md.
-# stock_tickers / stock_keys come from importer/stocks.py (SEC ticker list + Wikidata).
-STOCK_SCORE = NAV_SCORE + 2             # above the company's own homepage match
-_STOCK_WORDS = ("stock price today", "share price today", "stock price", "share price", "stock quote", "stock news",
-                "stock today", "stock forecast", "stocks", "stock", "shares", "share", "quote", "ticker", "price target",
-                # earnings wording (answer eval 2026-10-04: "nvidia earnings date", "apple earnings report"): the
-                # company's card — quote page, investor-relations site, SEC filings — is the answer we have
-                "earnings date", "earnings report", "earnings call", "earnings release", "earnings results",
-                "earnings today", "earnings")
-_STOCK_SUFFIX = re.compile(r"\b(inc|incorporated|corp|corporation|co|company|companies|ltd|limited|plc|llc|lp|"
-                           r"sa|nv|ag|se|class [a-c]|common stock|ordinary shares|the)\b")
-# words that name a category of stocks, not one company, though each is also a ticker or a company
-# key ("ai stocks" is not C3.ai, "gold stocks" not Barrick, "tech stocks" not Bio-Techne) — $AI still works
-_STOCK_GENERIC = frozenset("ai,best,top,tech,gold,silver,oil,car,cars,crypto,lithium,live,weed,growth,dividend,"
-                           "penny,meme,bank,banks,energy,solar,space,chip,chips,ev,value,new,hot,cheap,good,"
-                           "blue chip,small cap,large cap,mid cap,defense,uranium,biotech,pharma,reit,cannabis,"
-                           "chicken,beef,vegetable,bone,rolling".split(","))
-_GOOGLE_EX = {"Nasdaq": "NASDAQ", "NYSE": "NYSE", "CBOE": "BATS", "OTC": "OTCMKTS"}
-STOCK_SQL = """
-SELECT t.ticker, t.exchange, coalesce(t.label, t.name), t.cik, t.site, to_jsonb(t) ->> 'ir'
-FROM stock_keys k JOIN stock_tickers t USING (ticker)
-WHERE k.key = %(k)s
-ORDER BY t.ticker LIKE '%%-' || %(cls)s DESC, t.exchange = 'OTC', coalesce(t.sitelinks, 0) DESC, position('-' in t.ticker) > 0, length(t.ticker), t.ticker
-LIMIT 1
-"""
-
-
-def stock_key(text: str) -> str:
-    """Must match importer/stocks.py stock_key()."""
-    t = text.lower().replace("&", " and ").replace(".com", " ").replace("'", "").replace("\u2019", "")
-    t = re.sub(r"[^a-z0-9]+", " ", t)
-    w = _STOCK_SUFFIX.sub(" ", t).split()
-    while w and w[-1] == "and":
-        w.pop()
-    while w and w[0] == "and":
-        w.pop(0)
-    return " ".join(w)
-
-
-def stock_query(q: str) -> str | None:
-    """The company or ticker a stock search names ("netflix stock" -> "netflix", "$nflx" -> "nflx"),
-    or None: the query must END in stock / shares / quote / ticker, or be a $TICKER. A bare ticker
-    ("nflx") is not taken: too many are words or brands ("meta", "f", "t")."""
-    t = " ".join(q.lower().split())
-    m = re.fullmatch(r"\$([a-z]{1,5}(?:[.-][a-z])?)", t)
-    if m:
-        return m.group(1)
-    t = re.sub(r"^(nasdaq|nyse)\s*:\s*", "", t)
-    for w in _STOCK_WORDS:                 # suffix only: "quote of the day" is not Dayforce (DAY)
-        m = re.fullmatch(rf"(.+?)\s+{w}", t)
-        if m:
-            k = stock_key(m.group(1))
-            return k if k and k not in _STOCK_GENERIC else None
-    return None
-
-
-# A bare ticker ("nflx", "vti", 2026-10-01): answered only when the word IS a ticker and nothing
-# else — not the company's own name ("ibm" is IBM's site) and not an English word ("cat", "low",
-# "now", "spy": stock_tickers.word, marked at import from a dictionary). Wikipedia titles were
-# the wrong test: "qqq" and "voo" have articles about the funds, and "low"'s exact match was
-# "Speedrunning". "$spy" or "spy stock" still work. Funds (ETFs, mutual funds) come from SEC's
-# fund list, which has no exchange: their quote link is Google Finance's search.
-_BARE_TICKER = re.compile(r"[a-z]{2,5}")
-STOCK_BARE_SQL = """
-SELECT t.ticker, t.exchange, coalesce(t.label, t.name), t.cik, t.site, to_jsonb(t) ->> 'ir',
-       coalesce((to_jsonb(t) ->> 'word')::boolean, false)
-FROM stock_tickers t WHERE t.ticker = upper(%(k)s)
-"""
-
-
-def named_site(q: str, out: list[dict]) -> bool:
-    """A popular site whose name is exactly the word ("cvs" -> cvs.com, CVS Health's ticker
-    too): that site is what the word means, not the stock."""
-    t = " ".join(q.lower().split())
-    return any(r.get("source") == "site" and r.get("popular") and not r.get("stock")
-               and (urlsplit(r["url"]).hostname or "").removeprefix("www.").split(".")[0] == t for r in out)
-
-
-def bare_ticker_ok(q: str, row) -> bool:
-    t = " ".join(q.lower().split())
-    if not row or not _BARE_TICKER.fullmatch(t):
-        return False
-    if len(row) > 6 and row[6]:
-        return False                                   # an English word: "cat", "low", "spy"
-    name = "" if row[1] == "FUND" else (row[2] or "")       # a fund's "name" is its ticker
-    return not (name and (stock_key(name) == t or stock_key(name).replace(" ", "") == t))   # "ibm"
-
-
-def stock_results(row) -> list[dict]:
-    ticker, exchange, name, cik, site, ir = (tuple(row) + (None,))[:6]   # ir: absent in older tables
-    if exchange == "FUND":
-        out = [_site(f"https://www.google.com/finance?q={ticker}", f"{ticker} fund quote — Google Finance",
-                     f"{ticker}: price, chart and holdings.", STOCK_SCORE)]
-    else:
-        g = f"{ticker.replace('-', '.')}:{_GOOGLE_EX.get(exchange, exchange.upper())}"
-        out = [_site(f"https://www.google.com/finance/quote/{g}", f"{name} ({ticker}) stock quote — Google Finance",
-                     f"{exchange}: {ticker}. Live price for NYSE/Nasdaq trades, chart and news.", STOCK_SCORE)]
-    if ir:                                  # found in Common Crawl (importer/irlinks.py)
-        out.append(_site(ir, f"{name} — investor relations", "Stock information, earnings, reports and events.",
-                         STOCK_SCORE - 0.1))
-    elif site:
-        out.append(_site(site, f"{name} — official website", "The company's own site; investor relations is linked from it.",
-                         STOCK_SCORE - 0.1))
-    sec = f"https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={cik:010d}&type=&dateb=&owner=include&count=40"
-    if exchange == "FUND":
-        out.append(_site(sec, f"{ticker} fund filings — SEC EDGAR", "Prospectus, annual and semi-annual reports, holdings.",
-                         STOCK_SCORE - 0.2))
-    else:
-        out.append(_site(sec, f"{name} filings (10-K, 10-Q, 8-K) — SEC EDGAR",
-                         "Annual and quarterly reports, earnings releases (8-K).", STOCK_SCORE - 0.2))
-    for r in out:
-        r["stock"] = True
-    return out
-
-
-# The article the query names exactly (its title or a redirect) and that the hand rules put first. Measured 2026-10-07
-# on the release engine, wiki-redirect dev half: with the Jev-free ranker.json that ships, the learned ranker moved a
-# reference link (899.5) above that article for 99 of 1,201 queries (86.2% hit@1); the Jev-fitted weights the rc4
-# acceptance image carried did not (94.4%). SEARCH_PIN_EXACT_ARTICLE=0 lets the ranker move it again.
-PIN_EXACT_ARTICLE = os.environ.get("SEARCH_PIN_EXACT_ARTICLE", "1").strip() != "0"
-
-
-def official_top(r: dict) -> bool:
-    """The official site of the article the query names, put first by the hand rules (official_score's tier 1). The
-    learned ranker moved london.edu over london.gov.uk and france.tv over service-public.fr (2026-10-07): the site
-    the article itself names is better evidence than the ranker's features."""
-    # Not for an organisation, and only for a front page on the open web ("wix" -> firegiant.com/wixtoolset/ and an
-    # .onion address were pinned by a looser rule): there the ranker is right more often than the stored link.
-    # Pinned for every kind, head-brand lost 14 of 504 dev queries to wrong official links the ranker used to pass
-    # over ("lg" -> lgcorp.com, "fulham f.c." -> a premierleague.com news page, "craigslist" -> a statista page);
-    # for a company the name-match site is the real one, for a place it is an impostor (london.edu).
-    u = urlsplit(r.get("url") or "")
-    return (bool(r.get("official")) and r.get("source") == "site" and r.get("score", 0) >= NAV_SCORE
-            and r.get("of_kind") != "org" and u.path.strip("/") == "" and not (u.hostname or "").endswith(".onion"))
-
-
-def exact_article_top(r: dict) -> bool:
-    return (PIN_EXACT_ARTICLE and r.get("source") == "wikipedia" and not r.get("namesake")
-            and r.get("score", 0) >= WIKI_EXACT_SCORE - 3)
-
-
-def keep_top(q: str, r: dict) -> bool:
-    """The hand-ranked first result the learned ranker may not move: a named channel /
-    subreddit / account / brand site, a popular site named exactly by the query, or a place
-    (2026-10-02: the ranker never saw a nearby place in training and put "Dentist — Wikipedia"
-    over the clinic 1.3 mi away; local hit@1 0.733 -> back to the hand order's 0.850)."""
-    return (names_platform_page(r) or exact_name_top(q, r) or bool(r.get("famous")) or bool(r.get("kind_top"))
-            or bool(r.get("stock")) or r.get("source") == "place" or exact_article_top(r) or official_top(r))
-
-
-def root_beats_inner_pages(out: list[dict]) -> None:
-    """When an article's official site is present, other tier-1 results on the same
-    domain go: facebook.com/notesandclips/ and microsoft.com/ja-jp were the captured
-    "homepages" and outranked the official roots (2026-09-24)."""
-    officials = {_domain_of(r["url"]): r for r in out if r.get("official")}
-    keep = []
-    for r in out:
-        o = officials.get(_domain_of(r["url"]))
-        if o is not None and not r.get("official") and r.get("source") == "site" and r["score"] >= NAV_SCORE - 3:
-            if official_deep(o["url"]) and not official_deep(r["url"]):
-                # the "official" link is a page (github.com/blog/589-…, picked out of an infobox) and the name match
-                # is the site's front page: the front page is shown, with the official result's place (rc5 plan W1)
-                o["url"] = r["url"]
-            # The official root takes the inner page's place AND its rank: meshtastic.org
-            # (a tier-1 name match) must not fall under the article just because the
-            # article is not typed as an organisation.
-            o["score"] = max(o["score"], r["score"])
-            o["popular"] = o.get("popular") or r.get("popular")
-            continue
-        keep.append(r)
-    out[:] = keep
 
 
 # ---------------------------------------------------------------------------
@@ -8798,136 +4997,6 @@ def root_beats_inner_pages(out: list[dict]) -> None:
 # Jev-fitted weights, informational within noise; no ranker at all lost 0.042 there.
 # ---------------------------------------------------------------------------
 RANKER_PATH = os.environ.get("SEARCH_RANKER", os.path.join(os.path.dirname(os.path.abspath(__file__)), "ranker.json"))
-FEATURES = ["bias", "src_site", "src_wiki", "src_place", "src_subreddit", "tier_nav", "tier_wiki_exact",
-            "tier_place", "tier_fused", "fused_score", "position", "popular", "official", "generic_tld",
-            "root_path", "path_depth", "label_eq_query", "label_in_query", "title_overlap", "title_starts",
-            "query_words", "is_wikipedia_url",
-            # 2026-09-24: kinds added after the first model — YouTube channels,
-            # Wikidata accounts, described-at pages. A new name makes an old ranker.json
-            # stale (ignored) until it is retrained with them.
-            "src_youtube", "src_account", "src_described"]
-
-
-def features(q: str, r: dict, pos: int) -> list[float]:
-    import math as _m
-    u = urlsplit(r.get("url", ""))
-    host = (u.hostname or "").lower()
-    host = host[4:] if host.startswith("www.") else host
-    label = host.split(".")[0] if host else ""
-    qk = norm_key(q)
-    qt = set(_TOKEN.findall(q.lower()))
-    tt = set(_TOKEN.findall((r.get("title") or "").lower()))
-    sc = float(r.get("score", 0))
-    src = r.get("source", "")
-    path = u.path.rstrip("/")
-    return [1.0,
-            float(src == "site"), float(src == "wikipedia"), float(src == "place"), float(src == "subreddit"),
-            float(sc >= NAV_SCORE - 3), float(WIKI_EXACT_SCORE - 3 <= sc < WIKI_EXACT_SCORE + 1),
-            float(PLACE_NAME_SCORE - 5 <= sc < PLACE_CATEGORY_SCORE + 1), float(sc < 200),
-            _m.log1p(sc) if sc < 200 else 0.0, _m.log1p(pos),
-            float(bool(r.get("popular"))), float(bool(r.get("official"))), float(bool(_GENERIC.search(host))),
-            float(path in ("", "/")), float(path.count("/")),
-            float(bool(qk) and label == qk), float(bool(label) and len(label) > 2 and label in qk),
-            len(qt & tt) / max(1, len(qt)), float((r.get("title") or "").lower().startswith(q.lower().strip())),
-            float(len(qt)), float("wikipedia.org" in host),
-            float(src == "youtube"), float(src == "account"), float(src == "described")]
-
-
-# The rules added for government and local queries, as features the model can weigh instead of hand
-# order. A model trained with them lists FEATURES + EXTRA_FEATURES; one trained without them (the shipped
-# ranker.json) still matches FEATURES alone and is read as before, so adding a name here never turns ranking off.
-EXTRA_FEATURES = ["gov_site", "gov_query", "gov_same_state", "gov_other_state", "local_site", "path_service",
-                  "path_news", "src_pages_sem"]
-_GOV_PATH_SERVICE = re.compile(r"(^|[/_.-])(apply|renew\w*|replace\w*|licen[cs]\w*|permits?|regist\w*|forms?|faqs?|"
-                               r"how-?to|eligib\w*|requirements?|fees?|appointments?|benefits|certificates?|records|pay\w*|"
-                               r"claims?|reservations?|file|filing)([/_.-]|$)")
-_GOV_PATH_NEWS = re.compile(r"(^|/)(news|newsroom|press|press-?releases?|media|events?|calendar|meetings?|minutes|agendas?|"
-                            r"archives?|blog|\d{4}(/\d{1,2}){0,2})(/|$)")
-_feat_ctx: dict = {}
-
-
-def _query_ctx(q: str) -> tuple:
-    """(state the query names or the searcher's, local sites) once per query and searcher's point, for extra_features."""
-    key = (q, home_point(), _drop.get())
-    c = _feat_ctx.get(key)
-    if c is None:
-        gs = gov_query_state(q)
-        gq = gs or home_gov_state(q)
-        hl = None if gs else home_local(q)
-        c = (gq[0] if gq else None, frozenset(hl[0]) if hl else frozenset())
-        if len(_feat_ctx) > 2048:
-            _feat_ctx.clear()
-        _feat_ctx[key] = c
-    return c
-
-
-def extra_features(q: str, r: dict) -> list[float]:
-    host = (urlsplit(r.get("url", "")).hostname or "").lower()
-    path = urlsplit(r.get("url", "")).path.lower()
-    doms = gov_states()
-    st = gov_state.host_state(host, doms) if doms else None
-    qst, local = _query_ctx(q)
-    return [float(st is not None), float(qst is not None), float(bool(st) and st == qst),
-            float(bool(st) and bool(qst) and st != qst),
-            float(bool(local) and gov_state.host_domain(host, doms) in local),
-            float(bool(_GOV_PATH_SERVICE.search(path))), float(bool(_GOV_PATH_NEWS.search(path))),
-            float(bool(r.get("sem_page")))]
-
-
-def model_features(m: dict, q: str, r: dict, pos: int) -> list[float]:
-    """The features a model was trained with: FEATURES, or FEATURES + EXTRA_FEATURES."""
-    f = features(q, r, pos)
-    return f + extra_features(q, r) if len(m["features"]) > len(FEATURES) else f
-
-
-_RANKER = None
-
-
-def _ranker():
-    global _RANKER
-    if _RANKER is None:
-        try:
-            with open(RANKER_PATH) as f:
-                m = json.load(f)
-            _RANKER = m if m.get("features") in (FEATURES, FEATURES + EXTRA_FEATURES) else False   # stale model: ignore it
-        except (OSError, ValueError):
-            _RANKER = False
-    return _RANKER
-
-
-def names_platform_page(r: dict) -> bool:
-    """A query that named a YouTube channel or subreddit ("@mrbeast", "r/homelab") keeps
-    that answer first: the model has no feature for those sources and put mrbeast.store
-    over the channel the query asked for (2026-09-24)."""
-    return ((r.get("source") in ("youtube", "subreddit", "account") and r["score"] >= NAV_SCORE)
-            or bool(r.get("brand_site")))
-
-
-def promoted(hand_top: dict, top: dict) -> bool:
-    """The learned ranker put a different page first. rerank returns copies (for the why
-    tooltip), so pages are compared, not objects — comparing objects marked every reranked
-    query as promoted, and none could be confident (2026-09-26)."""
-    return same_page(top["url"]) != same_page(hand_top["url"])
-
-
-def rerank(q: str, results: list[dict]) -> list[dict]:
-    """Reorder by the learned model when ranker.json exists and matches FEATURES."""
-    m = _ranker()
-    if not m or not results:
-        return results
-    import math as _m
-    w = m["weights"]
-    scored = []
-    for pos, r in enumerate(results):
-        z = sum(a * b for a, b in zip(w, model_features(m, q, r, pos)))
-        p = 1 / (1 + _m.exp(-z))
-        # the model's belief and the hand order it started from ride along for the page's
-        # "why this result" tooltip (2026-09-26); a copy, so no cached dict carries them
-        scored.append((p, -pos, dict(r, lr=round(p, 3), pos0=pos + 1)))
-    scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    return [r for _, _, r in scored]
-
-
 # ---------------------------------------------------------------------------
 # Cross-encoder reranker (2026-09-24). A small model reads the query and each
 # result together and scores the pair — the largest single gain in the IR literature
@@ -8964,15 +5033,6 @@ CE_MAX_TOKENS = int(os.environ.get("SEARCH_CE_MAX_TOKENS", "96"))
 # CE_DIR_IGPU were trained (both Jev-free models: domain).
 CE_TEXT = os.environ.get("SEARCH_CE_TEXT", "domain")
 CE_EXACT = WIKI_EXACT_SCORE - 3      # tiers 1-2 and places: never moved by the model
-# The Jev-free models score a Wikipedia article at their floor (-7.9) unless the query is close to its title or
-# worded as a question: their constructed training rows hold an article as the answer only for its own title
-# (yardstick "wiki-topic"). At the floor the score says nothing — "illinois foid card": Firearm Owner's
-# Identification -7.86, Firearms regulation in France -7.97 — and the article fell under whatever site scored
-# higher ("NJ firearms id card": Gun laws in New Jersey from 1st to 6th, Marlin Firearms first; 2026-10-11).
-# Such a row keeps the place the ranker gave it; the others are reordered around it. 30 informational queries
-# on public: 43 of 99 scored articles at the floor, first result changed for 7 (6 better, 1 no better).
-# -99 switches it off; a retrained model that scores articles on any wording makes it unneeded.
-CE_WIKI_FLOOR = float(os.environ.get("SEARCH_CE_WIKI_FLOOR", "-7"))
 _ce = None
 _CE_CHECK = [   # built-in agreement check for the iGPU (query, ce_text) — relevant and not
     ("nytimes", "The New York Times — official site. The New York Times is an American daily newspaper"),
@@ -9139,25 +5199,6 @@ def require_filtered_web():
                          "SEARCH_ALLOW_MIXED_WEB=1 for an evaluation arm: refusing to start")
 
 
-CE_ALT_DIR = os.environ.get("SEARCH_CE_ALT_DIR", "")
-_ce_alt = None
-_ce_alt_lock = threading.Lock()
-
-
-def ce_alt():
-    """?drop=cealt (eval only): the reranker in SEARCH_CE_ALT_DIR, on the CPU. Fails loudly —
-    a silent fall-back to the default model would measure nothing."""
-    global _ce_alt
-    if _ce_alt is None:
-        with _ce_alt_lock:
-            if _ce_alt is None:
-                if not CE_ALT_DIR:
-                    raise RuntimeError("drop=cealt needs SEARCH_CE_ALT_DIR")
-                _ce_alt = _CrossEncoder(CE_ALT_DIR)
-                print(f"cross-encoder (alt): {CE_ALT_DIR} on cpu", flush=True)
-    return _ce_alt
-
-
 # A government task's own reranker (2026-11-06, owner: "we should work to make it work not just revert"): st1
 # (SEARCH_CE_DIR) gave the government set 45.5 % help@1 where the shipped turbo it was fine-tuned from gives 53.9 %
 # (rc14, rule grader; Clef Flash 38.6 vs 44.5). A query the state rule marks as a state task (gov_query_state, or
@@ -9191,302 +5232,6 @@ def ce_text(r: dict) -> str:
         host = (urlsplit(r.get("url") or "").hostname or "").removeprefix("www.")
         return host + " | " + text
     return text
-
-
-def ce_rerank(q: str, results: list[dict], scorer=None) -> list[dict]:
-    """Exact-tier results first in their hand order, then the first CE_TOP of the rest
-    reordered by the cross-encoder, then the remainder as they were. A Wikipedia article
-    scored at the model's floor stays where it was (CE_WIKI_FLOOR)."""
-    scorer = scorer or cross_encoder()
-    if not scorer:
-        return results
-    top = [r for r in results if r["score"] >= CE_EXACT]
-    rest = [r for r in results if r["score"] < CE_EXACT]
-    cand, tail = rest[:CE_TOP], rest[CE_TOP:]
-    if len(cand) < 2:
-        return results
-    sc = scorer(q, [ce_text(r) for r in cand])
-    # A query naming a state and a service ("alaska child support payment") is answered by that state's page,
-    # not by whatever article shares its words: the floor's hold is for articles that ARE the answer and the
-    # model does not know ("python programming language"). Measured on the 2,000 government queries of rc10
-    # (tools/gov-eval, 2026-10-26): in 80 of the 142 queries that lost first place, a floor-held article sat
-    # first ("Child Support Agency (Australia)", "REAL ID Act", "Same-sex marriage in Alabama") with the state's
-    # page right under it; no held article outranked a page for any other reason..
-    hold_wiki = "cewiki" not in _drop.get() and not state_service_query(q)
-    held = {i for i, r in enumerate(cand) if r.get("source") == "wikipedia" and sc[i] <= CE_WIKI_FLOOR} if hold_wiki else set()
-    free = iter(sorted((i for i in range(len(cand)) if i not in held), key=lambda i: -sc[i]))
-    order = [i if i in held else next(free) for i in range(len(cand))]
-    return top + [dict(cand[i], ce=round(float(sc[i]), 2)) for i in order] + tail
-
-
-# ---------------------------------------------------------------------------
-# Typo correction (2026-09-24). A misspelt name matched nothing exact and fell to
-# weak keyword / semantic hits ("decathhlon" -> Red herring; typos scored 0.39 on the
-# Jev eval vs 0.80 overall). When no exact tier answered, the closest suggest key by
-# trigram similarity ("decathlon") is searched instead and its results are marked
-# corrected — never `confident`: a guessed spelling must not skip the web.
-# ---------------------------------------------------------------------------
-TYPO_MIN = int(os.environ.get("SEARCH_TYPO_MIN", "5"))        # swept by tools/sq-sweep.py, with the three below
-# Tuned 2026-09-24 on 300 synthetic typos of popular names with known originals
-# (right / wrong / untouched):
-#   trigram 0.5, spelling only                     234 / 29 / 37
-#   trigram 0.4 + popularity 0.5                   253 / 34 / 13  ("costoc" -> Costco, not Costock)
-#   trigram 0.25 + popularity 0.5 + <= 1-2 edits   280 / 18 /  2
-#   … + 100 candidates, popularity 1.0              280 / 22 /  1, and the ones people
-#     type right: the 30 closest spellings never held "amazon" for "amzaon", and at
-#     0.5 "costoc" stayed the village Costock.
-# The edit limit is what separates a typo from a different phrase that merely looks
-# similar: "bike across america" was "corrected" to Race Across America (3 edits),
-# "cheap flights to denver" to Cheapflights (8). 1 edit under 9 letters, 2 from 9.
-TYPO_SIM = float(os.environ.get("SEARCH_TYPO_SIM", "0.25"))
-TYPO_POP = float(os.environ.get("SEARCH_TYPO_POP", "1.0"))
-TYPO_SQL = """
-SELECT i.name, similarity(k.key, %(t)s) AS sim, i.score, k.key
-FROM suggest_keys k JOIN suggest_items i USING (id)
-WHERE k.key %% %(t)s AND k.key <> %(t)s
-ORDER BY similarity(k.key, %(t)s) DESC LIMIT 100
-"""
-
-
-def edits(a: str, b: str) -> int:
-    """Damerau-Levenshtein distance (optimal string alignment): a swap of two
-    neighbouring letters is one edit, as a typist makes it."""
-    d = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]
-    for i in range(len(a) + 1):
-        d[i][0] = i
-    for j in range(len(b) + 1):
-        d[0][j] = j
-    for i in range(1, len(a) + 1):
-        for j in range(1, len(b) + 1):
-            d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] != b[j - 1]))
-            if i > 1 and j > 1 and a[i - 1] == b[j - 2] and a[i - 2] == b[j - 1]:
-                d[i][j] = min(d[i][j], d[i - 2][j - 2] + 1)
-    return d[len(a)][len(b)]
-
-
-# the edit limit: 1 edit under this many letters, 2 from it (the tuning note above TYPO_SIM)
-TYPO_EDITS2_LEN = int(os.environ.get("SEARCH_TYPO_EDITS2_LEN", "9"))
-
-
-def max_edits(t: str) -> int:
-    return 1 if len(t) < TYPO_EDITS2_LEN else 2
-
-
-def pick_correction(cands: list[tuple], t: str = "", sim_min: float = None, pop_w: float = None) -> str | None:
-    """cands: (name, similarity, popularity score, key). The best spelling match weighted
-    by how well known the name is, among keys at most max_edits(t) edits from the typed
-    text t; None when nothing qualifies."""
-    sim_min = TYPO_SIM if sim_min is None else sim_min
-    pop_w = TYPO_POP if pop_w is None else pop_w
-    ok = [c for c in cands if c[1] >= sim_min and (not t or len(c) < 4 or edits(t, c[3]) <= max_edits(t))]
-    if not ok:
-        return None
-    return max(ok, key=lambda c: c[1] + pop_w * (c[2] or 0.0))[0]
-
-
-def needs_correction(q: str, results: list[dict]) -> bool:
-    """Only when nothing matched exactly (no tier 1/2 result) and the query is long enough
-    for a spelling to be wrong in a way trigrams can see."""
-    # A lifted kind is not an exact match: "miccrosoft whiteboard" lifted the kind
-    # "whiteboard" (miro.com) and so was never corrected to Microsoft Whiteboard (2026-09-30).
-    # Nor is a channel that only sits under an article (bare_channel_score): "röyksopp" matched its channel's name,
-    # so the spelling without the accent was never tried and royksopp.com and the article were lost (2026-10-11).
-    return len(tight(q)) >= TYPO_MIN and not any(
-        r["score"] >= WIKI_EXACT_SCORE - 3 and not r.get("kind")
-        and not (r.get("source") == "youtube" and r["score"] < WIKI_EXACT_SCORE) for r in results)
-
-
-def correct_query(q: str) -> str | None:
-    t = tight(q)
-    with _conn() as c:
-        if "suggest_keys" not in tables(c):
-            return None
-        c.execute(f"SET pg_trgm.similarity_threshold = {TYPO_SIM}")
-        best = pick_correction(list(c.execute(TYPO_SQL, {"t": t})), t)
-    if not best:
-        return None
-    name = re.sub(r"\s*\(.*\)$", "", best).strip()
-    return name if tight(name) != t else None
-
-
-# Second attempt (2026-10-07). The index above holds the suggestion keys only: 3.2 M of the 16 M
-# article aliases and none of the long-tail site names, so a slip in "air hostess" or in a small
-# company's name found nothing to be corrected to. Every spelling ONE slip away (a letter dropped,
-# added, replaced, or swapped with its neighbour: about 75 per letter) is looked up in the names the
-# exact tiers answer, and the best known one is searched. Two rules keep it off queries spelt right:
-#   - only a word Wikipedia hardly uses is respelt. Without it "driving directions" became the
-#     article "driving direction" and "jeremy howard" another man's site. Of 494 misspelt words in the
-#     typo sets 90% are in fewer than 20 articles; of 1,683 words in the other sets 11% are.
-#   - a query with accents is only folded ("salvador dalí" -> "salvador dali"): name keys drop every
-#     non-ASCII letter, so a slip next to one lands on unrelated names.
-# Release lookups and the release's Wikipedia text only. SEARCH_TYPO_WIDE=0 turns it off.
-TYPO_WIDE = os.environ.get("SEARCH_TYPO_WIDE", "1") != "0"
-# rc9 default 3000 (was 20 stage two). SEARCH_TYPO_WORD_DF=20 restores rc8.
-TYPO_WORD_DF = int(os.environ.get("SEARCH_TYPO_WORD_DF", "3000"))
-# a typed word is a word in its own right, not a slip (respells_known_words). Fitted 2026-10-11 on the dev halves
-# of typo-site, typo-wiki and typo-place (rc8, 383 word-for-word corrections: none refused); test halves: 1 of 419
-# refused, a correction that was wrong anyway ("claes cove").
-TYPO_KNOWN_DF = int(os.environ.get("SEARCH_TYPO_KNOWN_DF", "1000"))
-TYPO_KNOWN_RATIO = float(os.environ.get("SEARCH_TYPO_KNOWN_RATIO", "0.5"))
-TYPO_NEAR_SQL = "-- release only: which of %(keys)s are names (lookups_release.near_names)"
-# (2026-10-13): two classes of name the exact tiers answer are in neither correction vocabulary, so a slip in
-# one found nothing to be corrected to — 60 of the 110 misspelt dev queries the recall audit filed as never undone
-# (tools/evalsets/open/arm-487-typo.md): official sites of things with no English article ("chebahciy", the link
-# tier, LINK_SITE_SQL) and places nearby ("ocena club", the place tier). SEARCH_TYPO_NAMES names the classes
-# correct_wide() may also ask: "links", "places" or both. rc9 default: both; SEARCH_TYPO_NAMES=0 (or empty) is neither. They are asked only when the first
-# vocabulary held nothing one slip away, so a query it corrects today is corrected the same.
-TYPO_NAME_CLASSES = ("links", "places")
-
-
-def typo_names_setting(v: str) -> frozenset:
-    """"links, places" -> the classes named in it; anything else ("", "0", "1") is none."""
-    return frozenset(x for x in (y.strip().lower() for y in (v or "").split(",")) if x in TYPO_NAME_CLASSES)
-
-
-TYPO_NAMES = typo_names_setting(os.environ.get("SEARCH_TYPO_NAMES", "links,places"))
-# (2026-10-30): the words of English (typo-words.txt, Open English WordNet) as evidence on the typo path.
-# SEARCH_TYPO_WORDS names the uses, default fill as measured 2026-10-30 (guard moved no typo set); the file absent is none.
-#   guard  a dictionary word is no slip: correct_wide() leaves it alone, and respells_known_words() counts it as a word
-#          in its own right however rarely Wikipedia uses it (the ratio still holds: far rarer than the other word is a slip)
-#   fill   a last attempt, word by word: a rare word that is no dictionary word becomes the best-known dictionary word
-#          one slip away ("go fresh expess", "busiiness banking"). Two words at least, one of them left as typed:
-#          alone, "ozera" would become the article "opera". The floor in _search_corrected() still decides.
-TYPO_WORD_USES = ("guard", "fill")
-
-
-def typo_words_setting(v: str) -> frozenset:
-    """"guard, fill" -> the uses named in it; anything else ("", "0", "1") is none."""
-    return frozenset(x for x in (y.strip().lower() for y in (v or "").split(",")) if x in TYPO_WORD_USES)
-
-
-TYPO_WORDS = typo_words_setting(os.environ.get("SEARCH_TYPO_WORDS", "fill"))
-_typo_words = None
-
-
-def typo_words() -> frozenset:
-    global _typo_words
-    if _typo_words is None:
-        try:
-            with open(os.environ.get("SEARCH_TYPO_WORDS_FILE") or os.path.join(RELEASE_DIR, "typo-words.txt"), encoding="utf-8") as f:
-                _typo_words = frozenset(f.read().split())
-        except OSError:
-            _typo_words = frozenset()
-        print(f"typo path dictionary words: {len(_typo_words)}", flush=True)
-    return _typo_words
-
-
-def dictionary_word(w: str) -> bool:
-    return "guard" in TYPO_WORDS and w in typo_words()
-
-
-TYPO_NEAR_MORE_SQL = "-- release only: which of %(keys)s are link-only sites or places nearby (lookups_release.near_more)"
-_EDIT_LETTERS = "abcdefghijklmnopqrstuvwxyz0123456789"
-
-
-def one_edit(w: str) -> set[str]:
-    """Every spelling one slip from the word w."""
-    out = set()
-    for i in range(len(w) + 1):
-        out.update(w[:i] + ch + w[i:] for ch in _EDIT_LETTERS)
-        if i < len(w) and w[i].isalnum():
-            out.add(w[:i] + w[i + 1:])
-            out.update(w[:i] + ch + w[i + 1:] for ch in _EDIT_LETTERS)
-            if i + 1 < len(w) and w[i + 1].isalnum():
-                out.add(w[:i] + w[i + 1] + w[i] + w[i + 2:])
-    out.discard(w)
-    return out
-
-
-def unaccent(s: str) -> str:
-    return "".join(ch for ch in unicodedata.normalize("NFKD", s) if not unicodedata.combining(ch))
-
-
-def respells_known_words(q: str, fixed: str) -> bool:
-    """The correction only changes words that are words in their own right: "nba news" -> "NBC News", "nba scores" ->
-    "NBA Store", "nhl scores" -> "Hi Scores" (2026-10-10: the first index compares whole strings, so real words
-    one letter from a better-known name were "corrected"). A word is one in its own right when Wikipedia uses it
-    plenty (TYPO_KNOWN_DF articles) and at least TYPO_KNOWN_RATIO as often as the word it would become: "nba" beside
-    "nbc". A slip is far rarer than what it stands for ("marne" 6,644 articles, "marine" 133,806; "univerity" 31),
-    and refusing every word in 20 articles cost typo-site 2.2 points of hit@1 on rc8. Two spellings the index holds
-    as one term ("languags", "language") are no respelling. Only when the two line up word for word: a join or a
-    split ("face book" -> "facebook") is judged as before."""
-    if not (LOOKUP_BACKEND == "release" and WIKI_BACKEND == "tantivy-release"):       # doc_freq is the release index's
-        return False
-    a, b = _TOKEN.findall(q.lower()), _TOKEN.findall(fixed.lower())
-    changed = [(x, y) for x, y in zip(a, b) if x != y]
-    if len(a) != len(b) or not changed:
-        return False
-    wt = wiki_text()
-    for x, y in changed:
-        df = wt.doc_freq(x)
-        if (wt.terms(x) == wt.terms(y) or (df < TYPO_KNOWN_DF and not dictionary_word(x))
-                or df < TYPO_KNOWN_RATIO * wt.doc_freq(y)):
-            return False
-    return True
-
-
-def more_names(c, q: str, keys: list[str]) -> list[tuple]:
-    """(key, score) for the keys that name a link-only official site or a place nearby: the classes
-    SEARCH_TYPO_NAMES allows. Places only where the place tier would read the respelt name: a home point, and a
-    name of at most four words (place_query). The typed name's key goes along: a name of either class is no slip."""
-    here = home_point() if "places" in TYPO_NAMES and len(q.split()) <= 4 else None
-    p = {"keys": keys, "typed": norm_key(q), "links": "links" in TYPO_NAMES, "places": here is not None, "r": place_radius_km()}
-    if here is not None:
-        p["lat"], p["lon"] = here
-    with stage("typo_names"):
-        return list(c.execute(TYPO_NEAR_MORE_SQL, p))
-
-
-def correct_wide(q: str) -> str | None:
-    """The best-known name one slip from q, spelt with q's own spaces; None when there is none."""
-    if not TYPO_WIDE or LOOKUP_BACKEND != "release" or WIKI_BACKEND != "tantivy-release":
-        return None
-    words = q.lower().split()
-    plain = unaccent(" ".join(words))
-    if plain != " ".join(words):
-        near = {norm_key(plain): plain}
-    else:
-        wt, near = wiki_text(), {}
-        for i, w in enumerate(words):
-            if wt.doc_freq(w) < TYPO_WORD_DF and not dictionary_word(w):
-                for v in one_edit(w):
-                    fixed = " ".join(words[:i] + [v] + words[i + 1:])
-                    near.setdefault(norm_key(fixed), " ".join(fixed.split()))
-    near.pop(norm_key(q), None)
-    if not near:
-        return None
-    with _conn() as c:
-        rows = list(c.execute(TYPO_NEAR_SQL, {"keys": list(near)}))
-        if not rows and TYPO_NAMES:
-            rows = more_names(c, q, list(near))
-    return near[max(rows, key=lambda r: r[1])[0]] if rows else None
-
-
-def correct_words(q: str) -> str | None:
-    """Word by word: each rare word that is no dictionary word becomes the best-known dictionary word one slip away
-    ("fill" in SEARCH_TYPO_WORDS). None when nothing changes or no word would be left as typed."""
-    if "fill" not in TYPO_WORDS or LOOKUP_BACKEND != "release" or WIKI_BACKEND != "tantivy-release" or not typo_words():
-        return None
-    words, known, wt = q.lower().split(), typo_words(), wiki_text()
-    out = list(words)
-    for i, w in enumerate(words):
-        if w.isalpha() and w not in known and wt.doc_freq(w) < TYPO_WORD_DF:
-            near = one_edit(w) & known
-            if near:
-                out[i] = max(sorted(near), key=wt.doc_freq)
-    changed = sum(a != b for a, b in zip(words, out))
-    return " ".join(out) if changed and changed < len(words) else None
-
-
-# A misspelt name runs to six words ("byrd polar and climate ersearch center", Jev typo
-# set); a longer sentence ("how to fix a squeaky door hinge") is never within two edits of
-# one, and its trigram scan was the slowest step (67 ms cold). At 4 words "national
-# fund for heealth insurance" lost its correction.
-TYPO_MAX_WORDS = 6
-
-
-def typo_shape(q: str) -> bool:
-    return len(tight(q)) >= TYPO_MIN and len(q.split()) <= TYPO_MAX_WORDS
 
 
 # Curated index ( §3, 2026-09-27): `site_quality` holds Jev's judgement of every served
@@ -9682,50 +5427,18 @@ def search(q: str, k: int, semantic: bool = True, learned: bool = True, correct:
                      static=True)
     _cache_state.set((_store_note.get() if _store_note.get() in ("disk", "prev") else "miss") if computed else "hit")
     # after the cache: the cached list is the uncapped one, so ?pcap= needs no place in the key
+    _p = _prov.get()
+    if _p is not None:
+        _p.append(([q, k, semantic, learned, correct, ce], res))
     res = cap_profiles(drop_junk(res, q), _profile_cap.get())
     return [] if hands_off(q, res, quiet) else res
 
 
-def base_part(q: str, k: int, semantic: bool, learned: bool, correct: bool, ce: bool = True) -> list[dict]:
-    """The base stage (parts stage "base" phase 2): the ranked candidates of one search, before the profile cap,
-    the junk drop and the hands-off check that search() applies after the cache. Through the parts store when
-    SEARCH_PARTS has "base"; its key holds the retrieval and ranking code, every setting and data file it reads, and the
-    device each model really runs on."""
-    if parts_for("base") is None:
-        if _pcheck.get():
-            raise PartStale("base")
-        return _search_retry(q, k, semantic, learned, correct, ce)
-    return part_run("base", [q, k, semantic, learned, correct, ce], lambda: _search_retry(q, k, semantic, learned, correct, ce))
-
-
-def _search_retry(q: str, k: int, semantic: bool, learned: bool, correct: bool, ce: bool = True) -> list[dict]:
-    try:
-        return _search_corrected(q, k, semantic, learned, correct, ce)
-    except psycopg.OperationalError:
-        _drop_pool()                          # a serve swap terminated the pooled connections
-        return _search_corrected(q, k, semantic, learned, correct, ce)
-
-
-# A news outlet asked with news words leads with its own site (owner 2026-10-09: "cnn latest news", "cnn news
-# today" and "cnn world news" led with a Wikipedia article about a CNN programme, cnn.com second; "fox news today"
-# led with foxsports.com/mlb, "nytimes latest news" with babylonbee.com). The words say what is wanted FROM the
-# outlet, not another site: with them taken off the end or the start, what is left names the outlet. It leads only
-# when (a) what is left answers on its own with a named site (the exact tiers, NAV_SCORE), and (b) that site is a
-# news outlet by the kinds data, or what is left still says "news" ("abc news today", "sky news live": no kinds row
-# for abcnews.go.com or news.sky.com). So "tesla latest news" and "bitcoin news today" are untouched: a search for
-# news ABOUT a company is not a search for its site. Tried longest name first, so "fox news today" is Fox News
-# before it is fox.com, and "usa today latest news" is USA Today.
-_OUTLET_TAIL = frozenset("news latest today live breaking headlines headline world update updates now top stories "
-                         "story tonight daily newest recent current".split())
 # "news" anywhere in the kind's name: "enewspaper" (vox.com), "cable news channel", "news magazine". Not television or
 # channel kinds as such: with those "apple latest news" and "iphone news" led with apple.com (Apple TV), 2026-10-09.
 _OUTLET_KIND = re.compile(r"news")
 _OUTLET_NOT = re.compile(r"\b(?:fake|hoax|satire|satirical)\b|^news media$")
 OUTLET_MIN_CONF = 0.5
-OUTLET_SCORE = NAV_SCORE - 2          # a named site: the article about a programme (900) goes under it
-OUTLET_TRIES = 4
-
-
 def outlet_kind(key: str) -> bool:
     return bool(_OUTLET_KIND.search(key)) and not _OUTLET_NOT.search(key)
 
@@ -9733,94 +5446,6 @@ def outlet_kind(key: str) -> bool:
 def outlet_medium(key: str) -> bool:
     """A kind that says the site is a channel or a magazine (kinds_release.news_outlet)."""
     return bool(re.search(r"\b(?:channel|magazine)\b", key))
-
-
-def news_only(q: str) -> bool:
-    """Nothing but news words, "news" or "headlines" among them: "latest news", "breaking news today"."""
-    toks = _TOKEN.findall(q.lower())
-    return bool(toks) and all(t in _OUTLET_TAIL for t in toks) and any(t in ("news", "headlines") for t in toks)
-
-
-def outlet_names(q: str) -> list[str]:
-    """What the query could be naming once news words are taken off its end, then its start, longest first:
-    "fox news today" -> ["fox news", "fox"]; "cnn latest news" -> ["cnn latest", "cnn"]; "latest bbc news" ->
-    ["latest bbc", "bbc"]. [] when the query has no such word, or is nothing but such words."""
-    toks = _TOKEN.findall(q.lower())
-    if not 2 <= len(toks) <= 7 or not any(t in _OUTLET_TAIL for t in toks):
-        return []
-    out, lo, hi = [], 0, len(toks)
-    while hi - lo > 1 and toks[hi - 1] in _OUTLET_TAIL:
-        hi -= 1
-        out.append(" ".join(toks[lo:hi]))
-    while hi - lo > 1 and toks[lo] in _OUTLET_TAIL:
-        lo += 1
-        out.append(" ".join(toks[lo:hi]))
-    return [n for n in dict.fromkeys(out) if any(t not in _OUTLET_TAIL and t not in _NAV_NOISE for t in n.split())][:OUTLET_TRIES]
-
-
-def is_news_outlet(url: str, name: str) -> bool:
-    if any(t in ("news", "newspaper") for t in name.split()):
-        return True
-    lk = lookups()
-    if lk is None or lk.name != "release" or lk.kinds is None:
-        return False
-    import lookups_release as R
-    return any(lk.kinds.news_outlet(d) for d in lk.names1(_domain_of(url), R.N_DOMAIN)[:1])
-
-
-def outlet_first(q: str, res: list[dict], k: int) -> list[dict]:
-    """res with the outlet the query names in front, or res unchanged."""
-    # a well-known or official site already answers by name ("cnn news", "bbc news"). A site that is merely called
-    # the whole query does not stop the outlet: "npr live" is NPR, not nprlive.com
-    if (res and res[0].get("source") == "site" and res[0]["score"] >= NAV_SCORE - 2
-            and (res[0].get("popular") or res[0].get("official"))):
-        return res
-    names = outlet_names(q)
-    # "guardian latest news": the paper is "the guardian" (theguardian.com); "guardian" alone is guardian.co.uk, an
-    # address with no kinds row. A one-word name is also tried with its article.
-    names = [n2 for n in names for n2 in ((n, "the " + n) if " " not in n else (n,))][:OUTLET_TRIES + 2]
-    for name in names:
-        # what the name alone leads with, learned order included: by score alone "cbc" is cbc.edu, not cbc.ca.
-        # NAV_SCORE - 3 is the whole name tier ("sky news": news.sky.com at 997.9)
-        named = [r for r in _search(name, 5, False, True, False)[:3]
-                 if r.get("source") == "site" and r["score"] >= NAV_SCORE - 3 and (r.get("popular") or r.get("official"))]
-        top = named[0] if named else None
-        # the outlet may be the second site of that name: "msnbc" is msnbc.com (no kinds row) and then ms.now, its
-        # official site and a cable news channel
-        if top and any(is_news_outlet(r["url"], name) for r in named):
-            lead = dict(top, score=OUTLET_SCORE, outlet=True)
-            same = same_page(lead["url"])
-            return ([lead] + [r for r in res if same_page(r["url"]) != same])[:k]
-    return res
-
-
-def _search_corrected(q: str, k: int, semantic: bool, learned: bool, correct: bool, ce: bool = True) -> list[dict]:
-    # The correction lookup starts alongside the search; its answer is used only when
-    # nothing matched exactly.
-    fix = (_EXEC.submit(contextvars.copy_context().run, _staged, "typo", correct_query, q)
-           if correct and typo_shape(q) else None)
-    with stage("search"):
-        res = _search(q, k, semantic, learned, ce)
-    with stage("outlet"):
-        res = outlet_first(q, res, k)
-    if fix is not None and needs_correction(q, res):
-        # the correction found a name; over a lifted kind it must be a named SITE, so a
-        # real kind query ("luggage brand site") is not traded for a near-miss name
-        floor = NAV_SCORE - 2 if res and res[0].get("kind") else WIKI_EXACT_SCORE - 3
-        # a known name one slip away first (typo dev halves: wiki 82.7% against 79.4% the other way
-        # round), then the index's spelling, which reaches two slips and parts of names
-        for name, attempt in (("typo_wide", lambda: correct_wide(q)), ("typo_wait", fix.result), ("typo_words", lambda: correct_words(q))):
-            with stage(name):
-                fixed = attempt()
-                if fixed and (respells_known_words(q, fixed) or corrects_state_away(q, fixed)):
-                    fixed = None                           #: every word it changes is a word in its own right;
-                                                           # the state a resident named stays
-            if fixed:
-                with stage("search_fixed"):
-                    res2 = _search(fixed, k, semantic, learned, ce)
-                if res2 and res2[0]["score"] >= floor:
-                    return [dict(r, corrected=fixed) for r in res2]
-    return res
 
 
 def explain(q: str) -> dict:
@@ -9868,30 +5493,6 @@ def answer_origin(q: str) -> dict:
     except Exception:  # noqa: BLE001 - the explanation is extra
         pass
     return {"kind": "live"}
-
-
-def exact_names(q: str, keys: list[str], dq: str | None) -> list[tuple]:
-    """Every (name, names.kind) the exact-match tiers of _search() can ask for this query, so a
-    release backend answers them all with one names lookup (lookups_release.prefetch)."""
-    import lookups_release as R
-    nq = norm_key(q)
-    out = [(dq, R.N_DOMAIN)] if dq else []
-    for k in keys:
-        out += [(k, R.N_SITE_LABEL), (k, R.N_HOST), (k.replace("-", ""), R.N_HOST_NAV)]
-    yk = youtube_query(q)[0]
-    if yk:
-        out.append((yk, R.N_YOUTUBE))
-    acct = account_query(q)
-    if acct:
-        out += [(n, R.N_ACCOUNT) for n in set(the_keys(acct[1]) + [acct[1]])]
-    if nq:
-        out += [(nq, R.N_ALIAS), (nq, R.N_HOST), (nq, R.N_ACCOUNT), (nq, R.N_SELF)]
-    sk = stock_query(q)
-    if sk:
-        out.append((sk, R.N_STOCK))
-    if re.fullmatch(r"[a-z]{2,5}", " ".join(q.lower().split())):
-        out.append((" ".join(q.lower().split()), R.N_TICKER))
-    return out
 
 
 # ?drop=tranco (eval only): every Tranco rank the ranking reads becomes the Common Crawl host
@@ -9971,7 +5572,6 @@ def _rows(sql: str, params: dict, setup: str | None = None) -> list[tuple]:
 # list, another state's government results go to the end. Measured on 2,000 government-service queries
 # (tools/gov-eval). gov-states.json absent from the release: off.
 GOV_PAGES_DEPTH = int(os.environ.get("SEARCH_GOV_PAGES_DEPTH", "400"))
-GOV_PAGES_GIVEN = int(os.environ.get("SEARCH_GOV_PAGES_GIVEN", "12"))   # of the pool, to the reranker
 GOV_PAGES_POOL = int(os.environ.get("SEARCH_GOV_PAGES_POOL", "40"))
 GOV_PAGES_READ = int(os.environ.get("SEARCH_GOV_PAGES_READ", "3"))      # pools' worth read before the tier sort
 _gov_states: dict | None = None
@@ -9996,153 +5596,12 @@ def gov_states() -> dict:
 # (2026-10-31): of 5,971 open-set queries the old rule let 617 through and this one 38; of the government set's 20
 # home-worded tasks it keeps all. ?drop=govcode: off.
 GOV_CODE_STATES = 10
-_GOV_SERVICE_WORD = re.compile(r"\b(licen[cs]es?|licensing|permits?|renew\w*|registration|register|apply|applications?|"
-                               r"requirements?|certificates?|records?|benefits?|claims?|tax(es)?|refunds?|courts?|"
-                               r"tickets?|fines?|citations?|reservations?|camping|parks?|inspections?|dmv|bmv|mvd|"
-                               r"real id|id card|plates?|title|vital|unclaimed|medicaid|snap|ebt|jury|notary|voter|"
-                               r"vot(e|ing)|elections?|statutes?|laws?|regulations?|hunting|fishing|"
-                               r"child support|unemployment)\b")
-_code_evidence: dict[str, bool] = {}
-
-
-def code_is_state(state: str, rest: str) -> bool:
-    """Whether the rest of a query beside an ambiguous code is a state task (GOV_CODE_* above). Cached per rest;
-    False when the backend has no government page words or anything fails."""
-    key = " ".join(rest.lower().split())
-    if key not in _code_evidence:
-        ok = False
-        try:
-            web = web_text()
-            if hasattr(web, "gov_share"):
-                with stage("gov_code"):
-                    if _GOV_SERVICE_WORD.search(key):
-                        share, spread = web.gov_share(key)
-                        ok = spread >= GOV_CODE_STATES and share >= web.gov_base()
-        except Exception as e:                       # never let the evidence break a search
-            print(f"gov_code: {type(e).__name__}: {e}", flush=True)
-        if len(_code_evidence) > 50000:
-            _code_evidence.clear()
-        _code_evidence[key] = ok
-    return _code_evidence[key]
-
-
-def gov_query_state(q: str) -> tuple[str, str, bool] | None:
-    """(state, the other words, weak) when the query names one state and the release knows whose sites are whose."""
-    if "govstate" in _drop.get() or not gov_states():
-        return None
-    return gov_state.query_state(q, US_STATES, None if "govcode" in _drop.get() else code_is_state)
-
-
-# A query that names no state is about the searcher's own state when they have a location set (near=lat,lon from the
-# launcher or the public page's settings, per request; else the box's SEARCH_HOME) and its words are a state task by
-# the code rule's evidence above: "fishing license", "dmv near me", "jury duty". The state is the nearest Census
-# town's (wx_towns, the weather's table). Never when the query names a state, a county or a town of 10,000 people or
-# more ("seattle parking ticket"), or asks for the nation's ("irs", "federal"); the state is not lifted over the first
-# result (state_page_first is for a state the query named), its pages join the list and other states' answer last.
-# ?drop=govhome: off.
-_HOME_NEAR = re.compile(r"\b(near me|nearby|near|closest|nearest|in my (?:state|area|county|town)|my state|local)\b")
-_HOME_NOT = re.compile(r"\b(county|counties|city of|township|borough|parish|federal|national|nationwide|irs|usa|us|u\.s\.?|"
-                       r"america|american|united states|"
-                       # the nation's tasks, which no state does: a state page for them is wrong wherever the searcher is
-                       r"passports?|copyrights?|trademarks?|patents?|social security|ssn|medicare|visas?|immigration|"
-                       r"citizenship|naturali[sz]ation|green card|fafsa|student loans?|usps|postal|post office|"
-                       r"veterans? (?:affairs|benefits)|va benefits)\b")
-_point_states: dict = {}
-
-
-def point_state(pt) -> str | None:
-    """The US state of a point: its nearest Census town of WX_NEAREST_MIN_POP people or more within ~40 km; None at
-    sea, abroad, or without the weather's towns. Cached per ~1 km."""
-    key = (round(pt[0], 2), round(pt[1], 2))
-    if key not in _point_states:
-        st = None
-        try:
-            rows = _news_rows(WX_NEAREST_SQL, {"p": WX_NEAREST_MIN_POP, "lat": pt[0], "lon": pt[1]})
-            st = rows[0][1] if rows and rows[0][1] in set(US_STATES.values()) else None
-        except Exception as e:                       # never let the lookup break a search
-            print(f"point_state: {type(e).__name__}: {e}", flush=True)
-        if len(_point_states) > 10000:
-            _point_states.clear()
-        _point_states[key] = st
-    return _point_states[key]
-
-
-def names_place(q: str) -> bool:
-    """A state's name, or a town of NAMED_TOWN_MIN_POP or more, in the query's words (one to three in a row)."""
-    words = re.findall(r"[a-z0-9]+", q.lower())
-    names = {k for k in US_STATES if len(k) > 2}
-    grams = {" ".join(words[i:i + n]) for n in (1, 2, 3) for i in range(len(words) - n + 1)}
-    if grams & names:
-        return True
-    keys = sorted({norm_key(g) for g in grams if len(norm_key(g)) >= 4})
-    try:
-        return bool(keys) and bool(_news_rows(NAMED_TOWN_SQL, {"k": keys, "p": NAMED_TOWN_MIN_POP}))
-    except Exception as e:                           # no towns to read: say a place is named, so no state is assumed
-        print(f"names_place: {type(e).__name__}: {e}", flush=True)
-        return True
-
-
-def home_gov_state(q: str) -> tuple[str, str, bool] | None:
-    """(the searcher's state, the query without "near me", False) for a state task asked without a state, by a
-    searcher whose location is set; None otherwise (see above)."""
-    pt = home_point()
-    if not pt or "govhome" in _drop.get() or "govstate" in _drop.get() or not gov_states():
-        return None
-    low = " ".join(q.lower().split())
-    if _HOME_NOT.search(low):
-        return None
-    rest = " ".join(_HOME_NEAR.sub(" ", low).split())
-    words = rest.split()
-    # a state code at either end, even one the state rule refused ("in jury duty", "co parenting classes"), may name
-    # another state: the searcher's own is never assumed over it
-    if (not rest or words[0] in US_STATES or words[-1] in US_STATES
-            or gov_state.query_state(q, US_STATES) is not None or names_place(rest)):
-        return None
-    state = point_state(pt)
-    if not state or not code_is_state(state, rest):
-        return None
-    return state, rest, False
-
-
-# Local beyond the state: a searcher with a location set who asks for something their town or county does
-# ("trash pickup schedule", "library hours", "parking ticket", "building permit") gets that town's and county's own
-# pages, found by the site word the release gives each government page (gov_state.site_token). The town is the nearest
-# Census town of WX_NEAREST_MIN_POP or more; its sites and its county's come from gov-states.json's "local" map (the
-# .gov registry's City and County rows). Never when the query names a state or another town, or asks for the nation's.
-# ?drop=govlocal: off.
-_LOCAL_TASK = re.compile(r"\b(trash|garbage|recycling|recycle|bulk (?:item|trash|pickup)|yard waste|leaf (?:pickup|collection)|"
-                         r"brush pickup|dump|transfer station|landfill|library|libraries|property tax(?:es)?|tax bill|"
-                         r"tax assessor|assessor|parking (?:ticket|permit|citation)s?|building permits?|zoning|code enforcement|"
-                         r"water bill|sewer|town hall|city hall|borough hall|municipal court|police (?:report|department)|"
-                         r"non.?emergency|animal control|dog licen[cs]e|pet licen[cs]e|recreation|parks and rec|"
-                         r"pothole|snow removal|street sweeping|council meeting|town council|city council|"
-                         r"town clerk|city clerk|county clerk|voter registration|polling place|sheriff|"
-                         r"marriage licen[cs]e|birth certificate|death certificate|health department)\b")
 _local_maps: dict | None = None
-_point_towns: dict = {}
-
-
 def local_map() -> dict:
     global _local_maps
     if _local_maps is None:
         _local_maps = gov_state.load_local(os.environ.get("SEARCH_GOV_STATES") or os.path.join(RELEASE_DIR, "gov-states.json"))
     return _local_maps
-
-
-def point_town(pt) -> tuple[str, str, str] | None:
-    """(name, state, county) of a point's nearest Census town of WX_NEAREST_MIN_POP or more; cached per ~1 km."""
-    key = (round(pt[0], 2), round(pt[1], 2))
-    if key not in _point_towns:
-        row = None
-        try:
-            rows = _news_rows(LOCAL_TOWN_SQL, {"p": WX_NEAREST_MIN_POP, "lat": pt[0], "lon": pt[1]})
-            row = tuple(rows[0]) if rows else None
-        except Exception as e:                       # never let the lookup break a search
-            print(f"point_town: {type(e).__name__}: {e}", flush=True)
-        if len(_point_towns) > 10000:
-            _point_towns.clear()
-        _point_towns[key] = row
-    return _point_towns[key]
 
 
 _local_set: frozenset | None = None
@@ -10156,76 +5615,6 @@ def is_local_gov(host: str) -> bool:
         _local_set = frozenset(d for table in m.values() for ds in table.values() for d in ds)
     labels = host.lower().split(".")
     return any(".".join(labels[i:]) in _local_set for i in range(max(0, len(labels) - 1)))
-
-
-def local_domains(town: tuple[str, str, str]) -> list[str]:
-    """The town's .gov sites, then its county's."""
-    name, state, county = town
-    m = local_map()
-    cty = re.sub(r"\s+(county|parish|borough|census area|municipality)$", "", (county or "").strip(), flags=re.I)
-    out = list(m["city"].get(gov_state.local_key(state, name), []))
-    out += [d for d in m["county"].get(gov_state.local_key(state, cty), []) if d not in out] if cty else []
-    return out
-
-
-def home_local(q: str) -> tuple[list[str], str] | None:
-    """(the searcher's town and county sites, the query without "near me") for a local task asked without a place, by a
-    searcher whose location is set; None otherwise (see above)."""
-    pt = home_point()
-    if not pt or "govlocal" in _drop.get() or not gov_states():
-        return None
-    low = " ".join(q.lower().split())
-    if not _LOCAL_TASK.search(low) or re.search(r"\b(federal|national|nationwide|irs|usa|united states)\b", low):
-        return None
-    rest = " ".join(_HOME_NEAR.sub(" ", low).split())
-    words = rest.split()
-    if (not rest or words[0] in US_STATES or words[-1] in US_STATES
-            or gov_state.query_state(q, US_STATES) is not None or names_place(rest)):
-        return None
-    town = point_town(pt)
-    doms = local_domains(town) if town else []
-    return (doms, rest) if doms else None
-
-
-def local_page_first(hl, res: list[dict]) -> list[dict]:
-    """The searcher's own town's or county's page first, for a local task, when one in the first eight carries at least
-    half the query's words in its title or address and the first result is a plain site row of somebody else's (never
-    over a place, an article, a popular or an official site)."""
-    if not hl or len(res) < 2:
-        return res
-    doms = set(hl[0])
-    words = [w for w in re.findall(r"[a-z0-9]+", hl[1]) if len(w) > 1 and not w.isdigit()]
-    top = res[0]
-    if not words or top.get("popular") or top.get("official") or top.get("source") not in (None, "site"):
-        return res
-    gs = gov_states()
-    if gov_state.host_domain(_domain_of(top.get("url") or ""), gs) in doms:
-        return res
-    for i, r in enumerate(res[1:8], 1):
-        if r.get("source") not in (None, "site") or gov_state.host_domain(_domain_of(r.get("url") or ""), gs) not in doms:
-            continue
-        named = re.sub(r"[\W_]+", " ", ((r.get("title") or "") + " " + urlsplit(r.get("url") or "").path).lower())
-        if sum(w in named.split() for w in words) * 2 >= len(words):
-            return [r] + res[:i] + res[i + 1:]
-    return res
-
-
-def state_service_query(q: str) -> bool:
-    """The query names one US state (not a weak code such as "al" or "ms" with too few words) and asks for something
-    beside it: the shape of a resident's service query. gov-states.json absent or the state rule dropped: False."""
-    gs = gov_query_state(q)
-    return bool(gs) and not gs[2]
-
-
-def corrects_state_away(q: str, fixed: str) -> bool:
-    """A resident's service query keeps its state through a spelling correction. "nj fishing license" was corrected to
-    the article "Fishing license" (rc11 acceptance, 2026-10-28): the correction found a name, the state's own
-    page was first without it. True when q named a state (not a weak code) and `fixed` no longer names that state."""
-    gs = gov_query_state(q)
-    if not gs or gs[2]:
-        return False
-    after = gov_query_state(fixed)
-    return not after or after[0] != gs[0]
 
 
 # The same task in a resident's word and the agency's: "nj gun license" has to reach New Jersey's firearms pages.
@@ -10251,46 +5640,6 @@ def not_the_task(url: str, title: str, words) -> bool:
     if _press_release_title(title):
         return True
     return any(m.group(1) not in named for m in _NOT_THE_TASK.finditer(text.lower()))
-
-
-def _task_words_hit(words, toks, endings: bool = False) -> int:
-    def has(w):
-        w = w[:-1] if len(w) > 4 and w.endswith("s") else w      # "tolls" reaches "tolling"
-        if endings:
-            w = w[:-1] if len(w) > 4 and w.endswith("e") else w  # "license" reaches "licensing"
-        return any(t.startswith(w) or (len(t) >= 4 and w.startswith(t)) for t in toks)
-    return sum(has(w) or any(has(x) for x in GOV_SAME_WORDS.get(w, ())) for w in words)
-
-
-def best_state_page(state: str, words: list[str], res: list[dict]) -> list[dict]:
-    """The state's own page is first: is it the page for the task? One for one audience, or short of the query's words,
-    gives way to one of the state's pages further down that is for everyone and carries more of them, the page nearest
-    the site's top among equals."""
-    doms = gov_states()
-
-    def rate(r):
-        toks = set(re.findall(r"[a-z0-9]+", ((r.get("title") or "") + " " + urlsplit(r["url"]).path).lower()))
-        return _task_words_hit(words, toks), not not_the_task(r["url"], r.get("title") or "", words)
-
-    hits0, plain0 = rate(res[0])
-    if plain0 and hits0 >= len(words):
-        return res
-    best = None
-    for i in range(1, len(res)):
-        r = res[i]
-        if r.get("source") != "site" or is_local_gov(_domain_of(r.get("url") or "")) \
-                or gov_state.host_state(_domain_of(r.get("url") or ""), doms) != state:
-            continue
-        hits, plain = rate(r)
-        if not plain or hits < max(1, (len(words) + 1) // 2) or (plain0 and hits <= hits0):
-            continue
-        key = (hits, -urlsplit(r["url"]).path.rstrip("/").count("/"), -i)
-        if best is None or key > best[0]:
-            best = (key, i)
-    if best is None:
-        return res
-    i = best[1]
-    return [dict(res[i], state_first=True)] + res[:i] + res[i + 1:]
 
 
 # An agency's front page for a query that names the agency's business: "colorado state parks" ->
@@ -10351,174 +5700,6 @@ def agency_front(lk, rest: str, pages: list[tuple[str, str]]) -> tuple[str, str]
     return None
 
 
-def state_page_first(gs, res: list[dict]) -> list[dict]:
-    """A resident who named their state gets that state's page first when the first result is somebody else's and one
-    of the state's pages in the first five carries at least half the other words of the query in its title or address.
-    Clef 27B's reading of rc11's 2,000 government queries (2026-10-28): 229 first results were a national site for a
-    state's task (irs.gov for "virginia state tax refund status", medicaid.gov, unclaimed.org, rockthevote.org,
-    llcuniversity.com) with the state's own page under it. Never for a weak code; never over a popular or an
-    official site or one the query names (njtransit.com stays first for "nj transit"); a page of the state that
-    carries fewer than half the words is not lifted, a front door least of all."""
-    if not gs or gs[2] or len(res) < 2:
-        return res
-    state, rest = gs[0], gs[1]
-    words = [w for w in re.findall(r"[a-z0-9]+", rest.lower()) if len(w) > 1 and not w.isdigit()]
-    if not words:
-        return res
-    doms = gov_states()
-    top = res[0]
-    if (top.get("source") == "wikipedia" and re.match(r"(?i)list of\b", top.get("title") or "")
-            and "govfront" not in _drop.get()):
-        # a list article ("List of Colorado state parks") gives way to the state agency the query names
-        # (cpw.state.co.us, "Colorado Parks and Wildlife"): the article lists the parks, the agency runs them
-        for i in range(1, min(5, len(res))):
-            r = res[i]
-            if (front_host(r.get("url") or "") and gov_state.host_state(_domain_of(r["url"]), doms) == state
-                    and names_task(r.get("title") or "", rest)):
-                return [dict(r, state_first=True)] + res[:i] + res[i + 1:]
-        return res
-    # only a site row is displaced: an article, an account or a place first was put there by its own tier
-    # ("2012 new york liberty" -> the season's article, "new york army national guard facebook" -> its page;
-    # sq-eval test halves, 2026-10-28: four such first places were lost before this), and a number is no word
-    # of the task ("ohio state highway 75" lifted a county's highway plans for "75")
-    if top.get("popular") or top.get("official") or top.get("source") not in (None, "site"):
-        return res
-    top_host = _domain_of(top.get("url") or "")
-    top_ours = gov_state.host_state(top_host, doms) == state
-    top_town = top_ours and is_local_gov(top_host)        # a town's page for a state's task: the state's own goes over it
-    if query_names_domain(rest, top_host) or "".join(words) in top_host.split(".")[0].replace("-", ""):      # "nj transit" -> njtransit.com
-        return res
-    if top_ours and not top_town:
-        return best_state_page(state, words, res)
-    need = max(1, (len(words) + 1) // 2)                  # at least half the words: "tax refund" of "state tax refund status"
-    best = first = None
-    for i in range(1, min(8 if top_town else 5, len(res))):
-        r = res[i]
-        if r.get("source") == "place" or gov_state.host_state(_domain_of(r.get("url") or ""), doms) != state:
-            continue
-        if top_town and is_local_gov(_domain_of(r.get("url") or "")):
-            continue
-        toks = set(re.findall(r"[a-z0-9]+", ((r.get("title") or "") + " " + urlsplit(r["url"]).path).lower()))
-        hits = sum(any(t.startswith(w) or (len(t) >= 4 and w.startswith(t)) for t in toks) for w in words)
-        if hits >= need and first is None:
-            first = i
-        wider = _task_words_hit(words, toks, endings=True)                       # "gun" reaches "firearms", "license" "licensing"
-        if wider >= need and not _press_release_title(r.get("title") or "") and (best is None or (wider, -i) > best[0]):
-            best = ((wider, -i), i)
-    if first is None:
-        return res
-    # The first such page, unless it is a press release and another page qualifies ("nj gun license": a lawsuit's
-    # release over the State Police's licensing bureau). Applying this to every lift cost help@1 0.5 points.
-    i = best[1] if best is not None and _press_release_title(res[first].get("title") or "") else first
-    return [dict(res[i], state_first=True)] + res[:i] + res[i + 1:]
-
-
-# The state's page by what its own site calls it (state_anchor.py): "nj state parks" -> the page the parks
-# site links to as "NJ State Parks", which the engine did not have among its candidates at all. Only a close match
-# (STATE_ANCHOR_MIN of the words, both ways) linked from STATE_ANCHOR_SOURCES pages, never over a popular or official
-# site or one the query names, and not when one of the first three is a page its site calls that as closely from as
-# many pages ("nj unemployment": a contact page linked once as "Unemployment" does not keep the section linked twice).
-# SEARCH_STATE_ANCHORS unset or missing: off. ?drop=stateanchor: off.
-STATE_ANCHORS = os.environ.get("SEARCH_STATE_ANCHORS", "")
-STATE_ANCHOR_MIN = float(os.environ.get("SEARCH_STATE_ANCHOR_MIN", "0.67"))
-STATE_ANCHOR_SOURCES = int(os.environ.get("SEARCH_STATE_ANCHOR_SOURCES", "2"))
-_state_anchor_db = threading.local()
-
-
-def _state_anchors():
-    if not STATE_ANCHORS or not os.path.exists(STATE_ANCHORS):
-        return None
-    db = getattr(_state_anchor_db, "c", None)
-    if db is None:
-        import sqlite3
-        db = _state_anchor_db.c = sqlite3.connect(f"file:{STATE_ANCHORS}?mode=ro", uri=True, check_same_thread=False)
-    return db
-
-
-def state_anchor_first(gs, res: list[dict]) -> list[dict]:
-    if not gs or gs[2] or not res or "stateanchor" in _drop.get():
-        return res
-    db = _state_anchors()
-    if db is None:
-        return res
-    import state_anchor
-    top = res[0]
-    if top.get("popular") or top.get("official") or top.get("source") not in (None, "site") \
-            or query_names_domain(gs[1], _domain_of(top.get("url") or "")):
-        return res
-    hit = state_anchor.best(db, gs[1])
-    if not hit:
-        return res
-    j, n, url, title, _phrase = hit
-    if j < STATE_ANCHOR_MIN or n < STATE_ANCHOR_SOURCES \
-            or gov_state.host_state(_domain_of(url), gov_states()) != gs[0] \
-            or state_anchor.match_of(db, gs[1], [r.get("url") or "" for r in res[:3]]) >= (j, n):
-        return res
-    hp = state_anchor.host_path(url)
-    same = [r for r in res if state_anchor.host_path(r.get("url") or "") == hp]
-    row = dict(same[0]) if same else {"url": url, "title": title or url, "content": "", "source": "site", "score": 0.0}
-    return [dict(row, state_anchor=True)] + [r for r in res if state_anchor.host_path(r.get("url") or "") != hp]
-
-
-# The searcher's own state, lifted: a state task asked without a state ("fishing license" from a point in New
-# Jersey) found that state's pages but left them at five to ten under the articles. The best of them in the first ten
-# that carries at least half the query's words moves up to SEARCH_HOME_RANK (1: over the first result, but never over
-# a place, an account, a popular or an official site; 2: under it). gov-eval's home wording on rc11, 2026-10-29 (1,000
-# queries, vs drop=govhome at 0.0/0.3): rank 1 help@1 19.8% help@5 24.1%, rank 2 4.0% / 24.0%; the open sets and the
-# named-state set unchanged at either. ?drop=govhome: off with the rest of the home rule.
-HOME_RANK = max(1, int(os.environ.get("SEARCH_HOME_RANK", "1")))
-_HOME_GENERIC = frozenset("""a an the to for of in on my me how get new online state apply application applications applying
-    license licenses licence licences licensing permit permits renew renewal register registration requirements status
-    copy copies pay payment payments form forms file filing request replace replacement become check lookup search
-    """.split())
-
-
-def home_page_up(gq, res: list[dict]) -> list[dict]:
-    if not gq or len(res) < 2:
-        return res
-    state, rest = gq[0], gq[1]
-    words = [w for w in re.findall(r"[a-z0-9]+", rest.lower()) if len(w) > 1 and not w.isdigit()]
-    if not words:
-        return res
-    doms = gov_states()
-    top = res[0]
-    to = HOME_RANK - 1
-    if to == 0 and (top.get("popular") or top.get("official") or top.get("source") in ("place", "account")):
-        to = 1
-    if any(gov_state.host_state(_domain_of(r.get("url") or ""), doms) == state for r in res[:to + 1]):
-        return res                                        # the state is already there
-    need = max(1, (len(words) + 1) // 2)
-    for i in range(to + 1, min(10, len(res))):
-        r = res[i]
-        if r.get("source") == "place" or gov_state.host_state(_domain_of(r.get("url") or ""), doms) != state:
-            continue
-        path = urlsplit(r["url"]).path.lower()
-        if _GOV_PATH_NEWS.search(path):                   # a press release or a meeting's minutes is not the service
-            continue
-        host = (urlsplit(r["url"]).hostname or "").lower()
-        toks = set(re.findall(r"[a-z0-9]+", ((r.get("title") or "") + " " + path + " " + host).lower()))
-        # the word or the word with a short ending ("renewal", "licenses"), never a longer one: "renew" is not
-        # "renewables" (rc11, 2026-10-29: "renew passport" from Newark lifted cleanenergy.nj.gov/.../other-renewables)
-        hit = [any((t.startswith(w) and len(t) - len(w) <= 3) or (len(t) >= 4 and w.startswith(t) and len(w) - len(t) <= 3)
-                   for t in toks) for w in words]
-        # and a word that names the task, not only generic ones: "medicaid application" is not any state board's
-        # application page (a reading of 40 rc11 lifts, 2026-10-29: 22 were such pages). One such word is enough:
-        # requiring them all lost 32 of 157 good lifts ("jury duty" -> "Jury | Colorado Judicial Branch").
-        named = [h for w, h in zip(words, hit) if w not in _HOME_GENERIC]
-        if sum(hit) >= need and (not named or any(named)):
-            return res[:to] + [dict(r, home_up=True)] + res[to:i] + res[i + 1:]
-    return res
-
-
-def other_states_last(gs, res: list[dict]) -> list[dict]:
-    """Another state's government site answers last when the query named a state (never for a `weak` one)."""
-    if not gs or gs[2]:
-        return res
-    doms = gov_states()
-    return gov_state.first_and_last(
-        gs[0], res, lambda r: None if r.get("source") == "place" else gov_state.host_state(_domain_of(r.get("url") or ""), doms))
-
-
 # Place abbreviations (2026-09-25: "marsh twp nj" found nothing, "marsh township new jersey"
 # both Marsh Townships). Articles spell them out, so the Wikipedia queries do too. A state
 # code only at the end, and never one that is also a word ("sign in", "call me", "la").
@@ -10548,76 +5729,6 @@ def place_expand(q: str) -> str:
     return " ".join(out)
 
 
-SEM_IVF_DOCS_SQL = "SELECT page_id, title, lead FROM wiki_docs WHERE page_id = ANY(%(ids)s)"
-
-
-def _sem_rows(q: str) -> list[tuple] | None:
-    if SEM_BACKEND == "ivf":
-        si, ix, enc = sem_ivf()
-        code = query_code(q)
-        with stage("sem-ivf"):
-            hits = ix.search(code, 5, SEM_PROBES)
-        if not hits:
-            return []
-        docs = {r[0]: r[1:] for r in _rows(SEM_IVF_DOCS_SQL, {"ids": [p for p, _d in hits]})}
-        # (title, lead, sim) as the Postgres form returns them; sim = share of the 768 bits that agree
-        return [(docs[p][0], docs[p][1], 1 - d / 768.0) for p, d in hits if p in docs]
-    with stage("embed"):
-        e = embed(q)
-    if e is None:
-        return None
-    vec = "[" + ",".join(f"{x:.5f}" for x in e) + "]"
-    return _rows(SEM_WIKI_SQL, {"e": vec, "k": 5}, "SET hnsw.ef_search = 40")
-
-
-# A site's own pages (2026-11-10; site_pages.py): a search that is a site's name plus more words ("nike air max 90",
-# "kia sportage features") is looked up in a table of that site's page addresses and titles, taken once from its sitemap
-# (tools/sitemap-harvest.py + tools/sitemap-keep.py). SEARCH_SITE_PAGES=<site-pages.sqlite> turns it on; unset = off and the
-# module is never imported. The best SEARCH_SITE_PAGES_N pages join the fusion as one more list (weight SEARCH_SITE_PAGES_W),
-# so the rankers and the cross-encoder see them like any other candidate. Only for a name the engine itself already shows as a
-# site among its named rows, and never for a leftover that is one slot's phrase (feat/intent-slots' slot row).
-SITE_PAGES_PATH = os.environ.get("SEARCH_SITE_PAGES", "").strip()
-SITE_PAGES_N = max(1, int(os.environ.get("SEARCH_SITE_PAGES_N", "3")))
-SITE_PAGES_W = float(os.environ.get("SEARCH_SITE_PAGES_W", "1.0"))
-_site_pages_state: list = []
-_site_pages_lock = threading.Lock()
-
-
-def site_pages_table():
-    """The table, opened once; None when unset or unreadable (the feature stays off, and says so once)."""
-    if not SITE_PAGES_PATH:
-        return None
-    with _site_pages_lock:
-        if not _site_pages_state:
-            try:
-                import site_pages
-                t = site_pages.SitePages(SITE_PAGES_PATH)
-                print(f"site pages {SITE_PAGES_PATH}: {len(t)} sites, {t.rows} pages", flush=True)
-            except Exception as e:  # noqa: BLE001 - an optional extra: never fail the engine for it
-                print(f"site pages {SITE_PAGES_PATH}: not read ({type(e).__name__}: {e})", flush=True)
-                t = None
-            _site_pages_state.append(t)
-    return _site_pages_state[0]
-
-
-def site_page_rows(q: str, out: list[dict]) -> list[dict]:
-    """Candidate rows from the named site's own pages for "name + words"; [] when off, or when no named site row of the
-    first six matches the name, or when no page of the site holds every leftover word. `out`: the rows named so far."""
-    t = site_pages_table()
-    if t is None or not out:
-        return []
-    top = sorted((r for r in out if r.get("source") == "site" and r.get("url")), key=lambda r: r["score"], reverse=True)[:6]
-    if not top:
-        return []
-    try:
-        import site_pages
-        got = t.look_up(q, [r["url"] for r in top], SITE_PAGES_N)
-        return [dict(_site(g["url"], site_pages.row_title(g), "", 1.0), site_page=True) for g in got]
-    except Exception as e:  # noqa: BLE001
-        print(f"site pages: {type(e).__name__}", flush=True)
-        return []
-
-
 def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: bool = True) -> list[dict]:
     out: list[dict] = []
     _tr("start", q=q)
@@ -10633,6 +5744,10 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
             return _EXEC.submit(contextvars.copy_context().run, _staged, name, fn, *args)
         wq = place_expand(q)                                    # "marsh twp nj": articles spell it out
         bv = _body.get()
+        # sem and sem_pages are the slowest lists in 99% of computed searches (RT-02): submitted first, so a busy pool cannot delay them
+        f_sem = sub("sem", _sem_rows, wq) if semantic and (SEM_BACKEND == "ivf" or "wiki_vec" in has) and wiki else None
+        f_sem_pages = (sub("sem_pages", sem_page_rows, q, min(5, k))
+                       if semantic and SEM_BACKEND == "ivf" and "page_docs" in has and sem_pages_dir() else None)
         f_wiki = sub("wiki", wiki_rows, wq, min(5, k), stored) if wiki else None
         web = web_text()
         f_sites = sub("sites", web.sites, q, k, head_weight(), stored, bv) if sites else None
@@ -10654,9 +5769,6 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
         akey = anchor_key(q)
         f_exact_anchor = (sub("exact_anchor", web.exact_anchor, akey)
                           if sites and "anchors" in has and not _no_anchors.get() and 2 <= len(akey) <= 60 else None)
-        f_sem = sub("sem", _sem_rows, wq) if semantic and (SEM_BACKEND == "ivf" or "wiki_vec" in has) and wiki else None
-        f_sem_pages = (sub("sem_pages", sem_page_rows, q, min(5, k))
-                       if semantic and SEM_BACKEND == "ivf" and "page_docs" in has and sem_pages_dir() else None)
         kq = kind_query(q) if "kind_docs" in has else None
         # a named account / channel / subreddit ("netflix instagram") is not a kind question
         if kq and (any(subreddit_query(q)) or any(youtube_query(q)) or (account_query(q) if "wiki_links" in has else None)):
@@ -11210,9 +6322,66 @@ def suggest_score(kind: str, pop: float, hist: float, exact: bool, w: dict | Non
     return w.get(kind, 0.5) * pop + w["hist"] * hist + bonus
 
 
-def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: dict | None = None) -> list[dict]:
-    """rows: (id, kind, name, url, domain, wiki, pop, hist). Best weighted score first,
-    one entry per page."""
+# --- typing suggestions, ranking layer (owner 2026-11-15, v0.4.23 screenshots: "starb" led with shopping phrases, then
+# "Starbucks", "Starbreeze Studios", ... "Star Bonifacio Echeverria"; "goog" listed Google Search, googleapis.com, Google
+# (about.google) and a tagline as a name). The SQL only supplies candidates; this layer cleans, collapses, floors and orders them.
+SUGGEST_FLOOR_ABS = float(os.environ.get("SEARCH_SUGGEST_FLOOR_ABS", "100"))     # estimated monthly searches under which an item is obscure ...
+SUGGEST_FLOOR_REL = float(os.environ.get("SEARCH_SUGGEST_FLOOR_REL", "0.002"))   # ... or under this share of the best candidate's
+SUGGEST_KEEP_MIN = 3                                                             # the floors never leave fewer than this
+# A site's stored name is often its page title: "Google Books: Find, Preview, and Read Books Online.", "Google Assistant, your own
+# personal Google". A suggestion is a name: cut at the title's separator.
+_NAME_CUT = re.compile(r"\s+[:|–—-]\s+|:\s+|\s+\|\s+|,\s+(?=[a-z])|\s+[-–—]\s+")
+_GENERIC_TAIL = frozenset("search inc corporation corp company co ltd llc official site website homepage home page online store shop com".split())
+_SUGGEST_INFRA = re.compile(r"(apis?|gstatic|ggpht|googleusercontent|googlesyndication|akamai\w*|cloudfront|fastly\w*|doubleclick|2mdn|"
+                            r"edgekey|edgesuite|azureedge|appspot|herokuapp|cdn\w*|static\w*|metrics?|telemetry|tracking|tracker)$")
+
+
+def suggest_name(name: str) -> str:
+    """A suggestion's text: a name, never a page title or a tagline."""
+    n = " ".join((name or "").split())
+    cut = _NAME_CUT.split(n, maxsplit=1)[0].strip(" ,:;|–—-")
+    if len(cut) >= 2:
+        n = cut
+    words = n.split()
+    if len(words) > 6:
+        n = " ".join(words[:6])
+    return re.sub(r"(?<=[a-z]{4})\.$", "", n)
+
+
+def _entity_key(name: str) -> str:
+    """The key that makes "Google", "Google Search" and "Google (company)" one thing."""
+    w = re.sub(r"\s*\(.*\)$", "", name or "").lower().split()
+    if len(w) == 1 and re.fullmatch(r"[a-z0-9-]{3,}\.(com|net|org)", w[0]):
+        w = [w[0].rsplit(".", 1)[0]]                              # "Amazon.com" is Amazon
+    if w and w[0] == "the" and len(w) > 1:
+        w = w[1:]
+    while len(w) > 1 and w[-1].strip(".") in _GENERIC_TAIL:
+        w.pop()
+    return tight(" ".join(w))
+
+
+def _apex_label(domain: str | None) -> str:
+    """The name part of a front-page host: "starbucks.com" and "www.starbucks.com" -> "starbucks"; "books.google.com" -> ""
+    (a section of someone else's site is not that name's front page)."""
+    parts = (domain or "").lower().split(".")
+    if parts and parts[0] == "www":
+        parts = parts[1:]
+    return tight(parts[0]) if len(parts) == 2 or (len(parts) == 3 and len(parts[2]) == 2 and parts[1] in ("co", "com", "org", "ac", "gov", "net", "edu")) else ""
+
+
+def _is_infra(domain: str | None, typed: str) -> bool:
+    """googleapis.com-style hosts are plumbing, shown only when typed as a domain."""
+    label = (domain or "").split(".")[0]
+    if not label or not _SUGGEST_INFRA.search(label.replace("-", "")):
+        return False
+    return not (typed and ("." in typed or tight(typed).startswith(tight(label))))
+
+
+def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: dict | None = None, typed: str = "") -> list[dict]:
+    """rows: (id, kind, name, url, domain, wiki, pop, hist [, demand, descr, pos]). Best weighted score first, one row per
+    thing (Google, Google Search and about.google are one, shown with the site the card would call official), names not
+    titles, no infrastructure hosts, obscure matches dropped while popular ones exist. The first row is the best entity whose
+    NAME the prefix completes; the first row carries "lead": True then (the page puts it above the searched phrases)."""
     best: dict[int, tuple] = {}
     for r in rows:
         # v2 rows carry pos last: an item matched two ways keeps its best (lowest) pos
@@ -11233,11 +6402,12 @@ def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: d
             sc -= ww.get("foreign", 0.0)
         return sc
     scored = sorted(((score(r), r) for r in best.values()), key=lambda x: (-x[0], x[1][0]))
-    out, seen, brands, names = [], set(), set(), set()
+    groups: list[list] = []                                  # one per thing, in the order of its best member
+    by_key: dict[str, list] = {}
+    seen, brands = set(), set()
     for sc, r in scored:
         i, kind, name, url, domain, wiki, pop, hist = r[:8]
-        descr = r[9] if len(r) > 9 else None
-        if kind == "site" and domain and _SUGGEST_PLUMBING.search(domain.split(".")[0]):
+        if kind == "site" and domain and (_SUGGEST_PLUMBING.search(domain.split(".")[0]) or _is_infra(domain, typed)):
             continue
         key = same_page(url)
         if key in seen:
@@ -11247,24 +6417,73 @@ def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: d
         brand = domain.split(".")[0] if kind == "site" and domain else None
         if brand and brand in brands:
             continue
-        # One entry per thing: Taylor Swift was a site, an article and a channel.
-        # The best-scored stays; subreddits and services are other things by nature.
-        nk = tight(re.sub(r"\s*\(.*\)$", "", name)) if kind in ("site", "wiki", "youtube") else None
-        if nk and nk in names:
-            continue
         seen.add(key)
         if brand:
             brands.add(brand)
-        if nk:
-            names.add(nk)
-        d = {"url": url, "title": name, "source": kind, "score": round(sc, 3)}
+        label = suggest_name(name)
+        # One entry per thing: Taylor Swift was a site, an article and a channel; Google, Google Search, about.google.
+        # The best-scored leads the group; subreddits and services are other things by nature.
+        ek = _entity_key(label) if kind in ("site", "wiki", "youtube") else None
+        if kind == "site" and domain and ek:
+            # a site's own front page named after its page title: starbucks.com "Starbucks Coffee Company" is Starbucks
+            lab = _apex_label(domain)
+            if lab and len(lab) >= 3 and tight(label) != lab and tight(label).startswith(lab):
+                acc, cut, ws = "", None, label.split()
+                for wi, wd in enumerate(ws):
+                    acc += tight(wd)
+                    if acc == lab:
+                        cut = wi + 1
+                        break
+                if cut:
+                    label, ek = " ".join(ws[:cut]), lab
+        if ek and ek in by_key:
+            by_key[ek].append((sc, r, label))
+            continue
+        g = [(sc, r, label)]
+        groups.append(g)
+        if ek:
+            by_key[ek] = g
+    reps = []
+    for g in groups:
+        sc, r, label = g[0]
+        # the site the card's own-site rule would show: the entity's own name as the domain, a generic ending, then the score
+        ek = _entity_key(label)
+
+        def own(m):
+            mr = m[1]
+            dom = mr[4] if mr[1] == "site" else None
+            lab = tight((dom or "").split(".")[0]) if dom else ""
+            return (bool(lab) and lab == ek, bool(dom) and is_generic(dom), m[0])
+        rep = max((m for m in g if m[1][1] == "site"), key=own, default=None) if len(g) > 1 and r[1] == "site" else None
+        if rep is not None and own(rep)[0]:
+            r = rep[1]
+        # the shortest name in the group: "Google", not "Google Search"
+        label = min((m[2] for m in g), key=lambda x: (len(x), x)) if len(g) > 1 else label
+        reps.append((sc, r, label))
+    # the popularity floor: obscure matches (an unknown person, a defunct company) do not fill the list while popular ones exist
+    if v2 and reps:
+        top_d = max((x[1][8] or 0.0) for x in reps[:SUGGEST_KEEP_MIN + 5])
+        kept = []
+        for x in reps:
+            d = x[1][8]
+            if d is not None and len(kept) >= SUGGEST_KEEP_MIN and (d < SUGGEST_FLOOR_ABS or d < top_d * SUGGEST_FLOOR_REL):
+                continue
+            kept.append(x)
+        reps = kept
+    out = []
+    for sc, r, label in reps[:n]:
+        i, kind, name, url, domain, wiki, pop, hist = r[:8]
+        descr = r[9] if len(r) > 9 else None
+        d = {"url": url, "title": label, "source": kind, "score": round(sc, 3)}
         if wiki:
             d["wiki"] = wiki
         if descr:
             d["subtitle"] = descr
         out.append(d)
-        if len(out) == n:
-            break
+    # the first row leads (the page puts it above the searched phrases) when the typed text is the start of its NAME
+    # (pos 0), not of a later word or an alias: "starb" -> Starbucks leads; "air fr" -> phrases first
+    if out and reps and reps[0][1][1] in ("site", "wiki") and (len(reps[0][1]) <= 10 or reps[0][1][10] == 0):
+        out[0]["lead"] = True
     return out
 
 
@@ -11299,13 +6518,18 @@ def suggest_drop_junk(rows: list[tuple], q: str) -> list[tuple]:
 
 def suggest(q: str) -> list[dict]:
     rows, exact = suggest_candidates(q)
-    return rank_suggestions(suggest_drop_junk(rows, q), exact)
+    return rank_suggestions(suggest_drop_junk(rows, q), exact, typed=q)
 
 
 # Phrase completions (step 4, serve/phrases.sql): searched phrases that extend what
 # was typed ("air fr" -> "air fryer"). Keyed on the first PHRASE_KEY_MAX characters; a
 # longer query is matched by filtering that prefix's phrases.
 PHRASE_N = 3
+PHRASE_N_LEAD = 2                 # after a leading entity ("starb" -> Starbucks) at most this many searched phrases
+# SEARCH_PHRASES=0 offers no searched phrases at all. serve/phrases.sql builds them from AmazonQAC (source 'amazonqac', Amazon's
+# own search-box completions, CDLA-Permissive-2.0); the owner decided Amazon-suggestion-derived text must not be published to
+# installs, so the release the installs get should be built without them (or run with SEARCH_PHRASES=0) until he says otherwise.
+PHRASES_ON = os.environ.get("SEARCH_PHRASES", "1") != "0"
 PHRASE_KEY_MAX = 20
 PHRASE_MIN_SEARCHES = float(os.environ.get("SEARCH_PHRASE_MIN", "200"))
 SUGGEST_PHRASES_SQL = "SELECT phrases, counts FROM suggest_phrases WHERE prefix = %(p)s"
@@ -11334,13 +6558,13 @@ def pick_phrases(q: str, phrases: list[str], counts: list[float], items: list[di
 
 def suggest_phrases(q: str, items: list[dict]) -> list[str]:
     k = phrase_key(q)
-    if len(k) < 3:
+    if len(k) < 3 or not PHRASES_ON:
         return []
     with _conn() as c:
         if "suggest_phrases" not in tables(c):
             return []
         row = c.execute(SUGGEST_PHRASES_SQL, {"p": k[:PHRASE_KEY_MAX].rstrip()}).fetchone()
-    return pick_phrases(q, row[0], row[1], items) if row else []
+    return pick_phrases(q, row[0], row[1], items, PHRASE_N_LEAD if items and items[0].get("lead") else PHRASE_N) if row else []
 
 
 def wordy(q: str) -> bool:
@@ -11384,6 +6608,11 @@ class Handler(BaseHTTPRequestHandler):
         finally:
             if _lookups is not None and hasattr(_lookups, "release"):
                 _lookups.release()
+            for _m in ("facts", "site_pages"):     # their per-thread connections too (audit DB-08)
+                try:
+                    sys.modules[_m].release_thread() if _m in sys.modules else None
+                except Exception:  # noqa: BLE001
+                    pass
 
     def _send(self, code: int, body: bytes, ctype: str = "application/json") -> None:
         """A client that hung up before the reply (a /readyz probe that gave up, a closed tab) is not an
@@ -11398,6 +6627,28 @@ class Handler(BaseHTTPRequestHandler):
             self.close_connection = True
 
     def do_GET(self):  # noqa: N802
+        u = urlsplit(self.path)
+        # a visitor is any request that costs a search: /instant, /more, /explain, /search (RT-08), by the parsed warm value,
+        # not a substring of the raw query (CORE-B-13: ?warm=%31 is a warm request)
+        visitor = u.path in ("/instant", "/more", "/explain", "/search") and not _warm_q(parse_qs(u.query or ""))
+        if visitor:
+            with _busy_lock:
+                _busy[0] += 1
+                _last_visitor[0] = time.monotonic()
+        try:
+            return self._do_get()
+        except PartStale:
+            raise
+        except Exception as e:  # noqa: BLE001 - audit CORE-B-04: whatever escapes a route is an error reply, never an empty one
+            self.log_message("request failed: %s", type(e).__name__)
+            return self._send(503, json.dumps({"error": type(e).__name__}).encode())
+        finally:
+            if visitor:
+                with _busy_lock:
+                    _busy[0] -= 1
+                    _last_visitor[0] = time.monotonic()
+
+    def _do_get(self):
         if not client_allowed(self.client_address[0]):
             return self._send(403, b'{"error":"forbidden"}')
         u = urlsplit(self.path)
@@ -11423,7 +6674,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, b"ready", "text/plain")
             except Exception as e:
                 return self._send(503, f"starting: {type(e).__name__}".encode(), "text/plain")
-        if u.path in ("/instant", "/more", "/search", "/explain") and not serving_ready():
+        if u.path in ("/instant", "/more", "/search", "/explain", "/provcheck") and not serving_ready():
             return self._send(503, b'{"error":"starting"}')
         if u.path == "/storez":                          # the warmer: rows, fingerprint, visitors in flight (back network only)
             st = result_store()
@@ -11431,23 +6682,16 @@ class Handler(BaseHTTPRequestHandler):
             if _parts_state and _parts_state[0]:
                 z["parts"] = {**_parts_state[0].stats, "by": _parts_state[0].by}
             sample = parse_qs(u.query or "").get("sample")
-            if st and sample and sample[0].isdigit():     # the warmer audits rows another engine computed
+            if st and sample and sample[0].isascii() and sample[0].isdigit():     # the warmer audits rows another engine computed
                 z["sample"] = st.sample_queries(min(int(sample[0]), 200))
             return self._send(200, json.dumps(z).encode())
+        if u.path == "/provcheck" and PROVCHECK:        # the builder: replay the base searches of a stored answer (release_delta.py recheck)
+            return self._send(200, json.dumps(provcheck((parse_qs(u.query or "").get("calls") or ["[]"])[0])).encode())
         if u.path == "/instant":
-            visitor = "warm=1" not in (u.query or "")
-            if visitor:
-                with _busy_lock:
-                    _busy[0] += 1
-            try:
-                try:
-                    return self._instant(parse_qs(u.query))
-                except PartStale as e:                    # ?pcheck=1 only: a part of the answer is not stored under its current key
-                    return self._send(200, json.dumps({"stale": str(e)}).encode())
-            finally:
-                if visitor:
-                    with _busy_lock:
-                        _busy[0] -= 1
+            try:                                      # counted as busy by do_GET, for every kind of visitor request
+                return self._instant(parse_qs(u.query))
+            except PartStale as e:                    # ?pcheck=1 only: a part of the answer is not stored under its current key
+                return self._send(200, json.dumps({"stale": str(e)}).encode())
         if u.path == "/more":
             return self._more(parse_qs(u.query))
         if u.path == "/explain":
@@ -11504,11 +6748,11 @@ class Handler(BaseHTTPRequestHandler):
             self.log_message("search failed: %s: %s", type(e).__name__, e)
             return self._send(503, json.dumps({"error": type(e).__name__}).encode())
         sig = {}
-        if web_only(q, res):
-            res = web_rerank(q, res)
-            sig = web_signal(q, res)
-        intent = intent_of(q, res)
-        conf = is_confident(res) and intent == "nav"
+        if optional("web_only", lambda: web_only(q, res), False, self.log_message):
+            res = optional("web_rerank", lambda: web_rerank(q, res), res, self.log_message)
+            sig = optional("web_signal", lambda: web_signal(q, res), {}, self.log_message)
+        intent = optional("intent", lambda: intent_of(q, res), "", self.log_message)
+        conf = optional("confident", lambda: is_confident(res) and intent == "nav", False, self.log_message)
         self.log_message("results=%d confident=%d intent=%s ms=%d stages=%s", len(res), conf, intent,
                          (time.monotonic() - t0) * 1000, stages_text(st))
         res = [{k: v for k, v in r.items() if k != "kind_card"} if "kind_card" in r else r for r in res]
@@ -11537,7 +6781,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             with stage(what):
                 if what == "results":
-                    body = {"results": search(q, MAX_K)}
+                    body = {"results": [{k: v for k, v in r.items() if k != "kind_card"} for r in search(q, MAX_K)]}   # as /search and the glue do (CORE-B-13)
                 elif "offset" in qs:                        # "More news", page by page (one cached ranking)
                     try:
                         off = min(max(int((qs.get("offset") or ["0"])[0]), 0), NEWS_PAGED_MAX)
@@ -11573,6 +6817,18 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, json.dumps(body).encode())
 
     def _instant(self, qs) -> None:
+        slot = False
+        if _warm_q(qs):                                  # RT-01: the warmer gives way to visitors
+            _warm_waited.set([0.0])
+            if _last_visitor[0] and time.monotonic() - _last_visitor[0] < WARM_VISITOR_WINDOW_S:
+                slot = _warm_slots.acquire(timeout=30)   # visitors about: one warm request at a time
+        try:
+            return self._instant_run(qs)
+        finally:
+            if slot:
+                _warm_slots.release()
+
+    def _instant_run(self, qs) -> None:
         """As-you-type: prefix suggestions on every keystroke, plus the full results
         once the query looks finished (unless results=0). ?all=1 lists every candidate with
         its raw signals, for tools/eval-completion.py --suggester tune."""
@@ -11586,6 +6842,7 @@ class Handler(BaseHTTPRequestHandler):
         _part_keys.set({} if (_warm_q(qs) or _pcheck.get()) else None)               # the keys this answer is made from (a finished answer's provenance)
         _warm.set((qs.get("warm") or ["0"])[0] == "1")          # warm.py's head-query refresh (2026-11-04)
         _audit.set(_warm.get() and (qs.get("audit") or ["0"])[0] == "1")
+        _prov.set([] if _warm.get() and ((qs.get("fin") or [""])[0] == "1" or (qs.get("prov") or [""])[0] == "1") else None)
         _store_note.set(None)
         _cache_state.set("none")
         _websig.set({"1": True, "0": False}.get((qs.get("websig") or [""])[0]))      # eval A/B only
@@ -11607,7 +6864,11 @@ class Handler(BaseHTTPRequestHandler):
         _pages_fuse.set(parse_pages_fuse(qs))                                                    # eval A/B only
         if (qs.get("all") or ["0"])[0] == "1":
             # Every candidate with its raw signals, for tools/eval-completion.py --suggester tune.
-            rows, exact = suggest_candidates(q)
+            try:
+                rows, exact = suggest_candidates(q)
+            except Exception as e:
+                self.log_message("candidates failed: %s", type(e).__name__)
+                return self._send(503, json.dumps({"error": type(e).__name__}).encode())
             cands = [dict({"url": r[3], "title": r[2], "source": r[1], "wiki": r[5], "pop": r[6], "hist": r[7],
                            "exact": r[0] in exact, "id": r[0], "domain": r[4]},
                           **({"demand": r[8], "descr": r[9], "pos": r[10]} if len(r) > 8 else {})) for r in rows]
@@ -11625,15 +6886,22 @@ class Handler(BaseHTTPRequestHandler):
             full = (qs.get("full") or ["0"])[0] == "1"
             plain = fin_plain(qs)
             fin_full = full          # kept under its own name: "full" is reused below for an organisation's full name
-            fin = (fin_get(q, full) if FINISHED and want and plain and not _warm.get() and (full or wordy(q) or short_org(q))
-                   else None)
+            # why a request was not served from a stored answer (RT-09): a code, never the text
+            fin_why = ("off" if not FINISHED else "warm" if _warm.get() else "noresults" if not want else "position" if not plain
+                       else "gate" if not (full or wordy(q) or short_org(q)) else "")
+            fin = fin_get(q, full) if not fin_why else None
+            fin_why = fin_why or ("hit" if fin is not None else "miss")      # miss: none, too old, curated row changed or another version
+            if _warm.get() and (qs.get("prov") or [""])[0] == "1":      # the builder records the retrieval of an answer it already holds (release_delta.py backfill)
+                finished_answer(q, qs, want, full, plain, fin_full, self.log_message)
+                return self._send(200, json.dumps({"prov": prov_put(q, fin_full)}).encode())
             if _pcheck.get():                # the builder asks only whether every part of this answer is current (parts_restamp.py)
                 finished_answer(q, qs, want, full, plain, fin_full, self.log_message)
                 return self._send(200, json.dumps({"pk": part_stamp()}).encode())
             with stage("suggest"):
-                sug = suggest(q)
+                sug = optional("suggest", lambda: suggest(q), [], self.log_message)
             with stage("phrases"):
-                phrases = suggest_phrases(q, sug)
+                phrases = optional("phrases", lambda: suggest_phrases(q, sug), [], self.log_message)
+            lead = 1 if sug and sug[0].get("lead") else 0     # the first suggestion goes above the phrases (page: suggest_lead)
             # results=0: suggestions only — the page asks for full results separately, so a
             # slow full search (worst ~1.3 s cold) never holds up the as-you-type list (want, above).
             # full=1: a submitted search (address bar, search.logout.cloud#q=...) — results
@@ -11642,7 +6910,9 @@ class Handler(BaseHTTPRequestHandler):
             with stage("results"):          # the answer's stages (finished_answer): the search, card, place, verdict, list, local
                 built = None if fin is not None else finished_answer(q, qs, want, full, plain, fin_full, self.log_message)
             with stage("news_wait"):
-                got_news = f_news.result()[0] if f_news is not None else {"stories": [], "hot": False}
+                got_news = optional("news", lambda: f_news.result()[0], {"stories": [], "hot": False}, self.log_message) if f_news is not None else {"stories": [], "hot": False}
+                if not isinstance(got_news.get("stories"), list):
+                    got_news = {"stories": [], "hot": False}
             try:                                            # live scores: never cached
                 with stage("sports"):
                     games = sports(q) if len(q) >= 3 else []
@@ -11675,13 +6945,14 @@ class Handler(BaseHTTPRequestHandler):
                 no_game = None
             latest = got_news["stories"]
             if wx:
-                if weather_query(q):                        # the home forecast: local weather stories
-                    with stage("wx_news"):
-                        home_town = (wx.get("place") or "").split(",")[0]
-                        latest = cached(("wxnews", home_town), lambda: [weather_news(town=home_town)])[0]
-                else:                                       # another town's: only stories naming it
-                    town = (wx.get("place") or "").split(",")[0].strip().lower()
-                    latest = [st for st in latest if town and town in st["title"].lower()]
+                def _wx_stories():
+                    if weather_query(q):                    # the home forecast: local weather stories
+                        with stage("wx_news"):
+                            home_town = (wx.get("place") or "").split(",")[0]
+                            return cached(("wxnews", home_town), lambda: [weather_news(town=home_town)])[0]
+                    town = (wx.get("place") or "").split(",")[0].strip().lower()      # another town's: only stories naming it
+                    return [x for x in latest if town and town in (x.get("title") or "").lower()]
+                latest = optional("wx_news", _wx_stories, [], self.log_message)
                 got_news = dict(got_news, hot=False, more=False)
             try:
                 with stage("answer"):
@@ -11702,25 +6973,41 @@ class Handler(BaseHTTPRequestHandler):
         def emit(res, conf, card, place, intent, kinds, local, sig):     # the answer goes out: built here, or stored (fin)
             ms = int((time.monotonic() - t0) * 1000)
             note = _store_note.get()
-            self.log_message("instant suggest=%d phrases=%d results=%d ms=%d cache=%s%s%s stages=%s cpu=%s", len(sug), len(phrases),
+            self.log_message("instant suggest=%d phrases=%d results=%d ms=%d cache=%s%s%s stages=%s cpu=%s full=%d fin=%s", len(sug), len(phrases),
                              len(res), ms, _cache_state.get(), " warm" if _warm.get() else "",
-                             f" audit={note}" if note in ("same", "diff") else "", stages_text(st), stages_text(_stages_cpu.get()))
+                             f" audit={note}" if note in ("same", "diff") else "", stages_text(st), stages_text(_stages_cpu.get()),
+                             int(fin_full), fin_why)
             if _warm.get():
                 sig = dict(sig, store={"cache": _cache_state.get(), "note": note})
             # ms / stages / intent: the page's timing line and "why" tooltips (2026-09-26) —
             # names and numbers only, never the query
-            res = name_bare_rows(res, card)              # a hand-picked or stored list too
-            return self._send(200, json.dumps({"suggest": sug, "phrases": phrases, "results": shop_list(q, res) if shop_wanted_over(q, card) else res,
-                                              "shop": shop_box(q) if shop_wanted_over(q, card) else None, "confident": conf, "card": card,
-                                              "news": latest, "news_hot": got_news["hot"], "news_more": got_news.get("more", False), "mine": got_news.get("mine") or [], "answer": ans,
-                                              "games": games, "standings": table, "no_game": no_game, "espn": espn, "weather": wx, "place": place, "kinds": kinds,
-                                              "ms": ms, "stages": st, "intent": intent, "local": local, **sig}).encode())
+            lg = self.log_message
+            res = optional("name_bare", lambda: name_bare_rows(res, card), res, lg)              # a hand-picked or stored list too
+            over = optional("shop_wanted", lambda: shop_wanted_over(q, card), False, lg)
+            shown = optional("shop_list", lambda: shop_list(q, res), res, lg) if over else res
+            shop = optional("shop_box", lambda: shop_box(q), None, lg) if over else None
+            body = {"suggest": sug, "phrases": phrases, "results": shown,
+                    "shop": shop, "confident": conf, "card": card,
+                    "news": latest, "news_hot": got_news.get("hot", False), "news_more": got_news.get("more", False), "mine": got_news.get("mine") or [], "answer": ans,
+                    "games": games, "standings": table, "no_game": no_game, "espn": espn, "weather": wx, "place": place, "kinds": kinds,
+                    "ms": ms, "stages": st, "intent": intent, "local": local, "suggest_lead": lead, **sig}
+            try:
+                data = json.dumps(body).encode()
+            except (TypeError, ValueError) as e:         # an extra the encoder cannot write: the reply without the extras
+                lg("reply encode failed: %s", type(e).__name__)
+                core = {k: body[k] for k in ("suggest", "phrases", "results", "confident", "card", "ms", "stages", "intent", "local")}
+                data = json.dumps(core, default=str).encode()
+            return self._send(200, data)
 
-        if fin is not None:
-            _cache_state.set("fin")
-            return emit(*(fin[k] for k in FIN_FIELDS))
-        res, conf, card, place, intent, kinds, local, sig = built
-        return emit(res, conf, card, place, intent, kinds, local, sig)
+        try:
+            if fin is not None:
+                _cache_state.set("fin")
+                return emit(*(fin[k] for k in FIN_FIELDS))
+            res, conf, card, place, intent, kinds, local, sig = built
+            return emit(res, conf, card, place, intent, kinds, local, sig)
+        except Exception as e:                           # nothing escapes to the socket: an error reply, not an empty one
+            self.log_message("instant emit failed: %s", type(e).__name__)
+            return self._send(503, json.dumps({"error": type(e).__name__}).encode())
 
 
 def warm_kinds() -> None:
@@ -11767,7 +7054,606 @@ def warm_lookups() -> None:
     print(f"lookups warmed in {time.time() - t0:.1f} s", flush=True)
 
 
+
+# Run as `python search_api.py` this file is `__main__`: the stage modules below `from search_api import ...`, which would load a
+# second copy of it half-way. Register the running module under its own name before the first stage import.
 if __name__ == "__main__":
+    sys.modules.setdefault("search_api", sys.modules["__main__"])
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_parts import (
+    PartStale,
+    _part_keys,
+    _parts_lock,
+    _parts_off,
+    _parts_state,
+    _pcheck,
+    _warm_q,
+    note_part,
+    part_run,
+    part_stamp,
+)
+
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_base import (
+    ACCOUNT_SQL,
+    ALWAYS_OPEN_IF_STATED,
+    BRAND_SITES,
+    CE_ALT_DIR,
+    CE_WIKI_FLOOR,
+    D2Q_SQL,
+    DESCRIBED_SQL,
+    DOMAIN_DOC_SQL,
+    DOMAIN_NAV_SQL,
+    EXACT_ANCHOR_LEAD,
+    EXACT_ANCHOR_MIN,
+    EXTRA_FEATURES,
+    FAMOUS_MIN,
+    FAMOUS_RATIO,
+    FAMOUS_SQL,
+    FEATURES,
+    FUZZY_SIM,
+    FUZZY_SITE_SQL,
+    FUZZY_WIKI_SQL,
+    GOV_PAGES_GIVEN,
+    GUTENBERG,
+    HOME_RANK,
+    HOST_NAV_SQL,
+    HOURS_INFO_SQL,
+    HOURS_STALE_DAYS,
+    KIND_CARD_N,
+    KIND_CONF_W,
+    KIND_COUNTRY,
+    KIND_EXACT_W,
+    KIND_FILLER,
+    KIND_GOOD,
+    KIND_HOME_W,
+    KIND_JEV_BAND,
+    KIND_KEYS_SQL,
+    KIND_KEY_EXACT_SQL,
+    KIND_KEY_SQL,
+    KIND_KEY_SQL_OPEN,
+    KIND_LEAD_W,
+    KIND_LEAD_W_OPEN,
+    KIND_LIFT_CONF,
+    KIND_MIN_GOOD,
+    KIND_MIN_MEMBERS,
+    KIND_NAMED_POOL,
+    KIND_POP,
+    KIND_POP_OPEN,
+    KIND_SCORE,
+    KIND_SIM,
+    KIND_SITE_SIM,
+    KIND_SITE_SQL,
+    KIND_SITE_WORDS,
+    KIND_SQL,
+    KIND_TOP,
+    KIND_UNDER_ARTICLE,
+    LATE_HOURS_KINDS,
+    LINK_SITE_LOW_GUARD,
+    LINK_SITE_MIN_SITELINKS,
+    LINK_SITE_SQL,
+    LINK_SITE_TRUSTED,
+    MAJOR_TEAM_BOXES,
+    MAJOR_TEAM_SQL,
+    NAMED_TOWN_MIN_POP,
+    NAMESAKE_RATIO,
+    NAMESAKE_SCORE,
+    NAV_SITES_SQL,
+    NAV_SQL,
+    NEAR_FUZZY_KM,
+    NEWS_KINDS,
+    OFFICIAL_LEAD,
+    OUTLET_SCORE,
+    OUTLET_TRIES,
+    PIN_EXACT_ARTICLE,
+    PLACES_SQL,
+    PLACE_CATEGORY_SCORE,
+    PLACE_KIND_FALLBACK,
+    PLACE_LEAD,
+    PLACE_MATCH_KINDS,
+    PLACE_MATCH_NAME,
+    PLACE_NAME_HINT,
+    PLACE_NAME_SCORE,
+    PLACE_NAME_SETUP,
+    PLACE_UNDER_THING,
+    PRODUCTS,
+    PRODUCT_MAKER_MIN,
+    PRODUCT_SCORE,
+    PRODUCT_SQL,
+    PRODUCT_TIER_WIDE,
+    PRODUCT_TOP,
+    RRF_K,
+    SELF_NAMED_PREFIX,
+    SELF_NAMED_SQL,
+    SELF_NAMED_SUFFIX,
+    SEM_IVF_DOCS_SQL,
+    SEM_PAGES_MAX_BITS,
+    SEM_PAGES_PROBES,
+    SEM_PAGES_W,
+    SEM_PROBES,
+    SEM_WIKI_SQL,
+    SE_SQL,
+    SIGILS,
+    SITES_INTENT_MIN,
+    SITE_NAME_SITELINKS,
+    SITE_PAGES,
+    SITE_PAGES_N,
+    SITE_PAGES_PATH,
+    SITE_PAGES_W,
+    STATE_ANCHORS,
+    STATE_ANCHOR_MIN,
+    STATE_ANCHOR_SOURCES,
+    STOCK_BARE_SQL,
+    STOCK_SCORE,
+    STOCK_SQL,
+    SUB_EXACT_SQL,
+    SUB_POPULAR,
+    SUB_SEARCH_SQL,
+    SUSPECT_ALWAYS_OPEN,
+    TASK_GENERIC,
+    TASK_TOOL,
+    TOWN_TITLE_SQL,
+    TOWN_WORD_MIN_POP,
+    TYPO_EDITS2_LEN,
+    TYPO_KNOWN_DF,
+    TYPO_KNOWN_RATIO,
+    TYPO_MAX_WORDS,
+    TYPO_MIN,
+    TYPO_NAMES,
+    TYPO_NAME_CLASSES,
+    TYPO_NEAR_MORE_SQL,
+    TYPO_NEAR_SQL,
+    TYPO_POP,
+    TYPO_SIM,
+    TYPO_SQL,
+    TYPO_WIDE,
+    TYPO_WORDS,
+    TYPO_WORD_DF,
+    TYPO_WORD_USES,
+    WIKI_DEMAND_SQL,
+    WIKI_EXACT_SQL,
+    YT_BARE_MIN,
+    YT_BARE_SQL,
+    YT_EXACT_SQL,
+    YT_POPULAR,
+    YT_SEARCH_SQL,
+    _ACCOUNT_NOT_A_NAME,
+    _ACCOUNT_TAIL,
+    _ACCOUNT_WORDS,
+    _ANCHOR_NONWORD,
+    _ASSET_HOST,
+    _BARE_TICKER,
+    _CARD_AS_TYPED,
+    _CARD_HEAD,
+    _EDIT_LETTERS,
+    _GOOGLE_EX,
+    _GOV_HOST,
+    _GOV_PATH_NEWS,
+    _GOV_PATH_SERVICE,
+    _GOV_SERVICE_WORD,
+    _HOME_GENERIC,
+    _HOME_NEAR,
+    _HOME_NOT,
+    _KIND_QUESTION,
+    _LANG_ROOT,
+    _LOCAL_TASK,
+    _NAME_QUALIFIER,
+    _NAV_NOISE,
+    _NOT_PLURAL,
+    _NOT_RECOMMENDED,
+    _OFFICIAL_SUFFIX,
+    _ORG_BOX,
+    _OUTLET_TAIL,
+    _PERSON_BOX,
+    _PLACE_BOX,
+    _RANKER,
+    _R_SLASH,
+    _SENTENCE_END,
+    _SITE_ASK,
+    _SPAN,
+    _STOCK_GENERIC,
+    _STOCK_SUFFIX,
+    _STOCK_WORDS,
+    _SUB_WORDS,
+    _TASK_SKIP,
+    _TITLE_QUALIFIER,
+    _TITLE_SPLIT,
+    _WAS,
+    _WORDS,
+    _YT_CREATOR,
+    _YT_HANDLE,
+    _YT_HEAD,
+    _YT_LIST,
+    _YT_PRODUCTS,
+    _YT_TAIL,
+    _YT_WORDS,
+    _brand_sites,
+    _ce_alt,
+    _ce_alt_lock,
+    _code_evidence,
+    _days_since,
+    _described,
+    _feat_ctx,
+    _kind,
+    _kind_cols,
+    _kind_site_rows,
+    _place,
+    _plain_words,
+    _plural,
+    _point_states,
+    _point_towns,
+    _products,
+    _qcode_busy,
+    _qcode_cache,
+    _qcode_compute,
+    _qcode_lock,
+    _query_ctx,
+    _ranker,
+    _search_corrected,
+    _search_retry,
+    _sem_pages_dir,
+    _sem_rows,
+    _singular,
+    _site,
+    _site_pages_lock,
+    _site_pages_state,
+    _state_anchor_db,
+    _state_anchors,
+    _stored,
+    _subreddit,
+    _task_words_hit,
+    _tl,
+    _tr,
+    _typo_words,
+    _youtube,
+    account_query,
+    anchor_key,
+    anchor_list,
+    bare_channel_row,
+    bare_channel_score,
+    bare_site,
+    bare_ticker_ok,
+    base_part,
+    best_state_page,
+    box_kind,
+    brand_site_first,
+    brand_sites,
+    ce_alt,
+    ce_rerank,
+    chain_fill,
+    choose_hours,
+    code_is_state,
+    correct_query,
+    correct_wide,
+    correct_words,
+    corrects_state_away,
+    demote_name_matches,
+    demote_weak_names,
+    dictionary_word,
+    discontinued,
+    edits,
+    exact_anchor,
+    exact_article_top,
+    exact_name_first,
+    exact_names,
+    extra_features,
+    famous_namesake,
+    features,
+    first_sentence,
+    front_host,
+    gov_query_state,
+    holds_a_pair,
+    home_gov_state,
+    home_key,
+    home_local,
+    home_page_up,
+    hours_plausible,
+    is_bare,
+    is_country_ending,
+    is_news_outlet,
+    is_untitled,
+    keep_top,
+    kind_base,
+    kind_bm25_sql,
+    kind_card,
+    kind_card_title,
+    kind_cols,
+    kind_key,
+    kind_key_sql,
+    kind_named_first,
+    kind_open,
+    kind_query,
+    kind_unfit,
+    kind_worded,
+    lift_famous,
+    link_low,
+    link_low_yields,
+    local_domains,
+    local_page_first,
+    maker_in_host,
+    maker_products,
+    max_edits,
+    model_features,
+    more_names,
+    name_fits,
+    name_front_pages,
+    name_pairs,
+    name_sans_ending,
+    name_sites_under_place,
+    named_only,
+    named_place_leads,
+    named_site,
+    names_place,
+    names_platform_page,
+    namesakes,
+    nav_keys,
+    nav_order,
+    near_kinds,
+    needs_correction,
+    news_only,
+    not_recommended,
+    official_deep,
+    official_score,
+    official_subdomain_yields,
+    official_top,
+    one_edit,
+    one_home_page,
+    org_first,
+    other_endings_last,
+    other_states_last,
+    outlet_first,
+    outlet_names,
+    pick_correction,
+    place_hours_info,
+    place_site,
+    pm_misread,
+    point_state,
+    point_town,
+    possessive_variant,
+    product_candidates,
+    product_leads_list,
+    product_results,
+    product_site_lead,
+    product_tail,
+    products_table,
+    profiles_follow_article,
+    promoted,
+    query_code,
+    rerank,
+    respells_known_words,
+    result_key,
+    root_beats_inner_pages,
+    rrf,
+    self_named,
+    sem_page_rows,
+    sem_pages_dir,
+    shown_by_address,
+    site_ask,
+    site_name,
+    site_over_article,
+    site_page_rows,
+    site_pages_table,
+    spaced_as_asked,
+    stage_since,
+    state_anchor_first,
+    state_page_first,
+    state_service_query,
+    stock_key,
+    stock_query,
+    stock_results,
+    stored_text,
+    subreddit_query,
+    task_kinds,
+    the_keys,
+    town_article,
+    town_reading_far,
+    town_titles,
+    typo_names_setting,
+    typo_shape,
+    typo_words,
+    typo_words_setting,
+    unaccent,
+    untitled_last,
+    untyped_sigil,
+    wiki_rows,
+    with_hours,
+    youtube_query,
+    youtube_url,
+)
+
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_card import (
+    CARDLINKS_MAIN,
+    CARDLINKS_MORE,
+    CARDLINKS_PATH,
+    CARD_DESCR_SQL,
+    CARD_IMAGE_SQL,
+    CARD_SITE_SQL,
+    CARD_WITHIN,
+    DESCR_MAX,
+    DESCR_STORED_CUT,
+    PLATFORM_HOME,
+    SHORT_ENTITY_VIEWS,
+    SHORT_FLOOR,
+    SHORT_MAKERS,
+    SHORT_NAMES,
+    SHORT_RATIO,
+    SHORT_SUFFIXES,
+    SITENAV_MAX,
+    SITENAV_PATH,
+    TWO_LETTER_KEEP,
+    _CARDLINK_KIND,
+    _EMPTY_PARENS,
+    _LOGIN_TAIL,
+    _PLATFORM_IS,
+    _PLATFORM_NOT,
+    _RW,
+    _cardlinks_db,
+    _name_words,
+    _one_off,
+    _sitenav,
+    _sitenav_lock,
+    _title_views,
+    account_base,
+    card_article,
+    card_build,
+    card_description,
+    card_image,
+    card_links,
+    card_of,
+    card_pre,
+    card_stage,
+    clean_lead,
+    lead_with_official,
+    mark_respelled,
+    own_name_site,
+    plain_title_first,
+    platform_home,
+    respells_name,
+    short_entity,
+    short_name_title,
+    site_tree,
+    sitenav,
+    top_is,
+    whole_description,
+    wiki_top,
+    with_own_accounts,
+)
+
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_list import (
+    BREADTH_CITE,
+    BREADTH_LINKS,
+    BREADTH_WIKI,
+    BREADTH_WIKI_FROM,
+    BREADTH_WIKI_MIN,
+    OFFICE_MAX,
+    OFFICE_SITES,
+    SCORE_ALL_TOP,
+    SE_INDEX_MIN,
+    SE_INDEX_PATH,
+    SE_INDEX_POOL,
+    SE_INDEX_REUSE,
+    SE_INDEX_ROWS,
+    SITE_BRIDGE_PATH,
+    SITE_SLOTS_LEAD,
+    SITE_SLOTS_PATH,
+    WIKILINKS_PATH,
+    WIKI_MIX_MAX,
+    WIKI_MIX_SLOTS,
+    _BREADTH_QUESTION,
+    _BREADTH_SKIP,
+    _BREADTH_STOP,
+    _BREADTH_UNCAPPED,
+    _CG_MU,
+    _CG_SD,
+    _CG_STOP,
+    _CG_W,
+    _GENERIC_LABEL,
+    _SEASON,
+    _SE_LICENCES,
+    _SE_STOP,
+    _TENANT_HOSTS,
+    _WIKI_SKIP_DOMAINS,
+    _cg_toks,
+    _digest_of,
+    _link_rows,
+    _merge_wiki,
+    _official_hosts_of_name,
+    _scores,
+    _scores_reuse,
+    _se_ix_credit,
+    _se_ix_db,
+    _site_of,
+    _site_table,
+    _site_tables,
+    _site_tables_lock,
+    _uncapped_row,
+    _wiki_rows,
+    _wikilinks_db,
+    breadth_list,
+    card_gate,
+    card_gate_p,
+    curated_fill,
+    list_build,
+    list_stage,
+    mix_wikipedia,
+    office_rows,
+    old_season,
+    score_unscored,
+    se_howto,
+    se_ix_licence,
+    se_ix_lookup,
+    se_ix_row,
+    site_intent_rows,
+    wiki_links,
+    with_office_rows,
+)
+
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_place import (
+    CARD_PLACE_MI,
+    LONE_PLACE_MI,
+    ORG_PLACE_MI,
+    PERSON_SQL,
+    PLACE_PRACTICE,
+    place_answer,
+    place_build,
+    place_in_card,
+    place_stage,
+)
+
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_verdict import (
+    conf_of,
+    intent_kinds,
+    verdict_build,
+    verdict_stage,
+)
+
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_local import (
+    NAMES_PLACES_MIN,
+    _NOWHERE,
+    local_build,
+    local_part,
+    names_places,
+)
+
+
+# The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
+# they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from stage_assembly import (
+    NOT_BRANCH,
+    _compact,
+    _within,
+    branches_only,
+    curated_by_card,
+    fin_put,
+    finished_answer,
+    fold_accounts,
+    glue_build,
+    place_kind,
+)
+
+if __name__ == "__main__":
+    # `import search_api` (sq_candidates' /candidates) must find this running module, not load a second copy of the engine
+    # with its own caches, pools and models (CORE-B-11)
+    sys.modules.setdefault("search_api", sys.modules["__main__"])
     # one after the other: loaded together, the cross-encoder's iGPU compile and the kind
     # vectors went over testbox's 1 GB limit at start (OOM-killed once, 2026-09-30)
     require_filtered_web()  # release lookups + Postgres web lists: refused

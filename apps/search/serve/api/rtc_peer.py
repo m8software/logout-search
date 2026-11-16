@@ -90,6 +90,14 @@ _info = None                  # how the engine is reached, for {details}; None =
 _admin = None                 # the downloaded program's admin_handler: settings a paired device changes with the admin PIN
 ADMIN_UNLOCK_S = 600          # an unlock lasts this long, on its own connection only
 _pcs: set = set()
+# RT-07: what each connection is, so the table cannot be filled by strangers. Paired devices always have slots (MAX_PEERS minus
+# MAX_UNPAIRED are theirs); a source (the rendezvous' id of the page) holds at most MAX_PER_SOURCE; a connection that says
+# nothing is closed after IDLE_UNPAIRED_S (paired: IDLE_PAIRED_S); a refused offer is answered "busy", not left waiting.
+MAX_UNPAIRED = int(os.environ.get("RTC_MAX_UNPAIRED", "4"))
+MAX_PER_SOURCE = int(os.environ.get("RTC_MAX_PER_SOURCE", "3"))
+IDLE_UNPAIRED_S = float(os.environ.get("RTC_IDLE_UNPAIRED_S", "120"))
+IDLE_PAIRED_S = float(os.environ.get("RTC_IDLE_PAIRED_S", "1800"))
+_pc_info: dict = {}           # pc -> {"src": id, "paired": bool, "last": monotonic time of its last message or start}
 _turn_waiters: dict = {}      # websocket -> future for the next {"t": "turn"} reply
 
 
@@ -485,15 +493,57 @@ async def turn_servers(ws) -> list:
         return []
 
 
+def _forget(pc) -> None:
+    _pcs.discard(pc)
+    _pc_info.pop(pc, None)
+
+
+def admit(src, paired: bool) -> str:
+    """"" when a new connection may be taken, else why not (RT-07)."""
+    if len(_pcs) >= MAX_PEERS:
+        return "table full"
+    unpaired = sum(1 for p in _pcs if not _pc_info.get(p, {}).get("paired"))
+    if not paired and unpaired >= MAX_UNPAIRED:
+        return "too many unpaired connections"
+    if src is not None and sum(1 for p in _pcs if _pc_info.get(p, {}).get("src") == src) >= MAX_PER_SOURCE:
+        return "too many connections from one source"
+    return ""
+
+
+async def reap_idle(now: float | None = None) -> int:
+    """Closes connections that have said nothing for their idle time; how many."""
+    now = time.monotonic() if now is None else now
+    old = [p for p in list(_pcs) if now - _pc_info.get(p, {}).get("last", now) >
+           (IDLE_PAIRED_S if _pc_info.get(p, {}).get("paired") else IDLE_UNPAIRED_S)]
+    for p in old:
+        _forget(p)
+        try:
+            await p.close()
+        except Exception:  # noqa: BLE001
+            pass
+    if old:
+        say(f"closed {len(old)} idle connection(s)")
+    return len(old)
+
+
+async def reap_loop() -> None:
+    while True:
+        await asyncio.sleep(30)
+        await reap_idle()
+
+
 async def on_offer(ws, m: dict) -> None:
     frm, sdp, via = m.get("from"), m["sdp"], m.get("via")
-    if len(_pcs) >= MAX_PEERS:
+    secret = signed_offer_secret(m.get("auth"), sdp.get("sdp"))
+    why = admit(frm, secret is not None)
+    if why:
+        say(f"offer refused: {why}")
+        await ws.send(json.dumps({"t": "answer", "to": frm, "error": "busy"}))
         return
     # A paired device signs its offer wherever it is (at home too, so that an engine that is not
     # this one cannot answer in its place). A valid signature gets a signed answer on any `via`. Without
     # one, "room" is refused, and "network" is answered unsigned as before: an unpaired device at home,
     # or a page from before — the device, not the engine, decides whether it accepts that.
-    secret = signed_offer_secret(m.get("auth"), sdp.get("sdp"))
     if secret is None and via == "room":
         say("refused an unpaired or revoked device")
         await ws.send(json.dumps({"t": "answer", "to": frm, "error": "not paired"}))
@@ -503,6 +553,7 @@ async def on_offer(ws, m: dict) -> None:
     ice = [RTCIceServer(urls=STUN_URL)] + (await turn_servers(ws) if via == "room" else [])
     pc = RTCPeerConnection(RTCConfiguration(iceServers=ice))
     _pcs.add(pc)
+    _pc_info[pc] = {"src": frm, "paired": secret is not None, "last": time.monotonic()}
 
     @pc.on("datachannel")
     def on_datachannel(channel):
@@ -511,6 +562,8 @@ async def on_offer(ws, m: dict) -> None:
 
         @channel.on("message")
         def on_message(raw):
+            if pc in _pc_info:
+                _pc_info[pc]["last"] = time.monotonic()
             if bucket.allow():
                 asyncio.ensure_future(reply(channel, raw, via, lambda: peer_on_lan(pc), conn))
             elif channel.readyState == "open":
@@ -519,23 +572,28 @@ async def on_offer(ws, m: dict) -> None:
     @pc.on("connectionstatechange")
     async def on_state():
         if pc.connectionState in ("failed", "closed"):
-            _pcs.discard(pc)
+            _forget(pc)
             await pc.close()
 
     try:
         await pc.setRemoteDescription(RTCSessionDescription(sdp=without_mdns(sdp["sdp"]), type=sdp["type"]))
     except Exception as e:                            # a bad offer must not kill anything else
         say(f"offer rejected: {type(e).__name__}")
-        _pcs.discard(pc)
+        _forget(pc)
         await pc.close()
         return
-    # aiortc gathers every candidate before setLocalDescription returns: one answer, no trickle
-    await pc.setLocalDescription(await pc.createAnswer())
-    answer = outward_only(pc.localDescription.sdp, own_addresses())
-    out = {"t": "answer", "to": frm, "sdp": {"sdp": answer, "type": pc.localDescription.type}}
-    if secret:
-        out["auth"] = {"mac": mac(secret, "answer", answer)}
-    await ws.send(json.dumps(out))
+    try:
+        # aiortc gathers every candidate before setLocalDescription returns: one answer, no trickle
+        await pc.setLocalDescription(await pc.createAnswer())
+        answer = outward_only(pc.localDescription.sdp, own_addresses())
+        out = {"t": "answer", "to": frm, "sdp": {"sdp": answer, "type": pc.localDescription.type}}
+        if secret:
+            out["auth"] = {"mac": mac(secret, "answer", answer)}
+        await ws.send(json.dumps(out))
+    except Exception as e:  # noqa: BLE001 - a failed answer must not keep its slot (RT-07)
+        say(f"answer failed: {type(e).__name__}")
+        _forget(pc)
+        await pc.close()
 
 
 async def rendezvous(family: int, label: str) -> None:
@@ -569,7 +627,7 @@ async def main(answer=None, info=None, admin=None) -> None:
     global _answer, _info, _admin
     if answer is not None:
         _answer, _info, _admin = answer, info, admin
-        await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"))
+        await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"), reap_loop())
         return
     _answer = native_host.search_api_answer()
     if os.environ.get("SEARCH_STORE") and int(os.environ.get("WARM_HEAD", "0") or 0) > 0:
@@ -586,7 +644,7 @@ async def main(answer=None, info=None, admin=None) -> None:
         if search_api.STORE_INBOX_EVERY_S > 0:
             threading.Thread(target=search_api.store_inbox_loop, daemon=True, name="store-inbox").start()
     threading_warm = asyncio.get_running_loop().run_in_executor(None, native_host.warm, _answer)
-    await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"), threading_warm)
+    await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"), threading_warm, reap_loop())
 
 
 def cli(argv: list) -> int:

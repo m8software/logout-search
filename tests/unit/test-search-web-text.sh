@@ -19,6 +19,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR_T/../.." && pwd)"
 API="${SEARCH_API_PY:-$REPO_ROOT/apps/search/serve/api/search_api.py}"
 TOOL="$REPO_ROOT/apps/search/tools/sites-tantivy.py"
 PY="${PY:-python3}"
+COMBINED="$(cat "$API" "$(dirname "$API")"/stage_*.py)"   # the engine is split over search_api.py and stage_*.py
 export PYTHONDONTWRITEBYTECODE=1   # a stale .pyc would hide a mutation of the same size
 
 PASS=0
@@ -35,7 +36,14 @@ import importlib.util, sys, types
 sys.modules["psycopg"] = types.ModuleType("psycopg")
 import os; sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[1])))   # its neighbours (gov_state.py), as `python /app/search_api.py` finds them
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1])
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+_real = importlib.util.module_from_spec(spec); sys.modules["search_api"] = _real; spec.loader.exec_module(_real)   # registered first: stage_*.py do `from search_api import ...`
+# the engine is split over search_api.py and stage_*.py: a stand-in must replace the name in every module that holds it
+class _NS:
+    def __getattr__(self, n): return getattr(_real, n)
+    def __setattr__(self, n, v):
+        for x in [_real] + [x for k, x in list(sys.modules.items()) if k.startswith("stage_") and k != "stage_version" and isinstance(x, types.ModuleType)]:
+            if hasattr(x, n): setattr(x, n, v)
+m = _NS()
 '
 
 echo ""; echo "=== Part 1: the interface, no database ==="
@@ -77,7 +85,7 @@ expect "bogus refused" "an unknown SEARCH_SITES_BACKEND is an error"
 expect "missing index refused" "tantivy with no index fails loudly, never falls back to Postgres"
 for want in 'sub("sites", web.sites, q, k, head_weight(), stored, bv)' 'sub("pages", web.pages, q, min(5, k), stored, bv)' \
             'sub("anchors", web.anchors, q, min(5, k))' 'sub("exact_anchor", web.exact_anchor, akey)'; do
-    if grep -qF "$want" "$API"; then ok "_search() calls ${want%%,*}, ...) on the backend"; else bad "_search() does not call: $want"; fi
+    if grep -qF -- "$want" <<<"$COMBINED"; then ok "_search() calls ${want%%,*}, ...) on the backend"; else bad "_search() does not call: $want"; fi
 done
 
 echo ""; echo "=== Part 1b: the exports (ADR-059: page text only as page_words) ==="

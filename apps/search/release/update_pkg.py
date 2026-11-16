@@ -321,12 +321,16 @@ def main():
                    help=f"... and the whole file is at most this many times the diff's zstd bytes (default {uc.WHOLE_MAX_FACTOR:g})")
     b.add_argument("--no-link-from", action="append", default=[], metavar="OLD_PATH_PREFIX",
                    help="never copy a file from this path (or folder) of the old release: ship it in the package, so update.json does not name it")
+    b.add_argument("--affected", metavar="FILE", help="release_delta.py affected --hashes-out: the names this update may change, as hashes; "
+                   "shipped as affected.bin so an install keeps its stored lists and answers for every other name")
     i = sp.add_parser("info")
     i.add_argument("pkg")
     a = ap.parse_args()
     try:
         r = build(a.old, a.new, a.out, a.level, not a.no_selftest, a.sign, a.rows_threshold, a.allow_ivf_drift,
                   a.apply_limit_s, a.whole_factor, a.no_link_from) if a.cmd == "build" else info(a.pkg)
+        if a.cmd == "build" and a.affected:
+            shutil.copyfile(a.affected, os.path.join(os.path.abspath(a.out), "affected.bin"))
     except uc.UpdateError as e:
         print(f"update_pkg: REFUSED: {e}", file=sys.stderr)
         sys.exit(2)

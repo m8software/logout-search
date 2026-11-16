@@ -21,22 +21,43 @@ import hashlib
 import os
 
 
+# The stage modules search_api.py's private code was moved into. They are one namespace with search_api.py: the names
+# they import from it are not "other modules", and a stage's version is computed over the definitions of all of them, so
+# moving a definition from one file to another does not change any version.
+FRAGMENTS = ("stage_parts", "stage_base", "stage_card", "stage_list", "stage_place", "stage_verdict", "stage_local", "stage_assembly")
+
+
 class Module:
-    def __init__(self, path: str):
+    def __init__(self, path: str, fragments=None):
         self.path = path
+        here = os.path.dirname(os.path.abspath(path))
+        if fragments is None:
+            fragments = [os.path.join(here, f + ".py") for f in FRAGMENTS if os.path.basename(path) == "search_api.py"
+                         and os.path.exists(os.path.join(here, f + ".py"))]
+        self.files = [path] + list(fragments)
+        own = ({"search_api"} | set(FRAGMENTS)) if len(self.files) > 1 else set()
         self.src = open(path, encoding="utf-8").read()
-        self.tree = ast.parse(self.src)
         self.defs: dict[str, list[ast.AST]] = {}          # top-level name -> the statements that bind it
         self.imports: dict[str, str] = {}                  # top-level imported name -> module name
-        for node in self.tree.body:
-            for name in _bound(node):
-                self.defs.setdefault(name, []).append(node)
-            if isinstance(node, ast.ImportFrom) and node.module:
-                for a in node.names:
-                    self.imports[a.asname or a.name] = node.module
-            elif isinstance(node, ast.Import):
-                for a in node.names:
-                    self.imports[(a.asname or a.name).split(".")[0]] = a.name
+        self.text: dict[int, str] = {}                     # id(statement) -> the source text of the file it is in
+        self.tree = None
+        for f in self.files:
+            text = self.src if f == path else open(f, encoding="utf-8").read()
+            tree = ast.parse(text)
+            if f == path:
+                self.tree = tree
+            for node in tree.body:
+                self.text[id(node)] = text
+                for name in _bound(node):
+                    self.defs.setdefault(name, []).append(node)
+                if isinstance(node, ast.ImportFrom) and node.module:
+                    if node.module in own:
+                        continue                       # the same namespace: the name is defined in one of the files
+                    for a in node.names:
+                        self.imports[a.asname or a.name] = node.module
+                elif isinstance(node, ast.Import):
+                    for a in node.names:
+                        self.imports[(a.asname or a.name).split(".")[0]] = a.name
 
     def roots_of(self, cls: str, method: str) -> list[str]:
         """The top-level names a method of a top-level class reads (its body only): the entry points of a stage that is
@@ -73,12 +94,16 @@ class Module:
         h = hashlib.sha256()
         for n in sorted(names):
             for node in self.defs.get(n, ()):
-                h.update(n.encode() + b"\x00" + (ast.get_source_segment(self.src, node) or "").encode() + b"\x00")
+                h.update(n.encode() + b"\x00" + (ast.get_source_segment(self.text.get(id(node), self.src), node) or "").encode() + b"\x00")
         for s in sorted(settings):
             h.update(b"setting\x00" + s.encode() + b"\x00")
         if imports:
             here = os.path.dirname(os.path.abspath(self.path))
-            for mod in sorted({self.imports[n] for n in names if n in self.imports}):
+            # modules imported inside the bodies of reached definitions count too (audit DB-06: 34 functions of search_api.py
+            # import facts, site_pages, product_table, lookups_release ... in their bodies; editing them changed no stage's version)
+            inner = {m for n in names for node in self.defs.get(n, ()) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+                     for m in _local_imports(node)}
+            for mod in sorted({self.imports[n] for n in names if n in self.imports} | inner):
                 p = os.path.join(here, mod.split(".")[0] + ".py")
                 if os.path.exists(p):
                     h.update(b"module\x00" + mod.encode() + b"\x00" + open(p, "rb").read())
@@ -159,7 +184,30 @@ def _bound(node) -> list[str]:
                 if isinstance(x, ast.Name):
                     out.append(x.id)
         return out
+    # a name bound inside a top-level if / try / with (a setting chosen by a condition, an optional import's fallback) is a
+    # definition too (audit DB-06: 13 such blocks, 2 names, were invisible to a stage's version)
+    if isinstance(node, ast.If) and isinstance(node.test, ast.Compare) and isinstance(node.test.left, ast.Name) and node.test.left.id == "__name__":
+        return []
+    if isinstance(node, (ast.If, ast.Try, ast.With)):
+        kids = list(node.body) + list(getattr(node, "orelse", [])) + list(getattr(node, "finalbody", []))
+        for h in getattr(node, "handlers", []):
+            kids += h.body
+        out = []
+        for k in kids:
+            out += _bound(k)
+        return out
     return []
+
+
+def _local_imports(node) -> set[str]:
+    """Modules imported inside a definition's body (import x / from x import y at function level)."""
+    out = set()
+    for x in ast.walk(node):
+        if isinstance(x, ast.Import):
+            out.update(a.name for a in x.names)
+        elif isinstance(x, ast.ImportFrom) and x.module and not x.level:
+            out.add(x.module)
+    return out
 
 
 def _names_read(node) -> set[str]:

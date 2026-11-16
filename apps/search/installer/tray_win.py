@@ -222,7 +222,7 @@ TPM_RIGHTBUTTON, TPM_RETURNCMD = 0x0002, 0x0100
 ID_OPEN, ID_RESTART, ID_UNINSTALL, ID_QUIT, ID_UPDATE_NOW, ID_UPDATE_AUTO = 1, 2, 3, 4, 5, 6
 # the settings menus (owner 2026-11-14: "should all be configurable in the tray settings, set update times or check if
 # you want them at all"): what each choice writes is in choose()
-ID_NEWS, ID_WEATHER, ID_SPORTS, ID_ADDONS = 10, 20, 30, 42
+ID_NEWS, ID_WEATHER, ID_SPORTS, ID_ADDONS, ID_CHANNEL = 10, 20, 30, 42, 43
 NEWS_IDS = {11: 1, 12: 2, 13: 4}                           # news_every
 WEATHER_IDS = {21: 1, 22: 3, 23: 6}                        # weather_every_h
 WINDOW_IDS = {50: 1, 51: 3, 52: 5, 53: 12, 54: 19, 55: 23}  # at_hour: the start of the daily check's two hours
@@ -388,6 +388,8 @@ def settings_menus(data: str) -> list:
         (23, 6, "Forecast every 6 hours (about 270 MB a day)"))]
     sports = [(MF_STRING | tick(c["sports"]), ID_SPORTS, "Scores and standings (about 55 MB a day)")]
     upd = [(MF_STRING | MF_GRAYED, 0, "Last check: " + ("checking\u2026" if u.get("requested") else (u.get("last_result") or "not yet"))),
+           (MF_STRING | MF_GRAYED, 0, "Channel: " + au.channel_of(u) + (" (new versions arrive a day early)" if au.channel_of(u) == "beta" else "")),
+           (MF_STRING | tick(au.channel_of(u) == "beta"), ID_CHANNEL, "Get new versions early (beta channel)"),
            (MF_STRING, ID_UPDATE_NOW, "Check for updates now"), (MF_SEPARATOR, 0, None),
            (MF_STRING | tick(au.enabled(u)), ID_UPDATE_AUTO, "Update automatically"),
            (MF_STRING | tick(u.get("addons", True) is not False) | off_grey(au.enabled(u)), ID_ADDONS,
@@ -425,6 +427,8 @@ def choose(data: str, cmd: int) -> None:
         au.command("now", data)
     elif cmd == ID_UPDATE_AUTO:
         au.command("off" if au.enabled(u) else "on", data)
+    elif cmd == ID_CHANNEL:
+        au.command("channel", data, "stable" if au.channel_of(u) == "beta" else "beta")
     elif cmd == ID_ADDONS:
         au.command("addons", data, "off" if u.get("addons", True) is not False else "on")
     elif cmd in WINDOW_IDS:

@@ -88,7 +88,9 @@ END $$;
 -- What an article's subject IS, from the Wikidata entity lists: Wikidata's own English
 -- description ("American astronaut"), joined on the entity's English Wikipedia article —
 -- a name join gave the king "Louis XIV" the band's "band". Parentheticals and
--- anything past 60 characters are trimmed; without a description, the category word.
+-- anything past 240 characters are trimmed (it was 60 until the audit of 2026-11-15, DB-13: "home depot" and "bank of america" showed
+-- descriptions cut mid-word; the engine shortens a long one at a word for the card itself, DESCR_MAX); without a description, the
+-- category word.
 CREATE TEMP TABLE sg_descr (title text PRIMARY KEY, descr text);
 DO $$ BEGIN
   IF to_regclass('entities') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns
@@ -99,7 +101,7 @@ DO $$ BEGIN
           WHEN 'celebrity' THEN 'person' WHEN 'public_company' THEN 'company' WHEN 'restaurant_chain' THEN 'restaurant chain'
           WHEN 'video_game' THEN 'video game' WHEN 'country' THEN 'country' WHEN 'state' THEN 'state'
           WHEN 'vehicle_model' THEN 'vehicle' WHEN 'motorcycle_model' THEN 'motorcycle' WHEN 'news_org' THEN 'news'
-          ELSE category END), '\s*\([^)]*\)', '', 'g')), 60)
+          ELSE category END), '\s*\([^)]*\)', '', 'g')), 240)
       FROM entities WHERE coalesce(wiki, '') <> '' ORDER BY wiki, sitelinks DESC;
   END IF;
 END $$;

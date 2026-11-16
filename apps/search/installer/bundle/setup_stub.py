@@ -10,6 +10,9 @@ single-file build of the whole program would do.
     logout-search-setup.exe --dest FOLDER    another folder than %LOCALAPPDATA%\\logout-search
     logout-search-setup.exe --no-run         unpack only (the build's own test)
     logout-search-setup.exe --pin 1234       also set the admin PIN (a paired device then changes settings with it)
+    logout-search-setup.exe --rollback --dest BASE   the way back after an update failed its self-test (autoupdate.verify):
+                                                   closes the running copy, puts BASE/app.old (the program the update
+                                                   replaced) back as BASE/app, starts the tray again
     logout-search-setup.exe --update --dest BASE   the daily automatic update (installer/autoupdate.py): no window, no
                                                    questions; closes the running copy, replaces BASE/app, starts the
                                                    tray again. The data and every setting stay. Its log is
@@ -48,7 +51,7 @@ def log_to(base: str):
     print(f"--- {time.strftime('%Y-%m-%d %H:%M:%S')} update", flush=True)
 
 
-def unpack(payload: str, app: str, tries: int) -> None:
+def unpack(payload: str, app: str, tries: int, keep_old: bool = False) -> None:
     new = app + ".new"
     shutil.rmtree(new, ignore_errors=True)
     with zipfile.ZipFile(payload) as z:
@@ -67,14 +70,40 @@ def unpack(payload: str, app: str, tries: int) -> None:
             time.sleep(2)
     os.replace(inner, app)
     shutil.rmtree(new, ignore_errors=True)
-    shutil.rmtree(app + ".old", ignore_errors=True)
+    if not keep_old:                                # an update keeps the program it replaced until the new one passes its self-test
+        shutil.rmtree(app + ".old", ignore_errors=True)
+
+
+def rollback(base: str) -> int:
+    """BASE/app.old back as BASE/app (the running copy is closed first); the broken folder is removed."""
+    app = os.path.join(base, "app")
+    old = app + ".old"
+    if not os.path.isdir(old):
+        print(f"no previous program ({old}): nothing to go back to", flush=True)
+        return 1
+    for i in range(15):                            # a process that has just been closed can hold its files a moment longer
+        try:
+            shutil.rmtree(app + ".bad", ignore_errors=True)
+            if os.path.isdir(app):
+                os.replace(app, app + ".bad")
+            os.replace(old, app)
+            break
+        except OSError as e:
+            if i == 14:
+                print(f"could not put the previous program back: {e}", flush=True)
+                return 1
+            time.sleep(2)
+    shutil.rmtree(app + ".bad", ignore_errors=True)
+    restart_tray(app, base)
+    print("went back to the previous program; the tray is started again", flush=True)
+    return 0
 
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     base = os.path.abspath(argv[argv.index("--dest") + 1]) if "--dest" in argv else default_base()
     app = os.path.join(base, "app")
-    update = "--update" in argv
+    update = "--update" in argv or "--rollback" in argv
     if update:
         log_to(base)
     payload = os.path.join(getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))), PAYLOAD)
@@ -84,10 +113,12 @@ def main(argv=None) -> int:
         for image in ("logout-search-tray.exe", "logout-search.exe"):
             subprocess.run(["taskkill", "/F", "/IM", image] if update else ["taskkill", "/F", "/T", "/IM", image],
                            capture_output=True, creationflags=0x08000000)
+    if "--rollback" in argv:
+        return rollback(base)
     print(f"logout search: unpacking the program to {app}", flush=True)
     try:
         os.makedirs(base, exist_ok=True)
-        unpack(payload, app, 15 if update else 1)
+        unpack(payload, app, 15 if update else 1, keep_old=update)
     except OSError as e:
         print(f"could not unpack to {app}: {e}\nIf logout search is already running, sign out and in (or stop it) and run this again.", flush=True)
         if update and os.path.isdir(app + ".old") and not os.path.isdir(app):

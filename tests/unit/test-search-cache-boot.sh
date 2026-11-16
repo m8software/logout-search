@@ -34,7 +34,7 @@ sys.modules["psycopg"] = psycopg
 time.monotonic = lambda: 5.0                       # the machine booted 5 s ago
 import os; sys.path.insert(0, os.path.dirname(os.path.abspath(sys.argv[1])))   # its neighbours (gov_state.py), as `python /app/search_api.py` finds them
 spec = importlib.util.spec_from_file_location("search_api", sys.argv[1])
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+m = importlib.util.module_from_spec(spec); sys.modules["search_api"] = m; spec.loader.exec_module(m)   # the stage_*.py files import it back
 
 class Conn:
     def __init__(self, rows): self.rows, self.calls = rows, 0
@@ -78,7 +78,7 @@ else
 fi
 
 echo ""; echo "=== no cache starts at a 0.0 stamp ==="
-left=$(grep -n -E '^_[a-z_0-9]+ = \(0\.0, ' "$API") || true
+left=$(grep -n -E '^_[a-z_0-9]+ = \(0\.0, ' "$API" "$(dirname "$API")"/stage_*.py) || true
 if [[ -z "$left" ]]; then
     ok "every (fetched_at, value) cache starts at _NEVER"
 else

@@ -230,7 +230,9 @@ def slot_of_query_words(w: list[str]) -> str | None:
 # ---- registered domain ----------------------------------------------------------------------------------------------
 _PRIVATE = frozenset(("github.io", "blogspot.com", "wordpress.com", "herokuapp.com", "vercel.app", "netlify.app", "pages.dev",
                       "web.app", "firebaseapp.com", "appspot.com", "azurewebsites.net", "myshopify.com", "wixsite.com",
-                      "weebly.com", "tumblr.com", "gitlab.io", "fly.dev", "onrender.com"))
+                      "weebly.com", "tumblr.com", "gitlab.io", "fly.dev", "onrender.com",
+                      "readthedocs.io", "substack.com", "medium.com", "gitbook.io", "notion.site", "bitbucket.io", "surge.sh", "glitch.me",
+                      "pythonanywhere.com", "netlify.com", "cloudfront.net"))      # same set as search_api._TENANT_HOSTS (a test pins it)
 _SLD = re.compile(r"^(?:com|co|net|org|gov|edu|ac|or|ne|go|gob|nom|mil)$")
 
 
@@ -276,6 +278,17 @@ class SiteTable:
 
     def hosts_named(self, name_key: str) -> list[str]:
         return list(self.by_label.get(name_key, ()))
+
+    def hosts_of(self, rd: str) -> list[str]:
+        """The table's hosts on registered domain rd, in load order: an index, not a scan of every row per request
+        (CORE-A-09: 261 ms on a 200,000-site table). Built on first use and rebuilt if rows were added since."""
+        idx = getattr(self, "_by_reg", None)
+        if idx is None or getattr(self, "_by_reg_n", -1) != len(self.rows):
+            idx = {}
+            for h in self.rows:
+                idx.setdefault(reg_domain(h), []).append(h)
+            self._by_reg, self._by_reg_n = idx, len(self.rows)
+        return idx.get(rd, [])
 
 
 def load_slots(path: str) -> SiteTable:
@@ -409,7 +422,7 @@ def resolve_site(name_key: str, table: SiteTable, hint: list[str], resolver=None
     if resolver is not None:
         try:
             for h in resolver(name_key) or ():
-                for cand in sorted((x for x in table.rows if reg_domain(x) == reg_domain(h)), key=_pref(table)):
+                for cand in sorted(table.hosts_of(reg_domain(h)), key=_pref(table)):
                     return cand
         except Exception:  # noqa: BLE001 - a lookup that failed says nothing
             return None
@@ -430,9 +443,8 @@ def card_site(name_key: str, card: dict | None, table: SiteTable) -> str | None:
             h = host_of(l.get("url") or "")
             if h in table.rows:
                 return h
-            for cand in table.rows:                       # www. / a sibling host of the same registered domain
-                if reg_domain(cand) == reg_domain(h):
-                    return cand
+            for cand in table.hosts_of(reg_domain(h)):    # www. / a sibling host of the same registered domain
+                return cand
     return None
 
 

@@ -26,6 +26,7 @@ import re
 import sqlite3
 import threading
 import unicodedata
+import weakref
 
 FORMAT_VERSION, APP_ID = 1, 0x6C6F7331      # lookups_release.FORMAT_VERSION / APP_ID
 N_ALIAS, N_SITE_LABEL, N_OFFICIAL = 2, 3, 10   # lookups_release: an article's names, a site's first label, the articles of a domain
@@ -96,6 +97,7 @@ class ReleaseTable:
     def __init__(self, path: str):
         self.path = path
         self._local = threading.local()
+        _TABLES.add(self)
         db = self.db
         appid = db.execute("PRAGMA application_id").fetchone()[0]
         uv = db.execute("PRAGMA user_version").fetchone()[0]
@@ -117,8 +119,28 @@ class ReleaseTable:
             self._local.db = c
         return c
 
+    def release(self) -> None:
+        """Close THIS thread's connection (audit DB-08: a request thread is new for every request and a connection sits in a
+        reference cycle until a full GC; each one of a 1.1 GB file keeps SQLite's page cache)."""
+        c = getattr(self._local, "db", None)
+        if c is not None:
+            self._local.db = None
+            try:
+                c.close()
+            except sqlite3.Error:
+                pass
+
     def q(self, sql: str, *args):
         return self.db.execute(sql, args).fetchall()
+
+
+_TABLES: "weakref.WeakSet" = weakref.WeakSet()
+
+
+def release_thread() -> None:
+    """Close the calling thread's connection of every open release table (search_api Handler.finish)."""
+    for t in list(_TABLES):
+        t.release()
 
 
 # --------------------------------------------------------------------------- formatting

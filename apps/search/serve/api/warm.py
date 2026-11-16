@@ -18,6 +18,7 @@ import re
 import sqlite3
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -351,8 +352,10 @@ def storez(api: str = API) -> dict:
     """The engine's store counts and visitors in flight; {} when it has none (an older engine)."""
     try:
         return json.load(urllib.request.urlopen(f"{api}/storez", timeout=5))
+    except urllib.error.HTTPError:
+        return {}                                           # an older engine without /storez
     except Exception:
-        return {}
+        return {"busy": 1, "unreachable": 1}                # too loaded to answer in 5 s (or down): that is busy, not idle (RT-01)
 
 
 def storez_sample(api: str, n: int) -> list:

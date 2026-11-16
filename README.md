@@ -13,6 +13,12 @@ holds the public key and the install command. One program, `logout-search`, inst
 keeps it updated and connects the browser extension; the bundles for Linux, Windows and macOS (Apple silicon) are
 built by `.github/workflows/bundle.yml` and attached to each release. They are not signed or notarised yet.
 
+**Compatibility promise:** every file we publish (data release, update packages, add-ons, the answers) works on the
+last three released versions of the program; a publish is installed on those three before it goes out
+(`apps/search/tools/compat_check.py`), and a format change that would break it needs a version bump and a migration.
+See the wiki page *Compatibility*. A program that updates itself goes back to the previous version when its own
+self-test fails, and `logout-search channel beta` takes new versions a day early.
+
 ## What it is good at and bad at
 
 Measured 2026-11-11. Right answer first: accounts such as "gmail login" 99.7%, books 99.5%, article

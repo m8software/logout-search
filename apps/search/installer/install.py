@@ -88,6 +88,10 @@ class Fatal(InstallError):
     """A refusal that retrying cannot change (a missing file, an HTTP 4xx)."""
 
 
+class MirrorMissing(Fatal):
+    """The second source has no such path (its signed name map does not list it)."""
+
+
 def say(msg: str) -> None:
     if PROGRESS is not None:
         PROGRESS.clear_line()
@@ -266,6 +270,13 @@ _SPKI_PREFIX = bytes.fromhex("302a300506032b6570032100")
 
 
 def load_pubkey(arg: str) -> bytes:
+    k = _load_pubkey(arg)
+    if k not in MIRROR_KEYS:
+        MIRROR_KEYS.append(k)                              # the second source's name map is checked with the keys in use
+    return k
+
+
+def _load_pubkey(arg: str) -> bytes:
     """32 raw bytes from a PEM file, a hex file, `ed25519:<hex|base64>` or bare 64 hex characters."""
     text = arg
     if os.path.isfile(arg):
@@ -291,11 +302,14 @@ def load_pubkey(arg: str) -> bytes:
 
 # ================================================================================================ the source
 class Source:
-    """manifest/files from an http(s) URL, a file:// URL or a folder. `opened` counts what was asked, for the tests."""
+    """manifest/files from an http(s) URL, a file:// URL or a folder. `opened` counts what was asked, for the tests.
+    A Hugging Face dataset URL has a second source behind it (GitHub release assets, see Mirror): a request the first one
+    cannot serve is asked of the second; what comes back is checked exactly as before (signatures, sizes, sha256)."""
 
-    def __init__(self, src: str):
+    def __init__(self, src: str, mirror: bool = True):
         self.src = src
         self.requests = []
+        self.mirror = mirror_for(src) if mirror else None
         if re.match(r"^https?://", src):
             self.kind, self.base = "http", src.rstrip("/")
         elif src.startswith("file://"):
@@ -310,7 +324,32 @@ class Source:
 
     def open(self, rel: str, offset: int, end: int | None = None):
         """(file object, total length or None, True when the bytes start at `offset`). end: the byte after the last one
-        wanted (a slice: Range bytes=offset-(end-1)); the caller still stops reading there, whatever the host sends."""
+        wanted (a slice: Range bytes=offset-(end-1)); the caller still stops reading there, whatever the host sends.
+        A first source that cannot serve it (busy, down, 4xx) hands over to the mirror, which then goes first for the rest
+        of this run; the first source's own error is the one reported when neither can."""
+        global _PREFER_MIRROR
+        if self.mirror is None:
+            return self._open_primary(rel, offset, end)
+        if _PREFER_MIRROR:
+            try:
+                return self.mirror.open(rel, offset, end)
+            except InstallError:
+                pass
+        try:
+            return self._open_primary(rel, offset, end)
+        except InstallError as e:
+            try:
+                got = self.mirror.open(rel, offset, end)
+            except MirrorMissing as e2:
+                raise e2 if isinstance(e, NetError) else e          # the first source was only down: the second one says it is not published
+            except InstallError:
+                raise e
+            if isinstance(e, NetError):
+                _PREFER_MIRROR = True
+            self.requests.append(("mirror:" + rel, offset))
+            return got
+
+    def _open_primary(self, rel: str, offset: int, end: int | None = None):
         self.requests.append((rel, offset))
         if self.kind == "dir":
             p = os.path.join(self.base, *rel.split("/"))
@@ -330,7 +369,7 @@ class Source:
             r = urllib.request.urlopen(req, timeout=30)
         except urllib.error.HTTPError as e:
             if e.code == 416 and offset:
-                return self.open(rel, 0)
+                return self._open_primary(rel, 0)
             if e.code in (408, 429) or e.code >= 500:      # busy or rate-limited (Hugging Face answers 429 to an anonymous burst): wait, try again
                 err = NetError(f"{url}: HTTP {e.code}")
                 ra = (e.headers.get("Retry-After") or "").strip() if e.headers else ""
@@ -357,28 +396,203 @@ def hf_base(repo: str, rev: str) -> str:
     return f"{HF_ENDPOINT.rstrip('/')}/datasets/{repo}/resolve/{urllib.parse.quote(rev, safe='')}"
 
 
-def read_latest(src: "Source", pub: bytes) -> dict:
-    """latest.json on the dataset's `main`, signed with the release key: {format, release, revision, manifest_sha256, updates}."""
-    body, sig = src.read_small("latest.json"), src.read_small("latest.json.sig")
+CHANNELS = ("stable", "beta")
+BETA_POINTER = "latest-beta.json"                        # the beta channel's pointer, signed like latest.json
+
+
+# ================================================================================================ the second source
+# GitHub release assets of MIRROR_REPO (owner 2026-11-15). Layout, written by release/github_mirror.py:
+#   tag data-latest       the pointers: latest.json(.sig), latest-beta.json(.sig)
+#   tag data-<release>    that release: manifest.json(.sig), its files and its update packages
+#   tag data-lists        the answers: manifest.json(.sig), manifest-beta.json(.sig), parts/
+#   tag data-addons       the add-ons: <name>/manifest.json, <name>/files/...
+# Assets are flat and under 2 GiB each, so a tag's `mirror-map.json` (signed with the release key) says which assets make up each
+# path: a path -> one asset, or several consecutive slices of one file (lookup.sqlite.xz is 4.4 GB). The map only translates names:
+# the bytes still have to match the signed manifest's size and sha256, which is the trust root, so a wrong map can only make a
+# download fail.
+MIRROR_REPO = "m8software/logout-search"
+MIRROR_MAP = "mirror-map.json"
+MIRROR_KEYS: list = []                                    # the keys load_pubkey has seen: the map is checked with them
+_PREFER_MIRROR = False
+_ASSET_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+-]{0,199}$")
+
+
+def mirror_base():
+    b = os.environ.get("LOGOUT_MIRROR_BASE")
+    if b:
+        return b.rstrip("/")
+    if os.environ.get("LOGOUT_MIRROR") == "0" or HF_ENDPOINT.rstrip("/") != "https://huggingface.co":
+        return None                                       # tests and other endpoints never reach the real GitHub
+    return f"https://github.com/{MIRROR_REPO}/releases/download"
+
+
+def mirror_for(src: str):
+    base = mirror_base()
+    pre = HF_ENDPOINT.rstrip("/") + "/datasets/"
+    if not base or not src.startswith(pre):
+        return None
+    m = re.match(r"^[^/]+/[^/]+/resolve/([^/]+)(?:/(.*))?$", src[len(pre):])
+    if not m:
+        return None
+    rev, sub = urllib.parse.unquote(m.group(1)), (m.group(2) or "").strip("/")
+    if sub == "":
+        tag, prefix = ("data-latest" if rev == "main" else f"data-{rev}"), ""
+    elif sub == "lists":
+        tag, prefix = "data-lists", ""
+    elif sub.startswith("addons/"):
+        tag, prefix = "data-addons", sub[len("addons/"):] + "/"
+    else:
+        return None
+    return Mirror(base, tag, prefix) if ID_RE.match(tag) else None
+
+
+class Chain:
+    """A byte range of one path that the mirror keeps as one or more assets, read as one stream."""
+
+    def __init__(self, plain: "Source", parts: list):
+        self.plain, self.parts, self.i, self.cur, self.left = plain, parts, 0, None, 0
+
+    def _next(self) -> bool:
+        self.close()
+        if self.i >= len(self.parts):
+            return False
+        name, a, b = self.parts[self.i]
+        self.i += 1
+        r, _total, ok = self.plain._open_primary(name, a, b)
+        if not ok and a:                                   # the host sent the whole asset: skip to the slice
+            todo = a
+            while todo:
+                got = r.read(min(CHUNK, todo))
+                if not got:
+                    raise NetError(f"{name}: ended before byte {a}")
+                todo -= len(got)
+        self.cur, self.left = r, b - a
+        return True
+
+    def read(self, n: int = -1) -> bytes:
+        while True:
+            if self.cur is None and not self._next():
+                return b""
+            want = self.left if n is None or n < 0 else min(n, self.left)
+            data = self.cur.read(want)
+            if data:
+                self.left -= len(data)
+                if self.left <= 0:
+                    self.close()
+                return data
+            if self.left > 0:
+                raise ConnectionError(f"mirror asset ended {self.left} bytes short")
+            self.close()
+
+    def close(self) -> None:
+        if self.cur is not None:
+            try:
+                self.cur.close()
+            finally:
+                self.cur = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+
+class Mirror:
+    def __init__(self, base: str, tag: str, prefix: str):
+        self.base, self.tag, self.prefix = base, tag, prefix
+        self.plain = Source(f"{base}/{tag}", mirror=False)
+        self._files = None
+        self._lock = threading.Lock()
+
+    def files(self) -> dict:
+        with self._lock:
+            if self._files is None:
+                body, sig = self.plain.read_small(MIRROR_MAP), self.plain.read_small(MIRROR_MAP + ".sig")
+                if not MIRROR_KEYS:
+                    raise Fatal("mirror: no pinned key is loaded to check the name map with")
+                if not any(ed25519_verify(k, body, sig) for k in MIRROR_KEYS):
+                    raise Fatal(f"mirror {self.tag}: the name map is not signed by the pinned key: not used")
+                try:
+                    m = json.loads(body)
+                except ValueError as e:
+                    raise Fatal(f"mirror {self.tag}: the name map is not JSON: {e}")
+                if not isinstance(m, dict) or m.get("format") != 1 or m.get("tag") != self.tag or not isinstance(m.get("files"), dict):
+                    raise Fatal(f"mirror {self.tag}: the name map is not format 1 for this tag")
+                for path, ent in m["files"].items():
+                    safe_rel(path)
+                    assets = ent.get("assets") if isinstance(ent, dict) else None
+                    if not assets or any(not isinstance(a, dict) or not _ASSET_RE.match(str(a.get("name"))) or not isinstance(a.get("bytes"), int)
+                                         or a["bytes"] <= 0 for a in assets):
+                        raise Fatal(f"mirror {self.tag}: the name map's entry for {path!r} is malformed")
+                self._files = m["files"]
+            return self._files
+
+    def open(self, rel: str, offset: int, end: int | None = None):
+        ent = self.files().get(self.prefix + rel)
+        if ent is None:
+            raise MirrorMissing(f"mirror {self.tag}: {self.prefix + rel} is not there")
+        total = sum(a["bytes"] for a in ent["assets"])
+        stop = total if end is None else min(end, total)
+        parts, pos = [], 0
+        for a in ent["assets"]:
+            lo, hi = pos, pos + a["bytes"]
+            pos = hi
+            s, e = max(offset, lo), min(stop, hi)
+            if s < e:
+                parts.append((a["name"], s - lo, e - lo))
+        return Chain(self.plain, parts), total, True
+
+
+def read_latest(src: "Source", pub: bytes, name: str = "latest.json") -> dict:
+    """latest.json on the dataset's `main`, signed with the release key: {format, release, revision, manifest_sha256, updates}.
+    name: the pointer's file (latest-beta.json for the beta channel; its signature is name + ".sig")."""
+    body, sig = src.read_small(name), src.read_small(name + ".sig")
     if not ed25519_verify(pub, body, sig):
-        raise Fatal(f"{src.src}: latest.json is not signed by the pinned key: refusing (nothing was downloaded)")
+        raise Fatal(f"{src.src}: {name} is not signed by the pinned key: refusing (nothing was downloaded)")
     try:
         doc = json.loads(body)
     except ValueError as e:
-        raise Fatal(f"latest.json is not JSON: {e}")
+        raise Fatal(f"{name} is not JSON: {e}")
     if doc.get("format") != LATEST_FORMAT:
-        raise Fatal(f"latest.json format {doc.get('format')!r}, this code reads {LATEST_FORMAT}: get a newer installer")
+        raise Fatal(f"{name} format {doc.get('format')!r}, this code reads {LATEST_FORMAT}: get a newer installer")
     for k in ("release", "revision"):
         if not isinstance(doc.get(k), str) or not ID_RE.match(doc[k]):
-            raise Fatal(f"latest.json {k} {doc.get(k)!r} is not a plain name")
+            raise Fatal(f"{name} {k} {doc.get(k)!r} is not a plain name")
     if not re.fullmatch(r"[0-9a-f]{64}", str(doc.get("manifest_sha256", ""))):
-        raise Fatal("latest.json has no manifest_sha256")
+        raise Fatal(f"{name} has no manifest_sha256")
     ups = doc.get("updates") or {}
     if not isinstance(ups, dict) or any(not ID_RE.match(str(k)) for k in ups):
-        raise Fatal("latest.json updates is not a map of release ids")
+        raise Fatal(f"{name} updates is not a map of release ids")
     for p in ups.values():
         safe_rel(p)
+    chain = doc.get("chain") or []                       # the daily hops, oldest first (hf_dataset.py stage --prev); absent = none
+    if not isinstance(chain, list) or len(chain) > 400:
+        raise Fatal("latest.json chain is not a list of hops")
+    for h in chain:
+        if not isinstance(h, dict) or not ID_RE.match(str(h.get("from"))) or not ID_RE.match(str(h.get("to"))) or not isinstance(h.get("bytes"), int):
+            raise Fatal("latest.json chain has a hop that is not {from, to, package, bytes}")
+        safe_rel(h.get("package"))
     return doc
+
+
+def is_missing(e: Exception) -> bool:
+    """A pointer or manifest that is simply not published (HTTP 404, or no such file in a folder source)."""
+    t = str(e)
+    return isinstance(e, Fatal) and ("HTTP 404" in t or "cannot read" in t or "is not there" in t)
+
+
+def read_latest_channel(src: "Source", pub: bytes, channel: str = "stable") -> dict:
+    """The pointer a channel follows. stable: latest.json. beta: latest-beta.json, or latest.json while no beta pointer is
+    published (beta is never behind stable). A pointer that is there but not signed is refused, never skipped."""
+    if channel == "beta":
+        try:
+            return read_latest(src, pub, BETA_POINTER)
+        except Fatal as e:
+            if not is_missing(e):
+                raise
+    return read_latest(src, pub)
 
 
 def resolve_source(arg: str, pub: bytes):
@@ -1269,6 +1483,7 @@ def addon_env(base: str, rid: str) -> dict:
 LISTS_PUBKEY = "ed25519:40502f6841e8644b8f193c10af27e5b148f74297bf6da7067115a60792d138bc"
 LISTS_PUBKEYS = (LISTS_PUBKEY,)
 LISTS_FORMAT = 1
+LISTS_VERIFY_MAX = 16 << 20                           # the re-verification file (about 2 MB) is fetched even on a metered connection up to this size
 LISTS_BIG = 64 << 20                                  # on a metered connection, nothing larger than this is fetched by a LATER update (a new base waits).
                                                       # The first base of an install is always fetched (owner 2026-11-15): the install already downloads ~11 GB
 
@@ -1310,6 +1525,11 @@ def check_lists_manifest(body: bytes) -> dict:
         names.add(t["name"])
     if m.get("base") != parts[0]["name"]:
         raise InstallError("lists manifest base is not its first part")
+    v = m.get("verify")      # the re-verification file (audit DB-03): optional, replaced at each publish
+    if v is not None and not (isinstance(v, dict) and isinstance(v.get("name"), str) and ID_RE.match(v["name"]) and v["name"] not in names
+                              and isinstance(v.get("bytes"), int) and v["bytes"] > 0 and isinstance(v.get("xz_bytes"), int) and v["xz_bytes"] > 0
+                              and re.fullmatch(r"[0-9a-f]{64}", str(v.get("sha256", ""))) and re.fullmatch(r"[0-9a-f]{64}", str(v.get("xz_sha256", "")))):
+        raise InstallError("lists manifest verify entry is malformed")
     lic = m.get("licence")
     if not isinstance(lic, dict) or not lic.get("name") or not isinstance(m.get("notice"), str) or not m["notice"].strip():
         raise InstallError("lists manifest carries no licence name / notice text")
@@ -1359,13 +1579,75 @@ def lists_rekey(path: str, release: str) -> dict:
         db.close()
 
 
-def lists_update(base: str, source: str, pub, metered: bool = False, big: int = LISTS_BIG) -> dict:
+AFFECTED_MAGIC = b"LOAFF1\n"                           # release/release_delta.py `affected --hashes-out`: 8-byte blake2b hashes of the names a data update may change
+
+
+def name_hash(name: str) -> int:
+    return int.from_bytes(hashlib.blake2b(name.encode("utf-8", "replace"), digest_size=8).digest(), "big")
+
+
+def read_affected(path: str):
+    """The set of name hashes in a package's affected.bin, or None when there is none (or it is not one: nothing is assumed)."""
+    try:
+        raw = open(path, "rb").read()
+    except OSError:
+        return None
+    if not raw.startswith(AFFECTED_MAGIC) or (len(raw) - len(AFFECTED_MAGIC)) % 8:
+        return None
+    body = raw[len(AFFECTED_MAGIC):]
+    return {int.from_bytes(body[i:i + 8], "big") for i in range(0, len(body), 8)}
+
+
+def lists_follow(base: str, old: str, new: str, affected) -> dict:
+    """After a data update old -> new: the hand-picked lists and finished answers this install holds for `old` stay valid for
+    `new` except for the names the update may have changed (the publisher's release_delta, as hashes). They are re-keyed to `new`
+    (time kept); the affected ones stay behind and are dropped, and the next lists update brings them for `new`. The lists
+    state is moved to `new`, so the next update takes only the new parts, not the whole base again. Never raises: an update
+    that cannot follow leaves the lists to be taken afresh, as before."""
+    import sqlite3
+    path = os.path.join(base, "store", "results.sqlite")
+    if affected is None or not os.path.isfile(path) or old == new:
+        return {"followed": False}
+    try:
+        db = sqlite3.connect(path, timeout=60)
+        db.create_function("gone", 1, lambda k: 1 if name_hash(str(k).split("\x1f")[0]) in affected else 0, deterministic=True)
+        n = {"followed": True}
+        for t in ("curated", "finished"):
+            if db.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", (t,)).fetchone() is None:
+                continue
+            kept = db.execute(f"UPDATE OR IGNORE {t} SET release = ? WHERE release = ? AND NOT gone(key)", (new, old)).rowcount
+            dropped = db.execute(f"DELETE FROM {t} WHERE release = ?", (old,)).rowcount
+            n[t] = {"kept": kept, "dropped": dropped}
+        db.commit()
+        db.close()
+        st = lists_state(base)
+        if st.get("release") == old:
+            st["release"] = new
+            _lists_save(base, st)
+        return n
+    except Exception as e:  # noqa: BLE001 - following is an optimisation
+        return {"followed": False, "why": f"{type(e).__name__}: {e}"[:200]}
+
+
+def lists_update(base: str, source: str, pub, metered: bool = False, big: int = LISTS_BIG, channel: str = "stable",
+                 skip=()) -> dict:
     """Fetch the lists parts this install has not taken yet and drop them in its store inbox. -> summary.
-    pub: one pinned key (bytes) or several (any one of them must verify the manifest)."""
+    pub: one pinned key (bytes) or several (any one of them must verify the manifest).
+    channel: beta reads manifest-beta.json (or manifest.json while there is none). skip: versions that failed their
+    self-test here (autoupdate.py): never fetched again; a newer version replaces them from its base."""
     t0 = time.time()
     base = os.path.abspath(base)
     src = lists_source(source)
-    body, sig = src.read_small("manifest.json"), src.read_small("manifest.json.sig")
+    body = sig = None
+    if channel == "beta":
+        try:
+            body, sig = src.read_small("manifest-beta.json"), src.read_small("manifest-beta.json.sig")
+        except Fatal as e:
+            if not is_missing(e):
+                raise
+            body = sig = None
+    if body is None:
+        body, sig = src.read_small("manifest.json"), src.read_small("manifest.json.sig")
     pubs = [pub] if isinstance(pub, (bytes, bytearray)) else list(pub)
     if not any(ed25519_verify(k, body, sig) for k in pubs):
         raise InstallError("lists/manifest.json.sig does not verify with the pinned key: nothing was downloaded or written")
@@ -1375,15 +1657,21 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
         raise InstallError(f"{base} has no installed release")
     if not addon_fits(m, cur):
         return {"lists": "skipped", "why": f"the lists fit {m['fits_releases']}, this install is {cur}", "version": m["version"]}
+    if m["version"] in set(skip or ()):
+        return {"lists": "skipped", "why": f"lists {m['version']} failed the self-test here: it waits for a newer version", "version": m["version"]}
     st = lists_state(base)
-    fresh = st.get("base") != m["base"] or st.get("release") != cur
+    quarantined = st.get("quarantine")                       # a failed version was switched off: the next one starts from its base
+    fresh = st.get("base") != m["base"] or st.get("release") != cur or bool(quarantined)
     applied = set() if fresh else set(st.get("applied") or [])
     todo = [t for t in m["parts"] if t["name"] not in applied]
-    if not todo:
+    ver = m.get("verify")
+    vtodo = ver if ver and (fresh or st.get("verify") != ver["xz_sha256"]) else None
+    if not todo and not vtodo:
         return {"lists": "up to date", "version": m["version"], "base": m["base"], "parts": len(m["parts"])}
     size = sum(t["xz_bytes"] for t in todo)
+    vsize = vtodo["xz_bytes"] if vtodo else 0
     first = not st.get("base") or bool(st.get("first_pending"))     # no base taken yet, or the first one was cut short: metered does not hold it back
-    if metered and size > big and not first:
+    if metered and size > big and not first or (metered and not todo and vsize > LISTS_VERIFY_MAX):
         return {"lists": "waiting", "why": f"{size >> 20} MiB to fetch on a metered connection; it waits for an ordinary one",
                 "version": m["version"]}
     store = os.path.join(base, "store")
@@ -1391,11 +1679,11 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
     os.makedirs(inbox, exist_ok=True)
     os.makedirs(work, exist_ok=True)
     free = int(FAKE_FREE) if FAKE_FREE else shutil.disk_usage(base).free
-    need = sum(t["xz_bytes"] + 2 * t["bytes"] for t in todo)
+    need = sum(t["xz_bytes"] + 2 * t["bytes"] for t in todo) + (vtodo["xz_bytes"] + 2 * vtodo["bytes"] if vtodo else 0)
     if free < need:
         raise InstallError(f"not enough disk space in {base}: {free >> 20} MiB free, {need >> 20} MiB needed for the lists")
     if fresh:
-        st = {"base": m["base"], "release": cur, "applied": [], "n": int(st.get("n") or 0)}
+        st = {"base": m["base"], "release": cur, "applied": [], "n": int(st.get("n") or 0)}     # (and no verify taken yet)
         if first:
             st["first_pending"] = True                       # an interrupted first fetch resumes even on a metered connection
     rows = {}
@@ -1416,10 +1704,27 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
         st["applied"] = sorted(set(st["applied"]) | {t["name"]})
         st["version"] = m["version"]
         _lists_save(base, st)
+    if vtodo:
+        # the re-verification of answers that came out unchanged, after every part (the inbox is read in name order): the
+        # rows it names are then the ones this install holds. Skipped when it is not the same publish as the parts taken.
+        xz = os.path.join(work, vtodo["name"] + ".sqlite.xz")
+        download(src, f"parts/{vtodo['name']}.sqlite.xz", xz, vtodo["xz_bytes"], vtodo["xz_sha256"], f"lists {vtodo['name']}")
+        tmp = os.path.join(work, vtodo["name"] + ".sqlite")
+        xz_decode(xz, tmp)
+        os.remove(xz)
+        sha, n = file_digest(tmp)
+        if (n, sha) != (vtodo["bytes"], vtodo["sha256"]):
+            os.remove(tmp)
+            raise InstallError(f"lists {vtodo['name']}: after decoding {n} bytes / {sha[:16]}..., the manifest says {vtodo['bytes']} / {vtodo['sha256'][:16]}...")
+        st["n"] = int(st.get("n") or 0) + 1
+        os.replace(tmp, os.path.join(inbox, f"lists-{st['n']:08d}-{vtodo['name']}.sqlite"))
+        st["verify"] = vtodo["xz_sha256"]
+        st["version"] = m["version"]
+        _lists_save(base, st)
     if st.pop("first_pending", None):
         _lists_save(base, st)
-    return {"lists": "fetched", "version": m["version"], "base": m["base"], "parts_fetched": [t["name"] for t in todo],
-            "bytes": size, "rows": rows, "seconds": round(time.time() - t0, 1)}
+    return {"lists": "fetched", "verify": vtodo["name"] if vtodo else None, "version": m["version"], "base": m["base"], "parts_fetched": [t["name"] for t in todo],
+            "bytes": size, "rows": rows, "seconds": round(time.time() - t0, 1), **({"was_quarantined": quarantined} if quarantined else {})}
 
 
 def lists_command(a) -> dict:
@@ -1441,7 +1746,8 @@ def lists_command(a) -> dict:
             metered = bool(netcost.metered())
         except Exception:  # noqa: BLE001
             metered = False
-    return lists_update(base, a.source, [load_pubkey(a.pubkey)] if a.pubkey else [load_pubkey(k) for k in LISTS_PUBKEYS], metered)
+    return lists_update(base, a.source, [load_pubkey(a.pubkey)] if a.pubkey else [load_pubkey(k) for k in LISTS_PUBKEYS], metered,
+                        channel=a.channel, skip=[v for v in a.skip.split(",") if v])
 
 
 # ================================================================================================ smoke test
@@ -1583,6 +1889,8 @@ def engine_env(base: str, port: int = 8090) -> dict:
     # as the public site does (owner 2026-11-14). A value already in the environment wins.
     for k, v in PUBLIC_TUNING.items():
         env[k] = os.environ.get(k, v)
+    if lists_state(base).get("quarantine"):                          # answers that failed their self-test: this engine answers live (autoupdate.py)
+        env["SEARCH_CURATED"] = env["SEARCH_FINISHED"] = "0"
     if "SEARCH_SE_INDEX" in env:
         env["SEARCH_SE_POOL"] = os.environ.get("SEARCH_SE_POOL", "8")
     # the store: hand-picked lists, finished answers and departments arrive in its inbox (`lists update`); this engine's own
@@ -1705,6 +2013,8 @@ def main():
     ls.add_argument("--dest", required=True)
     ls.add_argument("--source", help="update: the same --source as the release (hf:ORG/NAME or a URL/folder); the lists are under lists/")
     ls.add_argument("--pubkey", help="update: the key that signed the lists (default: the release key)")
+    ls.add_argument("--channel", choices=CHANNELS, default="stable", help="update: beta follows manifest-beta.json")
+    ls.add_argument("--skip", default="", help="update: comma-separated lists versions that failed their self-test here (never fetched again)")
     ls.add_argument("--metered", choices=["auto", "yes", "no"], default="no",
                     help="update: on a metered connection a later update larger than 64 MiB waits; the first base of an install is always fetched (auto: ask the system)")
     t = sp.add_parser("status")

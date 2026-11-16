@@ -247,6 +247,7 @@ def site_pages(path: str, host: str, words: list[str], limit: int = 3) -> list[t
     """[(url, title)] of the pages of `host` that hold every word in their address words or title, shallowest first."""
     if not path or not words:
         return []
+    db = None
     try:
         db = sqlite3.connect(f"file:{path}?mode=ro", uri=True, check_same_thread=False)
         row = db.execute("SELECT n FROM site_hosts WHERE host = ?", (host,)).fetchone()
@@ -254,9 +255,14 @@ def site_pages(path: str, host: str, words: list[str], limit: int = 3) -> list[t
             return []
         clause = " AND ".join('({words title} : "%s")' % w.replace('"', "") for w in words)
         q = f"site : s{row[0]} AND {clause}"
+        # shallowest first among ALL the matches (audit DB-07: LIMIT 50 in rowid order dropped a host's shallowest page)
         rows = db.execute("SELECT p.host, p.path, coalesce(p.title, '') FROM site_pages_fts f JOIN site_pages p ON p.id = f.rowid "
-                          "WHERE site_pages_fts MATCH ? LIMIT 50", (q,)).fetchall()
+                          "WHERE site_pages_fts MATCH ? ORDER BY length(p.path) - length(replace(p.path, '/', '')), length(p.path), p.id LIMIT ?",
+                          (q, max(limit, 1))).fetchall()
     except sqlite3.Error:
         return []
+    finally:
+        if db is not None:
+            db.close()             # was never closed: one leaked connection a call
     rows.sort(key=lambda r: (r[1].count("/"), len(r[1])))
     return [(f"https://{h}{p}", t) for h, p, t in rows[:limit]]

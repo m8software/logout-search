@@ -48,7 +48,7 @@ def _rv():
 
 def key_diff(old_lookup: str, new_lookup: str):
     """(removed keys, added keys, keys in the new release): DISTINCT suggest_keys.key, sorted, as build.py typo() reads them."""
-    db = sqlite3.connect(":memory:")
+    db = sqlite3.connect(":memory:", uri=True)      # uri=True: ATTACH of a file: URI needs it on the main connection (audit DB-01)
     db.execute("ATTACH ? AS o", (f"file:{old_lookup}?mode=ro",))
     db.execute("ATTACH ? AS n", (f"file:{new_lookup}?mode=ro",))
     rm = [r[0] for r in db.execute("SELECT key FROM (SELECT DISTINCT key FROM o.suggest_keys) WHERE key NOT IN (SELECT key FROM n.suggest_keys) ORDER BY key")]

@@ -8,7 +8,14 @@ API="${REPO}/apps/search/serve/api" "$PY" - <<'PY'
 import os, sys, types
 sys.modules.setdefault("psycopg", types.ModuleType("psycopg"))
 sys.path.insert(0, os.environ["API"])
-import search_api as s
+import search_api as _real
+# the engine's code is split over search_api.py and stage_*.py: a stand-in must replace the name in every module that holds it
+class _NS:
+    def __getattr__(self, n): return getattr(_real, n)
+    def __setattr__(self, n, v):
+        for m in [_real] + [x for k, x in list(sys.modules.items()) if k.startswith("stage_") and k != "stage_version" and isinstance(x, types.ModuleType)]:
+            if hasattr(m, n): setattr(m, n, v)
+s = _NS()
 fails = 0
 def check(name, ok, detail=""):
     global fails

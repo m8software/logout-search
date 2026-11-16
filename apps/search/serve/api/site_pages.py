@@ -22,6 +22,7 @@ import sqlite3
 import threading
 import unicodedata
 import urllib.parse
+import weakref
 
 try:                      # feat/intent-slots: one reading of "name + words" for both, when that module is present
     import site_slots as _S
@@ -95,6 +96,7 @@ class SitePages:
     def __init__(self, path: str):
         self.path = path
         self._tl = threading.local()
+        _PAGES.add(self)
         db = self._db()
         self.by_reg: dict[str, list[tuple[str, int, int]]] = {}
         for host, n, pages in db.execute("SELECT host, host_id, pages FROM site_hosts"):
@@ -107,6 +109,16 @@ class SitePages:
             c = sqlite3.connect(f"file:{self.path}?mode=ro&immutable=1", uri=True)
             self._tl.c = c
         return c
+
+    def release(self) -> None:
+        """Close THIS thread's connection (audit DB-08)."""
+        c = getattr(self._tl, "c", None)
+        if c is not None:
+            self._tl.c = None
+            try:
+                c.close()
+            except sqlite3.Error:
+                pass
 
     def __len__(self) -> int:
         return len(self.by_reg)
@@ -158,3 +170,12 @@ def row_title(r: dict) -> str:
     path = urllib.parse.unquote(urllib.parse.urlsplit(r["url"]).path)
     w = [x for x in re.split(r"[-_/+.\s]+", path) if x and not x.isdigit()]
     return (" ".join(w).strip().title() or r["host"]) + " — " + r["host"]
+
+
+_PAGES: "weakref.WeakSet" = weakref.WeakSet()
+
+
+def release_thread() -> None:
+    """Close the calling thread's connection of every open SitePages (search_api Handler.finish)."""
+    for t in list(_PAGES):
+        t.release()

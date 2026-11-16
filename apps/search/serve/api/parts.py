@@ -30,7 +30,7 @@ from stage_version import Module
 FORMAT = 1                                    # the key's layout; a change retires every part
 # ContextVars that only observe or steer the request (timing, tracing, which store a row came from), never the output
 INSTRUMENTATION = frozenset(("_stages", "_stages_cpu", "_trace", "_trace_n", "_trace_more", "_warm", "_audit", "_pcheck", "_part_keys",
-                             "_store_note", "_prev_served", "_cache_state", "_parts_off"))
+                             "_store_note", "_prev_served", "_cache_state", "_parts_off", "_prov"))
 
 
 def _plain(x):

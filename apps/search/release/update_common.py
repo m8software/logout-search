@@ -327,7 +327,8 @@ def sqlite_diff(old: str, new: str, role: str, registry_new: str = None, only=No
         pages = page_diff(old, new)
         if pages != [-1]:
             fts_pages = owner_tables(new, pages) if pages else set()
-            only = set(fts_pages) & set(pn + rn)
+            # an R*Tree keeps its rows in <t>_node/_rowid/_parent, which dbstat reports under those names: the table owns them (audit DB-02)
+            only = {t for t in pn + rn if t in fts_pages or (t in rn and any(x.startswith(t + "_") for x in fts_pages))}
     for t in sorted(pn + rn):
         if only is not None and t not in only:
             continue
@@ -612,16 +613,20 @@ def tv_sort_segments(path: str) -> bool:
     """Put meta.json's segment list in segment_id order, after release_v1.tv_normalize. Tantivy writes the list in an order that
     differs from run to run once an index has 3 or more segments (measured: two identical typo_month chains, every FILE
     byte-identical, only meta.json's segment order different), so without this a delta build is not reproducible. The order is
-    not meaningful to Tantivy. Returns True when it rewrote the file (a one-segment index is left byte for byte as it was)."""
+    not meaningful to Tantivy. Multi-segment indexes are always rewritten in compact JSON even if the random initial order
+    already matched sorted order (otherwise one run keeps Tantivy's indented formatting while another gets compact JSON).
+    Returns True when it rewrote the file (a one-segment index is left byte for byte as it was)."""
     p = os.path.join(path, "meta.json")
     raw = open(p, encoding="utf-8").read()
     meta = json.loads(raw)
     segs = meta.get("segments", [])
-    ordered = sorted(segs, key=lambda x: x["segment_id"])
-    if ordered == segs:
+    if len(segs) <= 1:
         return False
-    meta["segments"] = ordered
-    open(p, "w", encoding="utf-8").write(json.dumps(meta, separators=(",", ":")))
+    meta["segments"] = sorted(segs, key=lambda x: x["segment_id"])
+    text = json.dumps(meta, separators=(",", ":"))
+    if text == raw:
+        return False
+    open(p, "w", encoding="utf-8").write(text)
     return True
 
 

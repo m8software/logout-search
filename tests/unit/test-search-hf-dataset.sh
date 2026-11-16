@@ -308,4 +308,62 @@ if cmp -s <("${HF[@]}" card "$tmp/pub-fx-2" --repo test-org/logout-search --pubk
     ok "card reproduces the staged README byte for byte (a wording change needs no new release)"
 else bad "card != staged README"; fi
 
+echo ""; echo "=== 6. the chain of daily updates (stage --prev), and how an install walks it ==="
+ST1="$tmp/stage-c1"; ST2="$tmp/stage-c2"
+"${HF[@]}" stage "$tmp/pub-fx-1" "$ST1" --repo test-org/logout-search --sign "$tmp/a.pem" --update "$tmp/pkg-0-1" --test-key >/dev/null 2>&1 \
+    && "${HF[@]}" stage "$tmp/pub-fx-2" "$ST2" --repo test-org/logout-search --sign "$tmp/a.pem" --update "$tmp/pkg-1-2" --prev "$ST1" --test-key >/dev/null 2>&1 \
+    && ok "stage --prev: fx-2 staged on top of fx-1's folder" || bad "chain stage failed"
+out=$(python3 - "$ST2" <<'PY'
+import json, os, sys
+d = json.load(open(sys.argv[1] + "/latest.json"))
+print("chain", [(h["from"], h["to"], h["package"]) for h in d["chain"]])
+print("updates", sorted(d["updates"]))
+print("old hop kept", os.path.isfile(sys.argv[1] + "/updates/fx-0/package.json") and os.path.isfile(sys.argv[1] + "/updates/fx-0/update.json"))
+PY
+)
+grep -qx "chain \[('fx-0', 'fx-1', 'updates/fx-0'), ('fx-1', 'fx-2', 'updates/fx-1')\]" <<<"$out" && ok "latest.json's chain lists both hops, oldest first, ending at the release" || bad "chain" "$out"
+grep -qx "updates \['fx-1'\]" <<<"$out" && ok "updates (the one-step map) still holds only the hop from the previous release" || bad "updates map" "$out"
+grep -qx "old hop kept True" <<<"$out" && ok "the earlier hop's folder is in the new stage (upload keeps it: it is not stale)" || bad "old hop missing" "$out"
+out=$("${HF[@]}" check "$ST2" --pubkey "$tmp/a.pub" 2>&1) && grep -q '"ok": true' <<<"$out" && ok "check passes a stage with a chain (every hop's signature and files)" || bad "check chain" "$out"
+cp -r "$ST2" "$tmp/st-cx"; printf 'X' | dd of="$tmp/st-cx/updates/fx-0/blobs/aa.zst" bs=1 seek=10 conv=notrunc 2>/dev/null
+refused "check refuses a changed file in an EARLIER hop" "wrong sha256" "${HF[@]}" check "$tmp/st-cx" --pubkey "$tmp/a.pub"
+out=$("${HF[@]}" stage "$tmp/pub-fx-2" "$tmp/stage-c3" --repo test-org/logout-search --sign "$tmp/a.pem" --update "$tmp/pkg-1-2" --prev "$ST1" --chain-max 1 --test-key 2>&1) \
+    && [[ "$(python3 -c "import json,sys; d=json.load(open(sys.argv[1]+'/latest.json')); print(len(d['chain']))" "$tmp/stage-c3")" == 1 ]] && [[ ! -e "$tmp/stage-c3/updates/fx-0" ]] \
+    && ok "--chain-max 1 keeps only the newest hop and drops the older folder" || bad "chain-max" "$out"
+out=$(REL="$REL" python3 - "$ST2" <<'PY' 2>&1
+import json, os, sys
+sys.path.insert(0, os.environ["REL"])
+import update_fetch as uf
+d = json.load(open(sys.argv[1] + "/latest.json"))
+f = lambda c: [(h["from"], h["to"]) for h in (uf.hops_from(d, c) or [])]
+print("from fx-0", f("fx-0")); print("from fx-1", f("fx-1")); print("from zz", f("zz")); print("from fx-2", f("fx-2"))
+PY
+)
+grep -qx "from fx-0 \[('fx-0', 'fx-1'), ('fx-1', 'fx-2')\]" <<<"$out" && grep -qx "from fx-1 \[('fx-1', 'fx-2')\]" <<<"$out" && grep -qx "from zz \[\]" <<<"$out" \
+    && ok "an install on fx-0 walks two hops, on fx-1 one, on an unknown release none (full install)" || bad "hops_from" "$out"
+out=$(REL="$REL" python3 - "$ST2" <<'PY' 2>&1
+import json, os, sys
+sys.path.insert(0, os.environ["REL"])
+import update_fetch as uf
+d = json.load(open(sys.argv[1] + "/latest.json"))
+d["chain"] = d["chain"][:1]; d["updates"] = {}
+print("short", uf.hops_from(d, "fx-0"))
+uf.plan = lambda *a, **k: {"action": "update", "current": "fx-0", "latest": "fx-2", "bytes": 100 << 20, "hops": [{"from": "fx-0", "to": "fx-1", "package": "x"}]}
+r = uf.fetch("/nonexistent", "x", b"", metered=True)
+print("metered", r["action"])
+PY
+)
+grep -qx "short None" <<<"$out" && grep -qx "metered waiting" <<<"$out" && ok "a chain that stops short is no path; a metered connection leaves a big update waiting (nothing fetched)" || bad "short chain / metered" "$out"
+
+echo ""; echo "=== 7. data-update-publish.sh (the publisher's one command): its guards ==="
+DUP="$REPO_ROOT/apps/search/release/data-update-publish.sh"
+out=$(env -u KEY bash "$DUP" "$tmp/pub-fx-1" "$tmp/pub-fx-2" "$tmp/pub-fx-2" "" "$tmp/dup-out" 2>&1); rc=$?
+[[ $rc -ne 0 ]] && grep -q "KEY must name the release key" <<<"$out" && ok "no KEY: refused, nothing built" || bad "no KEY" "rc=$rc $out"
+mkdir -p "$tmp/dup-exists"
+out=$(KEY="$tmp/a.pem" bash "$DUP" "$tmp/pub-fx-1" "$tmp/pub-fx-2" "$tmp/pub-fx-2" "" "$tmp/dup-exists" 2>&1); rc=$?
+[[ $rc -ne 0 ]] && grep -q "exists" <<<"$out" && ok "an existing OUT is refused (a run never builds on another)" || bad "existing OUT" "rc=$rc $out"
+out=$(KEY="$tmp/a.pem" bash "$DUP" "$tmp/pub-fx-1" "$tmp/pub-fx-2" "$tmp/pub-fx-2" "$tmp/nope" "$tmp/dup-new" 2>&1); rc=$?
+[[ $rc -ne 0 ]] && grep -q "PREV_STAGE has no latest.json" <<<"$out" && ok "a PREV_STAGE without latest.json is refused" || bad "bad PREV" "rc=$rc $out"
+! grep -q "BEGIN" <<<"$out" && ok "the key is never printed" || bad "key text in the output"
+
 finish

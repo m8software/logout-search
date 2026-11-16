@@ -34,7 +34,7 @@ NEWS = os.path.join(SEARCH, "news")
 
 # what the engine image copies (serve/api/Dockerfile), less the servers' own tools; shipped on disk so search_api.py runs as a file
 ENGINE_FILES = ["search_api.py", "lookups_sqlite.py", "lookups_release.py", "kinds_release.py", "tv_open.py", "release_root.py",
-                "sem_ivf.py", "site_pages.py", "product_table.py", "gov_state.py", "site_slots.py", "state_anchor.py", "result_store.py", "compute_cache.py", "parts.py", "stage_version.py", "facts.py", "news_sqlite.py", "instant_answers.py", "ranker.json", "warm.py",
+                "sem_ivf.py", "site_pages.py", "product_table.py", "gov_state.py", "site_slots.py", "state_anchor.py", "result_store.py", "compute_cache.py", "provenance.py", "parts.py", "stage_version.py", "stage_assembly.py", "stage_local.py", "stage_verdict.py", "stage_place.py", "stage_list.py", "stage_card.py", "stage_base.py", "stage_parts.py", "facts.py", "news_sqlite.py", "instant_answers.py", "ranker.json", "shop_stores.json", "warm.py",
                 "native_host.py", "rtc_peer.py", "av_absent.py", "NOTICE"]
 ENGINE_DIRS = ["licenses"]
 # the collectors `start` runs beside the engine (news, scores, weather), shipped on disk like the engine's own files.
@@ -43,7 +43,7 @@ NEWS_FILES = ["poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py", "schem
 # analysed with the launcher so every library and standard-library module they import is in the bundle
 ANALYSED = [os.path.join(INSTALLER, "logout_search.py"), os.path.join(ENGINE, "search_api.py"), os.path.join(ENGINE, "native_host.py"),
             os.path.join(ENGINE, "rtc_peer.py"), os.path.join(ENGINE, "av_absent.py"), os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py"),
-            os.path.join(INSTALLER, "autoupdate.py")] + [os.path.join(NEWS, f) for f in ("poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py")]
+            os.path.join(INSTALLER, "autoupdate.py"), os.path.join(INSTALLER, "selftest.py"), os.path.join(INSTALLER, "doctor.py")] + [os.path.join(NEWS, f) for f in ("poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py")]
 ICON = os.path.join(HERE, "logout-search.ico")
 COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary",
                "aiortc", "aioice", "pylibsrtp", "google_crc32c", "qrcode"]      # the peer (other devices pair through it)
@@ -191,7 +191,9 @@ def smoke(folder: str) -> None:
     print("  libraries: " + ", ".join(f"{k} {imp[k]}" for k in ("numpy", "tantivy", "onnxruntime", "tokenizers", "psycopg")))
     with tempfile.TemporaryDirectory() as t:              # the updater is in the bundle and answers
         au = json.loads(run("autoupdate", "status", "--dest", t))
-        assert au["enabled"] is True, au
+        assert au["enabled"] is True and au["channel"] == "stable", au
+        doc = run("doctor", "--dest", t, "--port", "1")      # the report is in the bundle and works with no engine and no install
+        assert "logout search doctor" in doc and "engine: not running" in doc, doc
     imp_z = json.loads(run("engine", "--check-imports"))
     assert imp_z.get("zstd") is True, imp_z                 # a zstd release (the publisher's default) unpacks as it downloads
     net = json.loads(run("net-check"))                   # HTTPS with certificates checked, as setup and the updater need
