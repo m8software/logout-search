@@ -1,0 +1,47 @@
+# Makes a release the one everyone gets: not a pre-release, marked latest (what the download page and the stable update channel follow).
+# A tag promote-v0.4.24 promotes v0.4.24; promote-v0.4.23 puts v0.4.23 back as latest (the rollback). Nothing else changes.
+# First it checks the release has every file and that SHA256SUMS lists them.
+name: promote
+
+on:
+  push:
+    tags: ["promote-*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to make the latest"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Check the release, then make it the latest
+        run: |
+          set -euo pipefail
+          tag="${{ inputs.tag || github.ref_name }}"
+          tag="${tag#promote-}"
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::not a release tag: $tag"; exit 1; }
+          gh release view "$tag" --repo "$REPO" --json assets,isPrerelease,isDraft > rel.json
+          python3 - "$tag" <<'PY'
+          import json, sys
+          tag = sys.argv[1]
+          r = json.load(open("rel.json"))
+          names = {a["name"] for a in r["assets"]}
+          want = {"SHA256SUMS", "logout-search-setup.exe", "logout-search-linux-x86_64.tar.gz", "logout-search-macos-arm64.tar.gz",
+                  "logout-search-windows-x86_64.zip", f"logout-search-{tag}.tar.gz", f"logout-search-installer-{tag}.tar.gz"}
+          if r["isDraft"] or want - names:
+              sys.exit(f"::error::{tag}: draft={r['isDraft']} missing {sorted(want - names)}")
+          PY
+          mkdir dl && cd dl
+          gh release download "$tag" --repo "$REPO" --pattern SHA256SUMS --pattern 'logout-search-*'
+          sha256sum -c SHA256SUMS
+          cd ..
+          gh release edit "$tag" --repo "$REPO" --prerelease=false --latest
+          gh release view "$tag" --repo "$REPO" --json tagName,isPrerelease | tee -a "$GITHUB_STEP_SUMMARY"
