@@ -1676,6 +1676,9 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
                 "version": m["version"]}
     store = os.path.join(base, "store")
     inbox, work = os.path.join(store, "inbox"), os.path.join(store, ".lists")
+    if quarantined:
+        inbox = os.path.join(store, "held")                  # the running engine has the answers off and would take a part out of the
+                                                             # inbox and delete it unread: the parts wait here until it starts again
     os.makedirs(inbox, exist_ok=True)
     os.makedirs(work, exist_ok=True)
     free = int(FAKE_FREE) if FAKE_FREE else shutil.disk_usage(base).free
@@ -1829,6 +1832,19 @@ PUBLIC_ONLY = {
 }
 
 
+def _move_lists_parts(base: str, frm: str, to: str) -> None:
+    """lists-*.sqlite from store/<frm> to store/<to> (names kept: the engine reads the inbox in name order). Never raises."""
+    try:
+        src, dst = os.path.join(base, "store", frm), os.path.join(base, "store", to)
+        names = sorted(n for n in os.listdir(src) if n.startswith("lists-") and n.endswith(".sqlite"))
+        if names:
+            os.makedirs(dst, exist_ok=True)
+        for n in names:
+            os.replace(os.path.join(src, n), os.path.join(dst, n))
+    except OSError:
+        pass
+
+
 def engine_env(base: str, port: int = 8090) -> dict:
     """The environment search_api.py needs to answer from BASE/current (names read from search_api.py, not guessed)."""
     cur = os.path.join(base, "current")
@@ -1891,6 +1907,9 @@ def engine_env(base: str, port: int = 8090) -> dict:
         env[k] = os.environ.get(k, v)
     if lists_state(base).get("quarantine"):                          # answers that failed their self-test: this engine answers live (autoupdate.py)
         env["SEARCH_CURATED"] = env["SEARCH_FINISHED"] = "0"
+        _move_lists_parts(base, "inbox", "held")                     # an engine with them off deletes an inbox part unread: keep them out of its way
+    else:
+        _move_lists_parts(base, "held", "inbox")                     # parts fetched while it was off: this engine has the answers on
     if "SEARCH_SE_INDEX" in env:
         env["SEARCH_SE_POOL"] = os.environ.get("SEARCH_SE_POOL", "8")
     # the store: hand-picked lists, finished answers and departments arrive in its inbox (`lists update`); this engine's own

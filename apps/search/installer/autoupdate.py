@@ -65,7 +65,10 @@ OVERDUE_S = 36 * 3600                   # a computer that was off in the window 
 FIRST_DELAY_S = 600                     # never in the first minutes after a start: the index is loading
 API_RELEASES = f"https://api.github.com/repos/{REPO}/releases?per_page=100"
 CHANNELS = ("stable", "beta")
-INBOX_WAIT_S = 600                       # how long a lists part may take the engine to read before it is tested
+INBOX_CEILING_S = 6 * 3600               # the longest ONE look waits for the engine to take in an answers part (then: "not yet", never off)
+INBOX_STALL_S = 1800                     # ... or the engine making no progress (the store file not growing) for this long: "not yet"
+PENDING_RECHECK_S = 900                  # a take-in that is "not yet" is looked at again this often
+OLD_TIMEOUT_WHY = "the engine had not taken in the answers parts after"     # v0.4.24-v0.4.25 switched the answers off for this (buildbox, 2026-11-16)
 ASSETS = {"win32": "logout-search-setup.exe", "linux": "logout-search-linux-x86_64.tar.gz",
           "darwin": "logout-search-macos-arm64.tar.gz"}
 
@@ -102,8 +105,13 @@ def due(s: dict, now: float, started: float) -> bool:
         return False
     if s.get("requested"):
         return True
+    pend = s.get("lists_pending")
+    if isinstance(pend, dict) and now - started >= 120 and now - float(pend.get("checked") or 0) >= PENDING_RECHECK_S:
+        return True                                        # an answers part that was "not yet": look again
     if now - started < FIRST_DELAY_S:
         return False
+    if s.get("followup"):
+        return True                                        # a program update in the night window: the rest of the night's check now
     last = float(s.get("last_check") or 0)
     if now - last >= OVERDUE_S:
         return True
@@ -422,13 +430,42 @@ def quarantined(data: str):
         return None
 
 
-def wait_inbox(data: str, timeout: float = INBOX_WAIT_S, sleep=time.sleep, clock=time.monotonic) -> str:
-    """"" when the engine has taken in every lists part; else why not (a refused part is renamed *.bad by the engine)."""
-    inbox = os.path.join(data, "store", "inbox")
-    t0 = clock()
+def lists_waiting(data: str) -> list:
+    """The answers parts in the engine's inbox that it has not taken in yet."""
+    try:
+        return [n for n in os.listdir(os.path.join(data, "store", "inbox")) if n.startswith("lists-") and n.endswith(".sqlite")]
+    except OSError:
+        return []
+
+
+def intake_running(data: str) -> bool:
+    """An answers part is in the inbox: the engine is taking it in (or about to). Nothing may restart it meanwhile."""
+    return bool(lists_waiting(data))
+
+
+def store_sig(data: str) -> tuple:
+    """Size and time of the engine's store files: they change while it takes a part in (the write-ahead file grows)."""
+    out = []
+    for n in ("results.sqlite", "results.sqlite-wal"):
+        try:
+            st = os.stat(os.path.join(data, "store", n))
+            out.append((st.st_size, st.st_mtime_ns))
+        except OSError:
+            out.append(None)
+    return tuple(out)
+
+
+def wait_inbox(data: str, ceiling: float = INBOX_CEILING_S, stall: float = INBOX_STALL_S, sleep=time.sleep, clock=time.monotonic,
+               progress=None) -> str:
+    """"" when the engine has taken in every answers part. "the engine refused ..." when it refused one (a real failure: it renames
+    the part *.bad). "pending: ..." when it is still at it after the ceiling, or shows no progress for the stall time: that is
+    NOT a failure, only "not yet" (a slow disk, a virus scanner: buildbox took 10 minutes for 2.4 GB), and nothing is switched off."""
+    progress = progress or (lambda: store_sig(data))
+    t0 = last = clock()
+    sig = progress()
     while True:
         try:
-            names = os.listdir(inbox)
+            names = os.listdir(os.path.join(data, "store", "inbox"))
         except OSError:
             return ""
         bad = [n for n in names if n.startswith("lists-") and n.endswith(".bad")]
@@ -436,8 +473,14 @@ def wait_inbox(data: str, timeout: float = INBOX_WAIT_S, sleep=time.sleep, clock
             return f"the engine refused {len(bad)} answers part(s) ({bad[0]})"
         if not [n for n in names if n.startswith("lists-") and n.endswith(".sqlite")]:
             return ""
-        if clock() - t0 >= timeout:
-            return f"the engine had not taken in the answers parts after {int(timeout)} s"
+        now = clock()
+        cur = progress()
+        if cur != sig:
+            sig, last = cur, now
+        if now - t0 >= ceiling:
+            return f"pending: the answers parts are still being taken in after {ceiling / 3600:.1f} h"
+        if now - last >= stall:
+            return f"pending: the engine has shown no progress taking in the answers parts for {int(stall / 60)} min"
         sleep(5)
 
 
@@ -517,6 +560,12 @@ def verify(data: str, *, platform: str, program: list, port: int, state: str, ha
     if not isinstance(v, dict):
         return None
     save(data, s)
+    if v.get("kind") == "lists":
+        # the answers part is taken in by the engine now, which takes minutes (hours on a slow disk): never waited for here, the
+        # start must go on. The next look (due(): lists_pending) waits for it and tests it. Nothing is switched off for being slow.
+        s["lists_pending"] = {"version": str(v.get("to")), "since": int(time.time()), "checked": 0, "why": "taken in after the restart"}
+        save(data, s)
+        return None
     stale = (now or time.time()) - float(v.get("at") or 0) > 7 * DAY
     took = (v.get("kind") != "program" or mine is None or parse_version(mine) == parse_version(v.get("to"))) and \
            (v.get("kind") != "data" or current(data) == v.get("to"))
@@ -542,10 +591,17 @@ def verify(data: str, *, platform: str, program: list, port: int, state: str, ha
 
 def lists_verify(data: str, s: dict, version, *, port: int, platform: str, program: list, has_se: bool = False, run=None,
                  wait=wait_inbox, runner=subprocess.run, current=current_release) -> str | None:
-    """A new answers file that needs no restart: wait for the engine to take it in, test it in place, and switch it off when
-    the test fails. -> "restart" when it was switched off."""
+    """A new answers file that needs no restart: wait for the engine to take it in, test it in place, and switch it off only
+    when it REALLY fails: the engine refused a part, or it does not answer the fixed searches after taking it in. A take-in
+    that is only slow is "not yet": s["lists_pending"] is kept and the next look (due() asks for one) tests it later.
+    -> "restart" when it was switched off, else None."""
     import selftest
     why = wait(data)
+    if why.startswith("pending:"):
+        prev = s.get("lists_pending") if isinstance(s.get("lists_pending"), dict) else {}
+        s["lists_pending"] = {"version": str(version), "since": prev.get("since") or int(time.time()), "checked": int(time.time()), "why": why[:300]}
+        return None
+    s.pop("lists_pending", None)
     res = None
     if not why:
         res = (run or selftest.run)(port, data, current(data), has_se=has_se, quarantined=bool(quarantined(data)))
@@ -561,6 +617,26 @@ def lists_verify(data: str, s: dict, version, *, port: int, platform: str, progr
                   current=current)
 
 
+def heal_wanted(data: str, s: dict) -> bool:
+    """An install that v0.4.24-v0.4.25 switched the answers off only because the take-in was slow (the recorded reason is the old
+    timeout): it clears that by itself, fetches the answers again and takes them in (check() below)."""
+    r = s.get("rollback")
+    return bool(quarantined(data)) and isinstance(r, dict) and r.get("kind") == "lists" and str(r.get("why") or "").startswith(OLD_TIMEOUT_WHY)
+
+
+def heal(data: str, s: dict) -> None:
+    """The answers file that was switched off for a slow take-in may be tried again: it is taken off the failed list and the
+    quarantine stays until lists_update has fetched it afresh (that is what clears it, and holds the part outside the inbox until
+    the engine has started again with the answers on)."""
+    v = quarantined(data)
+    f = s.get("failed")
+    if isinstance(f, dict) and isinstance(f.get("lists"), list):
+        f["lists"] = [x for x in f["lists"] if x != v]
+        if not f["lists"]:
+            f.pop("lists")
+    s["rollback"] = dict(s["rollback"], healed=int(time.time()), result=str(s["rollback"].get("result") or "") + " (healed: fetched again)")
+
+
 # ================================================================================================ one check
 def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, program: list, source: str, pubkey: str,
           fetch=None, opener=None, runner=subprocess.run, now=None, port: int | None = None, has_se: bool = False,
@@ -570,14 +646,41 @@ def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, progr
     in-place test of a new answers file."""
     s = load(data)
     s.update(requested=False, last_check=now or time.time())
+    s.pop("followup", None)
     ch = channel_of(s)
     result, act = [], None
+    # 1. an answers part that was "not yet": look at it again (waits while the engine makes progress); only a real failure
+    #    switches the answers off
+    if isinstance(s.get("lists_pending"), dict):
+        if port:
+            save(data, s)
+            back = lists_verify(data, s, s["lists_pending"].get("version"), port=port, platform=platform, program=program, has_se=has_se,
+                                run=selftest_run, wait=wait, runner=runner)
+            if back:
+                s["last_result"] = "answers file failed its self-test: switched off"
+                save(data, s)
+                return back
+            if not s.get("lists_pending"):
+                result.append("answers file taken in and tested")
+        else:
+            s.pop("lists_pending", None)                   # no running engine to ask: nothing to test here
+    # 2. NOTHING restarts the engine while it is taking answers in (a restart killed buildbox's take-in half way, 2026-11-16)
+    if intake_running(data):
+        s["last_result"] = "; ".join(result + ["the answers are being taken in: other updates wait"])[:400]
+        save(data, s)
+        return None
+    # 3. self-heal: answers switched off by v0.4.24-v0.4.25 only because the take-in was slow
+    if heal_wanted(data, s):
+        heal(data, s)
+        result.append("answers switched off for a slow take-in: fetched again")
     try:
         p = program_update(base, platform, mine, app_dir, latest_release(fetch, ch), opener, runner, skip=failed_list(s, "program"))
         s["program"] = p
         if p["action"] != "none":
             result.append(f"program {mine} -> {p['version']}")
             act = p["action"]
+            if in_window(s, now or time.time()):
+                s["followup"] = True                       # the night's check goes on right after the restart (data and answers)
             begin_verify(s, "program", mine, p["version"], **({"setup": p["setup"]} if p.get("setup") else {}))
     except Exception as e:  # noqa: BLE001 - an update that fails leaves everything as it was
         s["program"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
