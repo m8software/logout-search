@@ -60,8 +60,11 @@ jobs:
           # the one thing a double-click does not do: the destination, because the first drive may not have room
           $env:LOGOUT_METERED = "1"        # the answers file must come down even on a metered connection
           $t0 = Get-Date
-          $p = Start-Process -FilePath .\logout-search-setup.exe -ArgumentList "--dest", $env:DEST -PassThru -Wait `
+          # no -Wait: it waits for every process the setup starts, and setup leaves the tray and the engine running (it never returns)
+          $p = Start-Process -FilePath .\logout-search-setup.exe -ArgumentList "--dest", $env:DEST -PassThru `
                -RedirectStandardOutput "$env:LOGS\setup.out.txt" -RedirectStandardError "$env:LOGS\setup.err.txt"
+          $p.WaitForExit(14400000) | Out-Null
+          if (-not $p.HasExited) { Write-Output "::error::setup did not finish within 4 hours"; exit 1 }
           $min = [math]::Round(((Get-Date) - $t0).TotalMinutes, 1)
           "INSTALL_MIN=$min" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
           "setup exit code $($p.ExitCode) after $min min"
