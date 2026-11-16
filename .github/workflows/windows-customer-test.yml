@@ -1,0 +1,190 @@
+# A customer's Windows install, on a clean hosted PC: download logout-search-setup.exe of a release, check its SHA-256, run it
+# with no flags (the way a double-click does), take in the search data and the answers file, search, `doctor`, switch to the
+# beta channel, update, uninstall and see what is left. Run by hand (Actions > windows-customer-test > Run workflow), against a
+# pre-release before it is made the latest one. Fails on a wrong card, an answers file the engine refused, an engine that does
+# not answer or an install that does not fit. Install time and search times are measured on the runner (4 vCPUs, 16 GB: an
+# ordinary PC) and written to the job summary; the logs are the artifact.
+name: windows-customer-test
+
+on:
+  push:
+    tags: ["wintest-*"]              # the same run from a tag, wintest-v0.4.24 tests v0.4.24 (for a caller without the Actions button)
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to test"
+        required: true
+        default: "v0.4.24"
+
+permissions:
+  contents: read
+
+jobs:
+  customer:
+    runs-on: windows-latest
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      LOGS: ${{ github.workspace }}\logs
+    steps:
+      - name: Disks (the install needs about 30 GB)
+        run: |
+          $tag = $env:TAG -replace '^wintest-', ''
+          "TAG=$tag" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "testing release $tag"
+          New-Item -ItemType Directory -Force $env:LOGS | Out-Null
+          $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $null -ne $_.Free }
+          $drives | Format-Table Name, @{n='UsedGB';e={[math]::Round($_.Used/1GB,1)}}, @{n='FreeGB';e={[math]::Round($_.Free/1GB,1)}} | Out-String | Tee-Object "$env:LOGS\disks.txt"
+          $best = $drives | Sort-Object Free -Descending | Select-Object -First 1
+          $freeGB = [math]::Round($best.Free / 1GB, 1)
+          if ($freeGB -lt 40) { Write-Output "::error::no drive has 40 GB free (best: $($best.Name): $freeGB GB); stopping"; exit 1 }
+          $dest = "$($best.Name):\logout-search-test"
+          "DEST=$dest" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "installing on $($best.Name): ($freeGB GB free), destination $dest"
+
+      - name: Download the setup program and check its SHA-256
+        run: |
+          $u = "https://github.com/${{ github.repository }}/releases/download/$env:TAG"
+          curl.exe -fL --retry 3 -sS -o logout-search-setup.exe "$u/logout-search-setup.exe"
+          curl.exe -fsSL --retry 3 -o SHA256SUMS "$u/SHA256SUMS"
+          $want = ((Get-Content SHA256SUMS | Select-String ' logout-search-setup\.exe$').Line -split '\s+')[0]
+          $have = (Get-FileHash logout-search-setup.exe -Algorithm SHA256).Hash.ToLower()
+          "size $((Get-Item logout-search-setup.exe).Length) bytes; sha256 $have; published $want"
+          if (-not $want -or $want -ne $have) { Write-Output "::error::SHA-256 does not match SHA256SUMS"; exit 1 }
+
+      - name: Install as a customer would (no flags; a metered connection)
+        run: |
+          # the one thing a double-click does not do: the destination, because the first drive may not have room
+          $env:LOGOUT_METERED = "1"        # the answers file must come down even on a metered connection
+          $t0 = Get-Date
+          $p = Start-Process -FilePath .\logout-search-setup.exe -ArgumentList "--dest", $env:DEST -PassThru -Wait `
+               -RedirectStandardOutput "$env:LOGS\setup.out.txt" -RedirectStandardError "$env:LOGS\setup.err.txt"
+          $min = [math]::Round(((Get-Date) - $t0).TotalMinutes, 1)
+          "INSTALL_MIN=$min" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "setup exit code $($p.ExitCode) after $min min"
+          Get-Content "$env:LOGS\setup.out.txt" -Tail 12
+          if ($p.ExitCode -ne 0) { Write-Output "::error::setup did not finish (exit $($p.ExitCode))"; exit 1 }
+          $gb = [math]::Round((Get-ChildItem $env:DEST -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1GB, 1)
+          "INSTALL_GB=$gb" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "installed size $gb GB"
+
+      - name: The program, the tray and the engine
+        run: |
+          $exe = "$env:DEST\app\logout-search.exe"
+          & $exe version | Tee-Object "$env:LOGS\version.txt"
+          Get-Process | Where-Object { $_.Name -like 'logout-search*' } | Select-Object Name, Id | Format-Table | Out-String | Tee-Object "$env:LOGS\processes.txt"
+          $tray = @(Get-Process -Name logout-search-tray -ErrorAction SilentlyContinue).Count
+          $eng = @(Get-Process -Name logout-search -ErrorAction SilentlyContinue).Count
+          "tray processes: $tray, engine processes: $eng"
+          if ($eng -lt 1) { Write-Output "::error::no engine process is running"; exit 1 }
+          if ($tray -lt 1) { Write-Output "::warning::no tray process (a hosted runner has no desktop session to show an icon on)" }
+
+      - name: The answers file is taken in (not refused)
+        run: |
+          $log = "$env:DEST\data\state\engine.log"
+          $lists = "$env:DEST\data\store\lists.json"
+          if (-not (Test-Path $lists)) { Write-Output "::error::no answers file was installed (store\lists.json is missing)"; exit 1 }
+          Get-Content $lists | Tee-Object "$env:LOGS\lists.json.txt"
+          $deadline = (Get-Date).AddMinutes(25)
+          do {
+            $taken = @(Select-String -Path $log -Pattern 'store inbox' -ErrorAction SilentlyContinue)
+            $left = @(Get-ChildItem "$env:DEST\data\store\inbox" -Filter *.sqlite -ErrorAction SilentlyContinue).Count
+            if ($taken.Count -ge 1 -and $left -eq 0) { break }
+            Start-Sleep 15
+          } while ((Get-Date) -lt $deadline)
+          $taken | ForEach-Object { $_.Line } | Tee-Object "$env:LOGS\store-inbox.txt"
+          if ($taken.Count -lt 1 -or $left -ne 0) { Write-Output "::error::the engine did not take the answers file in within 25 min"; exit 1 }
+          $bad = @($taken | Where-Object { $_.Line -match 'refused \(' -or $_.Line -match 'refused [1-9]' -or $_.Line -match '_refused [1-9]' })
+          if ($bad.Count) { Write-Output "::error::the engine refused part of the answers file"; exit 1 }
+          "taken in, nothing refused"
+
+      - name: Test searches (the request the page makes)
+        run: |
+          $log = "$env:DEST\data\state\engine.log"
+          # name, the card title the page must show, hard (a wrong card fails the job) or soft (recorded; public gives the same today)
+          $cases = @(
+            @{ q = 'gmail';             card = 'Gmail';              hard = $true },
+            @{ q = 'gmail login';       card = 'Gmail';              hard = $true },
+            @{ q = 'outlook';           card = 'Microsoft Outlook';  hard = $true },
+            @{ q = 'keep';              card = 'Google Keep';        hard = $true },
+            @{ q = 'premiere';          card = 'Adobe Premiere';     hard = $true },
+            @{ q = 'google';            card = 'Google';             hard = $true },
+            @{ q = 'lg';                card = 'LG Electronics';     hard = $false },
+            @{ q = 'weird al yankovic'; card = '"Weird Al" Yankovic'; hard = $true }
+          )
+          $rows = @(); $fail = 0
+          foreach ($pass in 1, 2) {
+            foreach ($c in $cases) {
+              $n0 = @(Get-Content $log -ErrorAction SilentlyContinue).Count
+              $t = Get-Date
+              try {
+                $r = Invoke-RestMethod ("http://127.0.0.1:8090/instant?results=1&full=1&q=" + [uri]::EscapeDataString($c.q)) -TimeoutSec 120
+              } catch { $r = $null; "request for '$($c.q)' failed: $($_.Exception.Message)" }
+              $ms = [int]((Get-Date) - $t).TotalMilliseconds
+              Start-Sleep -Milliseconds 400
+              $cache = (@(Get-Content $log | Select-Object -Skip $n0 | Where-Object { $_ -match 'cache=' }) | Select-Object -Last 1) -replace '.*cache=(\w+).*', '$1'
+              $title = if ($r -and $r.card) { [string]$r.card.title } else { '' }
+              $n = if ($r) { @($r.results).Count } else { 0 }
+              $first = if ($n) { [string]$r.results[0].url } else { '' }
+              $ok = ($title -eq $c.card)
+              if ($pass -eq 1) {
+                if (-not $ok -and $c.hard) { $fail++ }
+                $rows += [pscustomobject]@{ query = $c.q; card = $title; expected = $c.card; results = $n; first = $first; cache = $cache; ms = $ms; ok = $(if ($ok) { 'yes' } elseif ($c.hard) { 'WRONG' } else { 'no (soft)' }) }
+              } else {
+                $rows += [pscustomobject]@{ query = "$($c.q) (again)"; card = $title; expected = $c.card; results = $n; first = $first; cache = $cache; ms = $ms; ok = '' }
+              }
+            }
+          }
+          $rows | Format-Table -AutoSize | Out-String -Width 220 | Tee-Object "$env:LOGS\searches.txt"
+          $rows | ConvertTo-Json | Out-File "$env:LOGS\searches.json"
+          # google must be Google, never Google+
+          if (($rows | Where-Object { $_.query -eq 'google' -and $_.card -match '\+' })) { $fail++ }
+          if ($fail) { Write-Output "::error::$fail search(es) showed the wrong card"; exit 1 }
+
+      - name: doctor
+        run: |
+          & "$env:DEST\app\logout-search.exe" doctor --dest "$env:DEST\data" 2>&1 | Tee-Object "$env:LOGS\doctor.txt"
+
+      - name: Beta channel and an update check
+        run: |
+          $exe = "$env:DEST\app\logout-search.exe"; $data = "$env:DEST\data"
+          & $exe channel beta --dest $data 2>&1 | Tee-Object "$env:LOGS\channel.txt"
+          & $exe autoupdate now --dest $data 2>&1 | Tee-Object -Append "$env:LOGS\channel.txt"
+          Start-Sleep 90
+          & $exe autoupdate status --dest $data 2>&1 | Tee-Object -Append "$env:LOGS\channel.txt"
+          Get-Content "$data\state\update.log" -Tail 30 -ErrorAction SilentlyContinue | Tee-Object "$env:LOGS\update.log.txt"
+
+      - name: Uninstall and what is left
+        run: |
+          $exe = "$env:DEST\app\logout-search.exe"
+          & $exe uninstall --dest $env:DEST --yes 2>&1 | Tee-Object "$env:LOGS\uninstall.txt"
+          Start-Sleep 30
+          $left = @()
+          if (Test-Path $env:DEST) { $left += "folder $env:DEST: $(@(Get-ChildItem $env:DEST -Recurse -Force -ErrorAction SilentlyContinue).Count) items" }
+          $run = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -ErrorAction SilentlyContinue
+          if ($run) { $run.PSObject.Properties | Where-Object { $_.Value -match 'logout' } | ForEach-Object { $left += "Run key: $($_.Name)" } }
+          Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -match 'logout' } | ForEach-Object { $left += "Apps entry: $($_.PSChildName)" }
+          Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Filter '*logout*' -ErrorAction SilentlyContinue | ForEach-Object { $left += "Start menu: $($_.Name)" }
+          Get-Process | Where-Object { $_.Name -like 'logout-search*' } | ForEach-Object { $left += "process: $($_.Name) $($_.Id)" }
+          if ($left) { $left | Tee-Object "$env:LOGS\left-behind.txt"; Write-Output "::warning::left behind after uninstall: $($left -join '; ')" } else { "nothing left behind" | Tee-Object "$env:LOGS\left-behind.txt" }
+
+      - name: Summary
+        if: always()
+        run: |
+          $s = @("## windows-customer-test $env:TAG", "", "Runner: $env:RUNNER_OS, $([Environment]::ProcessorCount) vCPUs, $([math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory/1GB)) GB",
+                 "Install: $env:INSTALL_MIN min, $env:INSTALL_GB GB on disk, destination $env:DEST", "")
+          foreach ($f in 'disks', 'searches', 'store-inbox', 'left-behind') { if (Test-Path "$env:LOGS\$f.txt") { $s += "### $f"; $s += '```'; $s += (Get-Content "$env:LOGS\$f.txt"); $s += '```' } }
+          $s | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
+
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-customer-test-${{ env.TAG }}
+          path: |
+            logs
+            ${{ env.DEST }}\data\state\*.log
+          if-no-files-found: warn
