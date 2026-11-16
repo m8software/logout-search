@@ -40,6 +40,8 @@ def log(msg: str) -> None:
 
 
 def fetch(base: str, name: str, dest: str) -> str:
+    if os.path.isdir(base):                       # a local folder (indexhost's wiki-embed container) instead of a URL
+        return os.path.join(base, name)
     p = os.path.join(dest, name)
     if not os.path.exists(p):
         urllib.request.urlretrieve(f"{base}/{name}", p)

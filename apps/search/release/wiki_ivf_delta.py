@@ -93,13 +93,12 @@ def load_codes(vec_dirs) -> dict[int, np.ndarray]:
 
 def cmd_merge(a) -> None:
     t0 = time.time()
-    rows = list(changed_rows(a.changed))
+    page_ids = {pid for _o, pid, _t, _l in changed_rows(a.changed)}      # ids only: the leads of a 2 M-row set stay out of memory
     deleted = [int(l.split("\t")[0]) for l in open(a.deleted, encoding="utf-8") if l.strip()]
     codes = load_codes(a.vectors)
-    missing = [pid for _o, pid, _t, _l in rows if pid not in codes]
+    missing = [pid for pid in page_ids if pid not in codes]
     if missing:
         sys.exit(f"{len(missing)} re-embedded articles have no vector (first {missing[:5]}): the embedding run is not complete")
-    page_ids = {pid for _o, pid, _t, _l in rows}
     # the folder's ids are Wikipedia PAGE ids (sem_ivf.py: ids.i32 = page_id of each row), not registry doc ids
     removed = np.array(sorted(page_ids | set(deleted)), np.int64)
     order = sorted(page_ids)

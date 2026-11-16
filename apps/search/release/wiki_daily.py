@@ -140,9 +140,9 @@ def _read_delta_files(changed_gz: str, deleted_tsv: str):
             changed.append((
                 p[0], int(p[1]), int(p[2]),
                 wd.unescape(p[3]) or "",
-                wd.unescape(p[4]) or "",
-                wd.unescape(p[5]) or "",
-                wd.unescape(p[6]) or "",
+                "",                                      # headings and infobox are used by the text delta, which reads the file itself
+                (wd.unescape(p[5]) or "")[:CARD_LEAD_CHARS],     # cards hold the first 1000 characters: a 2 M-row catch-up stays small
+                "",
                 wd.unescape(p[7]) or "",
             ))
     deleted = []
@@ -248,33 +248,49 @@ def _update_lookup(lookup_path: str, reg_info: dict, release_id: str) -> dict:
             db.execute("INSERT OR REPLACE INTO cards VALUES (?, ?)",
                        (did, zlib.compress(json.dumps(obj, separators=(",", ":"), ensure_ascii=False).encode(), 6)))
             counts["cards_upserted"] += 1
+            if counts["cards_upserted"] % 100_000 == 0:
+                db.commit()                         # bounded rollback journal
         for did in deleted_dids:
             counts["cards_deleted"] += db.execute("DELETE FROM cards WHERE doc_id = ?", (did,)).rowcount
 
+    # names (PRIMARY KEY (name, kind, doc_id, flags)) and suggest_keys (PRIMARY KEY (key, doc_id, pos)) cannot be searched by doc_id:
+    # a per-article DELETE scans the whole table, which on a 2 M-row catch-up ran for hours without finishing (2026-11-16).
+    # One DELETE over the whole table with the ids in a temp table instead, then a bulk insert.
+    db.execute("CREATE TEMP TABLE upd (doc_id INTEGER PRIMARY KEY)")
+    db.execute("CREATE TEMP TABLE gone (doc_id INTEGER PRIMARY KEY)")
+    db.executemany("INSERT OR IGNORE INTO upd VALUES (?)", ((did,) for (did, _t, _l, _a) in upserted.values()))
+    db.executemany("INSERT OR IGNORE INTO gone VALUES (?)", ((did,) for did in deleted_dids))
+    log(f"lookup: cards done ({counts['cards_upserted']:,} upserted, {counts['cards_deleted']:,} deleted)")
     if "names" in tables:
+        db.execute("DELETE FROM names WHERE doc_id IN (SELECT doc_id FROM upd) AND kind IN (?, ?)", (N_TITLE, N_ALIAS))
+        db.execute("DELETE FROM names WHERE doc_id IN (SELECT doc_id FROM gone)")
+        batch = []
         for _pid, (did, title, _lead, aliases) in upserted.items():
-            db.execute("DELETE FROM names WHERE doc_id = ? AND kind IN (?, ?)", (did, N_TITLE, N_ALIAS))
             if title:
-                db.execute("INSERT OR IGNORE INTO names VALUES (?, ?, ?, 0)", (trgm.pg_lower(title), N_TITLE, did))
+                batch.append((trgm.pg_lower(title), N_TITLE, did))
             for al in (a.strip() for a in aliases.split(" | ") if a.strip()):
-                db.execute("INSERT OR IGNORE INTO names VALUES (?, ?, ?, 0)", (trgm.pg_lower(al), N_ALIAS, did))
+                batch.append((trgm.pg_lower(al), N_ALIAS, did))
             counts["names_updated"] += 1
-        for did in deleted_dids:
-            db.execute("DELETE FROM names WHERE doc_id = ?", (did,))
+            if len(batch) >= 200_000:
+                db.executemany("INSERT OR IGNORE INTO names VALUES (?, ?, ?, 0)", batch)
+                batch.clear()
+        db.executemany("INSERT OR IGNORE INTO names VALUES (?, ?, ?, 0)", batch)
+        db.commit()
 
+    log("lookup: names done")
     if "aliases" in tables:
-        for _pid, (did, _title, _lead, aliases) in upserted.items():
-            db.execute("DELETE FROM aliases WHERE doc_id = ?", (did,))
-            for al in (a.strip() for a in aliases.split(" | ") if a.strip()):
-                db.execute("INSERT OR REPLACE INTO aliases (alias, doc_id) VALUES (?, ?)", (trgm.pg_lower(al), did))
-            counts["aliases_updated"] += 1
-        for did in deleted_dids:
-            db.execute("DELETE FROM aliases WHERE doc_id = ?", (did,))
+        db.execute("DELETE FROM aliases WHERE doc_id IN (SELECT doc_id FROM upd) OR doc_id IN (SELECT doc_id FROM gone)")
+        db.executemany("INSERT OR REPLACE INTO aliases (alias, doc_id) VALUES (?, ?)",
+                       ((trgm.pg_lower(al), did) for (did, _t, _l, aliases) in upserted.values()
+                        for al in (a.strip() for a in aliases.split(" | ") if a.strip())))
+        counts["aliases_updated"] = len(upserted)
+        db.commit()
 
-    for did in deleted_dids:
-        for tbl in ("suggest_items", "suggest_keys"):
-            if tbl in tables:
-                db.execute(f"DELETE FROM {tbl} WHERE doc_id = ?", (did,))
+    if "suggest_items" in tables:
+        db.execute("DELETE FROM suggest_items WHERE doc_id IN (SELECT doc_id FROM gone)")
+    if "suggest_keys" in tables:
+        db.execute("DELETE FROM suggest_keys WHERE doc_id IN (SELECT doc_id FROM gone)")
+    db.commit()
 
     if "wiki_trgm" in tables:
         for _pid, (did, title, _lead, _aliases) in upserted.items():
@@ -282,6 +298,9 @@ def _update_lookup(lookup_path: str, reg_info: dict, release_id: str) -> dict:
             if title:
                 db.execute("INSERT INTO wiki_trgm (rowid, t) VALUES (?, ?)", (did, trgm.padded(title)))
             counts["trgm_updated"] += 1
+            if counts["trgm_updated"] % 100_000 == 0:
+                db.commit()
+                log(f"lookup: {counts['trgm_updated']:,} trigram rows")
         for did in deleted_dids:
             db.execute("DELETE FROM wiki_trgm WHERE rowid = ?", (did,))
 
@@ -506,6 +525,13 @@ def run_daily(a) -> dict:
               "--release", release_id])
         uc.tv_sort_segments(os.path.join(rel_stage, "text", "wiki"))
 
+        if a.wait_vecs:                    # the embeddings are still being made elsewhere: do the text steps meanwhile, wait here
+            t_wait = time.time()
+            while not os.path.exists(os.path.join(vecs_dir, "manifest.json")):
+                if time.time() - t_wait > 4 * 3600:
+                    raise RuntimeError(f"{vecs_dir}/manifest.json did not appear in 4 h")
+                time.sleep(20)
+            log(f"embeddings ready after {round(time.time() - t_wait)} s of waiting")
         ivf_merge_cmd = [sys.executable, os.path.join(HERE, "wiki_ivf_delta.py"), "merge",
                          os.path.join(prev_rel, "vectors", "ivf"), os.path.join(rel_stage, "vectors", "ivf"), release_id,
                          "--vectors", vecs_dir, "--changed", os.path.join(delta_dir, "changed.tsv.gz"),
@@ -606,6 +632,7 @@ def main() -> int:
     r.add_argument("--wikidelta-python", help="python executable for wikidelta.py (default: current interpreter)")
     r.add_argument("--delta-dir", help="use this change set (changed.tsv.gz, deleted.tsv, summary.json) instead of fetching and parsing a day")
     r.add_argument("--vecs-dir", help="use these embeddings (nomic-* or shard-* npy files) instead of running --embed-cmd")
+    r.add_argument("--wait-vecs", action="store_true", help="with --vecs-dir: wait for manifest.json there before the vector merge")
     r.add_argument("--embed-cmd", help="pluggable command creating nomic-*.{ids,vecs}.npy in {out_dir} from {texts}")
     r.add_argument("--merges-limit", type=int, default=31)
     r.add_argument("--no-drift-check", action="store_true")

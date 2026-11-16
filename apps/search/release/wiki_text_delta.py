@@ -76,20 +76,22 @@ def apply(a) -> dict:
         sys.exit(f"refusing: {a.out_index} exists (the output starts empty)")
     subprocess.run(["cp", "-r", "--reflink=auto", a.prev_index, a.out_index], check=True)
     before = set(os.listdir(a.out_index))
-    rows = []
-    with gzip.open(a.changed, "rt", encoding="utf-8", newline="") as f:
-        for line in f:
-            p = line.rstrip("\n").split("\t")
-            rows.append((int(p[1]), [unescape(x) for x in p[3:8]]))     # page_id, (title, headings, lead, infobox, aliases)
+    def stream_rows():
+        """One row at a time: a 2 M-row catch-up must not sit in memory (5 kB a row)."""
+        with gzip.open(a.changed, "rt", encoding="utf-8", newline="") as f:
+            for line in f:
+                p = line.rstrip("\n").split("\t")
+                yield int(p[1]), [unescape(x) for x in p[3:8]]       # page_id, (title, headings, lead, infobox, aliases)
+    changed_ids = {pid for pid, _ in stream_rows()}
     deleted = []
     with open(a.deleted, encoding="utf-8", newline="") as f:
         for line in f:
             if line.strip():
                 deleted.append(int(line.split("\t")[0]))
-    want = {pid for pid, _ in rows} | set(deleted)
+    want = changed_ids | set(deleted)
     old_ids = page_ids_to_doc_ids(a.prev_registry, want)
-    new_ids = page_ids_to_doc_ids(a.registry, {pid for pid, _ in rows})
-    missing = [pid for pid, _ in rows if pid not in new_ids]
+    new_ids = page_ids_to_doc_ids(a.registry, changed_ids)
+    missing = [pid for pid in changed_ids if pid not in new_ids]
     if missing:
         sys.exit(f"{len(missing)} changed articles have no doc_id in {a.registry} (first: {missing[:5]}): build the registry from the "
                  f"updated wiki_docs first")
@@ -103,7 +105,9 @@ def apply(a) -> dict:
         if pid in old_ids:
             w.delete_documents_by_query(tantivy.Query.term_query(idx.schema, "doc_id", old_ids[pid]))
             n_del += 1
-    for pid, (title, headings, lead, infobox, aliases) in rows:
+    n_added = 0
+    for pid, (title, headings, lead, infobox, aliases) in stream_rows():
+        n_added += 1
         d = tantivy.Document()
         d.add_unsigned("doc_id", new_ids[pid])
         d.add_text("title", title)
@@ -113,9 +117,9 @@ def apply(a) -> dict:
     w.wait_merging_threads()
     idx.reload()
     n_after = idx.searcher().num_docs
-    expect = n_before - n_del + len(rows)
+    expect = n_before - n_del + n_added
     if n_after != expect:
-        sys.exit(f"num_docs {n_after} != {n_before} - {n_del} + {len(rows)} = {expect}: the patch is not exact, refusing")
+        sys.exit(f"num_docs {n_after} != {n_before} - {n_del} + {n_added} = {expect}: the patch is not exact, refusing")
     side_p = os.path.join(a.out_index, "release.json")
     side = json.load(open(side_p))
     side["built_release"] = a.release
@@ -123,7 +127,7 @@ def apply(a) -> dict:
         f.write(json.dumps(side, sort_keys=True) + "\n")
     after = set(os.listdir(a.out_index))
     new = sorted(after - before)
-    summary = dict(docs_before=n_before, deleted_docs=n_del, added_docs=len(rows), docs_after=n_after,
+    summary = dict(docs_before=n_before, deleted_docs=n_del, added_docs=n_added, docs_after=n_after,
                    new_files=len(new), new_bytes=sum(os.path.getsize(os.path.join(a.out_index, x)) for x in new),
                    removed_files=len(before - after), seconds=round(time.time() - t0), analyzer=name)
     log(json.dumps(summary, sort_keys=True))

@@ -57,6 +57,8 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import contextvars
+import errno
 import hashlib
 import hmac
 import ipaddress
@@ -84,6 +86,37 @@ PIN_TRIES = 5                 # wrong guesses before it is thrown away (5 of 1,0
 # two per keystroke; 20 a second with a burst of 40 is far above a person and far below a script.
 RATE_PER_S = float(os.environ.get("RTC_RATE_PER_S", "20"))
 RATE_BURST = float(os.environ.get("RTC_RATE_BURST", "40"))
+
+# How long an answer to a SAME-NETWORK offer waits for STUN (2026-11-16). aioice gathers a server-reflexive candidate on every IPv4
+# address of the computer and waits up to 5 s for ALL of them: one adapter that cannot reach the STUN server (a VPN, WSL's or
+# Hyper-V's virtual switch, a disconnected card) made every connection's answer take 5.0 s, measured on buildbox's engine over the
+# public rendezvous (5.1-5.4 s from offer to answer; the page then connected in 60 ms). The page behind the same address reaches
+# this engine's LAN address, so the host candidates are enough and a STUN answer that comes within this time is a bonus. A
+# healthy STUN answer takes 30-50 ms, and the wait ends as soon as every query is back. A paired device from elsewhere (via
+# "room") keeps aioice's 5 s: its relay candidate needs the time.
+GATHER_NETWORK_S = float(os.environ.get("RTC_GATHER_NETWORK_S", "0.15"))
+_gather_s: contextvars.ContextVar = contextvars.ContextVar("rtc_gather_s", default=None)
+
+
+def _patch_gather() -> bool:
+    """aioice's gathering reads its wait from the current offer's setting (_gather_s); no setting: its own 5 s."""
+    try:
+        from aioice import ice
+        orig = ice.Connection.get_component_candidates
+    except (ImportError, AttributeError):
+        return False
+    if getattr(orig, "_logout_patched", False):
+        return True
+
+    async def get_component_candidates(self, component, addresses, timeout=5):
+        s = _gather_s.get()
+        return await orig(self, component, addresses, timeout=timeout if s is None else s)
+    get_component_candidates._logout_patched = True
+    ice.Connection.get_component_candidates = get_component_candidates
+    return True
+
+
+_patch_gather()
 
 _answer = None
 _info = None                  # how the engine is reached, for {details}; None = native_host.engine_info (in-process engine)
@@ -551,6 +584,7 @@ async def on_offer(ws, m: dict) -> None:
     if secret is None and m.get("auth"):
         say("a home offer was signed by no paired device: answered unsigned")
     ice = [RTCIceServer(urls=STUN_URL)] + (await turn_servers(ws) if via == "room" else [])
+    _gather_s.set(GATHER_NETWORK_S if via == "network" else None)         # this offer's own task: no other offer sees it
     pc = RTCPeerConnection(RTCConfiguration(iceServers=ice))
     _pcs.add(pc)
     _pc_info[pc] = {"src": frm, "paired": secret is not None, "last": time.monotonic()}
@@ -596,8 +630,20 @@ async def on_offer(ws, m: dict) -> None:
         await pc.close()
 
 
+IPV6_RETRY_S = 1800           # no IPv6 here: look again every half hour, silently
+
+
+def family_unavailable(family: int, e: BaseException) -> bool:
+    """IPv6 that cannot be used from here (no AAAA record for the rendezvous, no route, no IPv6 at all, a route that goes
+    nowhere): normal on most home networks, not an error, and never a reason to disturb the IPv4 registration."""
+    if family != socket.AF_INET6:
+        return False
+    return (isinstance(e, (socket.gaierror, asyncio.TimeoutError))
+            or getattr(e, "errno", None) in (errno.ENETUNREACH, errno.EHOSTUNREACH, errno.EAFNOSUPPORT, errno.EADDRNOTAVAIL, errno.ENETDOWN))
+
+
 async def rendezvous(family: int, label: str) -> None:
-    delay = 2
+    delay, told = 2, False
     while True:
         try:
             async with websockets.connect(RV_URL, family=family, open_timeout=10,
@@ -605,7 +651,7 @@ async def rendezvous(family: int, label: str) -> None:
                 await ws.send(json.dumps({"t": "engine", "name": NAME, "room": load_state()["room"],
                                           "v": native_host.VERSION}))
                 say(f"registered over {label}")
-                delay = 2
+                delay, told = 2, False
                 async for raw in ws:
                     m = json.loads(raw)
                     if m.get("t") == "offer" and isinstance(m.get("sdp"), dict):
@@ -615,9 +661,15 @@ async def rendezvous(family: int, label: str) -> None:
                         if fut and not fut.done():
                             fut.set_result(m.get("iceServers") or [])
         except (OSError, websockets.WebSocketException, asyncio.TimeoutError) as e:
+            if family_unavailable(family, e):
+                if not told:
+                    say(f"{label}: not available from here ({type(e).__name__}); using IPv4 only, looking again every {IPV6_RETRY_S // 60} minutes")
+                    told = True
+                await asyncio.sleep(IPV6_RETRY_S)
+                continue
             say(f"{label}: {type(e).__name__}; retrying in {delay}s")
         await asyncio.sleep(delay)
-        delay = min(delay * 2, 300)       # no IPv6 at home: settle at one attempt per 5 minutes
+        delay = min(delay * 2, 300)
 
 
 async def main(answer=None, info=None, admin=None) -> None:

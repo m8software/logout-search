@@ -47,8 +47,15 @@ def runpod_key() -> str:
 
 
 def pods() -> list:
-    r = urllib.request.Request("https://rest.runpod.io/v1/pods", headers={"Authorization": "Bearer " + runpod_key(), "User-Agent": "curl/8"})
-    return json.load(urllib.request.urlopen(r, timeout=60))
+    """The account's pods, through the same call judge-pod makes (REST, or GraphQL when rest.runpod.io does not resolve)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("judge_pod", POD)
+    jp = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(jp)
+    s, d = jp.api("GET", "/pods")
+    if s != 200 or not isinstance(d, list):
+        raise RuntimeError(f"could not list pods: {s} {str(d)[:200]}")
+    return d
 
 
 def get(url: str, dest: Path | None = None):
@@ -95,7 +102,19 @@ def run(a) -> None:
                            f"python3 /root/embed.py {base} /root/log/out"}
         rp = out / "recipe.json"
         rp.write_text(json.dumps(recipe))
-        r = subprocess.run([sys.executable, str(POD), "up", str(rp), "--cap", str(a.cap), "--ttl", str(a.ttl), "--gpu", a.gpu], capture_output=True, text=True)
+        gpus = [g.strip() for g in a.gpu.split(",") if g.strip()]
+        t_try, r = time.time(), None
+        while True:                                   # supply comes and goes: every card in turn, then again for --wait-supply minutes
+            for g in gpus:
+                recipe["gpu"] = g
+                rp.write_text(json.dumps(recipe))
+                r = subprocess.run([sys.executable, str(POD), "up", str(rp), "--cap", str(a.cap), "--ttl", str(a.ttl), "--gpu", g], capture_output=True, text=True)
+                if r.returncode == 0:
+                    break
+                log(f"{g}: {(r.stderr + r.stdout).strip()[-160:]}")
+            if r.returncode == 0 or time.time() - t_try > a.wait_supply * 60:
+                break
+            time.sleep(45)
         log(r.stdout.strip().splitlines()[0] if r.stdout.strip() else r.stderr.strip())
         if r.returncode != 0:
             sys.exit("the pod did not start: " + r.stderr + r.stdout)
@@ -141,8 +160,12 @@ def run(a) -> None:
     finally:
         if pod_up:
             subprocess.run([sys.executable, str(POD), "down"], check=False)
-        left = pods()
-        log(f"pods left on the account: {len(left)} {[p.get('id') for p in left]}")
+        try:
+            left = pods()
+            log(f"pods left on the account: {len(left)} {[p.get('id') for p in left]}")
+        except Exception as e:
+            left = [{"id": "UNKNOWN"}]
+            log(f"COULD NOT LIST PODS ({e}): check the RunPod console by hand")
         if not a.keep_repo:
             try:
                 api.delete_repo(repo, repo_type="dataset")
@@ -159,7 +182,8 @@ def main() -> None:
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run"); r.add_argument("changed"); r.add_argument("out")
     r.add_argument("--cap", type=float, required=True); r.add_argument("--ttl", type=int, default=90)
-    r.add_argument("--gpu", default="NVIDIA GeForce RTX 4090"); r.add_argument("--keep-repo", action="store_true")
+    r.add_argument("--gpu", default="NVIDIA GeForce RTX 4090", help="one card or a comma list tried in order")
+    r.add_argument("--wait-supply", type=int, default=30, help="minutes to keep retrying when no card has supply"); r.add_argument("--keep-repo", action="store_true")
     run(ap.parse_args())
 
 

@@ -42,6 +42,27 @@ def pause() -> None:
             pass
 
 
+def pause_ok(seconds: float = 20.0, poll=None, clock=time.monotonic, sleep=time.sleep) -> bool:
+    """After a setup that worked: leave the window up for a moment so the last lines can be read, then close it by itself. A
+    window left waiting for Enter forever (a setup started from a script, a task or a terminal nobody watches) kept two
+    logout-search-setup.exe processes alive for good (buildbox, 2026-11-16). True when a key ended the wait early."""
+    if not (sys.stdin and sys.stdin.isatty()):
+        return False
+    print(f"\nThis window closes in {int(seconds)} s (press any key to close it now).", flush=True)
+    if poll is None:
+        try:
+            import msvcrt
+            poll = msvcrt.kbhit
+        except ImportError:
+            poll = lambda: False                       # not Windows: nothing to read a key with, the time is the wait
+    end = clock() + seconds
+    while clock() < end:
+        if poll():
+            return True
+        sleep(0.2)
+    return False
+
+
 def log_to(base: str):
     """--update runs with no console: what it says goes to BASE/data/state/update.log."""
     d = os.path.join(base, "data", "state")
@@ -138,7 +159,10 @@ def main(argv=None) -> int:
         return 0
     pin = argv[argv.index("--pin") + 1] if "--pin" in argv and argv.index("--pin") + 1 < len(argv) else ""
     rc = subprocess.call([exe, "setup", "--dest", base, "--copied"] + (["--pin", pin] if pin else []))
-    pause()
+    if rc == 0:
+        pause_ok()                                     # it worked: the window closes by itself
+    else:
+        pause()                                        # it did not: the window stays until Enter, so the message can be read
     return rc
 
 
