@@ -3141,8 +3141,10 @@ def card_links(title: str) -> list[tuple[str, str]]:
         except sqlite3.Error:
             return []
     try:
-        return db.execute("SELECT f.label, l.url FROM links l JOIN fields f ON f.p = l.p WHERE l.title = ? ORDER BY f.rank",
-                          (title,)).fetchall()
+        # several accounts of one kind (X: GoogleColombia, Google, GoogleArabia...): the card shows the first, so the
+        # shortest address leads, which is the brand's own handle (2026-11-15: "google" showed x.com/GoogleColombia)
+        return db.execute("SELECT f.label, l.url FROM links l JOIN fields f ON f.p = l.p WHERE l.title = ? "
+                          "ORDER BY f.rank, length(l.url), l.url", (title,)).fetchall()
     except sqlite3.Error:
         return []
 
@@ -3247,22 +3249,75 @@ def url_host_ok(url: str) -> bool:
         return False
 
 
+DESCR_MAX = 120
+DESCR_STORED_CUT = 60                                    # the release keeps a card's description to this many characters
+
+
+def card_description(descr: str | None, what: str | None) -> str:
+    """The card's one line: the stored description, or the whole one an account row carries when the stored one is its
+    start (the release cuts it at 60: Google's read "American multinational technology company, a subsidiary of A",
+    owner 2026-11-15), cut at a word with "…" past DESCR_MAX or when only a cut one is known."""
+    d = (descr or what or "").strip()
+    if descr and what and len(what) > len(descr) and what.startswith(descr.rstrip()):
+        d = what.strip()
+    if not (len(d) > DESCR_MAX or (d == (descr or "").strip() and len(d) == DESCR_STORED_CUT)):
+        return d
+    head = d[:DESCR_MAX]
+    head = head.rsplit(" ", 1)[0] if " " in head else head     # its last word may be cut: it goes
+    return head.rstrip(" ,;:") + "…"
+
+
+def whole_description(lk, title: str, descr: str | None) -> str | None:
+    """The release keeps a card's description to DESCR_STORED_CUT characters; its accounts carry the whole Wikidata
+    one ("google": "..., a subsidiary of A" -> "..., a subsidiary of Alphabet Inc."). The stored one when none does."""
+    if not descr or len(descr) < DESCR_STORED_CUT:
+        return descr
+    try:
+        rows = lk.h[PROFILES_SQL]({"t": title, "p": PROFILE_PLATFORMS})
+    except Exception:  # noqa: BLE001 - the stored one is still a description
+        return descr
+    return next((r[3] for r in rows if r[3] and len(r[3]) > len(descr) and r[3].startswith(descr.rstrip())), descr)
+
+
+def with_own_accounts(rows: list[dict], top: dict, fetch) -> list[dict]:
+    """The rows the card is built from, with the article's own accounts when the list carries none of them ("google":
+    its list had no account rows, and the card's X and Facebook came from the card-links file, which holds
+    x.com/GoogleColombia and facebook.com/GoogleArabia; the accounts table has x.com/Google). Only for the card."""
+    key = same_page(top["url"])
+    if any(r.get("profile") and r.get("of") == key for r in rows):
+        return rows
+    try:
+        return rows + profile_results(fetch(), WIKI_EXACT_SCORE, top["url"])
+    except Exception:  # noqa: BLE001 - the card is built without them, as before
+        return rows
+
+
 def own_name_site(title: str, official: list[dict], res: list[dict]) -> list[dict]:
     """The card's official site is the subject's own-name domain when the stored one is a page on someone else's site
     (owner 2026-11-14, "gmail": "the official site should just be gmail.com"; Wikidata's is
     workspace.google.com/products/gmail/, whose site tree then gave the card Calendar, Blog, Pricing). Only then: a
     stored site on another domain that is a page, not a front page, and a site row among the first five that is the
-    title's letters at .com (gmail.com for Gmail; iphone.cz is not the iPhone's). A stored front page, or one on the own-name domain, stays."""
+    title's letters at .com (gmail.com for Gmail; iphone.cz is not the iPhone's). A stored front page, or one on the own-name domain, stays.
+    The stored site is kept as the next link, named by its host."""
     official = [l for l in official if url_host_ok(l.get("url") or "")]
     key = norm_key(title)
     if not official or len(key) < 3 or not _plain_name(title):
         return official
     url = official[0]["url"]
-    if _label(url) == key or urlsplit(url).path.strip("/") == "":
+    host = (urlsplit(url).hostname or "").lower().removeprefix("www.")
+    if _label(url) == key:
+        return official
+    # a front page stays, unless the name is one of its host's labels but not the first ("about.google" for Google,
+    # owner 2026-11-15: "google" showed about.google and its Products / Locations / Contact us, while google.com led
+    # the list): the brand's own .com is the official site then
+    if urlsplit(url).path.strip("/") == "" and key not in host.split(".")[1:]:
         return official
     own = next((r for r in res[:5] if r.get("source") == "site" and _domain_of(r.get("url") or "") == key + ".com"
                 and url_host_ok(r.get("url") or "")), None)                     # gmail.com; not iphone.cz for the iPhone
-    return [{"title": "Official site", "url": own["url"]}] if own else official
+    if not own:
+        return official
+    # the stored site stays as a second link, under its own name
+    return [{"title": "Official site", "url": own["url"]}, {"title": host, "url": url}] + official[1:]
 
 
 # A bare short name that is the everyday name of a big maker's product (owner 2026-11-14: "outlook" had no card, "keep"
@@ -3503,7 +3558,7 @@ def card_of(res: list[dict], descr: str | None = None, related: list[dict] | Non
     if official and (tree := site_tree(official[0]["url"])):
         card["nav"] = tree
     if descr or what:
-        card["description"] = (descr or what)[:120]
+        card["description"] = card_description(descr, what)
     if image:
         card["image"] = image
     return card
@@ -3614,8 +3669,10 @@ def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base
         t = top["title"].rsplit(" — Wikipedia", 1)[0]
         if lk is not None and lk.name == "release":     # the card is one precomputed record
             descr, rel_rows, img_row, _person = lk.card_parts(t, RELATED_N)
+            descr = whole_description(lk, t, descr)
             row, rel, img = (descr,) if descr else None, related_results(rel_rows), card_image(img_row)
             site_row = (lk.h[CARD_SITE_SQL]({"t": t}) or [None])[0]
+            cres = with_own_accounts(cres, top, lambda: lk.h[PROFILES_SQL]({"t": t, "p": PROFILE_PLATFORMS}))
         else:
             with _conn() as c:
                 has = tables(c)
@@ -3625,6 +3682,8 @@ def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base
                 img = (card_image(c.execute(CARD_IMAGE_SQL, {"t": t}).fetchone())
                        if "card_images" in has else None)
                 site_row = c.execute(CARD_SITE_SQL, {"t": t}).fetchone() if "wiki_sites" in has else None
+                if "wiki_links" in has:
+                    cres = with_own_accounts(cres, top, lambda: c.execute(PROFILES_SQL, {"t": t, "p": PROFILE_PLATFORMS}).fetchall())
         card = card_of(cres, row[0] if row else None, rel, img, site_row[0] if site_row else None, top=top)
         if short is not None and not short[0] and short[1]:
             return None, res, None              # "is", "go", "us": a two-letter word gets no card without the entity rule
@@ -7329,7 +7388,7 @@ PARTS_CLOCK_OK = ("cached", "generation", "tables", "stage", "stage_since", "sto
 PART_STAGES = {
     # card_build reaches no search code: its code version moves only with the card's own code and what it calls
     "card": dict(roots=("card_build",), settings=(
-                           "SEARCH_CARDLINKS", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
+                           "SEARCH_ACCOUNTS_IN_CARD", "SEARCH_CARDLINKS", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
                            "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OWN_RANK_TSV", "SEARCH_POSTGRES",
                            "SEARCH_RELEASE_DIR", "SEARCH_SHORT_ENTITY_VIEWS", "SEARCH_SHORT_FLOOR", "SEARCH_SHORT_NAMES", "SEARCH_SHORT_RATIO",
                            "SEARCH_SITENAV", "SEARCH_SITES_BACKEND", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),

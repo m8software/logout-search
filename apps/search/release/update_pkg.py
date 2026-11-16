@@ -203,7 +203,7 @@ def build(old: str, new: str, out: str, level: int = 19, selftest: bool = True, 
         base = {"path": p, "sha256": f["sha256"], "bytes": f["bytes"], "licence": f.get("licence")}
         whole_z = None
         try:
-            diff = uc.sqlite_diff(os.path.join(old, p), os.path.join(new, p), role, os.path.join(new, "registry.sqlite"))
+            diff = uc.sqlite_diff(os.path.join(old, p), os.path.join(new, p), role, os.path.join(new, "registry.sqlite"), narrow=True)
             rows_name = "rows/" + p.replace("/", "__") + ".jsonl"
             raw_bytes = uc.write_rows(diff, os.path.join(out, rows_name))
             z = uc.zst_compress(os.path.join(out, rows_name), os.path.join(out, rows_name + ".zst"), level)

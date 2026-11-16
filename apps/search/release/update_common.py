@@ -261,12 +261,60 @@ def fts_text(role: str, fts: str, rowid: int, db: sqlite3.Connection, registry: 
     return _padded(host[:(host + ".").index(".")]) if host else None
 
 
+# ------------------------------------------------------------------ which tables a same-layout rewrite really touched
+PAGE = 4096
+
+
+def page_diff(a: str, b: str, cap: int = 5_000_000) -> list:
+    """Page numbers (1-based) whose bytes differ between two SQLite files of the same size, or [-1] when they cannot be
+    compared page by page (another size) or too many differ."""
+    if os.path.getsize(a) != os.path.getsize(b):
+        return [-1]
+    out, pg = [], 0
+    with open(a, "rb") as fa, open(b, "rb") as fb:
+        while True:
+            x, y = fa.read(PAGE * 1024), fb.read(PAGE * 1024)
+            if not x and not y:
+                break
+            if x != y:
+                for i in range(0, len(x), PAGE):
+                    if x[i:i + PAGE] != y[i:i + PAGE]:
+                        out.append(pg + i // PAGE + 1)
+                        if len(out) > cap:
+                            return [-1]
+            pg += 1024
+    return out
+
+
+def owner_tables(path: str, pages: list) -> set:
+    """The tables (an index counts as its table; an FTS5 shadow table as itself) that own these pages, from dbstat. Pages no
+    b-tree owns (the freelist) belong to none."""
+    want = set(pages)
+    db = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    try:
+        tbl = {n: t for n, t in db.execute("SELECT name, tbl_name FROM sqlite_schema")}
+        if len(want) <= 500:
+            ph = ",".join("?" * len(want))
+            names = {r[0] for r in db.execute(f"SELECT name FROM dbstat WHERE pageno IN ({ph})", sorted(want))}
+        else:
+            names = {n for pg, n in db.execute("SELECT pageno, name FROM dbstat") if pg in want}
+        return {tbl.get(n, n) for n in names}
+    finally:
+        db.close()
+
+
 # ------------------------------------------------------------------ the row diff
 
-def sqlite_diff(old: str, new: str, role: str, registry_new: str = None) -> dict:
+def sqlite_diff(old: str, new: str, role: str, registry_new: str = None, only=None, narrow: bool = False) -> dict:
     """The row diff old -> new, or raises UpdateError('whole: why') when only a whole-file ship is safe.
     Per plain/rtree table: removed keys, upserted rows. Per FTS5 table: rowids to re-derive and whether each
-    exists in `new`. The R*Tree and FTS5 are NOT shipped as pages."""
+    exists in `new`. The R*Tree and FTS5 are NOT shipped as pages.
+    `only` (a set of table names; twin/release_delta.py, which wants the changed rows and nothing else): diff just those tables
+    and skip the FTS5 part (its rowids are derived, no answer holds them).
+    `narrow` (the update package): the two files have the same size, so the pages that differ say which tables can have changed
+    rows; the others are not scanned (a rewrite with identical rows, or one table touched in a 7 GB file, costs a page compare
+    and one table, not a scan of everything). An FTS5 table none of whose pages changed and none of whose base rows changed is
+    not scanned either. Any doubt (another size, too many pages, a schema difference) scans everything, as before."""
     db = sqlite3.connect(f"file:{new}?mode=ro", uri=True)
     db.execute("ATTACH ? AS o", (f"file:{old}?mode=ro",))
     po, ro, fo, so = sqlite_objects(sqlite3.connect(f"file:{old}?mode=ro", uri=True))
@@ -274,7 +322,15 @@ def sqlite_diff(old: str, new: str, role: str, registry_new: str = None) -> dict
     if sorted(so) != sorted(sn):
         raise UpdateError("whole: the schema differs")
     out = {"tables": {}, "fts": {}}
+    fts_pages = None                                   # tables with a changed page (narrow mode), shadow tables included
+    if narrow and only is None and sorted(so) == sorted(sn):
+        pages = page_diff(old, new)
+        if pages != [-1]:
+            fts_pages = owner_tables(new, pages) if pages else set()
+            only = set(fts_pages) & set(pn + rn)
     for t in sorted(pn + rn):
+        if only is not None and t not in only:
+            continue
         cols, pk = _cols(db, t)
         key = pk or cols
         up = db.execute(f"SELECT * FROM main.{_q(t)} EXCEPT SELECT * FROM o.{_q(t)} ORDER BY {', '.join(_q(c) for c in key)}").fetchall()
@@ -293,7 +349,12 @@ def sqlite_diff(old: str, new: str, role: str, registry_new: str = None) -> dict
                                 "upsert": [[_enc(x) for x in r] for r in up]}
     old_db = sqlite3.connect(f"file:{old}?mode=ro", uri=True)
     reg = None
-    for t in sorted(fn):
+    for t in sorted(fn if (only is None or fts_pages is not None) else ()):
+        if fts_pages is not None and role != "lookup" and not any(x == t or x.startswith(t + "_") for x in fts_pages):
+            base = fts_touched(role, t, out["tables"], {})
+            if base is not None and not base:
+                out["fts"][t] = {"touched": [], "present": []}        # no page of it changed and no row it is derived from did
+                continue
         have_old = {r[0] for r in old_db.execute(f"SELECT rowid FROM {_q(t)}")}
         have_new = {r[0] for r in db.execute(f"SELECT rowid FROM main.{_q(t)}")}
         if role == "lookup" and reg is None:

@@ -711,7 +711,13 @@ class ReleaseLookups:
                 r = self.account_row(a)
                 if r and r["platform"] in want:
                     rows.append((r["platform"], r["url"], r["name"], r["desc"], r["value"], r["sitelinks"]))
-        return sorted(rows, key=lambda r: r[0])
+        # one account per platform, as PROFILES_SQL's DISTINCT ON (platform) ... ORDER BY length(value), value: the
+        # shortest handle, which is the brand's own ("Google", not "GoogleColombia" or "GoogleArabia", 2026-11-15); the
+        # caller kept the last of several, a regional one
+        best: dict = {}
+        for r in sorted(rows, key=lambda r: (r[0], len(str(r[4] or "")), str(r[4] or ""))):
+            best.setdefault(r[0], r)
+        return [best[k] for k in sorted(best)]
 
     def account(self, p):
         key, keys, plats = p["key"], p["keys"], set(p["p"])

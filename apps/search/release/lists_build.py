@@ -40,6 +40,20 @@ NOTICE = ("Search lists chosen ahead of time for names people search: each list 
           "own models. The descriptions keep the licences of their sources, listed in the release's LICENSES folder; the "
           "selection, order and grades are Logout's and are shared under CC BY-SA 4.0.")
 OVERLAP_S = 12 * 3600
+BASE_SHARE = float(os.environ.get("LISTS_BASE_SHARE", "0.5"))    # a delta carrying this share of the store becomes a base
+
+
+def window_share(store: str, release: str, since: float) -> tuple[int, int]:
+    """(rows of the release's curated + finished tables written after since, all of them)."""
+    src = sqlite3.connect(f"file:{store}?mode=ro", uri=True)
+    try:
+        new = total = 0
+        for t in ("curated", "finished"):
+            a, b = src.execute(f"SELECT count(*), coalesce(sum(at > ?), 0) FROM {t} WHERE release = ?", (since, release)).fetchone()
+            total += a; new += b
+        return new, total
+    finally:
+        src.close()
 LICENCE = {"name": "CC BY-SA 4.0 (the selection); sources as in the release", "url": "https://creativecommons.org/licenses/by-sa/4.0/"}
 
 
@@ -52,8 +66,24 @@ def sha256_file(p: str):
     return h.hexdigest(), n
 
 
-def write_part(store: str, out_db: str, release: str, since: float, reset: bool, new_after: float = 0.0, dept: bool = False) -> dict:
-    """Rows of `store` written after `since` (all when reset) -> out_db. -> {table: rows, "until": newest at, "new": rows after new_after}."""
+def name_of(key: str) -> str:
+    """The search a store key is for: "gmail login" and "gmail login\x1ffull" (the submitted form) are one name."""
+    return " ".join(key.split("\x1f", 1)[0].lower().split())
+
+
+def read_allow(path: str | None):
+    """The names that may be published (one a line), or None for no filter.: the store also holds answers for
+    visitors' searches and for names taken from Amazon's search suggestions; neither may be in a public file."""
+    if not path:
+        return None
+    with open(path, encoding="utf-8") as f:
+        return {" ".join(l.lower().split()) for l in f if l.strip()}
+
+
+def write_part(store: str, out_db: str, release: str, since: float, reset: bool, new_after: float = 0.0, dept: bool = False,
+               allow=None) -> dict:
+    """Rows of `store` written after `since` (all when reset) -> out_db. -> {table: rows, "until": newest at, "new": rows
+    after new_after, "held": rows left out because their name is not in `allow`}."""
     if os.path.exists(out_db):
         os.remove(out_db)
     src = sqlite3.connect(f"file:{store}?mode=ro", uri=True)
@@ -63,11 +93,14 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
     dst.execute("CREATE TABLE finished (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (release, key)) WITHOUT ROWID")
     dst.execute("CREATE TABLE dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, at REAL NOT NULL) WITHOUT ROWID")
     dst.execute("CREATE TABLE lists_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)")
-    n, until, new = {}, since, 0
+    n, until, new, held = {}, since, 0, 0
     lo = -1.0 if reset else since
     for t in ("curated", "finished"):
         c = 0
         for key, body, at in src.execute(f"SELECT key, body, at FROM {t} WHERE release = ? AND at > ?", (release, lo)):
+            if allow is not None and name_of(key) not in allow:
+                held += 1
+                continue
             try:
                 text = zlib.decompress(body)
                 json.loads(text)
@@ -91,7 +124,7 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
     dst.execute("VACUUM")
     dst.close()
     src.close()
-    n["until"], n["new"] = until, new
+    n["until"], n["new"], n["held"] = until, new, held
     return n
 
 
@@ -101,13 +134,34 @@ def build(a) -> dict:
     if a.manifest and os.path.isfile(a.manifest):
         prev = json.load(open(a.manifest, encoding="utf-8"))
     base = a.base or prev is None or prev.get("source_release") != a.release
+    overlap = OVERLAP_S
+    if not base:
+        # A delta repeats OVERLAP_S before the last publish (a row built earlier but taken into this store later is not
+        # missed). When most of the store was written in that window (a fill or a rebuild of everything, 2026-11-15: a
+        # "delta" carried all 301,275 answers, 512 MB, on top of the base), the repeat is dropped; when most of it was
+        # written since the last publish itself, a base is published instead (installs would otherwise fetch both).
+        # Re-stamped answers (impact_check.py) keep their time, so they never count as written.
+        until = float(prev["until"])
+        in_window, total = window_share(a.store, a.release, until - OVERLAP_S)
+        since_last, _ = window_share(a.store, a.release, until)
+        if total and since_last >= BASE_SHARE * total:
+            base = True
+            print(f"lists: {since_last} of {total} rows are new since the last publish: a base, not a delta", flush=True)
+        elif total and in_window >= BASE_SHARE * total:
+            overlap = 0
+            print(f"lists: {in_window} of {total} rows fall in the {OVERLAP_S // 3600} h repeat: the delta starts at the last publish", flush=True)
     t = time.time()
     stamp = time.strftime("%Y%m%dT%H%M%S", time.gmtime(t)) + f"{int(t * 1000) % 1000:03d}Z"     # two publishes never share a name
     name = ("b-" if base else "d-") + stamp
     raw = os.path.join(a.out, "lists", "parts", name + ".sqlite")
     # a delta repeats the last OVERLAP_S before the previous publish: a row built before then but taken into this store
     # after it would otherwise be missed (the install keeps a row only when it is newer than its own, so a repeat is free)
-    n = write_part(a.store, raw, a.release, 0.0 if base else float(prev["until"]) - OVERLAP_S, base, 0.0 if base else float(prev["until"]), a.with_dept)
+    allow = read_allow(a.allow)
+    if allow is not None and a.with_dept:
+        raise SystemExit("--with-dept publishes names from Amazon's search suggestions: not together with --allow")
+    n = write_part(a.store, raw, a.release, 0.0 if base else float(prev["until"]) - overlap, base, 0.0 if base else float(prev["until"]), a.with_dept, allow)
+    if allow is not None:
+        print(f"lists: {n['held']} rows held back (their names are not open-data or hand-added names)", flush=True)
     n["until"] = max(n["until"], 0.0 if base else float(prev["until"]))
     if not base and not n["new"]:
         os.remove(raw)
@@ -173,6 +227,8 @@ def main() -> int:
     b.add_argument("--with-dept", action="store_true", help="also the shopping departments (names from Amazon's search suggestions: "
                    "HELD until the owner decides on their licence)")
     b.add_argument("--manifest", help="the manifest now published (default: OUT/lists/manifest.json)")
+    b.add_argument("--allow", help="a file of names (one a line): only their lists and answers are published (open-data "
+                                   "and hand-added names; no visitor searches, no names from Amazon's suggestions)")
     u = sp.add_parser("upload")
     u.add_argument("--out", required=True)
     u.add_argument("--repo", required=True)

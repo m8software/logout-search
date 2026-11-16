@@ -1,0 +1,56 @@
+# The builder image for the data release, pinned end to end: what release.toml calls "logout/search-api:1
+# + /w/pylib + host zstd mounts" as one image whose every input is a digest, a version or a sha256.
+#
+# Build (from apps/search/, so the context holds build/ and the models folder; ~700 MB image, no GPU, no network at run):
+#   docker build -f build/Dockerfile.release -t logout/release-build:1 \
+#       --build-context models=/path/to/models .          # a folder with the three model folders + models.lock.json
+# Then release.toml: [runner] image = "logout/release-build:1" (image_key = "name": bump the tag when this file changes),
+# and the pipeline.py stages that say container = true run in it. container = false stages (web indexes, restamps,
+# gov-states) run on the HOST: they call docker themselves (logout-tantivy-build:4, tools/tantivy-structure/Dockerfile,
+# its Rust base already pinned by digest) and need host python3 >= 3.11 + zstd.
+#
+# What is pinned, and where it was measured (2026-11-15):
+#   base      python:3.12-slim by digest: the digest `ssh testbox docker image inspect python:3.12-slim` gave that day
+#             (Debian 13.7, Python 3.12.16, pip 25.0.1). Re-pin deliberately: docker pull, read RepoDigests, edit here.
+#   zstd      Debian's, exact version (candidate on 2026-11-15); replaces the host zstd + libzstd mounts of release.toml.
+#   pip       the versions inside logout/search-api:1 on testbox (numpy .. typing_extensions, `pip list`), cryptography,
+#             zstandard, cffi and pycparser as in testbox's /opt/logout-release/w/pylib, faiss-cpu as in .../w/faisslib.
+#             Every version is exact; wheel hashes are NOT checked yet (follow-up: pip-compile --generate-hashes into
+#             a requirements file, then --require-hashes).
+#   models    bge-small-en-v1.5, nomic-embed-text-v1.5, rerank-turbo-jevfree: copied only after pin_inputs.py verify
+#             against models.lock.json (sha256 per file) passes, so a changed weight file fails the build.
+#   UNVERIFIED: which faiss-cpu built rc14's pages-ivf (testbox's folder says 1.12.0; tools/bitivf-testbox.sh uses 1.15.1); that
+#             this file builds (docker is not on the workstation; written 2026-11-15, not built).
+# Not here: embedding on a GPU (tools/embed-full.py needs torch + CUDA: it is its own job on the GPU machine), the
+# Postgres bridge image (logout/search-postgres:18.6-pgts1.4.0) and Hugging Face upload (huggingface_hub).
+
+FROM python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b AS models-check
+WORKDIR /chk
+COPY build/pin_inputs.py /chk/pin_inputs.py
+COPY --from=models . /chk/models/
+RUN test -f /chk/models/models.lock.json \
+ && python3 -I /chk/pin_inputs.py verify /chk/models --lock /chk/models/models.lock.json --jobs 2 \
+ && rm /chk/models/models.lock.json
+
+FROM python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+ARG ZSTD_VERSION=1.5.7+dfsg-1
+ENV ORT_DISABLE_TELEMETRY=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    LC_ALL=C.UTF-8
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends "zstd=${ZSTD_VERSION}" \
+ && rm -rf /var/lib/apt/lists/*
+RUN pip install \
+      "numpy==2.5.3" "tantivy==0.26.2" "onnxruntime==1.30.0" "tokenizers==0.23.2" "psycopg[binary]==3.3.6" \
+      "cryptography==50.0.2" "zstandard==0.25.0" "faiss-cpu==1.12.0" \
+      "cffi==2.1.1" "pycparser==3.0" "packaging==26.3" "flatbuffers==25.12.19" "protobuf==7.36.2" \
+      "huggingface_hub==1.33.0" "hf-xet==1.7.0" "httpx==0.28.1" "httpcore==1.0.9" "h11==0.16.0" "anyio==4.15.1" \
+      "idna==3.20" "certifi==2026.10.23" "click==8.5.0" "filelock==4.2.4" "fsspec==2026.9.0" "PyYAML==6.0.3" \
+      "tqdm==4.70.1" "typing_extensions==4.16.0" \
+ && python -c "import numpy, tantivy, onnxruntime, tokenizers, psycopg, cryptography, zstandard, faiss; print('imports ok')"
+COPY --from=models-check /chk/models/ /models/
+# The stages mount the code at /code and the work folder at /w (release.toml [runner]); nothing is baked from the repo.
+WORKDIR /code
+CMD ["python3"]
