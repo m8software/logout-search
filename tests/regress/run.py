@@ -49,6 +49,9 @@ class Ctx:
         self.port = a.port
         self.compare = a.compare
         self.parity_diffs = []
+        self.browser_page = a.browser_page
+        self.chrome = a.chrome
+        self.node_path = a.node_path
         self.matrix_n = a.matrix_n
         self.matrix_modes = [m for m in a.matrix_modes.split(",") if m]
         self.matrix_workers = a.matrix_workers
@@ -192,6 +195,9 @@ def main(argv=None):
     ap.add_argument("--matrix-baseline", help="JSON of baseline p90s per platform and type: a type over 1.5x baseline + 50 ms fails")
     ap.add_argument("--matrix-typing", type=int, default=25, help="queries per type whose every prefix 2..10 is asked in the typing way")
     ap.add_argument("--matrix-out", help="write every matrix request (JSON lines) here")
+    ap.add_argument("--browser-page", help="the search page for the headless-browser first-run case (e.g. https://search.logout.cloud/)")
+    ap.add_argument("--chrome", help="path of a Chrome/Chromium for that case (default: the runner's installed Chrome)")
+    ap.add_argument("--node-path", help="NODE_PATH holding playwright-core for that case")
     ap.add_argument("--rate", type=float, default=0.0, help="seconds between requests (public: 0.3; the monitor rate is far below its limit)")
     ap.add_argument("--rv", help="the public rendezvous, wss://search.logout.cloud/rv (link group)")
     ap.add_argument("--suite", help="comma-separated groups (default all): " + ",".join(ORDER))

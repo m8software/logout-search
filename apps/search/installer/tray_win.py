@@ -14,6 +14,7 @@ It is built windowed (no console), so starting at logon shows nothing but the ic
 Standard library only (ctypes): no third-party tray package, so nothing more to license or ship.
 """
 import ctypes
+import json
 import os
 import subprocess
 import sys
@@ -201,6 +202,17 @@ class Engine:
             elif p is not None and p.poll() is None:
                 delay = 5
 
+    def first_run_text(self) -> str:
+        """What setup says while it waits for the page's link (setup writes it): shown in the tooltip until it is done."""
+        try:
+            with open(os.path.join(self.data, "state", "first-run.json"), encoding="utf-8") as f:
+                d = json.load(f)
+            if not d.get("done") and time.time() - float(d.get("at") or 0) < 900:
+                return str(d.get("text") or "")[:90]
+        except (OSError, ValueError, TypeError):
+            pass
+        return ""
+
     def state(self) -> str:
         try:
             with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/readyz", timeout=2) as r:
@@ -280,10 +292,11 @@ class Tray:
 
     def tip(self) -> None:
         st = self.engine.state() if self.engine else "ready"
-        if st != self.last:
-            self.last = st
-            self.nid.szTip = {"ready": f"{APP}: ready", "starting": f"{APP}: starting (loading the index)",
-                              "stopped": f"{APP}: stopped"}[st]
+        note = self.engine.first_run_text() if self.engine else ""
+        if (st, note) != self.last:
+            self.last = (st, note)
+            self.nid.szTip = ((f"{APP}: starting your search engine: {note}" if note else {"ready": f"{APP}: ready", "starting": f"{APP}: starting (loading the index)",
+                              "stopped": f"{APP}: stopped"}[st]))[:127]
             shell32.Shell_NotifyIconW(NIM_MODIFY, ctypes.byref(self.nid))
 
     def menu(self) -> None:

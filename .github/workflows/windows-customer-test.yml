@@ -116,6 +116,20 @@ jobs:
           if ($bad.Count) { Write-Output "::error::the engine refused part of the answers file"; exit 1 }
           "taken in, nothing refused"
 
+      - name: "First run - the page setup opened works at once, with no refresh"
+        run: |
+          # What a customer sees right after setup (owner 2026-11-17: "when the search page pops up it's pointed to public and I have
+          # to refresh"): a clean browser profile opens the page with the hint setup opens it with; within 90 s its pill must say the
+          # answer comes from this computer's own engine, and a search must be answered with ZERO requests to /api/instant.
+          $out = Get-Content "$env:LOGS\setup.out.txt" -Raw
+          $ready = $out.IndexOf('the page opens when it answers')
+          $open = $out.IndexOf('https://search.logout.cloud is open')
+          "setup said it would wait for the engine: $($ready -ge 0); said the page is open afterwards: $($open -gt $ready)"
+          if ($ready -lt 0 -or $open -lt $ready) { Write-Output "::error::setup's own words do not show it waited for the engine before opening the page"; exit 1 }
+          python -m pip install --quiet playwright
+          python "$env:GITHUB_WORKSPACE\apps\search\tools\first_run_page.py" --channel msedge --wait 90 | Tee-Object "$env:LOGS\first-run-page.json"
+          if ($LASTEXITCODE -ne 0) { Write-Output "::error::the first page did not attach to the engine by itself, or a search went to the public site"; exit 1 }
+
       - name: Test searches (the request the page makes)
         run: |
           $log = "$env:DEST\data\state\engine.log"

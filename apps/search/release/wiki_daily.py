@@ -176,6 +176,34 @@ def _copy_release_skeleton(prev_rel: str, stage_rel: str, prev_manifest: dict) -
                 shutil.copyfile(src, dst)
 
 
+# Files a release carries from its predecessor that name their release. The engine refuses the pages' IVF folder when its
+# `release` is not the engine's (sem_ivf.IvfIndex: "built for release rc15, engine expects rc16": rc16's first scratch engine
+# stayed at 503 for that reason, 2026-11-17). The Tantivy sidecars are stamped likewise. SQLite files that stay at the
+# predecessor's values keep their old built_release on purpose (derived data not refreshed this round).
+SIDECARS = (("vectors/pages-ivf/ivf.json", "release", 1), ("text/sites/sites/release.json", "built_release", None),
+            ("text/sites/pages/release.json", "built_release", None), ("text/sites/anchors/release.json", "built_release", None),
+            ("text/typo/release.json", "built_release", None))
+
+
+def restamp_sidecars(rel_dir: str, release_id: str) -> list[str]:
+    """Stamp the carried-over sidecars with this release's id. Writes a NEW file and replaces the old, so a hard link to the
+    predecessor's file is broken and the predecessor is never touched."""
+    done = []
+    for rel, key, indent in SIDECARS:
+        p = os.path.join(rel_dir, rel)
+        if not os.path.isfile(p):
+            continue
+        j = json.load(open(p, encoding="utf-8"))
+        if j.get(key) == release_id:
+            continue
+        j[key] = release_id
+        with open(p + ".tmp", "w", encoding="utf-8") as f:
+            f.write(json.dumps(j, indent=indent, sort_keys=True) + "\n")
+        os.replace(p + ".tmp", p)
+        done.append(rel)
+    return done
+
+
 def _table_names(db: sqlite3.Connection) -> set[str]:
     return {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
 
@@ -510,7 +538,8 @@ def run_daily(a) -> dict:
     try:
         t_step = time.time()
         _copy_release_skeleton(prev_rel, rel_stage, prev_manifest)
-        log(f"step skeleton copy: {round(time.time() - t_step)} s"); t_step = time.time()
+        restamped = restamp_sidecars(rel_stage, release_id)
+        log(f"step skeleton copy: {round(time.time() - t_step)} s; restamped {restamped}"); t_step = time.time()
         changed, deleted = _read_delta_files(os.path.join(delta_dir, "changed.tsv.gz"), os.path.join(delta_dir, "deleted.tsv"))
         reg_info = _update_registry(os.path.join(rel_stage, "registry.sqlite"), changed, deleted, release_id)
         log(f"step registry: {round(time.time() - t_step)} s"); t_step = time.time()
@@ -620,6 +649,8 @@ def run_daily(a) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
+    rs = sub.add_parser("restamp", help="stamp the carried-over sidecars of an assembled release and rewrite its manifest")
+    rs.add_argument("rel_dir"); rs.add_argument("--sign")
     r = sub.add_parser("run", help="run one daily incremental Wikipedia update end to end")
     r.add_argument("--day", required=True, help="incremental dump day YYYYMMDD")
     r.add_argument("--state", required=True, help="wikidelta state sqlite path")
@@ -657,6 +688,12 @@ def main() -> int:
     r.add_argument("--no-selftest", action="store_true", help="skip update_pkg.py self-test apply check")
     r.add_argument("--dry-run", action="store_true", help="inspect/plan only; leave state, out-release, out-pkg, store untouched")
     a = ap.parse_args()
+    if a.cmd == "restamp":
+        mp = json.load(open(os.path.join(a.rel_dir, "manifest.json"), encoding="utf-8"))
+        done = restamp_sidecars(a.rel_dir, mp["release"])
+        write_release_manifest(a.rel_dir, mp, mp["release"], a.sign)
+        print(json.dumps({"restamped": done, "release": mp["release"]}))
+        return 0
     print(json.dumps(run_daily(a), sort_keys=True))
     return 0
 

@@ -92,6 +92,19 @@
    "needs": [
     "repo"
    ]
+  },
+  {
+   "id": "LNK-007",
+   "title": "first run: right after setup the page shows the engine pill and a search is answered by the engine over the link, with zero requests to the public site's /api/instant (headless browser)",
+   "guards": [
+    "owner 2026-11-17: the download must work on first run; the page must not fall back to public"
+   ],
+   "severity": "high",
+   "check": "browser_first_run",
+   "params": {
+    "query": "gmail",
+    "expect_card": "Gmail"
+   }
   }
  ]
 }

@@ -282,13 +282,15 @@ def start(a) -> None:
             if act == "handed-over":                     # Windows: the new setup program closes this one; wait for it
                 import time
                 time.sleep(300)
+        if state == "ready" and not getattr(a, "no_peer", False):
+            # the page's way in, and the other devices' (see `peer`); it ends with the engine, and the engine runs on without it.
+            # Started BEFORE the smoke searches (2026-11-17): they take seconds to a minute on a cold engine, and the first
+            # page of a new install found no engine for that long and showed the public site until it was refreshed
+            peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)])
         if state == "ready" and not a.no_smoke and install.run_smoke(a.port, "SEARCH_SE_INDEX" in env):
             proc.terminate()
             proc.wait()
             sys.exit(1)
-        if state == "ready" and not getattr(a, "no_peer", False):
-            # the other devices' way in (see `peer`); it ends with the engine, and the engine runs on without it
-            peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)])
         rc = proc.wait()
         if restart is not None and restart.is_set():
             say("updated: starting again with the new version")
@@ -862,16 +864,79 @@ def setup(a) -> int:
     ready = install.wait_ready(a.port, lambda: True, timeout=600.0) == "ready"
     say("")
     if ready:
-        say("Done. Open https://search.logout.cloud\n"
+        first_run(a.port, data)
+        say("Done. https://search.logout.cloud is open\n"
             "  on this computer: it is answered here, by your own engine\n"
             "  on your phone, on the same Wi-Fi: tap Pair, and it uses this computer from anywhere")
-        try:
-            open_browser("https://search.logout.cloud/")
-        except Exception:  # noqa: BLE001
-            pass
     else:
         say(f"Installed, but the engine has not answered yet. Its log: {os.path.join(data, 'state', 'engine.log')}")
     return 0 if ready else 1
+
+
+PAGE_URL = "https://search.logout.cloud/"
+
+
+def first_run(port: int, data: str, *, wait=None, opener=None, link=None, pair=None) -> dict:
+    """The end of setup: wait until the page can open and be right (firstrun.py), then open it with the hint that an engine
+    is expected on this computer (the page waits for it and attaches without a refresh, instead of settling on the public
+    site). Whatever happens the page is opened: a slow computer gets the hint and the page keeps looking."""
+    import firstrun
+    wait, opener = wait or firstrun.wait_first_run, opener or open_browser
+    link = link or (lambda: firstrun.link_test(engine_name()))
+    pair = pair or (lambda: pair_fragment(data))
+    state = os.path.join(data, "state", "first-run.json")
+
+    def progress(text: str) -> None:                     # the tray's tooltip reads this while setup runs
+        try:
+            os.makedirs(os.path.dirname(state), exist_ok=True)
+            with open(state, "w", encoding="utf-8") as f:
+                json.dump({"text": text, "at": __import__("time").time(), "done": False}, f)
+        except OSError:
+            pass
+    say("     starting your search engine and joining the search page; the page opens when it answers (about a minute)")
+    r = wait(port, say, link, progress=progress)
+    if r.get("ok"):
+        ms = r.get("searches_ms") or []
+        say(f"     ready after {r.get('waited_s', 0)} s; the first searches took " + ", ".join(f"{m / 1000:.1f}" for m in ms) + " s")
+    else:
+        say(f"     not quite ready ({r.get('why')}): opening the page anyway, it waits for your engine and switches to it by itself")
+    try:
+        with open(state, "w", encoding="utf-8") as f:
+            json.dump({"text": "ready" if r.get("ok") else "starting", "at": __import__("time").time(), "done": True}, f)
+    except OSError:
+        pass
+    # A pairing made for THIS browser rides in the address (the part after # never leaves the browser): the page then reaches the
+    # engine through its room, which does not depend on the page and the engine being seen from the same address. The same-network
+    # match fails when the browser reaches the rendezvous over IPv6 and the engine over IPv4 only (demonstrated against rv.py,
+    # 2026-11-17), which is a refresh away from working or not, by chance.
+    frag = ""
+    try:
+        frag = pair() or ""
+    except Exception as e:  # noqa: BLE001 - the plain hint still works where the networks match
+        say(f"     (no pairing for this browser: {type(e).__name__}); the page will look for the engine on this network")
+    try:
+        opener(PAGE_URL + (f"#{frag}&engine=1" if frag else firstrun.PAGE_HINT))
+    except Exception:  # noqa: BLE001
+        pass
+    return r
+
+
+def pair_fragment(data: str) -> str:
+    """"pair=<link>" for a new pairing of this computer's own browser (the engine's pairing state is DATA/state/engine.json, the same
+    file the peer reads: a pairing made here is live at once)."""
+    os.environ.setdefault("RTC_STATE", os.path.join(data, "state", "engine.json"))
+    rp = load_peer()
+    link = rp.pair_link(rp.add_device("this computer's browser"))
+    return link.split("#", 1)[1]
+
+
+def engine_name() -> str:
+    """The name the peer signs in to the rendezvous with (the computer's own name)."""
+    d = engine_dir()
+    if d not in sys.path:
+        sys.path.insert(0, d)
+    import native_host
+    return native_host.friendly_name()
 
 
 # ================================================================================================ uninstall

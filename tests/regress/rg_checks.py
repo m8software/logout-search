@@ -419,6 +419,28 @@ def script(ctx, p):
     return out
 
 
+def browser_first_run(ctx, p):
+    """First run, in a headless browser: after setup the search page shows the engine pill and a search is answered by the
+    engine with zero requests to the public site's /api/instant (browser/first_run.mjs; needs node + playwright-core + Chrome)."""
+    if not ctx.browser_page:
+        return [("first run", SKIP, "needs --browser-page URL (the search page; with the install's engine on this computer or network)")]
+    cmd = ["node", os.path.join(ctx.root, "tests", "regress", "browser", "first_run.mjs"), "--page", ctx.browser_page,
+           "--query", p.get("query", "gmail"), "--expect-card", p.get("expect_card", "Gmail")]
+    if ctx.chrome:
+        cmd += ["--chrome", ctx.chrome]
+    env = dict(os.environ, **({"NODE_PATH": ctx.node_path} if ctx.node_path else {}))
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=180, env=env)
+    except FileNotFoundError:
+        return [("first run", SKIP, "node is not installed")]
+    except subprocess.TimeoutExpired:
+        return [("first run", FAIL, "the browser case took more than 180 s")]
+    line = (r.stdout.strip().splitlines() or [""])[-1]
+    if r.returncode == 77:
+        return [("first run", SKIP, line[:200])]
+    return [("first run", PASS if r.returncode == 0 else FAIL, line[:600] or r.stderr[-300:])]
+
+
 def pending(ctx, p):
     """Written and reasoned, not yet runnable: says why. Not counted as a pass."""
     return [("pending", PENDING, p["why"])]
@@ -503,7 +525,7 @@ def matrix(ctx, p):
     return res
 
 
-CHECKS = {f.__name__: f for f in (matrix, 
+CHECKS = {f.__name__: f for f in (browser_first_run, matrix, 
     golden_rows, must_answer, bad_values, expect_card, official_not_news, description_whole, suggest_lead, answer_and_list,
     parallel_serial, endpoints, stored_served, store_on, latency_budget, soak, rss, disk_bound, script, pending, stun_rtt,
     rv_handshake)}

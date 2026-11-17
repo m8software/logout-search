@@ -15,6 +15,7 @@ up) port=${3:?port}; rel=${4:?release dir}; rid=${5:?release id}
   listening=$(ss -ltn "sport = :$port" 2>/dev/null || true)
   [[ $listening == *LISTEN* ]] && { echo "port $port is taken" >&2; exit 2; }
   docker rm -f "$name" >/dev/null 2>&1 || true
+  appmount=(); [[ -n ${SCRATCH_APP:-} ]] && appmount=(-v "$SCRATCH_APP:/app:ro")      # engine code: the image's /app with master's files over it
   docker run -d --name "$name" --memory 4g --memory-swap 4g --cpus 2 \
     -e SEARCH_CE_DEVICE=cpu -e SEARCH_HOME="40.592,-105.871" -e SEARCH_REQUIRE_RERANKER=1 -e SEARCH_REQUIRE_KINDS_MODEL=1 \
     -e MALLOC_ARENA_MAX=2 -e SEARCH_SQLITE_CACHE_KB=8000 \
@@ -23,8 +24,9 @@ up) port=${3:?port}; rel=${4:?release dir}; rid=${5:?release id}
     -e SEARCH_WIKI_BACKEND=tantivy-release -e SEARCH_WIKI_INDEX=/rel/text/wiki -e SEARCH_WEB_BACKEND=tantivy-release \
     -e SEARCH_SEM_BACKEND=ivf -e SEARCH_SEM_IVF=/rel/vectors/ivf -e SEARCH_NOMIC_DIR=/rel/models/nomic-embed-text-v1.5 \
     -e SEARCH_MODEL_DIR=/rel/models/bge-small-en-v1.5 -e SEARCH_CE_DIR=/rel/models/rerank-turbo \
+    -e SEARCH_API_ALLOW_FROM=0.0.0.0/0 -e SEARCH_CE_GOV_DIR=/rel/models/rerank-turbo \
     -e SEARCH_BREADTH=JDLF -e SEARCH_BREADTH_FLOOR=0 -e SEARCH_SCORE_ALL=1 -e SEARCH_SCORE_ALL_TOP=10 \
-    -v "$rel:/rel:ro" -p "127.0.0.1:$port:8090" "${SCRATCH_IMAGE:-logout/search-api:public}" >/dev/null
+    "${appmount[@]}" -v "$rel:/rel:ro" -p "127.0.0.1:$port:8090" "${SCRATCH_IMAGE:-logout/search-api:public}" >/dev/null
   t=0
   until [[ $(curl -s -m 20 -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/readyz" 2>/dev/null || true) == 200 ]]; do
     [[ "$(docker inspect -f '{{.State.Running}}' "$name" 2>/dev/null)" == true ]] && (( t < 600 )) || { docker logs --tail 20 "$name" >&2; docker rm -f "$name" >/dev/null 2>&1; echo "$name did not become ready" >&2; exit 1; }

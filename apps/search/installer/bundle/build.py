@@ -43,7 +43,7 @@ NEWS_FILES = ["poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py", "schem
 # analysed with the launcher so every library and standard-library module they import is in the bundle
 ANALYSED = [os.path.join(INSTALLER, "logout_search.py"), os.path.join(ENGINE, "search_api.py"), os.path.join(ENGINE, "native_host.py"),
             os.path.join(ENGINE, "rtc_peer.py"), os.path.join(ENGINE, "av_absent.py"), os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py"),
-            os.path.join(INSTALLER, "autoupdate.py"), os.path.join(INSTALLER, "selftest.py"), os.path.join(INSTALLER, "doctor.py")] + [os.path.join(NEWS, f) for f in ("poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py")]
+            os.path.join(INSTALLER, "autoupdate.py"), os.path.join(INSTALLER, "selftest.py"), os.path.join(INSTALLER, "doctor.py"), os.path.join(INSTALLER, "firstrun.py")] + [os.path.join(NEWS, f) for f in ("poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py")]
 ICON = os.path.join(HERE, "logout-search.ico")
 COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary",
                "aiortc", "aioice", "pylibsrtp", "google_crc32c", "qrcode"]      # the peer (other devices pair through it)
