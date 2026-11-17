@@ -580,6 +580,8 @@ def verify(data: str, *, platform: str, program: list, port: int, state: str, ha
     res["kind"] = v.get("kind")
     s["selftest"] = res
     act = None
+    if v.get("kind") == "program" and in_window(s, now or time.time()):
+        s["followup"] = True                               # updated in the night window: the rest of the night's check (data, answers) follows once the engine is up
     if res.get("ok"):
         finish_verify(base_of(data), v)
     else:
@@ -679,8 +681,6 @@ def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, progr
         if p["action"] != "none":
             result.append(f"program {mine} -> {p['version']}")
             act = p["action"]
-            if in_window(s, now or time.time()):
-                s["followup"] = True                       # the night's check goes on right after the restart (data and answers)
             begin_verify(s, "program", mine, p["version"], **({"setup": p["setup"]} if p.get("setup") else {}))
     except Exception as e:  # noqa: BLE001 - an update that fails leaves everything as it was
         s["program"] = {"action": "failed", "why": f"{type(e).__name__}: {e}"[:300]}
