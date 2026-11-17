@@ -1,0 +1,175 @@
+{
+ "group": "matrix",
+ "title": "Types of searches, many ways, timed",
+ "cases": [
+  {
+   "id": "MAT-001",
+   "title": "matrix, brand: brand and company names asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "high",
+   "check": "matrix",
+   "params": {
+    "type": "brand"
+   }
+  },
+  {
+   "id": "MAT-002",
+   "title": "matrix, person: people asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "person"
+   }
+  },
+  {
+   "id": "MAT-003",
+   "title": "matrix, place: cities, landmarks and near-me searches (with a home position) asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "high",
+   "check": "matrix",
+   "params": {
+    "type": "place"
+   }
+  },
+  {
+   "id": "MAT-004",
+   "title": "matrix, howto: how-to questions asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "howto"
+   }
+  },
+  {
+   "id": "MAT-005",
+   "title": "matrix, fact: fact questions (ceo of X, capital of Y, how tall is Z) asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "fact"
+   }
+  },
+  {
+   "id": "MAT-006",
+   "title": "matrix, misspell: misspellings asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "misspell"
+   }
+  },
+  {
+   "id": "MAT-007",
+   "title": "matrix, product: product names asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "product"
+   }
+  },
+  {
+   "id": "MAT-008",
+   "title": "matrix, gov: government tasks (the 50-state set, with each state's home position) asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "high",
+   "check": "matrix",
+   "params": {
+    "type": "gov"
+   }
+  },
+  {
+   "id": "MAT-009",
+   "title": "matrix, account: account and login searches asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "account"
+   }
+  },
+  {
+   "id": "MAT-010",
+   "title": "matrix, short: short names (2-3 letters) asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "high",
+   "check": "matrix",
+   "params": {
+    "type": "short"
+   }
+  },
+  {
+   "id": "MAT-011",
+   "title": "matrix, long: long phrases and natural questions asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "long"
+   }
+  },
+  {
+   "id": "MAT-012",
+   "title": "matrix, live: weather, sports and news asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "live"
+   }
+  },
+  {
+   "id": "MAT-013",
+   "title": "matrix, word: plain words and definitions asked cold, again, while typing and 4 at a time; no errors, answered, within the speed flags (cold under 2 s, repeat under 100 ms at p90, engine time)",
+   "guards": [
+    "owner 2026-11-17: types of queries, many ways, measured on Windows and Linux",
+    " speed budget"
+   ],
+   "severity": "medium",
+   "check": "matrix",
+   "params": {
+    "type": "word"
+   }
+  }
+ ]
+}

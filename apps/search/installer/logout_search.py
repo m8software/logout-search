@@ -389,7 +389,7 @@ def start_updater(data: str, engine, port=None, has_se: bool = False):
 # NAME` at low priority, is started again if it stops (never stopping the engine), and stops with `start`.
 COLLECTORS = {"news": "poller.py", "sports": "sports.py", "weather": "wxall.py"}
 OWN_SETTINGS = {"news": ("NEWS_POLL_SCALE",), "sports": (),                  # a change restarts only that one
-                "weather": ("WX_EVERY_NBH_S", "WX_EVERY_NBE_S", "WX_EVERY_METARS_S", "WX_EVERY_ALERTS_S")}
+                "weather": ("WX_EVERY_NBH_S", "WX_EVERY_NBE_S", "WX_EVERY_METARS_S", "WX_EVERY_ALERTS_S", "WX_EVERY_RADAR_S")}
 # The shipped headline list: search.logout.cloud's own (feeds-public.tsv, ADR-062). Owner 2026-11-14: "ship the public
 # feed list too" -- an installed engine reads the same list as the public site, plus the feeds its user adds.
 HOME_FEED_LIST = "feeds-public.tsv"
@@ -409,6 +409,7 @@ def collector_env(data: str) -> dict:
     settings = os.environ.get("LOGOUT_SETTINGS") or os.path.join(data, "state", "settings.json")
     env = {"NEWS_SQLITE": news_file(data), "NEWS_SETTINGS": settings, "SPORTS_SETTINGS": settings, "SPORTS_PUBLIC": "1",
            "NEWS_FEEDS": os.path.join(nd, HOME_FEED_LIST) if HOME_FEED_LIST else "", "NEWS_FEEDS_MORE": "",
+           "WX_RADAR_DIR": os.path.join(data, "state", "radar"), "WX_RADAR_DEMAND": "1",
            "PYTHONUNBUFFERED": "1"}
     import homesettings
     env.update(homesettings.env_for(data))               # how often: the tray's choices (news pace, weather hours)
@@ -1123,6 +1124,8 @@ def host_register(a) -> int:
 
 def http_answer(port: int, nh):
     """native_host's `answer` over HTTP to the running engine (one process keeps the indexes and models warm)."""
+    import base64
+    import urllib.error
     import urllib.parse
     import urllib.request
 
@@ -1147,8 +1150,24 @@ def http_answer(port: int, nh):
     def explain(q: str, near=None) -> dict:
         return get("/explain", {"q": q, **({"near": near} if near else {})})
 
+    def radar(station: str, ts: int | None = None) -> dict | None:
+        path = f"/radar/{station}.json" if ts is None else f"/radar/{station}/{ts}.gif"
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}{path}", timeout=10) as r:
+                raw = r.read(1024 * 1024)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None
+            raise
+        if ts is None:
+            return json.loads(raw)
+        if len(raw) > 720 * 1024:
+            raise ValueError("radar frame too large")
+        return {"data": "data:image/gif;base64," + base64.b64encode(raw).decode("ascii")}
+
     answer.more_news = more_news
     answer.explain = explain
+    answer.radar = radar
     return answer
 
 
@@ -1256,6 +1275,10 @@ def main(argv=None) -> int:
     dc = sp.add_parser("doctor", help="one plain-text report of this install to paste into a support email (no searches, nothing personal)")
     dc.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     dc.add_argument("--port", type=int, default=8090)
+    hl = sp.add_parser("health", help="opt-in daily anonymous health report (off by default)")
+    hl.add_argument("action", nargs="?", default="show", choices=["on", "off", "show", "reset"])
+    hl.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
+    hl.add_argument("--port", type=int, default=8090)
     au = sp.add_parser("autostart")
     au.add_argument("state", choices=["on", "off"])
     au.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
@@ -1313,7 +1336,7 @@ def main(argv=None) -> int:
         run_install(argv)
         return 0
     a, rest = ap.parse_known_args(argv)
-    if a.cmd in ("start", "update", "collectors", "admin", "autoupdate", "autostart", "host", "pin", "channel", "doctor") and not getattr(a, "dest", None):
+    if a.cmd in ("start", "update", "collectors", "admin", "autoupdate", "autostart", "host", "pin", "channel", "doctor", "health") and not getattr(a, "dest", None):
         a.dest = default_data()
     if a.cmd == "start":
         start(a)
@@ -1336,6 +1359,22 @@ def main(argv=None) -> int:
     elif a.cmd == "doctor":
         import doctor
         print(doctor.report(os.path.abspath(a.dest), a.port, VERSION, PLATFORM, FROZEN))
+        return 0
+    elif a.cmd == "health":
+        import doctor
+        dest = os.path.abspath(a.dest)
+        if a.action == "on":
+            st = doctor.set_health_report(dest, True)
+            print(json.dumps({"health_report": True, "install_id": st["install_id"]}, indent=1, sort_keys=True))
+        elif a.action == "off":
+            st = doctor.set_health_report(dest, False)
+            print(json.dumps({"health_report": False, "install_id": st["install_id"]}, indent=1, sort_keys=True))
+        elif a.action == "reset":
+            st = doctor.reset_install_id(dest)
+            print(json.dumps({"health_report": st["health_report"], "install_id": st["install_id"]}, indent=1, sort_keys=True))
+        else:
+            st = doctor.health_load(dest)
+            print(json.dumps({**st, "payload": doctor.health_payload(dest, a.port, VERSION, PLATFORM, FROZEN)}, indent=1, sort_keys=True))
         return 0
     elif a.cmd == "host":
         if a.action == "run":

@@ -1,0 +1,93 @@
+{
+ "group": "takein",
+ "title": "Taking in data and answers",
+ "cases": [
+  {
+   "id": "TKN-001",
+   "title": "searches keep answering while an answers file is taken in: no request above the bound, the engine does not restart",
+   "guards": [
+    "lr: searches 4-10 s during a 514 MB base take-in",
+    "release-2 round 3 (reset_lists held the store lock)"
+   ],
+   "severity": "high",
+   "check": "takein_serving",
+   "params": {
+    "max_ms": 3000,
+    "p99_ms": 1500
+   },
+   "needs": [
+    "sandbox",
+    "install"
+   ]
+  },
+  {
+   "id": "TKN-002",
+   "title": "a take-in of an answers file the engine refuses leaves the engine and its store working (file renamed .bad)",
+   "guards": [
+    "refusal cases"
+   ],
+   "severity": "medium",
+   "check": "takein_refused",
+   "params": {},
+   "needs": [
+    "sandbox",
+    "install"
+   ]
+  },
+  {
+   "id": "TKN-003",
+   "title": "intake does not block serving (a real store, a reader loop during reset_lists: max read bound)",
+   "guards": [
+    "release-2 round 3: max read 2,575 ms before, 23 ms after"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-intake-serving.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "TKN-004",
+   "title": "an update package ships changed rows only (unchanged files are hard links, nothing shipped; rollback, repeat and chain); install refuses a bad signature, wrong release, unlisted file",
+   "guards": [
+    "302 MB repeat delta (covered by 'unchanged files ... nothing shipped'; the 302 MB figure itself is not asserted)",
+    "install refusal cases"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-update-package.sh",
+     "bash tests/unit/test-search-install.sh",
+     "bash tests/unit/test-search-install-retry.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "TKN-005",
+   "title": "only open-data and hand-added names are published (the lists test); finished answers carry no visitor rows",
+   "guards": [
+    ""
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-lists.sh",
+     "bash tests/unit/test-search-finished.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  }
+ ]
+}

@@ -15,6 +15,8 @@ settings), written by the tray's menu (installer/tray_win.py), the admin section
 Changing one of the custom settings while a preset is chosen starts custom from what that preset was doing.
 Every preset keeps the hourly forecast at least every 6 hours: the engine calls a forecast older than 8 hours stale.
 Daily downloads, measured on testbox on 2026-11-14 (v0.4.6, gzip): Full about 780 MB, Balanced about 475, Light about 320.
+Local weather radar (home + queried stations only, ~90 KB GIF): about 13 MB/day per active station
+at 10-min checks (Full), about 7 MB/day per active station at 20-min checks (Balanced), off in Light and Search only.
 A change takes effect within a minute: `start` restarts the collector whose settings changed. The daily update's own
 switches are in DATA/state/autoupdate.json (autoupdate.py). Standard library only: the tray reads it without the engine.
 """
@@ -32,16 +34,16 @@ H, M = 3600, 60
 # each preset: which collectors run, and the collectors' environment (news/poller.py, news/wxall.py)
 PRESETS = {
     "full": ({"news": True, "sports": True, "weather": True},
-             {"NEWS_POLL_SCALE": 1, "WX_EVERY_NBH_S": 3 * H, "WX_EVERY_NBE_S": 6 * H, "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M}),
+             {"NEWS_POLL_SCALE": 1, "WX_EVERY_NBH_S": 3 * H, "WX_EVERY_NBE_S": 6 * H, "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M, "WX_EVERY_RADAR_S": 10 * M}),
     "balanced": ({"news": True, "sports": True, "weather": True},
-                 {"NEWS_POLL_SCALE": 2, "WX_EVERY_NBH_S": 4 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 20 * M, "WX_EVERY_ALERTS_S": 10 * M}),
+                 {"NEWS_POLL_SCALE": 2, "WX_EVERY_NBH_S": 4 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 20 * M, "WX_EVERY_ALERTS_S": 10 * M, "WX_EVERY_RADAR_S": 20 * M}),
     "light": ({"news": True, "sports": True, "weather": True},
-              {"NEWS_POLL_SCALE": 4, "WX_EVERY_NBH_S": 6 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 30 * M, "WX_EVERY_ALERTS_S": 15 * M}),
+              {"NEWS_POLL_SCALE": 4, "WX_EVERY_NBH_S": 6 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 30 * M, "WX_EVERY_ALERTS_S": 15 * M, "WX_EVERY_RADAR_S": 0}),
     "search": ({"news": False, "sports": False, "weather": False}, {}),
 }
 # what each choice is called, and what it downloads a day (the tray and the page show these)
-PROFILE_TEXT = {"auto": ("Automatic", "Full, or Light on a metered connection"), "full": ("Full", "about 780 MB a day"),
-                "balanced": ("Balanced", "about 475 MB a day"), "light": ("Light", "about 320 MB a day"),
+PROFILE_TEXT = {"auto": ("Automatic", "Full, or Light on a metered connection"), "full": ("Full", "about 780 MB a day + ~13 MB/station radar"),
+                "balanced": ("Balanced", "about 475 MB a day + ~7 MB/station radar"), "light": ("Light", "about 320 MB a day; no radar"),
                 "search": ("Search only", "nothing beside the engine"), "custom": ("Custom", "your own choices below")}
 
 
@@ -137,7 +139,7 @@ def effective(data: str, metered=None) -> dict:
         h = s["weather_every_h"]
         on = {k: s[k] for k in COLLECTORS}
         env = {"NEWS_POLL_SCALE": s["news_every"], "WX_EVERY_NBH_S": h * H, "WX_EVERY_NBE_S": max(6, h) * H,
-               "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M}
+               "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M, "WX_EVERY_RADAR_S": 10 * M}
     else:
         on, env = PRESETS[applied]
     if os.environ.get("LOGOUT_COLLECTORS", "") == "0":          # tests, a machine that wants only search

@@ -1,0 +1,143 @@
+# Golden searches (monitor required test). Generated from search.logout.cloud on 2026-11-15 (engine 97570e96d7a3b509, freeze 06bab5d8),
+# then reviewed by eye. Columns: name, card title ('-' = no card), official-site host, first-result host, status.
+# status ok = enforced; doubtful = today's answer looks wrong, kept for the record, NOT enforced. Fix the answer, then flip it to ok
+# (with the new values) in the same commit. Names: apps/search/twin/must.txt plus google lg ea hp apple microsoft meta adobe samsung is go us ok to me.
+# two-letter names the owner approved for a card (2026-11-15: uk eu un ny la dc ai; not us is go me), release 2 rule TWO_LETTER_KEEP
+# (a copy of apps/search/twin/golden/expect.tsv without rows naming a place or a number; tests/unit/test-search-regress-suite.sh keeps them equal)
+gmail login	Gmail	gmail.com	gmail.com	ok
+gmail	Gmail	gmail.com	gmail.com	ok
+outlook	Microsoft Outlook	outlook.office.com	outlook.office.com	ok
+outlook login	Microsoft Outlook	outlook.office.com	outlook.office.com	ok
+keep	Google Keep	keep.google.com	keep.google.com	ok
+premiere	Adobe Premiere	adobe.com	adobe.com	ok
+adobe premiere	Adobe Premiere	adobe.com	adobe.com	ok
+weird al yankovic	"Weird Al" Yankovic	weirdal.com	weirdal.com	ok
+trump	Donald Trump	donaldjtrump.com	whitehouse.gov	doubtful
+donald trump	Donald Trump	donaldjtrump.com	whitehouse.gov	doubtful
+iphone	IPhone	apple.com	apple.com	ok
+how to stop a toilet running	-	-	diy.stackexchange.com	ok
+taylor swift	Taylor Swift	taylorswift.com	taylorswift.com	ok
+new york giants	New York Giants	giants.com	giants.com	ok
+python	Python (programming language)	python.org	python.org	ok
+amazon	Amazon (company)	amazon.com	amazon.com	ok
+netflix	Netflix	netflix.com	netflix.com	ok
+cnn	CNN	cnn.com	cnn.com	ok
+wikipedia	Wikipedia	wikipedia.org	wikipedia.org	ok
+pizza	Pizza	lacucinaitaliana.com	andpizza.com	doubtful
+photoshop	Adobe Photoshop	photoshop.com	photoshop.com	ok
+lightroom	Adobe Lightroom	lightroom.com	lightroom.com	ok
+teams	Microsoft Teams	teams.microsoft.com	teams.microsoft.com	ok
+word	Microsoft Word	-	en.wikipedia.org	doubtful
+excel	Microsoft Excel	microsoft.com	microsoft.com	doubtful
+powerpoint	Microsoft PowerPoint	powerpoint.cloud.microsoft	powerpoint.cloud.microsoft	ok
+onenote	Microsoft OneNote	onenote.com	onenote.com	ok
+onedrive	OneDrive	onedrive.live.com	onedrive.live.com	ok
+drive	Google Drive	drive.google.com	drive.google.com	ok
+maps	Google Maps	google.com	google.com	doubtful
+docs	Google Docs	google.com	google.com	doubtful
+sheets	Google Sheets	google.com	google.com	doubtful
+slides	Google Slides	google.com	google.com	doubtful
+meet	Where Winds Meet	wherewindsmeetgame.com	en.wikipedia.org	doubtful
+calendar	Calendar	-	en.wikipedia.org	doubtful
+chrome	Google Chrome	google.com	google.com	doubtful
+edge	Microsoft Edge	microsoft.com	microsoft.com	doubtful
+office	Microsoft Office	office.com	office.com	ok
+acrobat	Acrobatics	-	en.wikipedia.org	doubtful
+illustrator	Adobe Illustrator	adobe.com	adobe.com	ok
+indesign	Adobe InDesign	adobe.com	adobe.com	ok
+after effects	Hangover	-	adobe.com	doubtful
+notion	Notion (productivity software)	notion.com	notion.com	ok
+slack	Slack (software)	slack.com	slack.com	ok
+zoom	Zoom (software)	zoom.com	zoom.us	doubtful
+discord	Discord	discord.com	discord.com	ok
+steam	Steam	-	steamcommunity.com	doubtful
+spotify	Spotify	spotify.com	spotify.com	ok
+youtube	YouTube	youtube.com	youtube.com	ok
+facebook	Facebook	facebook.com	facebook.com	ok
+instagram	Instagram	instagram.com	about.instagram.com	ok
+prime	Prime (drink)	drinkprime.com	en.wikipedia.org	doubtful
+alexa	Amazon Alexa	alexa.com	alexazb.com	doubtful
+siri	-	-	google.com	doubtful
+kindle	Amazon Kindle	amazon.com	amazon.com	ok
+echo	Amazon Echo	amazon.com	amazon.com	ok
+nest	Nest	-	nest.com	doubtful
+pixel	Google Pixel	-	en.wikipedia.org	doubtful
+surface	Microsoft Surface	surface.com	surface.com	doubtful
+xbox	Xbox	xbox.com	xbox.com	ok
+switch	Nintendo Switch	nintendo.com	nintendo.com	ok
+playstation	PlayStation	playstation.com	playstation.com	ok
+airpods	AirPods	apple.com	apple.com	ok
+ipad	IPad	apple.com	apple.com	ok
+macbook	MacBook	-	en.wikipedia.org	doubtful
+imac	IMac	apple.com	apple.com	ok
+icloud	ICloud	icloud.com	icloud.com	ok
+itunes	ITunes	itunes.com	itunes.com	ok
+facetime	FaceTime	facetime.apple.com	facetime.apple.com	ok
+safari	Safari	-	apple.com	doubtful
+firefox	Firefox	firefox.com	firefox.com	ok
+thunderbird	Thunderbird	-	thunderbird.net	doubtful
+bing	Microsoft Bing	bing.com	bing.com	ok
+copilot	Microsoft Copilot	copilot.com	copilot.com	doubtful
+cortana	Prednisone	-	en.wikipedia.org	doubtful
+skype	Skype	skype.com	skype.com	ok
+messenger	MESSENGER	messenger.jhuapl.edu	messenger.jhuapl.edu	doubtful
+whatsapp	WhatsApp	whatsapp.com	whatsapp.com	ok
+gemini	Google Gemini	gemini.google.com	gemini.google.com	ok
+bard	Bard	-	bard.edu	doubtful
+photos	Google Photos	photos.google.com	photos.google.com	ok
+music	Music	-	music.youtube.com	doubtful
+news	News	-	news.cn	doubtful
+watch	Watch	-	apple.com	doubtful
+tv	-	-	tv.com	doubtful
+home	Spider-Man: No Way Home	marvel.com	en.wikipedia.org	doubtful
+store	Microsoft Store	apps.microsoft.com	apps.microsoft.com	ok
+pay	Apple Pay	apple.com	apple.com	ok
+wallet	Wallet	-	wallet.google	doubtful
+fitbit	Fitbit	fitbit.com	fitbit.com	ok
+waze	Waze	waze.com	waze.com	ok
+duo	Google Duo	duo.google.com	duo.google.com	ok
+hangouts	Google Hangouts	hangouts.google.com	hangouts.google.com	ok
+voice	Human voice	-	en.wikipedia.org	doubtful
+translate	Google Translate	translate.google.com	translate.google.com	ok
+earth	Earth	-	earth.org	doubtful
+classroom	Google Classroom	classroom.google.com	classroom.google.com	ok
+forms	Google Forms	forms.google.com	forms.google.com	ok
+keynote	Keynote	-	apple.com	doubtful
+pages	Pages (word processor)	apple.com	pages.dev	doubtful
+numbers	Numbers (spreadsheet)	apple.com	apple.com	doubtful
+garageband	GarageBand	apple.com	apple.com	ok
+imovie	IMovie	apple.com	apple.com	ok
+final cut	-	-	en.wikipedia.org	doubtful
+logic	Logic	-	en.wikipedia.org	doubtful
+audible	Audible (service)	audible.com	audible.com	ok
+fire tv	Amazon Fire TV	amazon.com	amazon.com	ok
+ring	Ring (company)	ring.com	ring.com	doubtful
+blink	Blinking	-	en.wikipedia.org	doubtful
+galaxy	Galaxy	-	en.wikipedia.org	doubtful
+bixby	Bill Bixby	-	en.wikipedia.org	doubtful
+oculus	-	-	oculus.com	doubtful
+quest	Quest	-	quest.com	doubtful
+hulu	Hulu	hulu.com	hulu.com	ok
+google	Google	google.com	google.com	ok
+lg	LG Electronics	lg.com	lg.com	ok
+ea	Electronic Arts	ea.com	ea.com	ok
+hp	HP Inc.	hp.com	hp.com	ok
+apple	Apple Inc.	apple.com	apple.com	ok
+microsoft	Microsoft	microsoft.com	microsoft.com	ok
+meta	Meta Platforms	meta.com	meta.com	ok
+adobe	Adobe Inc.	adobe.com	adobe.com	ok
+samsung	Samsung	samsung.com	samsung.com	ok
+is	-	-	is.gd	ok
+go	-	-	go.dev	ok
+us	-	-	en.wikipedia.org	ok
+ok	-	-	ok.gov	ok
+to	-	-	en.wikipedia.org	ok
+me	-	-	me.com	ok
+uk	United Kingdom	gov.uk	gov.uk	ok
+eu	European Union	european-union.europa.eu	european-union.europa.eu	ok
+un	United Nations	un.org	un.org	ok
+ny	New York (state)	ny.gov	ny.gov	ok
+la	Los Angeles	lacity.gov	lacity.gov	ok
+dc	DC Comics	dc.com	dc.com	ok
+ai	Artificial intelligence	-	en.wikipedia.org	ok
+nyc	New York City	nyc.gov	nyc.gov	ok

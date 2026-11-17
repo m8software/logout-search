@@ -20,9 +20,11 @@ Privacy: only the warmer's requests write (search_api: warm=1). A visitor's sear
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import threading
 import time
@@ -30,6 +32,7 @@ import zlib
 
 # Settings that change how fast or where, never which results: left out of the fingerprint.
 NOT_RESULTS = frozenset((
+    "SEARCH_BG_QUIET_S", "SEARCH_COLD_BUDGET_S", "SEARCH_WARMUP_MAX_S", "SEARCH_WARMUP_MAX_BYTES", "SEARCH_STORE_OPEN_WAIT_S",
     "SEARCH_CACHE_TTL_S", "SEARCH_COMPUTE_CACHE", "SEARCH_PARTS", "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_MAX", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
     "SEARCH_CE_THREADS", "SEARCH_API_ALLOW_FROM", "SEARCH_MEMSTAT", "SEARCH_SQLITE_CACHE_KB", "SEARCH_IVF_KERN",
     "SEARCH_IVF_KERN_LIB", "SEARCH_STORE", "SEARCH_STORE_MAX_AGE_S", "SEARCH_STORE_REFRESH_S", "SEARCH_BIND",
@@ -149,44 +152,50 @@ class ResultStore:
         self.path, self.fp, self.max_age = path, fp, max_age_s
         self.lock = threading.Lock()
         self.db = sqlite3.connect(path, check_same_thread=False, isolation_level=None, timeout=5)
-        self.db.execute("PRAGMA journal_mode=WAL")
+        # An already initialised store is opened with reads only: the journal mode is changed only when it is not WAL, and a table
+        # is created only when it is missing. Every statement that writes needs the write lock and the WAL index, and a start that
+        # asked for them while another process had the file (curated-dashboard.py reads it every few minutes; on a side-by-side
+        # deploy the old engine) failed with "locking protocol" (staging, 2026-11-16) and the engine ran without its store.
+        if str(self.db.execute("PRAGMA journal_mode").fetchone()[0]).lower() != "wal":
+            self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA synchronous=NORMAL")
-        self.db.execute("CREATE TABLE IF NOT EXISTS rows (fp TEXT NOT NULL, kind TEXT NOT NULL, key TEXT NOT NULL, "
+        self._tables = {r[0] for r in self.db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+        self._ddl("CREATE TABLE IF NOT EXISTS rows (fp TEXT NOT NULL, kind TEXT NOT NULL, key TEXT NOT NULL, "
                         "body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (fp, kind, key)) WITHOUT ROWID")
         # Curated answers (2026-11-05): a list chosen offline by a large model for a name, keyed by RELEASE, not by
         # this engine's fingerprint (a code change must not retire them; tools/curated-build.py writes them).
-        self.db.execute("CREATE TABLE IF NOT EXISTS curated (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, "
+        self._ddl("CREATE TABLE IF NOT EXISTS curated (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, "
                         "at REAL NOT NULL, PRIMARY KEY (release, key)) WITHOUT ROWID")
         # Finished answers (2026-11-12): the visitor-independent part of a whole answer (list, card, place, kinds...)
         # built ahead of time by a copy of this engine, keyed by RELEASE like the curated lists: a code change does
         # not empty it, entries are replaced as the builder gets to them.
-        self.db.execute("CREATE TABLE IF NOT EXISTS finished (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, "
+        self._ddl("CREATE TABLE IF NOT EXISTS finished (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, "
                         "at REAL NOT NULL, PRIMARY KEY (release, key)) WITHOUT ROWID")
         # When the builder's current engine last CONFIRMED a finished answer that came out unchanged (2026-11-15, audit DB-03): `at`
         # stays the "content last changed" time the lists publish uses to decide what to ship; serving gates on
         # max(at, checked), so a stable answer the nightly rebuild re-verifies does not age out 21 days after it was first made.
         # A table of its own, not a column: other scripts insert into `finished` by position.
-        self.db.execute("CREATE TABLE IF NOT EXISTS finished_checked (release TEXT NOT NULL, key TEXT NOT NULL, checked REAL NOT NULL, "
+        self._ddl("CREATE TABLE IF NOT EXISTS finished_checked (release TEXT NOT NULL, key TEXT NOT NULL, checked REAL NOT NULL, "
                         "PRIMARY KEY (release, key)) WITHOUT ROWID")
         # What a finished answer's retrieval returned (2026-11-15 phase 4): an ordered (url, score) hash and the
         # candidate url tokens, builder side only (never shipped, never read when serving). release_delta.py reads it.
-        self.db.execute("CREATE TABLE IF NOT EXISTS prov (release TEXT NOT NULL, key TEXT NOT NULL, cand_hash TEXT NOT NULL, "
+        self._ddl("CREATE TABLE IF NOT EXISTS prov (release TEXT NOT NULL, key TEXT NOT NULL, cand_hash TEXT NOT NULL, "
                         "cand BLOB NOT NULL, calls TEXT, PRIMARY KEY (release, key)) WITHOUT ROWID")
         if "calls" not in {c[1] for c in self.db.execute("PRAGMA table_info(prov)")}:
             self.db.execute("ALTER TABLE prov ADD COLUMN calls TEXT")
         # Shopping departments (2026-11-13): for a name from a store's search suggestions, how sure a
         # local model is that it is shopped for (p) and where (d, with its confidence c). Labelled at home, shipped
         # like the lists; keyed by the name alone: it does not depend on the release or on this engine's code.
-        self.db.execute("CREATE TABLE IF NOT EXISTS dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, "
+        self._ddl("CREATE TABLE IF NOT EXISTS dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, "
                         "at REAL NOT NULL) WITHOUT ROWID")
         # Parts of an answer (phase 2, 2026-11-15, parts.py): one stage's output under an exact key (stage code
         # version, settings, data, inputs); h = the body's own hash, for the stages after it. Never retired by a
         # deploy: a part whose stage did not change is found again under the same key.
-        self.db.execute("CREATE TABLE IF NOT EXISTS parts (stage TEXT NOT NULL, key TEXT NOT NULL, h TEXT NOT NULL, "
+        self._ddl("CREATE TABLE IF NOT EXISTS parts (stage TEXT NOT NULL, key TEXT NOT NULL, h TEXT NOT NULL, "
                         "body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (stage, key)) WITHOUT ROWID")
         # When a part was last READ (audit DB-09/B-09): in a table of its own, because the helper and relay scripts insert into `parts`
         # by position. prune() drops parts nobody has read for weeks; a part not in here counts from its write time.
-        self.db.execute("CREATE TABLE IF NOT EXISTS parts_used (stage TEXT NOT NULL, key TEXT NOT NULL, used REAL NOT NULL, "
+        self._ddl("CREATE TABLE IF NOT EXISTS parts_used (stage TEXT NOT NULL, key TEXT NOT NULL, used REAL NOT NULL, "
                         "PRIMARY KEY (stage, key)) WITHOUT ROWID")
         self._touched: set = set()
         self.stats = {"hit": 0, "miss": 0, "put": 0, "skip": 0, "curated_hit": 0, "finished_hit": 0, "prev_hit": 0}
@@ -195,10 +204,34 @@ class ResultStore:
         r = self.db.execute("SELECT fp FROM rows WHERE fp <> ? GROUP BY fp ORDER BY max(at) DESC LIMIT 1", (fp,)).fetchone()
         self.prev_fp = r[0] if r else None
 
+    def _ddl(self, sql: str) -> None:
+        """CREATE TABLE IF NOT EXISTS, skipped (no write lock) when the table is already there."""
+        m = re.match(r"CREATE TABLE IF NOT EXISTS (\w+)", sql)
+        if m and m.group(1) in self._tables:
+            return
+        self.db.execute(sql)
+
+    yield_hook = None             # set by the engine: called between the chunks of an intake (waits for the searches in flight)
+    READ_WAIT_S = 0.5             # a visitor's search that cannot get the store this soon computes without it (the intake no longer holds the lock; this is the bound)
+    is_builder = staticmethod(lambda: False)   # set by the engine: True for a warm=1 request (the warmer, the builders): those always wait, an answer built without the store would be a wrong stored answer
+
+    @contextlib.contextmanager
+    def _rd(self):
+        """The store for a read: yields True with the lock held, or False when the lock stayed taken for READ_WAIT_S (the reader treats
+        that as "no stored row" and computes). The intake of a lists base used to hold this lock for the whole replace."""
+        got = self.lock.acquire() if self.is_builder() else self.lock.acquire(timeout=self.READ_WAIT_S)
+        if not got:
+            self.stats["busy"] = self.stats.get("busy", 0) + 1
+        try:
+            yield got
+        finally:
+            if got:
+                self.lock.release()
+
     def get(self, kind: str, key: str, max_age: float | None = None):
         """(value, age_s) of a row of this fingerprint younger than max_age, else None."""
-        with self.lock:
-            r = self.db.execute("SELECT body, at FROM rows WHERE fp = ? AND kind = ? AND key = ?", (self.fp, kind, key)).fetchone()
+        with self._rd() as ok:
+            r = self.db.execute("SELECT body, at FROM rows WHERE fp = ? AND kind = ? AND key = ?", (self.fp, kind, key)).fetchone() if ok else None
         age = time.time() - r[1] if r else None
         if not r or age > (self.max_age if max_age is None else max_age):
             self.stats["miss"] += 1
@@ -211,8 +244,8 @@ class ResultStore:
         warmer has not rebuilt this row yet. A row of this fingerprint, once written, is always read first."""
         if not self.prev_fp:
             return None
-        with self.lock:
-            r = self.db.execute("SELECT body, at FROM rows WHERE fp = ? AND kind = ? AND key = ?", (self.prev_fp, kind, key)).fetchone()
+        with self._rd() as ok:
+            r = self.db.execute("SELECT body, at FROM rows WHERE fp = ? AND kind = ? AND key = ?", (self.prev_fp, kind, key)).fetchone() if ok else None
         if not r or time.time() - r[1] > self.max_age:
             return None
         self.stats["prev_hit"] += 1
@@ -264,8 +297,8 @@ class ResultStore:
 
     def get_curated(self, release: str, key: str):
         """The curated body for (release, key), or None."""
-        with self.lock:
-            r = self.db.execute("SELECT body FROM curated WHERE release = ? AND key = ?", (release, key)).fetchone()
+        with self._rd() as ok:
+            r = self.db.execute("SELECT body FROM curated WHERE release = ? AND key = ?", (release, key)).fetchone() if ok else None
         if not r:
             return None
         self.stats["curated_hit"] += 1
@@ -273,32 +306,38 @@ class ResultStore:
 
     def curated_at(self, release: str, key: str):
         """When the curated entry for (release, key) was written, or None when there is none."""
-        with self.lock:
-            r = self.db.execute("SELECT at FROM curated WHERE release = ? AND key = ?", (release, key)).fetchone()
+        with self._rd() as ok:
+            r = self.db.execute("SELECT at FROM curated WHERE release = ? AND key = ?", (release, key)).fetchone() if ok else None
         return r[0] if r else None
 
-    def get_finished(self, release: str, key: str, max_age: float):
+    def get_finished(self, release: str, key: str, max_age: float, miss: list | None = None):
         """The finished answer for (release, key) whose newest confirmation (its time, or the builder's re-verification of
         it, finished_checked) is younger than max_age, or None."""
-        with self.lock:
+        with self._rd() as ok:
             r = self.db.execute("SELECT f.body, f.at, c.checked FROM finished f LEFT JOIN finished_checked c "
-                                "ON c.release = f.release AND c.key = f.key WHERE f.release = ? AND f.key = ?", (release, key)).fetchone()
-        if not r or time.time() - max(r[1], r[2] or 0.0) > max_age:
+                                "ON c.release = f.release AND c.key = f.key WHERE f.release = ? AND f.key = ?", (release, key)).fetchone() if ok else None
+        if not r:
+            if miss is not None:
+                miss.append("none" if ok else "busy")
+            return None
+        if time.time() - max(r[1], r[2] or 0.0) > max_age:
+            if miss is not None:
+                miss.append("age")
             return None
         self.stats["finished_hit"] += 1
         return json.loads(zlib.decompress(r[0]))
 
     def finished_at(self, release: str, key: str):
         """When the finished answer for (release, key) last CHANGED (epoch seconds), or None."""
-        with self.lock:
-            r = self.db.execute("SELECT at FROM finished WHERE release = ? AND key = ?", (release, key)).fetchone()
+        with self._rd() as ok:
+            r = self.db.execute("SELECT at FROM finished WHERE release = ? AND key = ?", (release, key)).fetchone() if ok else None
         return float(r[0]) if r else None
 
     def finished_checked(self, release: str, key: str):
         """When the answer was last confirmed (max of its time and its re-verification), or None when there is none."""
-        with self.lock:
+        with self._rd() as ok:
             r = self.db.execute("SELECT f.at, c.checked FROM finished f LEFT JOIN finished_checked c "
-                                "ON c.release = f.release AND c.key = f.key WHERE f.release = ? AND f.key = ?", (release, key)).fetchone()
+                                "ON c.release = f.release AND c.key = f.key WHERE f.release = ? AND f.key = ?", (release, key)).fetchone() if ok else None
         return float(max(r[0], r[1] or 0.0)) if r else None
 
     def put_finished(self, release: str, key: str, value: dict) -> bool:
@@ -445,8 +484,8 @@ class ResultStore:
 
     def get_dept(self, key: str):
         """(p, department, confidence) for a name, or None when it has not been labelled."""
-        with self.lock:
-            return self.db.execute("SELECT p, d, c FROM dept WHERE key = ?", (key,)).fetchone()
+        with self._rd() as ok:
+            return self.db.execute("SELECT p, d, c FROM dept WHERE key = ?", (key,)).fetchone() if ok else None
 
     @staticmethod
     def _ok_dept(key, p, d, c, at, now) -> bool:
@@ -479,6 +518,98 @@ class ResultStore:
     def import_curated(self, path: str, release: str) -> dict:
         """Curated rows of this release from a file (tools/curated-build.py); a row replaces ours when newer."""
         return self._import_table(path, "curated", lambda rel, key, body, at: self._ok_curated(rel, key, body, at, release))
+
+    _LISTS_DDL = {"curated": "CREATE TABLE {t} (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, "
+                             "PRIMARY KEY (release, key)) WITHOUT ROWID",
+                  "finished": "CREATE TABLE {t} (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, "
+                              "PRIMARY KEY (release, key)) WITHOUT ROWID",
+                  "dept": "CREATE TABLE {t} (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, at REAL NOT NULL) WITHOUT ROWID"}
+
+    def _pause(self, s: float) -> None:
+        if self.yield_hook is not None:
+            self.yield_hook()
+        time.sleep(s)
+
+    def _writer(self):
+        """A connection of its own for an intake: it never takes self.lock, so searches are not queued behind it."""
+        return sqlite3.connect(self.path, check_same_thread=False, isolation_level=None, timeout=30)
+
+    def _swap_lists(self, src, have, release, cur_ok, fin_ok, now, chunk: int = 1000, yield_s: float = 0.002) -> dict:
+        """Replace this release's curated lists, finished answers and the department labels by the base in `src` WITHOUT blocking
+        serving (2026-11-16: on buildbox a 514 MB base took the store lock for the whole replace and searches waited 4-10 s).
+        The new tables are built beside the live ones on a connection of their own, 1,000 rows per short transaction with a
+        pause between (readers are not blocked by a writer in WAL mode and the store lock is not taken at all); only then
+        one short transaction renames them in (all or nothing: a failure before it leaves the live tables as they were).
+        The old tables are emptied in chunks afterwards and dropped. Rows of other releases are carried over."""
+        w = self._writer()
+        n = {"reset_curated": 0, "reset_finished": 0, "reset_dept": 0}
+        tabs = ("curated", "finished", "dept")
+        try:
+            w.execute("PRAGMA synchronous=NORMAL")
+            for t in tabs:
+                for suffix in ("_new", "_old"):                       # leftovers of a run that died
+                    w.execute(f"DROP TABLE IF EXISTS {t}{suffix}")
+                w.execute(self._LISTS_DDL[t].format(t=f"{t}_new"))
+            try:
+                for t, ok in (("curated", cur_ok), ("finished", fin_ok)):
+                    # what is not this release's stays as it is
+                    last = ("", "")
+                    while True:
+                        rows = w.execute(f"SELECT release, key, body, at FROM {t} WHERE release <> ? AND (release, key) > (?, ?) "
+                                         f"ORDER BY release, key LIMIT {chunk}", (release, *last)).fetchall()
+                        if not rows:
+                            break
+                        w.execute("BEGIN IMMEDIATE")
+                        w.executemany(f"INSERT INTO {t}_new VALUES (?, ?, ?, ?)", rows)
+                        w.execute("COMMIT")
+                        last = (rows[-1][0], rows[-1][1])
+                        self._pause(yield_s)
+                    if t in have:
+                        for part in _batches(src.execute(f"SELECT release, key, body, at FROM {t}")):
+                            w.execute("BEGIN IMMEDIATE")
+                            w.executemany(f"INSERT OR REPLACE INTO {t}_new VALUES (?, ?, ?, ?)", [(r, k, b, float(a)) for r, k, b, a in part if ok(r, k, b, a)])
+                            w.execute("COMMIT")
+                            self._pause(yield_s)
+                if "dept" in have:
+                    for part in _batches(src.execute("SELECT key, p, d, c, at FROM dept")):
+                        w.execute("BEGIN IMMEDIATE")
+                        w.executemany("INSERT OR REPLACE INTO dept_new VALUES (?, ?, ?, ?, ?)",
+                                      [(k, float(p), d, float(c), float(a)) for k, p, d, c, a in part if self._ok_dept(k, p, d, c, a, now)])
+                        w.execute("COMMIT")
+                        self._pause(yield_s)
+                # the confirmations of the rows being replaced go in chunks (they are read together with the finished rows)
+                while w.execute("SELECT 1 FROM finished_checked WHERE release = ? LIMIT 1", (release,)).fetchone():
+                    w.execute("BEGIN IMMEDIATE")
+                    w.execute("DELETE FROM finished_checked WHERE (release, key) IN (SELECT release, key FROM finished_checked WHERE release = ? LIMIT ?)",
+                              (release, chunk * 5))
+                    w.execute("COMMIT")
+                    self._pause(yield_s)
+                n["reset_curated"] = w.execute("SELECT count(*) FROM curated WHERE release = ?", (release,)).fetchone()[0]
+                n["reset_finished"] = w.execute("SELECT count(*) FROM finished WHERE release = ?", (release,)).fetchone()[0]
+                n["reset_dept"] = w.execute("SELECT count(*) FROM dept").fetchone()[0]
+                w.execute("BEGIN IMMEDIATE")                         # the swap: renames only, a few milliseconds
+                for t in tabs:
+                    w.execute(f"ALTER TABLE {t} RENAME TO {t}_old")
+                    w.execute(f"ALTER TABLE {t}_new RENAME TO {t}")
+                w.execute("COMMIT")
+            except BaseException:
+                with contextlib.suppress(Exception):
+                    w.execute("ROLLBACK")
+                for t in tabs:
+                    with contextlib.suppress(Exception):
+                        w.execute(f"DROP TABLE IF EXISTS {t}_new")
+                raise
+            for t in tabs:                                           # empty the old tables in chunks, then drop them
+                pk = "key" if t == "dept" else "release, key"
+                while w.execute(f"SELECT 1 FROM {t}_old LIMIT 1").fetchone():
+                    w.execute("BEGIN IMMEDIATE")
+                    w.execute(f"DELETE FROM {t}_old WHERE ({pk}) IN (SELECT {pk} FROM {t}_old LIMIT {chunk * 5})")
+                    w.execute("COMMIT")
+                    self._pause(yield_s)
+                w.execute(f"DROP TABLE IF EXISTS {t}_old")
+        finally:
+            w.close()
+        return n
 
     def reset_lists(self, path: str, release: str, version: int | None = None) -> dict:
         """A lists BASE (install.py lists update, 2026-11-14): a file whose lists_meta table says reset=1 replaces every
@@ -520,28 +651,7 @@ class ResultStore:
                 return {"reset_refused": f"no importable row for release {release!r}" + (f" layout {version}" if version is not None else "")}
             if bad > 0.1 * (good + bad):
                 return {"reset_refused": f"{bad} of {good + bad} rows do not fit this release/layout"}
-            n = {"reset_curated": 0, "reset_finished": 0, "reset_dept": 0}
-            with self.lock:
-                self.db.execute("BEGIN IMMEDIATE")
-                try:
-                    n["reset_curated"] = self.db.execute("DELETE FROM curated WHERE release = ?", (release,)).rowcount
-                    n["reset_finished"] = self.db.execute("DELETE FROM finished WHERE release = ?", (release,)).rowcount
-                    self.db.execute("DELETE FROM finished_checked WHERE release = ?", (release,))
-                    n["reset_dept"] = self.db.execute("DELETE FROM dept").rowcount
-                    for t, ok in (("curated", cur_ok), ("finished", fin_ok)):
-                        if t not in have:
-                            continue
-                        for chunk in _batches(src.execute(f"SELECT release, key, body, at FROM {t}")):
-                            self.db.executemany(f"INSERT OR REPLACE INTO {t} VALUES (?, ?, ?, ?)",
-                                                [(r, k, b, float(a)) for r, k, b, a in chunk if ok(r, k, b, a)])
-                    if "dept" in have:
-                        self.db.executemany("INSERT OR REPLACE INTO dept VALUES (?, ?, ?, ?, ?)",
-                                            [(k, float(p), d, float(c), float(a)) for k, p, d, c, a in src.execute("SELECT key, p, d, c, at FROM dept")
-                                             if self._ok_dept(k, p, d, c, a, now)])
-                    self.db.execute("COMMIT")
-                except BaseException:
-                    self.db.execute("ROLLBACK")
-                    raise
+            n = self._swap_lists(src, have, release, cur_ok, fin_ok, now)
             n["imported_curated"], n["imported_finished"] = seen["curated"][0], seen["finished"][0]
             return n
         finally:

@@ -1,0 +1,22 @@
+{
+ "group": "parity",
+ "title": "Platform parity",
+ "cases": [
+  {
+   "id": "PAR-001",
+   "title": "the same 300 searches give identical cards and result lists on this target and the other one (--compare URL); live fields set aside",
+   "guards": [
+    "Windows build never compared with Linux"
+   ],
+   "severity": "high",
+   "check": "parity_with",
+   "params": {
+    "names_file": "tests/regress/sets/parity-names.txt",
+    "limit": 300
+   },
+   "needs": [
+    "compare"
+   ]
+  }
+ ]
+}

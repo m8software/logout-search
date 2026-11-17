@@ -1,0 +1,408 @@
+{
+ "group": "answers",
+ "title": "What the engine answers",
+ "cases": [
+  {
+   "id": "ANS-001",
+   "title": "the golden searches: card title, the card's official site and the first result match expect.tsv",
+   "guards": [
+    "",
+    "",
+    "owner flagged names: gmail, gmail login, outlook, keep, premiere, google, lg, weird al yankovic"
+   ],
+   "severity": "high",
+   "check": "golden_rows",
+   "params": {}
+  },
+  {
+   "id": "ANS-002",
+   "title": "every must.txt name (117) gets an answer: HTTP 200, JSON, a card or a result",
+   "guards": [
+    "",
+    "stored answers for the must names"
+   ],
+   "severity": "high",
+   "check": "must_answer",
+   "params": {
+    "names_file": "tests/regress/sets/must.txt"
+   }
+  },
+  {
+   "id": "ANS-003",
+   "title": "answers that were wrong stay fixed: after effects is not Hangover, cortana not Prednisone, meet not a game, prime not a drink, messenger not the spacecraft, acrobat not Acrobatics, voice not a CBS news page, word not rbi.org.in",
+   "guards": [
+    " doubtful rows",
+    "release-2 round 1 and 2"
+   ],
+   "severity": "high",
+   "check": "bad_values",
+   "params": {
+    "items": [
+     {
+      "name": "after effects",
+      "field": "card",
+      "not": "Hangover"
+     },
+     {
+      "name": "cortana",
+      "field": "card",
+      "not": "Prednisone"
+     },
+     {
+      "name": "meet",
+      "field": "card",
+      "not": "Where Winds Meet"
+     },
+     {
+      "name": "prime",
+      "field": "card",
+      "not": "Prime (drink)"
+     },
+     {
+      "name": "messenger",
+      "field": "card",
+      "not": "MESSENGER"
+     },
+     {
+      "name": "acrobat",
+      "field": "card",
+      "not": "Acrobatics"
+     },
+     {
+      "name": "voice",
+      "field": "card",
+      "not": "Human voice"
+     },
+     {
+      "name": "voice",
+      "field": "official_url",
+      "not": "cbsnews.com",
+      "op": "contains",
+      "why": "a CBS News article as the official site"
+     },
+     {
+      "name": "word",
+      "field": "first_host",
+      "not": "rbi.org.in",
+      "why": "an anchor-text page led the list"
+     },
+     {
+      "name": "google",
+      "field": "card",
+      "not": "Google+"
+     },
+     {
+      "name": "trump",
+      "field": "first_host",
+      "not": "whitehouse.gov",
+      "why": "a government page above the person's own site (list order)"
+     }
+    ]
+   },
+   "xfail": [
+    {
+     "tags": [
+      "pre-release2"
+     ],
+     "reason": "engine before release 2 (public is on the frozen engine until the release-2 deploy): fixed on the release-2 branch, see docs/internal/release-2-staging.md"
+    }
+   ]
+  },
+  {
+   "id": "ANS-004",
+   "title": "the two-letter names of the approved list have their card (uk eu un ny la dc ai) and nyc is New York City",
+   "guards": [
+    "owner 2026-11-16 two-letter list",
+    "release-2 round 3"
+   ],
+   "severity": "high",
+   "check": "expect_card",
+   "params": {
+    "items": [
+     {
+      "name": "uk",
+      "card": "United Kingdom",
+      "first": "gov.uk"
+     },
+     {
+      "name": "eu",
+      "card": "European Union"
+     },
+     {
+      "name": "un",
+      "card": "United Nations"
+     },
+     {
+      "name": "ny",
+      "card": "New York (state)"
+     },
+     {
+      "name": "la",
+      "card": "Los Angeles"
+     },
+     {
+      "name": "dc",
+      "card": "DC Comics"
+     },
+     {
+      "name": "ai",
+      "card": "Artificial intelligence"
+     },
+     {
+      "name": "nyc",
+      "card": "New York City"
+     }
+    ]
+   },
+   "xfail": [
+    {
+     "tags": [
+      "pre-release2"
+     ],
+     "reason": "engine before release 2 (public is on the frozen engine until the release-2 deploy): fixed on the release-2 branch, see docs/internal/release-2-staging.md"
+    }
+   ]
+  },
+  {
+   "id": "ANS-005",
+   "title": "the short words us, is, go, me have no card (and ok, to)",
+   "guards": [
+    "owner flagged us is go me",
+    "golden expect.tsv"
+   ],
+   "severity": "medium",
+   "check": "expect_card",
+   "params": {
+    "items": [
+     {
+      "name": "us",
+      "card": "-"
+     },
+     {
+      "name": "is",
+      "card": "-"
+     },
+     {
+      "name": "go",
+      "card": "-"
+     },
+     {
+      "name": "me",
+      "card": "-"
+     },
+     {
+      "name": "ok",
+      "card": "-"
+     },
+     {
+      "name": "to",
+      "card": "-"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ANS-006",
+   "title": "a card's official link is never a news article, archive, PDF, board post or magazine page",
+   "guards": [
+    "release-2 round 2 (voice: CBS article; columbus: newyorker.com; grey's anatomy: deadline.com)"
+   ],
+   "severity": "high",
+   "check": "official_not_news",
+   "params": {
+    "names": [
+     "voice",
+     "columbus",
+     "grey's anatomy",
+     "ross kemp",
+     "imran khan",
+     "kalyan",
+     "north korea",
+     "da vinci code",
+     "terms of endearment",
+     "mastram",
+     "jimmy",
+     "stacey dash",
+     "burton richter",
+     "united states population",
+     "gmail",
+     "google",
+     "outlook",
+     "keep",
+     "premiere",
+     "lg",
+     "weird al yankovic",
+     "taylor swift",
+     "donald trump",
+     "apple",
+     "amazon"
+    ]
+   },
+   "xfail": [
+    {
+     "tags": [
+      "pre-release2"
+     ],
+     "reason": "engine before release 2 (public is on the frozen engine until the release-2 deploy): fixed on the release-2 branch, see docs/internal/release-2-staging.md"
+    }
+   ]
+  },
+  {
+   "id": "ANS-007",
+   "title": "the card's description and lead end on a whole word and hold no raw wiki markup (the stored description is cut at 60; the lead at 300)",
+   "guards": [
+    "batch list: descriptions cut mid-word (home depot, bank of america)",
+    "uk lead shows [[wiki|markup"
+   ],
+   "severity": "medium",
+   "check": "description_whole",
+   "params": {
+    "names": [
+     "home depot",
+     "bank of america",
+     "walmart",
+     "target",
+     "costco",
+     "lowes",
+     "best buy",
+     "starbucks",
+     "mcdonalds",
+     "nike",
+     "uk",
+     "google",
+     "gmail",
+     "amazon",
+     "apple",
+     "microsoft",
+     "netflix",
+     "tesla",
+     "ford",
+     "toyota",
+     "chase bank",
+     "wells fargo",
+     "verizon",
+     "at&t",
+     "t-mobile",
+     "fedex",
+     "ups",
+     "cvs",
+     "walgreens",
+     "kroger"
+    ]
+   }
+  },
+  {
+   "id": "ANS-008",
+   "title": "typing suggestions: the first thing shown for starb, goog, chevr, harr is the expected entity, and phrases are never first",
+   "guards": [
+    "owner 2026-11-15 \"our autocomplete is really bad\"",
+    "release-2 suggest-rank-2"
+   ],
+   "severity": "high",
+   "check": "suggest_lead",
+   "params": {
+    "items": [
+     {
+      "prefix": "starb",
+      "expect": "Starbucks"
+     },
+     {
+      "prefix": "goog",
+      "expect": "Google"
+     },
+     {
+      "prefix": "chevr",
+      "expect": "Chevrolet"
+     },
+     {
+      "prefix": "harr",
+      "expect": "Harry Potter"
+     },
+     {
+      "prefix": "amaz",
+      "expect": "Amazon"
+     },
+     {
+      "prefix": "face",
+      "expect": "Facebook"
+     },
+     {
+      "prefix": "netf",
+      "expect": "Netflix"
+     },
+     {
+      "prefix": "micro",
+      "expect": "Microsoft"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ANS-009",
+   "title": "\"ceo of microsoft\": the answer box says Satya Nadella",
+   "guards": [
+    ""
+   ],
+   "severity": "medium",
+   "check": "answer_and_list",
+   "params": {
+    "name": "ceo of microsoft",
+    "expect": "Nadella",
+    "part": "box"
+   }
+  },
+  {
+   "id": "ANS-012",
+   "title": "\"ceo of microsoft\": the result list is for that answer (Satya Nadella first), not for the words",
+   "guards": [
+    ""
+   ],
+   "severity": "medium",
+   "check": "answer_and_list",
+   "params": {
+    "name": "ceo of microsoft",
+    "expect": "Nadella",
+    "top": 3,
+    "part": "list"
+   },
+   "xfail": [
+    {
+     "reason": " not built: the list is for the words (Phil Spencer first), not for the answer"
+    }
+   ]
+  },
+  {
+   "id": "ANS-010",
+   "title": "an answer is the same asked alone and among others (8 in parallel)",
+   "guards": [
+    ""
+   ],
+   "severity": "high",
+   "check": "parallel_serial",
+   "params": {
+    "names_file": "tests/regress/sets/must.txt",
+    "limit": 40,
+    "workers": 8
+   },
+   "skip_tags": [
+    "public"
+   ]
+  },
+  {
+   "id": "ANS-011",
+   "title": "/healthz, /readyz and /storez answer, and /readyz agrees with whether a search works",
+   "guards": [
+    "v0.4.x readiness",
+    "",
+    "release-2 store-open: /readyz 503 until the store opens"
+   ],
+   "severity": "high",
+   "check": "endpoints",
+   "params": {
+    "gateway_tags": [
+     "public"
+    ]
+   }
+  }
+ ]
+}

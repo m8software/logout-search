@@ -80,8 +80,78 @@ def read_allow(path: str | None):
         return {" ".join(l.lower().split()) for l in f if l.strip()}
 
 
+# What has been published, by content (2026-11-17). A delta used to be "rows written since the last publish, and the 12 h
+# before it again": the night after a base it re-sent 118,283 answers the base already carried (302 MB; every install
+# downloaded it and took 1.4 GB in). Time says when a row was written, not whether an install has it. The publisher now
+# keeps <out>/lists/published.sqlite: for every published row the sha1 of its content, without the stamps of what built
+# it (eng, pk, dev: a re-stamped answer is the same answer). A delta carries the rows whose content is not there.
+STATE = "published.sqlite"
+STAMPS = ("eng", "pk", "dev")
+
+
+def content_hash(table: str, text: bytes) -> bytes:
+    if table == "finished":
+        try:
+            b = json.loads(text)
+            if isinstance(b, dict):
+                text = json.dumps({k: v for k, v in b.items() if k not in STAMPS}, sort_keys=True, separators=(",", ":")).encode()
+        except ValueError:
+            pass
+    return hashlib.sha1(text).digest()
+
+
+def state_open(out: str, create: bool = False):
+    """The published-content table, or None when there is none yet (then a delta falls back to the write times)."""
+    p = os.path.join(out, "lists", STATE)
+    if not create and not os.path.isfile(p):
+        return None
+    db = sqlite3.connect(p)
+    db.execute("CREATE TABLE IF NOT EXISTS pub (tbl TEXT NOT NULL, key TEXT NOT NULL, h BLOB NOT NULL, PRIMARY KEY (tbl, key)) WITHOUT ROWID")
+    return db
+
+
+def content_share(store: str, release: str, state, allow=None) -> tuple[int, int]:
+    """(publishable rows of the store whose content is not what was published, all publishable rows)."""
+    src = sqlite3.connect(f"file:{store}?mode=ro", uri=True)
+    differ = total = 0
+    try:
+        for t in ("curated", "finished"):
+            for key, body in src.execute(f"SELECT key, body FROM {t} WHERE release = ?", (release,)):
+                if allow is not None and name_of(key) not in allow:
+                    continue
+                try:
+                    text = zlib.decompress(body)
+                except zlib.error:
+                    continue
+                total += 1
+                old = state.execute("SELECT h FROM pub WHERE tbl = ? AND key = ?", (t, key)).fetchone()
+                differ += old is None or old[0] != content_hash(t, text)
+    finally:
+        src.close()
+    return differ, total
+
+
+def state_seed(out: str, parts: list[str]) -> dict:
+    """Make the table from published part files (decoded .sqlite, oldest first): what installs hold today."""
+    db = state_open(out, create=True)
+    db.execute("DELETE FROM pub")
+    n = 0
+    for f in parts:
+        src = sqlite3.connect(f"file:{f}?mode=ro", uri=True)
+        for t in ("curated", "finished"):
+            for key, body in src.execute(f"SELECT key, body FROM {t}"):
+                text = body if isinstance(body, bytes) else str(body).encode()
+                db.execute("INSERT OR REPLACE INTO pub VALUES (?, ?, ?)", (t, key, content_hash(t, text)))
+                n += 1
+        src.close()
+    db.commit()
+    rows = db.execute("SELECT count(*) FROM pub").fetchone()[0]
+    db.close()
+    return {"seeded": rows, "rows_read": n, "parts": len(parts)}
+
+
 def write_part(store: str, out_db: str, release: str, since: float, reset: bool, new_after: float = 0.0, dept: bool = False,
-               allow=None) -> dict:
+               allow=None, state=None) -> dict:
     """Rows of `store` written after `since` (all when reset) -> out_db. -> {table: rows, "until": newest at, "new": rows
     after new_after, "held": rows left out because their name is not in `allow`}."""
     if os.path.exists(out_db):
@@ -93,7 +163,9 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
     dst.execute("CREATE TABLE finished (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (release, key)) WITHOUT ROWID")
     dst.execute("CREATE TABLE dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, at REAL NOT NULL) WITHOUT ROWID")
     dst.execute("CREATE TABLE lists_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)")
-    n, until, new, held = {}, since, 0, 0
+    n, until, new, held, same = {}, since, 0, 0, 0
+    if state is not None and reset:
+        state.execute("DELETE FROM pub")
     lo = -1.0 if reset else since
     for t in ("curated", "finished"):
         c = 0
@@ -106,6 +178,13 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
                 json.loads(text)
             except (zlib.error, ValueError):
                 continue                                   # a damaged body is not passed on
+            if state is not None:                          # by content: only what the last published state does not hold
+                h = content_hash(t, text)
+                old = state.execute("SELECT h FROM pub WHERE tbl = ? AND key = ?", (t, key)).fetchone()
+                if not reset and old and old[0] == h:
+                    same += 1
+                    continue
+                state.execute("INSERT OR REPLACE INTO pub VALUES (?, ?, ?)", (t, key, h))
             dst.execute(f"INSERT INTO {t} VALUES (?, ?, ?, ?)", (release, key, text, at))
             c += 1
             new += at > new_after
@@ -114,6 +193,13 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
     have = dept and src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'dept'").fetchone()
     c = 0
     for row in (src.execute("SELECT key, p, d, c, at FROM dept WHERE at > ?", (lo,)) if have else []):
+        if state is not None:
+            h = hashlib.sha1(json.dumps(row[1:4]).encode()).digest()
+            old = state.execute("SELECT h FROM pub WHERE tbl = 'dept' AND key = ?", (row[0],)).fetchone()
+            if not reset and old and old[0] == h:
+                same += 1
+                continue
+            state.execute("INSERT OR REPLACE INTO pub VALUES ('dept', ?, ?)", (row[0], h))
         dst.execute("INSERT INTO dept VALUES (?, ?, ?, ?, ?)", row)
         c += 1
         new += row[4] > new_after
@@ -125,7 +211,9 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
     dst.execute("VACUUM")
     dst.close()
     src.close()
-    n["until"], n["new"], n["held"] = until, new, held
+    n["until"], n["new"], n["held"], n["same"] = until, new, held, same
+    if state is not None:
+        state.commit()
     return n
 
 
@@ -190,7 +278,16 @@ def build(a) -> dict:
         prev = json.load(open(a.manifest, encoding="utf-8"))
     base = a.base or prev is None or prev.get("source_release") != a.release
     overlap = OVERLAP_S
-    if not base:
+    probe = None if base else state_open(a.out)
+    if probe is not None:
+        # with the published-content table, "is this a base?" is asked of the content too: the day after an engine
+        # release most rows are REWRITTEN (58% on 2026-11-17) while a fifth CHANGED; by write time that was a 515 MB base
+        differ, total = content_share(a.store, a.release, probe, read_allow(a.allow))
+        probe.close()
+        if total and differ >= BASE_SHARE * total:
+            base = True
+            print(f"lists: {differ} of {total} publishable rows differ from what is published: a base, not a delta", flush=True)
+    elif not base:
         # A delta repeats OVERLAP_S before the last publish (a row built earlier but taken into this store later is not
         # missed). When most of the store was written in that window (a fill or a rebuild of everything, 2026-11-15: a
         # "delta" carried all 301,275 answers, 512 MB, on top of the base), the repeat is dropped; when most of it was
@@ -214,7 +311,16 @@ def build(a) -> dict:
     allow = read_allow(a.allow)
     if allow is not None and a.with_dept:
         raise SystemExit("--with-dept publishes names from Amazon's search suggestions: not together with --allow")
-    n = write_part(a.store, raw, a.release, 0.0 if base else float(prev["until"]) - overlap, base, 0.0 if base else float(prev["until"]), a.with_dept, allow)
+    # With the published-content table a delta reads the whole store and keeps what differs (new_after -1: every row it
+    # keeps is new); a base makes the table. Without one (a delta before any base made it) the write times decide, as before.
+    state = state_open(a.out, create=base)
+    if state is not None and not base:
+        n = write_part(a.store, raw, a.release, -1.0, False, -1.0, a.with_dept, allow, state)
+        print(f"lists: {n['same']} rows are what installs already hold (same content): not sent again", flush=True)
+    else:
+        n = write_part(a.store, raw, a.release, 0.0 if base else float(prev["until"]) - overlap, base, 0.0 if base else float(prev["until"]), a.with_dept, allow, state)
+    if state is not None:
+        state.close()
     if allow is not None:
         print(f"lists: {n['held']} rows held back (their names are not open-data or hand-added names)", flush=True)
     n["until"] = max(n["until"], 0.0 if base else float(prev["until"]))
@@ -317,6 +423,10 @@ def main() -> int:
     b.add_argument("--manifest", help="the manifest now published (default: OUT/lists/manifest.json)")
     b.add_argument("--allow", help="a file of names (one a line): only their lists and answers are published (open-data "
                                    "and hand-added names; no visitor searches, no names from Amazon's suggestions)")
+    sd = sp.add_parser("seed", help="make the published-content table from the part files installs hold now (decoded .sqlite, oldest first)")
+    sd.add_argument("--out", required=True)
+    sd.add_argument("parts", nargs="+")
+
     u = sp.add_parser("upload")
     u.add_argument("--out", required=True)
     u.add_argument("--repo", required=True)
@@ -329,6 +439,9 @@ def main() -> int:
     pr.add_argument("--token-file", required=True)
     pr.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    if a.cmd == "seed":
+        print(json.dumps(state_seed(a.out, a.parts), sort_keys=True))
+        return 0
     if a.cmd == "promote":
         from huggingface_hub import CommitOperationAdd, HfApi, hf_hub_download
         api = HfApi(token=open(a.token_file).read().strip())

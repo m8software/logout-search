@@ -1,0 +1,101 @@
+{
+ "group": "startup",
+ "title": "Start and restart",
+ "cases": [
+  {
+   "id": "STA-001",
+   "title": "restart: time to ready and to the first good answer; the first 5 minutes of searches never stall (no 6-88 s request)",
+   "guards": [
+    "lr froze 8 minutes after an update: requests of 6-88 s"
+   ],
+   "severity": "high",
+   "check": "restart_serving",
+   "params": {
+    "ready_s": 600,
+    "first_answer_s": 30,
+    "max_ms": 8000,
+    "watch_s": 300
+   },
+   "needs": [
+    "sandbox",
+    "install"
+   ]
+  },
+  {
+   "id": "STA-002",
+   "title": "the engine starts as __main__ (no circular import) and its readiness is truthful",
+   "guards": [
+    "circular import on start; /readyz 503 until the store opens"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-main-start.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "STA-003",
+   "title": "the result store opens at start even when another process holds the file (retry, no 'locking protocol' for the life of the process)",
+   "guards": [
+    "release-2: store stayed off after OperationalError locking protocol"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-store-open.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "STA-004",
+   "title": "the engine stays up and answering for a minute of one search a second (no stall above 8 s, no failed request)",
+   "guards": [
+    "freezes after start"
+   ],
+   "severity": "high",
+   "check": "soak",
+   "params": {
+    "names_file": "tests/regress/sets/must.txt",
+    "seconds": 30,
+    "max_ms": 8000
+   }
+  },
+  {
+   "id": "STA-005",
+   "title": "/readyz and /storez tell the truth after the store opens (fp present, store not off)",
+   "guards": [
+    "",
+    "release-2 round 3"
+   ],
+   "severity": "medium",
+   "check": "store_on",
+   "params": {}
+  },
+  {
+   "id": "STA-006",
+   "title": "restart profile: per-process CPU and disk (read/write MB/s, RSS) every 2 s for the first 5 minutes, and the time to ready",
+   "guards": [
+    "lr froze 8 minutes after an update (a fast NVMe + Ryzen 5600X: not a slow disk)",
+    "start and restart"
+   ],
+   "severity": "high",
+   "check": "restart_profile",
+   "params": {
+    "watch_s": 300
+   },
+   "needs": [
+    "sandbox",
+    "install"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,115 @@
+# the owner's flagged names (a copy of apps/search/twin/must.txt without place or number names; checked equal by the unit test)
+gmail login
+gmail
+outlook
+outlook login
+keep
+premiere
+adobe premiere
+weird al yankovic
+trump
+donald trump
+iphone
+how to stop a toilet running
+taylor swift
+new york giants
+python
+amazon
+netflix
+cnn
+wikipedia
+pizza
+photoshop
+lightroom
+teams
+word
+excel
+powerpoint
+onenote
+onedrive
+drive
+maps
+docs
+sheets
+slides
+meet
+calendar
+chrome
+edge
+office
+acrobat
+illustrator
+indesign
+after effects
+notion
+slack
+zoom
+discord
+steam
+spotify
+youtube
+facebook
+instagram
+prime
+alexa
+siri
+kindle
+echo
+nest
+pixel
+surface
+xbox
+switch
+playstation
+airpods
+ipad
+macbook
+imac
+icloud
+itunes
+facetime
+safari
+firefox
+thunderbird
+bing
+copilot
+cortana
+skype
+messenger
+whatsapp
+gemini
+bard
+photos
+music
+news
+watch
+tv
+home
+store
+pay
+wallet
+fitbit
+waze
+duo
+hangouts
+voice
+translate
+earth
+classroom
+forms
+keynote
+pages
+numbers
+garageband
+imovie
+final cut
+logic
+audible
+fire tv
+ring
+blink
+galaxy
+bixby
+oculus
+quest
+hulu

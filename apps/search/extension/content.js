@@ -39,6 +39,12 @@
                          location.origin);
       return;
     }
+    if (d.op === "radar") {                           //: local radar manifest or frame from the box
+      const r = await send({ op: "radar", station: d.station, t: d.t });
+      window.postMessage({ type: "logout-search-reply", id: d.id, body: r.body !== undefined ? r.body : null },
+                         location.origin);
+      return;
+    }
     const r = await send({ q: String(d.q || ""), results: !!d.results, full: !!d.full, near: typeof d.near === "string" ? d.near.slice(0, 40) : "" });
     window.postMessage({ type: "logout-search-reply", id: d.id, body: r.body || { suggest: [], results: [], error: r.error || "local engine error" } },
                        location.origin);

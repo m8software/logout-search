@@ -1,0 +1,96 @@
+{
+ "group": "lifecycle",
+ "title": "Install and lifecycle",
+ "cases": [
+  {
+   "id": "LIF-001",
+   "title": "the setup process exits when it has finished and leaves no stray process (two were left running on buildbox)",
+   "guards": [
+    "two setup processes left on lr"
+   ],
+   "severity": "high",
+   "check": "setup_exits",
+   "params": {},
+   "needs": [
+    "install"
+   ]
+  },
+  {
+   "id": "LIF-002",
+   "title": "the bundle's file list covers every file the engine image carries (shop_stores.json was missing)",
+   "guards": [
+    "bundle without shop_stores.json"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-bundle-files.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "LIF-003",
+   "title": "a fresh install from the published installer: version, doctor and the self-test run and are clean",
+   "guards": [
+    " self-test",
+    " doctor"
+   ],
+   "severity": "high",
+   "check": "install_tools",
+   "params": {},
+   "needs": [
+    "install"
+   ]
+  },
+  {
+   "id": "LIF-004",
+   "title": "update N-1 -> N and N-2 -> N through the in-product updater; revert on a bad update; stable/beta channels; a metered connection waits",
+   "guards": [
+    "",
+    "",
+    "metered wait"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-autoupdate.sh",
+     "bash tests/unit/test-search-selftest.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "LIF-005",
+   "title": "in a sandbox: the real updater takes an older release to the current one and the stored answers and settings survive",
+   "guards": [
+    "N-1 -> N, N-2 -> N"
+   ],
+   "severity": "high",
+   "check": "pending",
+   "params": {
+    "why": "needs published release N-1 / N-2 installed side by side in a sandbox; v0.4.23-v0.4.26 exist on GitHub. Driver step not built in this pass (the install takes about 10 minutes per version and testbox is shared)."
+   }
+  },
+  {
+   "id": "LIF-006",
+   "title": "uninstall leaves nothing unexpected (no engine process, no autostart unit, no data folder beyond what it names)",
+   "guards": [
+    "uninstall residue"
+   ],
+   "severity": "medium",
+   "check": "uninstall_residue",
+   "params": {},
+   "needs": [
+    "sandbox",
+    "install"
+   ]
+  }
+ ]
+}

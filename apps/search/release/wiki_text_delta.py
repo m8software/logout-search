@@ -75,6 +75,7 @@ def apply(a) -> dict:
     if os.path.lexists(a.out_index):
         sys.exit(f"refusing: {a.out_index} exists (the output starts empty)")
     subprocess.run(["cp", "-r", "--reflink=auto", a.prev_index, a.out_index], check=True)
+    subprocess.run(["chmod", "-R", "u+w", a.out_index], check=True)       # a published release is read-only; the copy is ours to patch
     before = set(os.listdir(a.out_index))
     def stream_rows():
         """One row at a time: a 2 M-row catch-up must not sit in memory (5 kB a row)."""
@@ -123,8 +124,9 @@ def apply(a) -> dict:
     side_p = os.path.join(a.out_index, "release.json")
     side = json.load(open(side_p))
     side["built_release"] = a.release
-    with open(side_p, "w") as f:
+    with open(side_p + ".tmp", "w") as f:                                   # write and replace: never open a file that came from the copy for writing
         f.write(json.dumps(side, sort_keys=True) + "\n")
+    os.replace(side_p + ".tmp", side_p)
     after = set(os.listdir(a.out_index))
     new = sorted(after - before)
     summary = dict(docs_before=n_before, deleted_docs=n_del, added_docs=n_added, docs_after=n_after,

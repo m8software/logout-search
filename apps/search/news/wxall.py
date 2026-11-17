@@ -66,6 +66,12 @@ RADAR_MAX_BYTES = 2 * 1024 * 1024
 RADAR_TIMEOUT_S = 20          # one silent station must not hold up alerts and METARs
 RADAR_GAP_S = 0.2             # between stations: a round is about a minute, never a burst
 RADAR_ID = re.compile(r"^[A-Z]{4}$")
+# on an install (WX_RADAR_DEMAND=1), fetch stations.json (~20 KB/week) so the engine knows every station,
+# but fetch GIF frames ONLY for the home station and stations queried recently (~13 MB/day max per active station).
+RADAR_DEMAND = os.environ.get("WX_RADAR_DEMAND", "") == "1"
+RADAR_INTEREST_TTL_S = int(os.environ.get("WX_RADAR_INTEREST_TTL_S", str(24 * 3600)))
+RADAR_DEMAND_MAX = int(os.environ.get("WX_RADAR_DEMAND_MAX", "8"))
+RADAR_MAX_KM = 230
 TICK_S = 60
 
 SCHEMA = """
@@ -480,6 +486,71 @@ def radar_keep(root: str, st: dict, body: bytes | None, at: float) -> bool:
     return added
 
 
+def _parse_latlon(raw: str | None) -> tuple[float, float] | None:
+    if not raw or raw.count(",") != 1:
+        return None
+    try:
+        lat, lon = (float(x.strip()) for x in raw.split(",", 1))
+    except ValueError:
+        return None
+    return (lat, lon) if (-90 <= lat <= 90 and -180 <= lon <= 180) else None
+
+
+def nearest_radar_station(lat: float, lon: float, stations: list[dict], max_km: float = RADAR_MAX_KM) -> dict | None:
+    """Nearest valid radar station within max_km, or None."""
+    best, best_km = None, max_km
+    for s in stations:
+        sid = str(s.get("id") or "")
+        if not RADAR_ID.fullmatch(sid):
+            continue
+        try:
+            km = 111.2 * math.hypot(s["lat"] - lat, (s["lon"] - lon) * math.cos(math.radians(lat)))
+        except (KeyError, TypeError):
+            continue
+        if km <= best_km:
+            best, best_km = s, km
+    return best
+
+
+def read_radar_interest(root: str, now: float | None = None, ttl_s: int | None = None) -> list[str]:
+    """Station ids queried recently by searches, most recent first (capped at RADAR_DEMAND_MAX)."""
+    t = time.time() if now is None else now
+    ttl = RADAR_INTEREST_TTL_S if ttl_s is None else ttl_s
+    try:
+        with open(os.path.join(root, "interest.json"), encoding="utf-8") as f:
+            raw = json.load(f)
+    except (OSError, ValueError):
+        return []
+    entries = raw.get("stations") if isinstance(raw, dict) and isinstance(raw.get("stations"), dict) else raw
+    if not isinstance(entries, dict):
+        return []
+    keep = []
+    for sid, ts in entries.items():
+        if isinstance(sid, str) and RADAR_ID.fullmatch(sid) and isinstance(ts, (int, float)) and not isinstance(ts, bool):
+            if t - ts <= ttl:
+                keep.append((float(ts), sid))
+    keep.sort(reverse=True)
+    return [sid for _, sid in keep[:RADAR_DEMAND_MAX]]
+
+
+def radar_wanted_stations(root: str, stations: list[dict], now: float | None = None,
+                          home: tuple[float, float] | None = None) -> list[dict]:
+    """Stations this collector fetches frames for: all on public, home + recently queried areas on installs."""
+    if not RADAR_DEMAND:
+        return stations
+    by_id = {s["id"]: s for s in stations if RADAR_ID.fullmatch(str(s.get("id") or ""))}
+    wanted: list[str] = []
+    pt = home if home is not None else _parse_latlon(os.environ.get("WX_RADAR_HOME") or os.environ.get("SEARCH_HOME", ""))
+    if pt:
+        hs = nearest_radar_station(pt[0], pt[1], stations)
+        if hs:
+            wanted.append(hs["id"])
+    for sid in read_radar_interest(root, now=now):
+        if sid in by_id and sid not in wanted:
+            wanted.append(sid)
+    return [by_id[sid] for sid in wanted if sid in by_id]
+
+
 def load_radar(_conn, state: dict) -> None:
     """One round: the station list when it is a week old, then each station's newest frame if it is newer
     than the one we hold. A station that fails is skipped (and counted); the round goes on."""
@@ -498,18 +569,21 @@ def load_radar(_conn, state: dict) -> None:
         state["stations"], state["listed"] = got, time.time()
         _write(listing, json.dumps({"stations": got}, separators=(",", ":")).encode())
         log(f"radar: {len(got)} stations listed")
+    targets = radar_wanted_stations(RADAR_DIR, state["stations"])
     new = failed = size = 0
-    for st in state["stations"]:
+    fetched = state.setdefault("fetched_ids", set())
+    for st in targets:
         have = radar_frames(os.path.join(RADAR_DIR, st["id"]))
         try:
             got = fetch_newer(f"{RADAR}/{st['id']}_0.gif", have[-1] if have else None)
             if radar_keep(RADAR_DIR, st, got[0] if got else None, got[1] if got else 0):
                 new, size = new + 1, size + len(got[0])
+            fetched.add(st["id"])
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
             failed += 1
             state["why"] = f"{st['id']}: {type(e).__name__}: {str(e)[:80]}"
         time.sleep(RADAR_GAP_S)
-    log(f"radar: {new} new frames of {len(state['stations'])} stations ({size / 1e6:.1f} MB)"
+    log(f"radar: {new} new frames of {len(targets)} stations ({size / 1e6:.1f} MB)"
         + (f", {failed} failed (last: {state.get('why')})" if failed else ""))
 
 
@@ -622,6 +696,9 @@ def run(once: bool = False) -> None:
         else:
             due["towns"] = time.time() + EVERY["towns"]
         while True:
+            if RADAR_DIR and RADAR_DEMAND and EVERY["radar"] != float("inf"):
+                if any(sid not in radar.get("fetched_ids", ()) for sid in read_radar_interest(RADAR_DIR)):
+                    due["radar"] = 0.0
             for part, step in (("towns", load_towns), ("metars", load_metars), ("alerts", load_alerts),
                                ("nbh", lambda c: load_nbm(c, "nbhtx", seen)), ("nbe", lambda c: load_nbm(c, "nbetx", seen)),
                                ("radar", lambda c: load_radar(c, radar))):

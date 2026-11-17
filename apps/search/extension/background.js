@@ -39,6 +39,9 @@ api.runtime.onMessage.addListener((req, sender, sendResponse) => {
             : req && req.op === "news_more" ? { id, news_more: true, q: String(req.q || "").slice(0, 200),
                                                 offset: Math.min(Math.max(parseInt(req.offset, 10) || 0, 0), 100) }
             : req && req.op === "explain" ? { id, explain: true, q: String(req.q || "").slice(0, 200), near: String(req.near || "").slice(0, 40) }
+            : req && req.op === "radar" ? Object.assign(
+                { id, radar: /^[A-Z]{4}$/.test(String(req.station || "")) ? String(req.station) : "" },
+                Number.isInteger(req.t) && req.t > 0 ? { t: req.t } : {})
             : { id, q: String((req && req.q) || "").slice(0, 200), results: !!(req && req.results), full: !!(req && req.full),
                  near: String((req && req.near) || "").slice(0, 40) };
   waiting.set(id, sendResponse);

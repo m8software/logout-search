@@ -730,6 +730,12 @@ def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, progr
                 result.append("lists update failed")
     s["last_result"] = "; ".join(result) or "up to date"
     save(data, s)
+    try:
+        import doctor
+        doctor.maybe_send_health(data, port=port or 8090, version=mine, platform=platform,
+                                 frozen=getattr(sys, "frozen", False), now=now)
+    except Exception:  # noqa: BLE001
+        pass
     return act
 
 

@@ -22,6 +22,7 @@ from search_api import (
     RELATED_N,
     RELATED_SQL,
     WIKI_EXACT_SCORE,
+    _TOKEN,
     _conn,
     _domain_of,
     _host_key,
@@ -33,6 +34,7 @@ from search_api import (
     lookups,
     norm_key,
     official_inner_page,
+    official_link_ok,
     official_ok,
     parts_for,
     profile_results,
@@ -109,7 +111,7 @@ def card_article(res: list[dict]) -> dict | None:
     sister = lambda r: r.get("source") == "site" and (_label(r["url"]) == top or _domain_of(r["url"]).endswith(under))  # noqa: E731
     # nearby branches are the Nearby box, not rows: "Ikea" with an area put three IKEA stores between the official site
     # and the article, which then sat 5th and the card was lost (2026-11-06)
-    window = [r for i, r in enumerate(res) if not (i and top and sister(r)) and r.get("source") != "place"]
+    window = [r for i, r in enumerate(res) if not (i and top and sister(r)) and r.get("source") != "place" and not r.get("stock")]
     return next((r for r in window[:CARD_WITHIN] if r.get("source") == "wikipedia"
                  and (r["score"] >= WIKI_EXACT_SCORE or r.get("respelled"))), None)
 
@@ -338,9 +340,11 @@ def own_name_site(title: str, official: list[dict], res: list[dict]) -> list[dic
 # "<Maker> <name> Pro" is an article, and it is read far more than the article the card would show (Wikipedia
 # pageviews, the release's signal; SHORT_RATIO times, and at least SHORT_FLOOR). Then it is the card. "music" stays
 # Music (63,689 against Apple Music's 10,495); "word" was already Microsoft Word. Release lookups only (pageviews).
-SHORT_MAKERS = ("Microsoft", "Google", "Apple", "Amazon", "Adobe", "Nintendo", "Sony", "Samsung", "Meta")
+SHORT_MAKERS = ("Microsoft", "Google", "Apple", "Amazon", "Adobe", "Nintendo", "Sony", "Samsung", "Meta", "Facebook", "Mozilla")
 
 SHORT_SUFFIXES = ("", " Pro")
+
+SHORT_QUALIFIERS = ("software", "virtual assistant", "web browser", "presentation software", "service")
 
 SHORT_RATIO = float(os.environ.get("SEARCH_SHORT_RATIO", "3"))
 
@@ -386,9 +390,9 @@ def top_is(top: dict | None, title: str) -> bool:
     return bool(top) and top["title"].rsplit(" — Wikipedia", 1)[0] == title
 
 # Two-letter searches that keep their card although its site is not <name>.com (CORE-B-03): the query -> the article titles
-# that are the thing people mean. Not "us" (the owner's own example), "is", "go", "me".
+# that are the thing people mean. Owner 2026-11-17: "ny" is the state (ny.gov); "nyc" is the city (the .com rule: nyc.gov). Not "us" (the owner's own example), "is", "go", "me".
 TWO_LETTER_KEEP = {"uk": ("United Kingdom",), "eu": ("European Union",), "un": ("United Nations",),
-                   "ny": ("New York", "New York City"), "la": ("Los Angeles",), "dc": ("Washington, D.C.",),
+                   "ny": ("New York (state)",), "la": ("Los Angeles",), "dc": ("Washington, D.C.",),
                    "ai": ("Artificial intelligence",)}
 
 def short_entity(q: str, rows: list[dict], current: str | None):
@@ -414,6 +418,15 @@ def short_entity(q: str, rows: list[dict], current: str | None):
                 best = (t, v)
     if best:
         return (best[0], False)
+    for t in (TWO_LETTER_KEEP.get(k) or ()) if len(k) == 2 else ():
+        # the owner's approved two-letter list (uk eu un ny la dc ai) names the article people mean: the card IS that article, whatever
+        # card the list produced (eu, ny, la, ai had none: the article is not titled "eu", so no result was an exact title) and read as much as the floor says
+        try:
+            views = _title_views(lk, t)
+        except Exception:  # noqa: BLE001
+            views = None
+        if views is not None and views >= SHORT_ENTITY_VIEWS:
+            return (t, False)
     if len(k) == 2 and current is not None:
         # CORE-B-03: the rule drops a two-letter search's card unless it is on its own .com ("is", "go", "me", "us"). It also
         # dropped the right card of the places and bodies people really mean by two letters; these keep it, when the card is
@@ -434,9 +447,28 @@ def short_entity(q: str, rows: list[dict], current: str | None):
         return (None, not (site and _domain_of(site) == host))
     return (None, False)
 
+def _short_plain_current(q: str, k: str, current: str | None) -> str:
+    """'plain' when current IS the plain title for k, 'related' when it shares a word/stem
+    with k (Prime (drink), Acrobatics, MESSENGER, Bill Bixby), else 'unrelated' (a redirect
+    like Hangover or Prednisone)."""
+    if not current:
+        return "unrelated"
+    base = re.sub(r"\s*\(.*\)$", "", current).strip()
+    if base.lower() == k and "(" not in current and not (current.isupper() and len(current) >= 3 and not (q or "").isupper()):
+        return "plain"
+    q_words = _TOKEN.findall(k)
+    c_words = _TOKEN.findall(base.lower())
+    if any(cw.startswith(qw) or qw.startswith(cw) for qw in q_words for cw in c_words if len(qw) >= 3 and len(cw) >= 3):
+        return "related"
+    if norm_key(k) in norm_key(base):
+        return "related"
+    return "unrelated"
+
 def short_name_title(q: str, current: str | None) -> str | None:
-    """The maker's product article the bare name means, or None (see SHORT_MAKERS). A maker's own name is never one of
-    its products ("google" is Google)."""
+    """The maker's product article the bare name means, or None (see SHORT_MAKERS, SHORT_QUALIFIERS).
+    A maker's own name is never one of its products ("google" is Google). A plain word keeps its
+    plain meaning unless the product is SHORT_RATIO times more read; a non-plain or redirect card
+    (Prime (drink), Acrobatics, Hangover, Prednisone, MESSENGER) yields more easily."""
     k = " ".join((q or "").lower().split())
     if not SHORT_NAMES or not re.fullmatch(r"[a-z]{2,}( [a-z]{2,})?", k) or k in {m.lower() for m in SHORT_MAKERS}:
         return None
@@ -445,23 +477,26 @@ def short_name_title(q: str, current: str | None) -> str | None:
         return None
     def look():
         name = " ".join(w.capitalize() for w in k.split())
+        cands = [f"{m} {name}{suf}" for m in SHORT_MAKERS for suf in SHORT_SUFFIXES]
+        cands += [f"{name} Pro"] + [f"{name} ({qual})" for qual in SHORT_QUALIFIERS]
         best = None
-        for m in SHORT_MAKERS:
-            for suf in SHORT_SUFFIXES:
-                t = f"{m} {name}{suf}"
-                v = _title_views(lk, t)
-                if v is not None and (best is None or v > best[1]):
-                    best = (t, v)
+        for t in cands:
+            v = _title_views(lk, t)
+            if v is not None and (best is None or v > best[1]):
+                best = (t, v)
         return [best]
     best = cached(("short_name", k), look, static=True)[0]
     if best is None or best[0] == current or best[1] < SHORT_FLOOR:
         return None
-    # read SHORT_RATIO times more than the card shown, and the plain word's own article not read SHORT_RATIO times
-    # more than it ("music": the card was the domain .music, but Music is read 63,689 times to Sony Music's 19,628;
-    # "keep": Keep, the castle tower, 8,250 to Google Keep's 3,925, and the card was KEEP, 37)
+    # read SHORT_RATIO times more than the plain word, and the plain word's own article not read SHORT_RATIO times
+    # more than it ("music": Music is 63,689 to Sony Music's 19,628; "watch": Watch is 13,131 to Apple Watch's 28,685).
+    # Non-plain cards (Prime (drink), Acrobatics, MESSENGER) only require best >= now; unrelated redirects
+    # (Hangover, Prednisone) do not block at all.
     now = (_title_views(lk, current) or 0) if current else 0
+    kind = _short_plain_current(q, k, current)
+    req = SHORT_RATIO * now if kind == "plain" else (now if kind == "related" else 0)
     plain = _title_views(lk, " ".join(w.capitalize() for w in k.split())) or 0
-    return best[0] if best[1] >= SHORT_RATIO * now and plain <= SHORT_RATIO * best[1] else None
+    return best[0] if best[1] >= req and plain <= SHORT_RATIO * best[1] else None
 
 # "gmail login", "chase sign in" (owner 2026-11-14: "gmail login" is the README's example and had no card): the card
 # is the card of the name without the account words.
@@ -487,14 +522,21 @@ def wiki_top(lk_or_conn, title: str) -> dict | None:
     return {"title": title + " — Wikipedia", "url": "https://en.wikipedia.org/wiki/" + quote(title.replace(" ", "_"), safe="()_,'!-.:"),
             "content": rows[0][0] or "", "source": "wikipedia"}
 
-def lead_with_official(res: list[dict], card: dict | None) -> list[dict]:
+def lead_with_official(res: list[dict], card: dict | None, article: bool = False) -> list[dict]:
     """A short name's card (short_name_title) leads the list with its official site: "keep" listed KEEP's radio site
     and article first and Google Keep's site third, "premiere" never listed Adobe's site at all (2026-11-14)."""
     off = next((l["url"] for l in (card or {}).get("links", []) if l.get("title") == "Official site"), None)
     if not off:
+        if article and card and card.get("url"):
+            # a card with no official site (ai: Artificial intelligence): its article leads, not a stock quote or a namesake domain
+            places = [r for r in res if r.get("source") == "place"]
+            have = next((r for r in res if same_page(r.get("url") or "") == same_page(card["url"])), None)
+            row = have or {"url": card["url"], "title": f"{card['title']} — Wikipedia", "source": "wikipedia",
+                           "content": card.get("description") or "", "score": max((r.get("score") or 0 for r in res), default=0)}
+            return places + [row] + [r for r in res if r is not have and r.get("source") != "place"]
         return res
     places = [r for r in res if r.get("source") == "place"]
-    have = next((r for r in res if r.get("url") == off), None)
+    have = next((r for r in res if same_page(r.get("url") or "") == same_page(off)), None)
     row = have or {"url": off, "title": f"{card['title']} — official site", "source": "site", "official": True,
                    "content": card.get("description") or "", "score": max((r.get("score") or 0 for r in res), default=0)}
     return places + [row] + [r for r in res if r is not have and r.get("source") != "place"]
@@ -511,8 +553,9 @@ def card_of(res: list[dict], descr: str | None = None, related: list[dict] | Non
     key = same_page(top["url"])
     # its official site wherever it ranked: donaldjtrump.com sat 4th and never reached the card
     official = [{"title": "Official site", "url": r["url"]} for r in res
-                if r.get("official") and r["title"].startswith(title + " — ")][:1]
-    if not official and site and official_ok(site) and not official_inner_page(site):
+                if r.get("official") and r["title"].startswith(title + " — ")
+                and official_link_ok(r["url"])][:1]
+    if not official and site and official_link_ok(site) and not official_inner_page(site):
         official = [{"title": "Official site", "url": site}]       # the article's own stored site (CARD_SITE_SQL)
     if not official:
         official = platform_home(title, descr, top.get("content"))     # a platform whose own site is a social host
@@ -581,6 +624,7 @@ def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base
     short = short_entity(base or q, cres, top["title"].rsplit(" — Wikipedia", 1)[0] if top else None) if not alt else None
     if short and short[0] and not top_is(top, short[0]):
         alt = short[0]                          # "lg": LG Electronics (lg.com's own article); "ea": Electronic Arts
+    kept_two = bool(short and short[0] and short[0] in TWO_LETTER_KEEP.get(norm_key(base or q), ()))
     if alt:                                     # "outlook" -> Microsoft Outlook, "keep" -> Google Keep
         swapped = True
         if lk is not None:
@@ -610,9 +654,9 @@ def card_build(q: str, res: list[dict], top: dict | None, cres: list[dict], base
         card = card_of(cres, row[0] if row else None, rel, img, site_row[0] if site_row else None, top=top)
         if short is not None and not short[0] and short[1]:
             return None, res, None              # "is", "go", "us": a two-letter word gets no card without the entity rule
-        if swapped:
+        if swapped or kept_two:
             try:
-                res = lead_with_official(res, card)
+                res = lead_with_official(res, card, article=kept_two)
             except Exception as e:                  # as before the split: the card stays, the rows stay as they were
                 return card, res, type(e).__name__
     return card, res, None

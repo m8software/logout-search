@@ -7,6 +7,9 @@
 name: windows-customer-test
 
 on:
+  workflow_run:                      # every release tag: the release workflow finished, test what it published
+    workflows: [release]
+    types: [completed]
   push:
     tags: ["wintest-*"]              # the same run from a tag, wintest-v0.4.24 tests v0.4.24 (for a caller without the Actions button)
   workflow_dispatch:
@@ -21,15 +24,24 @@ permissions:
 
 jobs:
   customer:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: windows-latest
     timeout-minutes: 240
     defaults:
       run:
         shell: pwsh
     env:
-      TAG: ${{ inputs.tag || github.ref_name }}
+      TAG: ${{ inputs.tag || github.event.workflow_run.head_branch || github.ref_name }}
       LOGS: ${{ github.workspace }}\logs
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.event.workflow_run.head_branch || github.ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
       - name: Disks (the install needs about 30 GB)
         run: |
           $tag = $env:TAG -replace '^wintest-', ''
@@ -147,6 +159,17 @@ jobs:
           if (($rows | Where-Object { $_.query -eq 'google' -and $_.card -match '\+' })) { $fail++ }
           if ($fail) { Write-Output "::error::$fail search(es) showed the wrong card"; exit 1 }
 
+      - name: Regression suite (black box, the same cases as the Linux install, staging and public)
+        run: |
+          # tests/regress/run.py needs nothing but the Python standard library. Cases that restart the engine or feed its
+          # inbox need a disposable install (--sandbox) and are skipped here; the link and lifecycle cases that cannot run
+          # on a hosted runner say PENDING. Exit 1 on any FAIL: a release does not pass with one.
+          $env:PYTHONUTF8 = "1"
+          python tests/regress/run.py --target http://127.0.0.1:8090 --name "windows $env:TAG (hosted runner)" --tag windows --tag install --tag pre-release2 `
+              --install-dir $env:DEST --rv wss://search.logout.cloud/rv --suite answers,stored,takein,startup,link,resources,lifecycle `
+              --out "$env:LOGS\regress.json" *>&1 | Tee-Object "$env:LOGS\regress.txt"
+          if ($LASTEXITCODE -ne 0) { Write-Output "::error::the regression suite failed (exit $LASTEXITCODE); see regress.txt"; exit 1 }
+
       - name: doctor
         run: |
           & "$env:DEST\app\logout-search.exe" doctor --dest "$env:DEST\data" 2>&1 | Tee-Object "$env:LOGS\doctor.txt"
@@ -179,7 +202,7 @@ jobs:
         run: |
           $s = @("## windows-customer-test $env:TAG", "", "Runner: $env:RUNNER_OS, $([Environment]::ProcessorCount) vCPUs, $([math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory/1GB)) GB",
                  "Install: $env:INSTALL_MIN min, $env:INSTALL_GB GB on disk, destination $env:DEST", "")
-          foreach ($f in 'disks', 'searches', 'store-inbox', 'left-behind') { if (Test-Path "$env:LOGS\$f.txt") { $s += "### $f"; $s += '```'; $s += (Get-Content "$env:LOGS\$f.txt"); $s += '```' } }
+          foreach ($f in 'disks', 'searches', 'regress', 'store-inbox', 'left-behind') { if (Test-Path "$env:LOGS\$f.txt") { $s += "### $f"; $s += '```'; $s += (Get-Content "$env:LOGS\$f.txt"); $s += '```' } }
           $s | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
 
       - name: Keep the logs

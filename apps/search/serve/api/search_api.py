@@ -212,6 +212,35 @@ def official_inner_page(url: str) -> bool:
     return len(segs) >= 3
 
 
+# A news article, an archive page, a PDF or a forum/board post is never anybody's official site: Wikidata and the registry
+# sometimes store one as "official website" (cbsnews.com/news/grandcentral-becomes-google-voice-... for Google Voice,
+# newyorker.com/magazine/2002/10/14/... for Christopher Columbus). The test is the shape of the address, not a list of
+# outlets: a dated path, a news/article/press/archive/magazine segment, a document file. A product, show, series, person or
+# team page on the owner's own domain (tv.apple.com/us/show/ted-lasso, records.nhl.com/awards/trophies/stanley-cup,
+# meta.com/quest/products/quest-2) has none of them and stays.
+_NEWS_SEGS = frozenset("""news article articles story stories press pressroom press-release press-releases newsroom archive
+archives magazine magazines bitstream mediacentre media-centre media-center entertainment bbs forum forums thread threads
+search recipe recipes guide guides review reviews opinion features lifestyle""".split())
+_DATED_PATH = re.compile(r"/(?:19|20)\d\d/(?:0?[1-9]|1[0-2])(?:/|$)")      # /2019/04/ , not an event page like /racing/2026
+_DOC_EXT = re.compile(r"\.(?:pdf|docx?|pptx?|xlsx?)$", re.I)
+
+
+def official_news_like(url: str) -> bool:
+    u = urlsplit(url or "")
+    path = u.path or ""
+    if _DATED_PATH.search(path) or _DOC_EXT.search(path):
+        return True
+    segs = [x.lower() for x in path.split("/") if x]
+    if any(x in _NEWS_SEGS or x.endswith("-news") or x.startswith(("news-", "how-to", "howto")) for x in segs):
+        return True
+    return u.netloc.lower().startswith(("news.", "press.", "blog.", "archive."))
+
+
+def official_link_ok(url: str) -> bool:
+    """A stored official link the card may show: not a social/wire host, not a news/archive/document page."""
+    return official_ok(url) and not official_news_like(url)
+
+
 # Weight of the head fields (domain words + title + h1) against the whole page in the
 # site keyword list — BM25F-style field weighting (Robertson, Zaragoza & Taylor
 # 2004, https://doi.org/10.1145/1031171.1031181). 2 was a guess; ?hw= sweeps it.
@@ -2558,7 +2587,7 @@ def news_text(title: str, summary) -> str:
     return f"{title}. {(summary or '')[:300]}"
 
 
-def news_vec_fill_once(batch: int = 32) -> int:
+def news_vec_fill_once(batch: int = 8) -> int:
     """Embed the window's headlines not cached yet; how many were embedded."""
     rows = _news_rows(NEWS_RECENT_SQL, {"h": NEWS_HOURS, "n": _NEWS_VEC_MAX})
     if not rows or not embedder_ready():
@@ -2567,15 +2596,20 @@ def news_vec_fill_once(batch: int = 32) -> int:
         todo = [(u, news_text(t, sm)) for u, t, sm in rows if u not in _news_vecs]
     done = 0
     for i in range(0, len(todo), batch):
-        while _busy[0] > 0:                                # a visitor first
-            time.sleep(0.05)
+        bg_wait_idle()                                     # a visitor first, and a moment after (8 texts: well under a second a batch)
+        t = time.monotonic()
         news_vectors(todo[i:i + batch])
         done += len(todo[i:i + batch])
+        time.sleep(min(2.0, 2 * (time.monotonic() - t)))   # a duty cycle of a third: the cores are shared with the searches
     return done
 
 
 def news_vec_fill_loop() -> None:
-    time.sleep(30)                                         # after the engine's own start-up work
+    for _ in range(int(WARMUP_MAX_S) + 30):                # after the engine's own start-up work and the warm-up
+        if _warmup["state"] == "done":
+            break
+        time.sleep(1)
+    bg_wait_idle()
     while True:
         try:
             t = time.monotonic()
@@ -3685,7 +3719,60 @@ def point_weather(c, focus: str, near, now: dt.datetime) -> dict | None:
 # that station's list of frames itself, so an answer kept in a cache never points at a deleted picture.
 RADAR_DIR = os.environ.get("SEARCH_RADAR_DIR", "")          # unset = no radar on the forecast
 RADAR_MAX_KM = 230                                          # the picture reaches about this far from its station
+RADAR_ID_RE = re.compile(r"^[A-Z]{4}$")
 _radar_list: dict = {"read": 0.0, "mtime": None, "stations": []}
+_radar_lock = threading.Lock()
+_radar_recorded: dict[str, float] = {}
+
+
+def record_radar_interest(sid: str) -> None:
+    """Note that this station's radar was asked for (wxall.py fetches only watched/home stations)."""
+    if not RADAR_DIR or not RADAR_ID_RE.fullmatch(sid or ""):
+        return
+    now = time.time()
+    with _radar_lock:
+        if now - _radar_recorded.get(sid, 0.0) < 60:
+            return
+        _radar_recorded[sid] = now
+        path = os.path.join(RADAR_DIR, "interest.json")
+        try:
+            os.makedirs(RADAR_DIR, exist_ok=True)
+            try:
+                with open(path, encoding="utf-8") as f:
+                    raw = json.load(f)
+                stations = raw.get("stations") if isinstance(raw, dict) and isinstance(raw.get("stations"), dict) else (raw if isinstance(raw, dict) else {})
+            except (OSError, ValueError):
+                stations = {}
+            clean = {k: float(v) for k, v in stations.items()
+                     if isinstance(k, str) and RADAR_ID_RE.fullmatch(k) and isinstance(v, (int, float)) and not isinstance(v, bool)
+                     and now - float(v) <= 24 * 3600}
+            clean[sid] = round(now, 1)
+            tmp = f"{path}.tmp{os.getpid()}"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump({"stations": clean}, f, separators=(",", ":"))
+            os.replace(tmp, path)
+        except OSError:
+            pass
+
+
+def radar_read(sid: str, ts: int | None = None) -> tuple[int, bytes, str]:
+    """Read a locally cached NWS radar manifest or frame GIF; 404 when absent or disabled."""
+    if not RADAR_DIR or not RADAR_ID_RE.fullmatch(sid or ""):
+        return 404, b'{"error":"not found"}', "application/json"
+    if ts is None:
+        record_radar_interest(sid)
+        path = os.path.join(RADAR_DIR, f"{sid}.json")
+        ctype = "application/json"
+    else:
+        if not isinstance(ts, int) or isinstance(ts, bool) or ts <= 0:
+            return 404, b'{"error":"not found"}', "application/json"
+        path = os.path.join(RADAR_DIR, sid, f"{ts}.gif")
+        ctype = "image/gif"
+    try:
+        with open(path, "rb") as f:
+            return 200, f.read(3 * 1024 * 1024), ctype
+    except OSError:
+        return 404, b'{"error":"not found"}', "application/json"
 
 
 def radar_station(lat: float, lon: float) -> dict | None:
@@ -3710,7 +3797,10 @@ def radar_station(lat: float, lon: float) -> dict | None:
             continue
         if km <= best_km and re.fullmatch(r"[A-Z]{4}", str(s.get("id") or "")):
             best, best_km = s, km
-    return {"id": best["id"], "name": str(best.get("name") or "")[:40]} if best else None
+    if best:
+        record_radar_interest(best["id"])
+        return {"id": best["id"], "name": str(best.get("name") or "")[:40]}
+    return None
 
 
 def town_forecast(c, town, focus: str, now: dt.datetime) -> dict | None:
@@ -3758,6 +3848,8 @@ def weather(q: str) -> dict | None:
                 out = dict(payload)
                 out["focus"] = focus
                 out["stale"] = dt.datetime.now(dt.timezone.utc) - updated > WEATHER_STALE
+                if "radar" not in out and HOME and (r := radar_station(HOME[0], HOME[1])):
+                    out["radar"] = r
     except psycopg.Error:
         if c is not None:
             c.close()
@@ -4040,12 +4132,50 @@ STORE_INBOX_EVERY_S = float(os.environ.get("SEARCH_STORE_INBOX_EVERY_S", "60"))
 # 2026-11-14); 0 = never (a deploy that fixes what the old results got wrong).
 STORE_PREV = os.environ.get("SEARCH_STORE_PREV", "1") != "0"
 _store = [None, False]                      # the ResultStore, tried
+_store_tried = [False]                      # a first attempt was made (by a request, or by store_open_loop at start)
+_store_state = {"error": None, "tries": 0, "gave_up": False}    # why it is not open, how often tried, whether the wait ran out
+STORE_OPEN_WAIT_S = float(os.environ.get("SEARCH_STORE_OPEN_WAIT_S", "60"))   # /readyz holds for the store this long, then says so and goes on
 _store_lock = threading.Lock()
 _audit: contextvars.ContextVar = contextvars.ContextVar("audit", default=False)
 _store_note: contextvars.ContextVar = contextvars.ContextVar("store_note", default=None)   # "disk" / "prev" / "same" / "diff"
 _prev_served: contextvars.ContextVar = contextvars.ContextVar("prev_served", default=None)   # a [bool] cached() reads
 _busy = [0]                                 # visitors' search requests in flight (/instant, /more, /explain, /search; the warmer waits for 0)
 _last_visitor = [0.0]                       # monotonic time a visitor request last started or ended (the warmer backs off for a while after)
+# After a start, searches come first (2026-11-16, buildbox: a restart on a busy disk left searches at 6-88 s for eight minutes while the news
+# headlines were embedded in the same process). One gate for everything that is not a search: it waits while a visitor request is in flight
+# and for BG_QUIET_S after the last one. And a cold engine (the warm-up below not finished, at most WARMUP_MAX_S) gives each optional stage
+# COLD_BUDGET_S: what is not ready is left out of the answer, the stage keeps running and fills the caches.
+BG_QUIET_S = float(os.environ.get("SEARCH_BG_QUIET_S", "1.0"))
+COLD_BUDGET_S = float(os.environ.get("SEARCH_COLD_BUDGET_S", "3.0"))
+WARMUP_MAX_S = float(os.environ.get("SEARCH_WARMUP_MAX_S", "150"))
+WARMUP_MAX_BYTES = int(float(os.environ.get("SEARCH_WARMUP_MAX_BYTES", "1.5e9")))
+_cold = [False]                             # True from the server's start until the warm-up is done (or its time is up); read without a clock. Only a running engine is ever cold: a library import is not
+_warmup = {"state": "waiting", "done": 0, "total": 0, "skipped": 0}   # waiting | running | done
+
+
+def bg_wait_idle() -> None:
+    """Background work calls this between small pieces: it returns when no visitor request is in flight and none ended in BG_QUIET_S."""
+    while _busy[0] > 0 or time.monotonic() - _last_visitor[0] < BG_QUIET_S:
+        time.sleep(0.05)
+
+
+def fut_result(f, default):
+    """f.result(), but on a cold engine only for COLD_BUDGET_S: then `default` (the stage goes on in its thread and warms what it reads)."""
+    if not _cold[0]:
+        return f.result()
+    try:
+        return f.result(timeout=COLD_BUDGET_S)
+    except TimeoutError:
+        _warmup["skipped"] += 1
+        return default
+
+
+def cold_call(name, fn, fallback):
+    """fn() for a request; on a cold engine in its own thread for at most COLD_BUDGET_S, else `fallback`."""
+    if not _cold[0]:
+        return fn()
+    f = _EXEC.submit(contextvars.copy_context().run, fn)
+    return fut_result(f, fallback)
 _busy_lock = threading.Lock()
 # RT-01: a warm request (the warmer, the builder's own engine) gives way to visitors. Between its stages it waits while any
 # visitor search is in flight (WARM_YIELD_STEP_S steps, at most WARM_YIELD_TOTAL_S per request so it still ends), and while a
@@ -4069,28 +4199,65 @@ def _warm_yield() -> None:
         w[0] += WARM_YIELD_STEP_S
 
 
+def _open_store() -> bool:
+    """One attempt to open the ResultStore; the caller holds _store_lock. True when it is open (or none is configured)."""
+    try:
+        if STORE_PATH:
+            import result_store as rs
+            models = [d for d in ("/models", NOMIC_DIR, CE_DIR, CE_GOV_DIR) if d and os.path.exists(d)]
+            fp = rs.fingerprint(os.path.dirname(os.path.abspath(__file__)), RELEASE_DIR, models)
+            st = rs.ResultStore(STORE_PATH, fp, STORE_MAX_AGE_S)
+            st.prune()
+            _store[0] = st
+            print(f"result store {STORE_PATH}: fingerprint {fp}", flush=True)
+        _store[1] = True        # set when the store is READY (audit B-10), never before: a request arriving while another thread was
+        _store_state["error"] = None    # opening (and pruning) must not see "done, none"
+        return True
+    except Exception as e:
+        _store_state["tries"] += 1
+        _store_state["error"] = f"{type(e).__name__}: {e}"
+        print(f"result store {STORE_PATH} NOT OPEN (try {_store_state['tries']}): {_store_state['error']}", flush=True)
+        return False
+
+
 def result_store():
-    """The ResultStore, opened on first use; None when SEARCH_STORE is unset or the file cannot be opened."""
+    """The ResultStore, opened on first use (one attempt: store_open_loop keeps trying in the background); None when SEARCH_STORE
+    is unset or the file cannot be opened (yet)."""
     if _store[1]:
         return _store[0]
     with _store_lock:
-        if not _store[1]:
-            # the flag is set when the store is READY (audit B-10): it was set first, so a request arriving while another thread
-            # was opening (and pruning) saw "done, none" and ran without the store; parts_for then kept None for the process
-            try:
-                if STORE_PATH:
-                    import result_store as rs
-                    models = [d for d in ("/models", NOMIC_DIR, CE_DIR, CE_GOV_DIR) if d and os.path.exists(d)]
-                    fp = rs.fingerprint(os.path.dirname(os.path.abspath(__file__)), RELEASE_DIR, models)
-                    st = rs.ResultStore(STORE_PATH, fp, STORE_MAX_AGE_S)
-                    st.prune()
-                    _store[0] = st
-                    print(f"result store {STORE_PATH}: fingerprint {fp}", flush=True)
-            except Exception as e:
-                print(f"result store {STORE_PATH} off: {type(e).__name__}: {e}", flush=True)
-            finally:
-                _store[1] = True
+        if not _store[1] and not _store_tried[0]:
+            _store_tried[0] = True
+            _open_store()
     return _store[0]
+
+
+def store_open_loop() -> None:
+    """Started with the server: open the store now and, while it will not open, try again every 2 s growing to 15 s. After
+    STORE_OPEN_WAIT_S it says plainly that it is still closed (store_ready() then stops holding /readyz) and keeps trying."""
+    delay, waited = 0.0, 0.0
+    while not _store[1]:
+        if delay:
+            time.sleep(delay)
+            waited += delay
+        with _store_lock:
+            _store_tried[0] = True
+            ok = _store[1] or _open_store()
+        if ok:
+            if _store_state["tries"]:
+                print(f"result store open after {_store_state['tries']} failed tries, {waited:.0f} s", flush=True)
+            return
+        if waited >= STORE_OPEN_WAIT_S and not _store_state["gave_up"]:
+            _store_state["gave_up"] = True
+            print(f"result store STILL NOT OPEN after {waited:.0f} s ({_store_state['error']}): readiness no longer waits for it; "
+                  f"searches run without stored answers and curated lists until it opens (retrying every 15 s)", flush=True)
+        delay = min(max(delay * 1.5, 2.0), 15.0)
+
+
+def store_ready() -> bool:
+    """False while a configured result store has not opened and the wait (STORE_OPEN_WAIT_S) has not run out: /readyz holds the
+    safe deploy's switch for it. True when none is configured, it is open, or the wait is over."""
+    return (not STORE_PATH) or _store[1] or _store_state["gave_up"]
 
 
 # An answer as parts (phase 2, 2026-11-15; parts.py, docs/internal/precompute-plan.md). SEARCH_PARTS=card turns the
@@ -4099,7 +4266,7 @@ def result_store():
 # Only the builder (warm=1) writes; ?parts=0 computes live (the shadow compare's old path). Any trouble = computed live.
 PARTS_ON = frozenset(x.strip() for x in os.environ.get("SEARCH_PARTS", "").split(",") if x.strip())
 # Settings that change speed, capacity or logging, never an answer: named so a part's key is the same on every machine
-PARTS_SPEED_ONLY = ("SEARCH_CACHE_MAX", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_TTL_S", "SEARCH_CE_THREADS", "SEARCH_COMPUTE_CACHE",
+PARTS_SPEED_ONLY = ("SEARCH_BG_QUIET_S", "SEARCH_COLD_BUDGET_S", "SEARCH_CACHE_MAX", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_TTL_S", "SEARCH_CE_THREADS", "SEARCH_COMPUTE_CACHE",
                     "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_OV_CACHE", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
                     "SEARCH_PARTS", "SEARCH_POOL_MAX", "SEARCH_STATEMENT_TIMEOUT_MS", "SEARCH_STORE", "SEARCH_STORE_FOLD_CASE",
                     "SEARCH_STORE_MAX_AGE_S", "SEARCH_STORE_PREV", "SEARCH_STORE_REFRESH_S", "SEARCH_WORKERS", "SEARCH_LOG",
@@ -4532,27 +4699,37 @@ def fin_plain(qs) -> bool:
     return FIN_PLAIN.issuperset(qs) and _near.get() is None
 
 
+_fin_miss = threading.local()
+
+
 def fin_get(q: str, full: bool) -> dict | None:
     """The finished answer for q, or None: none stored, too old, another layout, or the hand-picked list of q was
     written, changed or removed since (a removal must win over a stored answer)."""
+    def _miss(why: str):
+        _fin_miss.why = why
+        return None
     st = result_store() if CURATED_RELEASE else None
     if st is None:
-        return None
+        return _miss("miss:nostore")
     try:
-        b = st.get_finished(CURATED_RELEASE, fin_key(q, full), FIN_MAX_AGE_S)
-        if not b or b.get("v") != FIN_V or any(k not in b for k in FIN_FIELDS):
-            return None
+        why_m = []
+        b = st.get_finished(CURATED_RELEASE, fin_key(q, full), FIN_MAX_AGE_S, miss=why_m)
+        if not b:
+            return _miss("miss:" + (why_m[0] if why_m else "none"))
+        if b.get("v") != FIN_V or any(k not in b for k in FIN_FIELDS):
+            return _miss("miss:v")
         if st.curated_at(CURATED_RELEASE, curated_key(q)) != b.get("cur_at"):
-            return None
+            return _miss("miss:cur")
         if "cur_at_card" in b:                           # the list of the card's own name too (audit B-07; rows built before it have none)
             t = (b.get("card") or {}).get("title")
             if isinstance(t, str) and st.curated_at(CURATED_RELEASE, curated_key(t)) != b["cur_at_card"]:
-                return None
+                return _miss("miss:cur")
         if HOME and (b.get("local") or b.get("place") or any(r.get("source") == "place" for r in b["results"])):
-            return None                                  # built with no position: here a position would change it
+            return _miss("miss:pos")                     # built with no position: here a position would change it
+        _fin_miss.why = "hit"
         return b
     except Exception:  # noqa: BLE001 - a stored answer is extra
-        return None
+        return _miss("miss:err")
 
 
 PROVCHECK = os.environ.get("SEARCH_PROVCHECK", "0") == "1"     # off unless the builder's engine sets it: the call is not for visitors
@@ -4634,17 +4811,22 @@ def store_inbox_once() -> list:
         p = os.path.join(inbox, f)
         try:
             r = st.reset_lists(p, CURATED_RELEASE, FIN_V) if CURATED_RELEASE else {}   # a lists base replaces what came before (install.py lists)
+            if "reset_refused" in r:
+                raise ValueError(r["reset_refused"])
             n = dict(st.import_file(p), **r)
-            c = st.import_dept(p)                            # shopping departments (2026-11-13): not tied to a release
-            if any(c.values()):
-                n = dict(n, **{f"dept_{k}": v for k, v in c.items()})
+            reset_done = "reset_finished" in r
+            if not reset_done:
+                c = st.import_dept(p)                            # shopping departments (2026-11-13): not tied to a release
+                if any(c.values()):
+                    n = dict(n, **{f"dept_{k}": v for k, v in c.items()})
             if CURATED_RELEASE:                              # curated answers ride the same inbox (2026-11-05)
-                c = st.import_curated(p, CURATED_RELEASE)
-                if any(c.values()):
-                    n = dict(n, **{f"curated_{k}": v for k, v in c.items()})
-                c = st.import_finished(p, CURATED_RELEASE, FIN_V)    # finished answers too (2026-11-12)
-                if any(c.values()):
-                    n = dict(n, **{f"finished_{k}": v for k, v in c.items()})
+                if not reset_done:
+                    c = st.import_curated(p, CURATED_RELEASE)
+                    if any(c.values()):
+                        n = dict(n, **{f"curated_{k}": v for k, v in c.items()})
+                    c = st.import_finished(p, CURATED_RELEASE, FIN_V)    # finished answers too (2026-11-12)
+                    if any(c.values()):
+                        n = dict(n, **{f"finished_{k}": v for k, v in c.items()})
                 c = st.import_verified(p, CURATED_RELEASE)   # answers the builder rebuilt unchanged (audit DB-03)
                 if c.get("verified"):
                     n = dict(n, verified=c["verified"])
@@ -4778,7 +4960,7 @@ def cached(key, compute, static: bool = False):
             _cache.move_to_end(key)
             while len(_cache) > CACHE_MAX:
                 _cache.popitem(last=False)
-        return val
+        return _clone(val)
     finally:
         _prev_served.reset(tok)
         if flight is not None:                      # after the entry is in: a woken follower must find it
@@ -5897,7 +6079,8 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
         # (not when the query names a platform: "trump youtube", "r/trump")
         if ("suggest_keys" in has and not acct and not yt_key and not sub_key
                 and len(q.split()) <= 3 and 3 <= len(nq) <= 30):
-            famous = famous_namesake(nq, c.execute(FAMOUS_SQL, {"k": nq}).fetchall())
+            is_pers = (lambda t: c.execute(PERSON_SQL, {"t": t}).fetchone() is not None) if "wiki_facts" in has else None
+            famous = famous_namesake(nq, c.execute(FAMOUS_SQL, {"k": nq}).fetchall(), is_pers)
             tk = (sports_keys(q) or [nq])[0]                 # "ny giants" -> newyorkgiants
             team = (major_team(tk, c.execute(MAJOR_TEAM_SQL, {"k": tk, "boxes": MAJOR_TEAM_BOXES}).fetchall())
                     if "wiki_facts" in has else None)
@@ -6033,13 +6216,13 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
             elif pq and pq[0] == "name" and (exact_titles or any(
                     r.get("source") == "site" and r["score"] >= NAV_SCORE - 1 for r in out)):
                 place_base = WIKI_EXACT_SCORE - PLACE_UNDER_THING
-            rows = f_places.result()
+            rows = fut_result(f_places, [])
             if pq[0] == "name" and _NEAR.search(q.lower()):
                 # "… near me" with a loose name match: a far business that merely sounds like the
                 # words is not what was asked for; an exact name or brand is kept at any range
                 rows = [r for r in rows if r[8] <= NEAR_FUZZY_KM or r[1].lower() == pq[1]]
             if not rows and f_places_fb is not None:
-                rows = f_places_fb.result()
+                rows = fut_result(f_places_fb, [])
             if pq[0] == "name":
                 rows = exact_name_first(rows, pq[1])
                 near_named_km = min((row[8] for row in rows), default=None)
@@ -6100,7 +6283,7 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
             lists.append(_tl("sites", named_only(sorted(ls, key=lambda r: r["score"], reverse=True), npairs)))
         if f_se is not None:
             lq = []
-            for site, qid, title, answer, bm25, votes in f_se.result():
+            for site, qid, title, answer, bm25, votes in fut_result(f_se, []):
                 score = float(bm25) * (1 + 0.05 * math.log1p(max(0, votes)))
                 lq.append({"url": f"https://{site}/questions/{qid}", "title": f"{title} — {site}",
                            "content": (answer or "")[:300], "source": "stackexchange", "score": round(score, 2)})
@@ -6121,7 +6304,7 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
         weights: list[float] = [1.0] * len(lists)
         if f_pages is not None:
             pk, pw = _pages_fuse.get() or (PAGES_FUSE_K, PAGES_FUSE_W)
-            rows, had = f_pages.result(), set()
+            rows, had = fut_result(f_pages, []), set()
             if f_gov is not None:                              # the named state's government pages, at full weight
                 first = f_gov.result()
                 had = {r[0] for r in first}
@@ -6148,11 +6331,11 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
             lists.append(_tl("kind", named_only([_kind(url, title, descr, sc) for url, title, descr, _d, sc in f_kind.result()], npairs)))
         if f_kind_site is not None and not kind_lifted:  # ... and the sites whose meaning is closest
             lists.append(_tl("kind_site", named_only([_kind(url, title, descr, sim) for url, title, descr, _d, sim in f_kind_site.result()], npairs)))
-        sem = f_sem.result() if f_sem is not None else None
+        sem = fut_result(f_sem, None) if f_sem is not None else None
         if sem is not None:
             lists.append(_tl("sem", [_wiki(title, lead, sim) for title, lead, sim in sem]))
         if f_sem_pages is not None:
-            sp = f_sem_pages.result()
+            sp = fut_result(f_sem_pages, [])
             if sp:                                             # the pages nearest in meaning
                 weights += [1.0] * (len(lists) - len(weights))
                 lists.append(_tl("sem_pages", [dict(_site(url, title, desc, sim), sem_page=True) for url, title, desc, sim in sp]))
@@ -6170,7 +6353,7 @@ def _search(q: str, k: int, semantic: bool = True, learned: bool = True, ce: boo
         _tr("fused", fused)
         out.extend(fused)
         stage_since("lists_wait", t_stage)                     # mostly waiting for the lists started at the top
-        if not out or (out[0]["score"] < WIKI_EXACT_SCORE and best < STRONG_BM25):   # tier 4
+        if not _cold[0] and (not out or (out[0]["score"] < WIKI_EXACT_SCORE and best < STRONG_BM25)):   # tier 4 (not on a cold engine: one fuzzy_wiki took 70 s)
             n_out = len(out)
             c.execute(f"SET pg_trgm.similarity_threshold = {FUZZY_SIM}")
             if sites and keys:
@@ -6295,6 +6478,9 @@ SUGGEST_V2_SQL = ("SELECT count(*) = 2 FROM information_schema.columns WHERE tab
 # so a site bonus here is how sites keep their place beside famous names.
 SUGGEST_WEIGHTS2 = {"k_site": 1.3, "k_wiki": 0.0, "k_youtube": -0.5, "k_service": 0.0, "k_subreddit": -0.3,
                     "hist": 1.5, "exact": 0.3, "later": 1.5, "alias": 1.0, "foreign": 1.0,
+                    "pop": 1.0, "exact_domain": 0.15, "non_name_prefix": 1.5, "raw_domain": 0.45,
+                    "root_wiki_site": 1.35, "root_site": 0.35, "root_site_wiki": 0.16,
+                    "root_wiki_sequel": 0.85, "root_wiki_franchise": 0.5,
                     # Half an alias typed is weak evidence: "yankees" is the start of Freddie
                     # Freeman's Wikidata alias "yankees father" and out-scored the New York
                     # Yankees, whose own name has the word (2026-09-25). The whole alias typed
@@ -6304,9 +6490,10 @@ SUGGEST_WEIGHTS2.update(_weights(os.environ.get("SEARCH_SUGGEST_WEIGHTS2", "")))
 _suggest_v2 = (_NEVER, None)
 
 
-def suggest_score2(kind: str, demand: float, hist: float, exact: bool, pos: int, w: dict | None = None) -> float:
+def suggest_score2(kind: str, demand: float, hist: float, exact: bool, pos: int, w: dict | None = None, pop: float = 0.0) -> float:
     w = w or SUGGEST_WEIGHTS2
     return (math.log10(1 + max(0.0, demand or 0.0)) + w.get("k_" + kind, 0.0) + w["hist"] * (hist or 0.0)
+            + w.get("pop", 0.0) * (pop or 0.0)
             + (w["exact"] if exact else 0.0) - (w["later"] if pos == 1 else 0.0) - (w["alias"] if pos == 2 else 0.0)
             - (w.get("alias_partial", 0.0) if pos == 2 and not exact else 0.0))
 
@@ -6344,8 +6531,110 @@ def suggest_name(name: str) -> str:
         n = cut
     words = n.split()
     if len(words) > 6:
-        n = " ".join(words[:6])
+        n = " ".join(words[:6]).strip(" ,:;|–—-")
     return re.sub(r"(?<=[a-z]{4})\.$", "", n)
+
+
+_RAW_DOMAIN_RE = re.compile(r"^[a-z0-9.-]+\.[a-z]{2,}$")
+
+
+def _suggest_words(name: str) -> list[str]:
+    b = re.sub(r"\s*\([^)]*\)$", "", name or "").strip()
+    b = re.sub(r"^(?:the|a|an)\s+", "", b, flags=re.I)
+    return re.findall(r"[a-z0-9]+", b.lower())
+
+
+def _suggest_matches_typed(title: str, typed: str) -> bool:
+    """True when the displayed title starts with the typed prefix (and respects spaces: 'toy s' != 'Toys for Bob')."""
+    if not typed:
+        return True
+    tws = re.findall(r"[a-z0-9]+", typed.lower())
+    if not tws:
+        return True
+    b = re.sub(r"\s*\([^)]*\)$", "", title or "").strip()
+    b_nothe = re.sub(r"^(?:the|a|an)\s+", "", b, flags=re.I)
+    for cand in (b, b_nothe):
+        cws = re.findall(r"[a-z0-9]+", cand.lower())
+        if len(tws) == 1:
+            if cws and cws[0].startswith(tws[0]):
+                return True
+        elif len(cws) >= len(tws) and cws[:len(tws) - 1] == tws[:-1] and cws[len(tws) - 1].startswith(tws[-1]):
+            return True
+    return False
+
+
+def _rerank_suggest_entries(entries: list[tuple[float, str, str | None, str]], typed: str, w: dict) -> tuple[list[float], list[bool]]:
+    """Apply post-dedup prefix alignment and hierarchical root-entity adjustments to
+    [(score, kind, domain, label), ...]. Returns (adjusted_scores, name_prefix_flags)."""
+    t = tight(typed)
+    has_ext = bool(re.search(r"\.[a-z]{2,}$", (typed or "").lower()))
+    parsed = []
+    scores = []
+    for sc, kind, dom, label in entries:
+        wk = _suggest_words(label)
+        name_pfx = _suggest_matches_typed(label, typed)
+        adj = sc
+        if typed and not name_pfx:
+            adj -= w.get("non_name_prefix", 1.5)
+        if kind == "site" and _RAW_DOMAIN_RE.fullmatch((label or "").lower()) and not has_ext:
+            adj -= w.get("raw_domain", 0.45)
+        parsed.append({"sc": adj, "kind": kind, "dom": dom, "wk": wk, "name_pfx": name_pfx})
+        scores.append(adj)
+
+    # Hierarchical root promotion (London vs London Stock Exchange, Sony vs Sony Music, Toy Story vs Toy Story 5):
+    # evaluated BEFORE exact_domain so an exact domain like oprah.com does not pull close to Oprah Winfrey.
+    roots = [x for x in parsed if x["name_pfx"] and len("".join(x["wk"])) >= 4]
+    penalize: dict[int, float] = {}
+    for idx_b, b in enumerate(parsed):
+        if not b["name_pfx"]:
+            continue
+        bw = b["wk"]
+        for a in roots:
+            if a["wk"] == bw or len(a["wk"]) >= len(bw) or bw[:len(a["wk"])] != a["wk"]:
+                continue
+            aw = a["wk"]
+            gap = b["sc"] - a["sc"]
+            if a["kind"] == "wiki" and b["kind"] == "site" and gap <= w.get("root_wiki_site", 1.35):
+                penalize[idx_b] = max(penalize.get(idx_b, 0.0), gap + 0.05)
+            elif a["kind"] == "site" and b["kind"] == "site" and gap <= w.get("root_site", 0.35):
+                penalize[idx_b] = max(penalize.get(idx_b, 0.0), gap + 0.05)
+            elif a["kind"] == "site" and b["kind"] == "wiki" and gap <= w.get("root_site_wiki", 0.16):
+                penalize[idx_b] = max(penalize.get(idx_b, 0.0), gap + 0.05)
+            elif a["kind"] == "wiki" and b["kind"] == "wiki":
+                sequel = bw[len(aw)].isdigit()
+                if (len(aw) >= 2 and gap <= w.get("root_wiki_franchise", 0.5)) or (sequel and gap <= w.get("root_wiki_sequel", 0.85)):
+                    penalize[idx_b] = max(penalize.get(idx_b, 0.0), gap + 0.05)
+
+    for idx_b, p in penalize.items():
+        scores[idx_b] -= p
+    for idx, x in enumerate(parsed):
+        if x["kind"] == "site" and x["dom"] and t and _apex_label(x["dom"]) == t and x["wk"]:
+            scores[idx] += w.get("exact_domain", 0.15)
+    return scores, [x["name_pfx"] for x in parsed]
+
+
+def rescore_suggest_response(sug: list[dict], typed: str = "", w: dict | None = None) -> tuple[list[dict], int]:
+    """Replay already-built suggestion dicts (such as staging HTTP JSON) through the post-dedup
+    prefix-alignment and root-entity ranking rules."""
+    if not sug:
+        return [], 0
+    ww = w or SUGGEST_WEIGHTS2
+    entries = []
+    for it in sug:
+        src = it.get("source") or ""
+        dom = (urlsplit(it.get("url") or "").hostname or "").lower().removeprefix("www.") if src == "site" else None
+        entries.append((float(it.get("score") or 0.0), src, dom, it.get("title") or ""))
+    adj, name_pfx = _rerank_suggest_entries(entries, typed, ww)
+    order = sorted(range(len(sug)), key=lambda i: (-adj[i], i))
+    out = []
+    for pos_out, i in enumerate(order):
+        d = dict(sug[i], score=round(adj[i], 3))
+        d.pop("lead", None)
+        if pos_out == 0 and name_pfx[i] and d.get("source") in ("site", "wiki"):
+            d["lead"] = True
+        out.append(d)
+    lead = 1 if out and out[0].get("lead") else 0
+    return out, lead
 
 
 def _entity_key(name: str) -> str:
@@ -6393,7 +6682,7 @@ def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: d
 
     def score(r):
         if v2:
-            sc = suggest_score2(r[1], r[8], r[7], r[0] in exact_ids, r[10], ww)
+            sc = suggest_score2(r[1], r[8], r[7], r[0] in exact_ids, r[10], ww, r[6] or 0.0)
         else:
             sc = suggest_score(r[1], r[6], r[7], r[0] in exact_ids, w)
         # A country-code site (costcojapan.jp) is a weaker guess for a US household
@@ -6460,6 +6749,13 @@ def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: d
         # the shortest name in the group: "Google", not "Google Search"
         label = min((m[2] for m in g), key=lambda x: (len(x), x)) if len(g) > 1 else label
         reps.append((sc, r, label))
+    if v2 and reps:
+        adj, pfx_by_idx = _rerank_suggest_entries([(sc, r[1], r[4], label) for sc, r, label in reps], typed, ww)
+        order = sorted(range(len(reps)), key=lambda idx: (-adj[idx], reps[idx][1][0]))
+        reps = [(adj[idx], reps[idx][1], reps[idx][2]) for idx in order]
+        pfx_map = {id(reps[new_i][1]): pfx_by_idx[old_i] for new_i, old_i in enumerate(order)}
+    else:
+        pfx_map = {id(r): True for _, r, _ in reps}
     # the popularity floor: obscure matches (an unknown person, a defunct company) do not fill the list while popular ones exist
     if v2 and reps:
         top_d = max((x[1][8] or 0.0) for x in reps[:SUGGEST_KEEP_MIN + 5])
@@ -6481,8 +6777,11 @@ def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: d
             d["subtitle"] = descr
         out.append(d)
     # the first row leads (the page puts it above the searched phrases) when the typed text is the start of its NAME
-    # (pos 0), not of a later word or an alias: "starb" -> Starbucks leads; "air fr" -> phrases first
-    if out and reps and reps[0][1][1] in ("site", "wiki") and (len(reps[0][1]) <= 10 or reps[0][1][10] == 0):
+    # (pos 0) AND matches the displayed title, not of a later word, alias, or unrelated domain: "starb" -> Starbucks;
+    # "son" -> never Columbia Pictures; "air fr" -> phrases first
+    if (out and reps and reps[0][1][1] in ("site", "wiki")
+            and (len(reps[0][1]) <= 10 or reps[0][1][10] == 0)
+            and pfx_map.get(id(reps[0][1]), True)):
         out[0]["lead"] = True
     return out
 
@@ -6665,20 +6964,25 @@ class Handler(BaseHTTPRequestHandler):
             # /healthz = the process and the database are up. /readyz = searches can answer
             #: the serving tables are visible and a fixed query returns a result.
             try:
+                if not store_ready():
+                    return self._send(503, f"starting: result store not open ({_store_state['error']})".encode(), "text/plain")
                 with _conn() as c:
                     has = tables(c)
                 if "wiki_docs" not in has and "docs" not in has:
                     return self._send(503, b"starting: no serving tables visible", "text/plain")
                 if not search("wikipedia", 1, quiet=False):
                     return self._send(503, b"starting: the probe search answered nothing", "text/plain")
-                return self._send(200, b"ready", "text/plain")
+                note = warming_note()
+                return self._send(200, (f"ready; {note}" if note else "ready").encode(), "text/plain")
             except Exception as e:
                 return self._send(503, f"starting: {type(e).__name__}".encode(), "text/plain")
         if u.path in ("/instant", "/more", "/search", "/explain", "/provcheck") and not serving_ready():
             return self._send(503, b'{"error":"starting"}')
         if u.path == "/storez":                          # the warmer: rows, fingerprint, visitors in flight (back network only)
             st = result_store()
-            z = {"busy": _busy[0], **(st.counts() if st else {"off": True})}
+            z = {"busy": _busy[0], **(st.counts() if st else {"off": True, "store": "not open" if STORE_PATH else "none",
+                                                                "error": _store_state["error"], "tries": _store_state["tries"]})}
+            z["warmup"] = {**_warmup, "cold": _cold[0]}
             if _parts_state and _parts_state[0]:
                 z["parts"] = {**_parts_state[0].stats, "by": _parts_state[0].by}
             sample = parse_qs(u.query or "").get("sample")
@@ -6698,6 +7002,14 @@ class Handler(BaseHTTPRequestHandler):
             return self._explain(parse_qs(u.query))
         if u.path == "/candidates":                      # dev tooling: the lists and each reordering, with scores
             return self._send(*__import__("sq_candidates").handle(parse_qs(u.query)))
+        if u.path.startswith("/radar/"):
+            m = re.fullmatch(r"/radar/([A-Z]{4})\.json", u.path)
+            if m:
+                return self._send(*radar_read(m.group(1)))
+            m = re.fullmatch(r"/radar/([A-Z]{4})/(\d+)\.gif", u.path)
+            if m:
+                return self._send(*radar_read(m.group(1), int(m.group(2))))
+            return self._send(404, b'{"error":"not found"}')
         if u.path != "/search":
             return self._send(404, b'{"error":"not found"}')
         qs = parse_qs(u.query)
@@ -6890,7 +7202,7 @@ class Handler(BaseHTTPRequestHandler):
             fin_why = ("off" if not FINISHED else "warm" if _warm.get() else "noresults" if not want else "position" if not plain
                        else "gate" if not (full or wordy(q) or short_org(q)) else "")
             fin = fin_get(q, full) if not fin_why else None
-            fin_why = fin_why or ("hit" if fin is not None else "miss")      # miss: none, too old, curated row changed or another version
+            fin_why = fin_why or ("hit" if fin is not None else getattr(_fin_miss, "why", "miss"))
             if _warm.get() and (qs.get("prov") or [""])[0] == "1":      # the builder records the retrieval of an answer it already holds (release_delta.py backfill)
                 finished_answer(q, qs, want, full, plain, fin_full, self.log_message)
                 return self._send(200, json.dumps({"prov": prov_put(q, fin_full)}).encode())
@@ -6898,9 +7210,9 @@ class Handler(BaseHTTPRequestHandler):
                 finished_answer(q, qs, want, full, plain, fin_full, self.log_message)
                 return self._send(200, json.dumps({"pk": part_stamp()}).encode())
             with stage("suggest"):
-                sug = optional("suggest", lambda: suggest(q), [], self.log_message)
+                sug = optional("suggest", lambda: cold_call("suggest", lambda: suggest(q), []), [], self.log_message)
             with stage("phrases"):
-                phrases = optional("phrases", lambda: suggest_phrases(q, sug), [], self.log_message)
+                phrases = optional("phrases", lambda: cold_call("phrases", lambda: suggest_phrases(q, sug), []), [], self.log_message)
             lead = 1 if sug and sug[0].get("lead") else 0     # the first suggestion goes above the phrases (page: suggest_lead)
             # results=0: suggestions only — the page asks for full results separately, so a
             # slow full search (worst ~1.3 s cold) never holds up the as-you-type list (want, above).
@@ -7010,6 +7322,67 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(503, json.dumps({"error": type(e).__name__}).encode())
 
 
+def warmup_plan() -> list[tuple[str, int]]:
+    """The release files the first searches read, in the order that matters, cut at WARMUP_MAX_BYTES: the IVF centroids and offsets,
+    the lookup database (suggest and typo indexes, names), the anchor phrases, the kinds, the places."""
+    if not RELEASE_DIR:
+        return []
+    names = ["vectors/ivf/ivf.json", "vectors/ivf/centroids.u8", "vectors/ivf/offsets.i64", "vectors/ivf/ids.i32",
+             "vectors/pages-ivf/ivf.json", "vectors/pages-ivf/centroids.u8", "vectors/pages-ivf/offsets.i64",
+             "lookup.sqlite", "anchor-phrases.sqlite", "kinds.sqlite", "places-osm.sqlite", "registry.sqlite"]
+    plan, room = [], WARMUP_MAX_BYTES
+    for n in names:
+        path = os.path.join(RELEASE_DIR, n)
+        try:
+            size = min(os.path.getsize(path), room)
+        except OSError:
+            continue
+        if size <= 0:
+            continue
+        plan.append((path, size))
+        room -= size
+    return plan
+
+
+def engine_warmup() -> None:
+    """Started with the server: read the files of warmup_plan() through the page cache in 1 MB pieces, yielding to every search
+    (bg_wait_idle), for at most WARMUP_MAX_S. /readyz says "warming N%" until it ends; stored answers are served meanwhile."""
+    t0 = time.monotonic()
+    try:
+        plan = warmup_plan()
+        _warmup["total"] = sum(sz for _p, sz in plan)
+        _warmup["state"] = "running"
+        for path, size in plan:
+            try:
+                with open(path, "rb", buffering=0) as fh:
+                    left = size
+                    while left > 0 and time.monotonic() - t0 < WARMUP_MAX_S:
+                        bg_wait_idle()
+                        n = len(fh.read(min(left, 1 << 20)))
+                        if not n:
+                            break
+                        left -= n
+                        _warmup["done"] += n
+                    _warmup["done"] += max(left, 0) if time.monotonic() - t0 < WARMUP_MAX_S else 0
+            except OSError:
+                _warmup["done"] += size
+            if time.monotonic() - t0 >= WARMUP_MAX_S:
+                break
+    finally:
+        _warmup["state"] = "done"
+        _cold[0] = False
+        print(f"warm-up: {_warmup['done'] // (1 << 20)} of {_warmup['total'] // (1 << 20)} MB touched in {time.monotonic() - t0:.0f} s, "
+              f"{_warmup['skipped']} stage waits cut short while cold", flush=True)
+
+
+def warming_note() -> str:
+    """"" when the warm-up is over, else "warming N%" (the page can answer from the public site meanwhile)."""
+    if _warmup["state"] == "done":
+        return ""
+    tot = _warmup["total"]
+    return f"warming {int(100 * _warmup['done'] / tot) if tot else 0}%"
+
+
 def warm_kinds() -> None:
     """Load the kind-name vectors at start, not on the first kind search (that search took
     2.7 s on testbox, 2026-09-28). Best effort: no table or no database yet = loaded later."""
@@ -7048,6 +7421,7 @@ def warm_lookups() -> None:
                      ("flagged sites", junk_domains)):
         try:
             if fn:
+                bg_wait_idle()                    # a search first
                 fn()
         except Exception as e:
             print(f"warm {name}: {type(e).__name__}", flush=True)
@@ -7483,6 +7857,7 @@ from stage_card import (
     SHORT_FLOOR,
     SHORT_MAKERS,
     SHORT_NAMES,
+    SHORT_QUALIFIERS,
     SHORT_RATIO,
     SHORT_SUFFIXES,
     SITENAV_MAX,
@@ -7497,6 +7872,7 @@ from stage_card import (
     _cardlinks_db,
     _name_words,
     _one_off,
+    _short_plain_current,
     _sitenav,
     _sitenav_lock,
     _title_views,
@@ -7662,6 +8038,14 @@ if __name__ == "__main__":
     threading.Thread(target=lambda: (warm_kinds(), warm_models(), warm_lookups()), daemon=True).start()
     if NEWS_FILL_EVERY_S > 0:
         threading.Thread(target=news_vec_fill_loop, daemon=True, name="news-vec-fill").start()
+    if STORE_PATH:
+        import result_store as _rs
+        _rs.ResultStore.yield_hook = staticmethod(bg_wait_idle)    # an intake of a lists base pauses for every search in flight
+        _rs.ResultStore.is_builder = staticmethod(lambda: _warm.get())   # the warmer and the builders never skip a store read
+    _cold[0] = True
+    threading.Thread(target=engine_warmup, daemon=True, name="warmup").start()
+    if STORE_PATH:
+        threading.Thread(target=store_open_loop, daemon=True, name="store-open").start()
     if STORE_PATH and STORE_INBOX_EVERY_S > 0:
         threading.Thread(target=store_inbox_loop, daemon=True, name="store-inbox").start()
     sem_ivf()          # a configured IVF folder / nomic model that does not load stops the start, loudly

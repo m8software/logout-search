@@ -837,6 +837,27 @@ def anchor_key(q: str) -> str:
     """A query as anchors.norm_anchor stores anchor text: "Wayback  Machine!" -> "wayback machine"."""
     return re.sub(r"\s+", " ", _ANCHOR_NONWORD.sub(" ", (q or "").lower())).strip(" .-'&+")
 
+def anchor_owns_name(q: str, url: str, title: str | None) -> bool:
+    """Is the site the anchor text names plausibly the thing the query names? The query's letters must be found, in order and
+    starting with the same letter, in the site's host name or its title (so "fb" -> Facebook and "wayback machine" ->
+    "Internet Archive: Wayback Machine" pass, "word" -> rbi.org.in does not: a Reserve Bank page full of links labelled "Word"
+    made it the answer for the word "word")."""
+    k = norm_key(q)
+    if not k:
+        return True
+    host = (urlsplit(url or "").hostname or "").lower().removeprefix("www.")
+    for cand in (norm_key(host.rsplit(".", 1)[0] if "." in host else host), norm_key(title or "")):
+        if not cand:
+            continue
+        if k in cand or (len(cand) >= 3 and cand in k):
+            return True
+        i = cand.find(k[0])
+        if i >= 0:
+            it = iter(cand[i:])
+            if all(ch in it for ch in k):
+                return True
+    return False
+
 def exact_anchor(rows) -> dict | None:
     """EXACT_ANCHOR_SQL rows -> the site a phrase names: used by EXACT_ANCHOR_MIN+ sites and
     EXACT_ANCHOR_LEAD times as many as for the next site; else None."""
@@ -899,18 +920,26 @@ SIGILS = "$#@¥€£!+"
 def untyped_sigil(title: str, q: str) -> bool:
     return bool(title) and title[0] in SIGILS and title[0] not in (q or "")
 
-def famous_namesake(key: str, rows) -> str | None:
-    """FAMOUS_SQL rows for a one-word key -> the article that word means, or None."""
+def famous_namesake(key: str, rows, is_person=None) -> str | None:
+    """FAMOUS_SQL rows for a one-word key -> the person article that word means, or None.
+    Only people's surnames lift: works with subtitles/colons ("Spider-Man: No Way Home") or
+    games ("Where Winds Meet") are skipped when is_person is provided (PERSON_SQL)."""
     named = max((d for kind, name, wiki, d, pos in rows if pos == 0), default=0.0)
     for kind, name, wiki, d, pos in rows:
         if pos != 1 or kind != "wiki" or not wiki:
             continue
-        words = re.sub(r"\s*\(.*\)$", "", name).split()
+        clean = re.sub(r"\s*\(.*\)$", "", name)
+        if re.search(r"[:!?/\d]", clean):
+            continue
+        words = clean.split()
         if not words or norm_key(words[-1]) != key:
             continue                                  # "Trump family": not a name ending in it
         if not 2 <= len(words) <= 4 or not all(w[:1].isupper() for w in words):
             continue                                  # "Wealth of Elon Musk": not a person's name
-        return wiki if d >= FAMOUS_MIN and d >= FAMOUS_RATIO * max(named, 1.0) else None
+        if not (d >= FAMOUS_MIN and d >= FAMOUS_RATIO * max(named, 1.0)):
+            return None
+        if is_person is None or is_person(wiki):
+            return wiki
     return None
 
 # A major-league team leads for its nickname ("if a major sports team is a
@@ -2274,10 +2303,14 @@ FROM stock_tickers t WHERE t.ticker = upper(%(k)s)
 
 def named_site(q: str, out: list[dict]) -> bool:
     """A popular site whose name is exactly the word ("cvs" -> cvs.com, CVS Health's ticker
-    too): that site is what the word means, not the stock."""
+    too) or the popular official site of an article named the word ("siri" -> apple.com/siri/):
+    that site is what the word means, not the stock."""
     t = " ".join(q.lower().split())
+    k = norm_key(t)
     return any(r.get("source") == "site" and r.get("popular") and not r.get("stock")
-               and (urlsplit(r["url"]).hostname or "").removeprefix("www.").split(".")[0] == t for r in out)
+               and ((urlsplit(r["url"]).hostname or "").removeprefix("www.").split(".")[0] == t
+                    or (r.get("official") and k and norm_key(re.sub(r"\s*\(.*\)$", "", r.get("exact_of") or "")) == k))
+               for r in out)
 
 def bare_ticker_ok(q: str, row) -> bool:
     t = " ".join(q.lower().split())

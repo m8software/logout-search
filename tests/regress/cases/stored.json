@@ -1,0 +1,140 @@
+{
+ "group": "stored",
+ "title": "Stored answers",
+ "cases": [
+  {
+   "id": "STO-001",
+   "title": "the showcase names are served as stored answers (finished_hit rises once per name)",
+   "guards": [
+    "v0.4.24: answers served after an install",
+    ""
+   ],
+   "severity": "high",
+   "check": "stored_served",
+   "params": {
+    "names_file": "tests/regress/sets/must.txt",
+    "limit": 30,
+    "min_share": 0.8
+   }
+  },
+  {
+   "id": "STO-002",
+   "title": "stored answers and curated lists are loaded and the store is not switched off",
+   "guards": [
+    "v0.4.24: a slow take-in switched the answers off",
+    "result store opened once and stayed off (locking protocol)"
+   ],
+   "severity": "high",
+   "check": "store_on",
+   "params": {}
+  },
+  {
+   "id": "STO-003",
+   "title": "stored answers are still served after an engine restart",
+   "guards": [
+    "owner: stored answers must survive a restart"
+   ],
+   "severity": "high",
+   "check": "restart_stored",
+   "params": {},
+   "needs": [
+    "sandbox",
+    "install"
+   ]
+  },
+  {
+   "id": "STO-004",
+   "title": "an initialised result store opens with reads only, and a failed open is retried (the store-open unit test)",
+   "guards": [
+    "release-2 round 3: store stayed off after OperationalError locking protocol"
+   ],
+   "severity": "medium",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-store-open.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "STO-009",
+   "title": "rows older than 21 days are not served as stored answers",
+   "guards": [
+    "21-day rule"
+   ],
+   "severity": "medium",
+   "check": "pending",
+   "params": {
+    "why": "no existing unit test asserts the 21-day age limit by name (tests/unit grep: none); the engine's max_age is in result_store.py. Needs a sandbox case that back-dates a stored row (sqlite UPDATE on rows.at) and asks for it; not written in this pass."
+   }
+  },
+  {
+   "id": "STO-005",
+   "title": "an engine started with the answers off holds the parts in its inbox, it does not delete them unread; a refused inbox file is renamed .bad",
+   "guards": [
+    "answers-off engine deleted inbox files (v0.4.24 era)"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-selftest.sh",
+     "bash tests/unit/test-search-store-inbox.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "STO-006",
+   "title": "a quarantined install heals: a different version replaces the quarantined one from its base and lifts the quarantine",
+   "guards": [
+    "quarantine without a way back"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-lists.sh",
+     "bash tests/unit/test-search-selftest.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  },
+  {
+   "id": "STO-007",
+   "title": "stored answers survive a program update and a data/answers update",
+   "guards": [
+    "owner: updates must not lose answers"
+   ],
+   "severity": "high",
+   "check": "pending",
+   "params": {
+    "why": "needs two published releases staged in a sandbox (N-1 and N) and the in-product updater run against them; the sandbox driver stages them from apps/search/tools/accept-testbox.sh output. Until then the unit guards test-search-update-package.sh / test-search-lists.sh cover the file format only."
+   }
+  },
+  {
+   "id": "STO-008",
+   "title": "a slow take-in is never a failure: the self-test does not switch the answers off for it (a REAL failure, a refused part, still does)",
+   "guards": [
+    "v0.4.24: buildbox 2026-11-16, a 600 s timeout switched the answers off and the restart killed the take-in"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-selftest.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  }
+ ]
+}

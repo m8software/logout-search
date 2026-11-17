@@ -25,6 +25,7 @@ from ctypes import wintypes
 
 import autoupdate as au                                   # imported here so the build's --selftest proves it is bundled
 import adminpin
+import doctor
 import homesettings as hs
 
 APP = "logout search"
@@ -227,6 +228,7 @@ NEWS_IDS = {11: 1, 12: 2, 13: 4}                           # news_every
 WEATHER_IDS = {21: 1, 22: 3, 23: 6}                        # weather_every_h
 WINDOW_IDS = {50: 1, 51: 3, 52: 5, 53: 12, 54: 19, 55: 23}  # at_hour: the start of the daily check's two hours
 ID_PIN_SET, ID_PIN_CLEAR = 61, 62                          # the admin PIN (adminpin.py): set or remove, no PIN asked here
+ID_HEALTH_REPORT = 65                                      # opt-in daily anonymous health report (doctor.py, off by default)
 PROFILE_IDS = {70: "auto", 71: "full", 72: "balanced", 73: "light", 74: "search"}   # Data use (homesettings.PROFILES)
 WINDOW_TEXT = {1: "1 to 3 a.m.", 3: "3 to 5 a.m.", 5: "5 to 7 a.m.", 12: "noon to 2 p.m.", 19: "7 to 9 p.m.", 23: "11 p.m. to 1 a.m."}
 MB_YESNO, MB_ICONQUESTION, MB_OK, MB_ICONINFO, IDYES = 0x4, 0x20, 0x0, 0x40, 6
@@ -396,6 +398,8 @@ def settings_menus(data: str) -> list:
             "Add-ons: Wikipedia links and how-to answers (6 GB)"),
            (MF_SEPARATOR, 0, None), (MF_STRING | MF_GRAYED, 0, "Check once a day between")]
     upd += [(MF_STRING | tick(au.at_hour(u) == h) | off_grey(au.enabled(u)), i, WINDOW_TEXT[h]) for i, h in WINDOW_IDS.items()]
+    upd += [(MF_SEPARATOR, 0, None),
+            (MF_STRING | tick(doctor.health_enabled(data)), ID_HEALTH_REPORT, "Send daily anonymous health report (off by default)")]
     pin = adminpin.get(data)
     admin = [(MF_STRING | MF_GRAYED, 0, f"PIN: {pin}" if pin else "No PIN set: settings change only on this computer"),
              (MF_STRING | MF_GRAYED, 0, "With it, a paired device changes these settings"),
@@ -433,6 +437,8 @@ def choose(data: str, cmd: int) -> None:
         au.command("addons", data, "off" if u.get("addons", True) is not False else "on")
     elif cmd in WINDOW_IDS:
         au.command("at", data, WINDOW_IDS[cmd])
+    elif cmd == ID_HEALTH_REPORT:
+        doctor.set_health_report(data, not doctor.health_enabled(data))
     elif cmd == ID_PIN_SET:
         threading.Thread(target=set_pin_from_tray, args=(data,), daemon=True).start()   # the box must not hold the icon
     elif cmd == ID_PIN_CLEAR:

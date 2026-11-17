@@ -22,6 +22,7 @@ message channel and stderr is kept free of request content.
 """
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
@@ -398,8 +399,20 @@ def search_api_answer():
             raise RuntimeError(f"explain {code}")
         return json.loads(raw)
 
+    def radar(station: str, ts: int | None = None) -> dict | None:
+        """Local NWS radar manifest or base64 GIF frame from SEARCH_RADAR_DIR."""
+        code, raw, _ = search_api.radar_read(station, ts)
+        if code != 200:
+            return None
+        if ts is None:
+            return json.loads(raw)
+        if len(raw) > 720 * 1024:
+            raise ValueError("radar frame too large")
+        return {"data": "data:image/gif;base64," + base64.b64encode(raw).decode("ascii")}
+
     answer.more_news = more_news
     answer.explain = explain
+    answer.radar = radar
     return answer
 
 
@@ -436,6 +449,20 @@ def handle(msg: dict, answer, info=None) -> dict:
             return {"id": mid, "error": type(e).__name__}
     if msg.get("info"):
         return {"id": mid, "info": engine_kind()}
+    if "radar" in msg:
+        sid = msg.get("radar")
+        if not isinstance(sid, str) or not re.fullmatch(r"[A-Z]{4}", sid):
+            return {"id": mid, "error": "bad station"}
+        ts = msg.get("t")
+        if ts is not None and (not isinstance(ts, int) or isinstance(ts, bool) or ts <= 0):
+            return {"id": mid, "error": "bad frame"}
+        fn = getattr(answer, "radar", None)
+        if fn is None:
+            return {"id": mid, "body": None}
+        try:
+            return {"id": mid, "body": fn(sid, ts)}
+        except Exception as e:
+            return {"id": mid, "error": type(e).__name__}
     q = msg.get("q")
     if not isinstance(q, str):
         return {"id": mid, "error": "q missing"}

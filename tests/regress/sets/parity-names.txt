@@ -1,0 +1,378 @@
+# searches the parity group compares between two targets: must names, golden names and generic public eval-set names (no place, no number)
+gmail login
+gmail
+outlook
+outlook login
+keep
+premiere
+adobe premiere
+weird al yankovic
+trump
+donald trump
+iphone
+how to stop a toilet running
+taylor swift
+new york giants
+python
+amazon
+netflix
+cnn
+wikipedia
+pizza
+photoshop
+lightroom
+teams
+word
+excel
+powerpoint
+onenote
+onedrive
+drive
+maps
+docs
+sheets
+slides
+meet
+calendar
+chrome
+edge
+office
+acrobat
+illustrator
+indesign
+after effects
+notion
+slack
+zoom
+discord
+steam
+spotify
+youtube
+facebook
+instagram
+prime
+alexa
+siri
+kindle
+echo
+nest
+pixel
+surface
+xbox
+switch
+playstation
+airpods
+ipad
+macbook
+imac
+icloud
+itunes
+facetime
+safari
+firefox
+thunderbird
+bing
+copilot
+cortana
+skype
+messenger
+whatsapp
+gemini
+bard
+photos
+music
+news
+watch
+tv
+home
+store
+pay
+wallet
+fitbit
+waze
+duo
+hangouts
+voice
+translate
+earth
+classroom
+forms
+keynote
+pages
+numbers
+garageband
+imovie
+final cut
+logic
+audible
+fire tv
+ring
+blink
+galaxy
+bixby
+oculus
+quest
+hulu
+google
+lg
+ea
+hp
+apple
+microsoft
+meta
+adobe
+samsung
+is
+go
+us
+ok
+to
+me
+speakers
+headphones
+air fryer
+running shoes
+office chair
+laptop
+coffee maker
+backpack
+vacuum cleaner
+mattress
+winter coat
+phone case
+electric toothbrush
+standing desk
+dog food
+best wireless earbuds
+best budget laptop
+best electric car
+best mattress for back pain
+best credit card for travel
+best robot vacuum
+best password manager
+best streaming service
+best hiking boots
+best air purifier
+how to tie a tie
+how to boil eggs
+how to change a tire
+how to write a resume
+how to take a screenshot on windows
+how to unclog a drain
+how to lose weight
+how to start a garden
+how to jump start a car
+how to get a passport
+how to remove a stain from carpet
+how to cook rice
+how to learn spanish
+how to fix a leaky faucet
+how to invest in stocks
+reddit
+weather
+google maps
+espn
+new york times
+craigslist
+zillow
+irs
+usps tracking
+what is inflation
+why is the sky blue
+how many ounces in a cup
+what causes migraines
+who invented the telephone
+symptoms of the flu
+how does solar power work
+what is the capital of australia
+how tall is mount everest
+what is machine learning
+when is daylight saving time
+what is a mortgage
+how long do cats live
+what is the speed of light
+chicken soup recipe
+chocolate chip cookies recipe
+banana bread
+pizza dough recipe
+meal prep ideas
+minimum wage
+mortgage calculator
+unemployment benefits
+renew drivers license
+social security office
+cheap flights
+car insurance
+student loans
+health insurance marketplace
+lebron james
+barack obama
+the beatles
+star wars
+minecraft
+tesla
+harry potter
+the great gatsby
+python tutorial
+excel formulas
+javascript array methods
+what is my ip
+linux commands
+query
+anna's archive
+chatgpt
+xnxx
+chelsea f.c.
+anthropic
+openai
+premier league
+bbc world service
+hugging face
+duckduckgo
+tiktok
+windows on the world
+bbc
+burning man
+yandex
+nvidia
+everton f.c.
+claude
+wwe
+buffalo bills
+die linke
+kennedy center
+pbs
+ac milan
+linkedin
+github
+rockstar games
+nato
+telegram
+palantir
+mcdonald's
+wikimedia foundation
+wrexham a.f.c.
+dallas cowboys
+inter miami cf
+chicago bears
+blackrock
+stellantis
+the walt disney company
+universal pictures
+celtic f.c.
+walmart
+philadelphia eagles
+bundestag
+as roma
+berkshire hathaway
+fulham f.c.
+brentford f.c.
+pixar
+cleveland browns
+baltimore ravens
+deepseek
+mossad
+london city lionesses
+bmw
+ssc napoli
+all elite wrestling
+sci-hub
+pinterest
+heaven's gate
+new york jets
+restore britain
+millwall f.c.
+paris fc
+feyenoord
+denver broncos
+is jd vance democrat
+party of franklin d. roosevelt
+what party does pete hegseth belong to
+bruce sundlun party
+is choe son-hui democrat
+is fiorello la guardia republican or democrat
+mario draghi party
+what party is john key
+is melat kiros republican or democrat
+is nigel farage democrat
+is richard tice republican or democrat
+party of rhea perlman
+employer of gigi hadid
+employer of j. r. r. tolkien
+employer of william, prince of wales
+s. venkitaramanan employer
+scott bessent employer
+who does pervez musharraf work for
+employer of henry dumas
+what company does melvin calvin work for
+where does paul e. jacobs work
+who does daniel j. boorstin work for
+who does e. w. jackson work for
+employer of john le carré
+employer of sharmila tagore
+wendell pierce employer
+where does iman vellani work
+who does melinda french gates work for
+who does savannah guthrie work for
+current population of saudi arabia
+how many people live in narendra modi
+how many people live in thailand
+population of bosnia and herzegovina
+population of ottoman empire
+population of western sahara
+current population of bay st. louis, mississippi
+current population of mineola, texas
+current population of sejong city
+how many people live in cannon air force base
+how many people live in götaland
+population of glendale heights, illinois
+recoleta, buenos aires current population
+current population of galápagos islands
+how many people live in orange county, california
+how many people live in portland, maine
+population of vanuatu
+how many people does international tennis hall of fame hold
+how many people does rms queen mary hold
+how many people does selhurst park hold
+capacity of edmonton remand centre
+capacity of kingston heath soccer complex
+capacity of qualistage
+how many people fit in nelsoncorp field
+how many people fit in pasadena playhouse
+orlen arena capacity
+palalottomatica capacity
+vangsnes church capacity
+how many does radio city music hall hold
+windows
+hilux
+scholar
+supra
+cayenne
+cybertruck
+model y
+yaris
+snapdragon
+jimny
+countach
+forester
+aventador
+fortuner
+corolla cross
+urus
+galaxy fold
+panamera
+sorento
+sportage
+alphard
+vitara
+sprinter
+continental gt
+sienna
+corsa
+street view
+bloomington
+altima
+revuelto
+qashqai
+macan
+azure

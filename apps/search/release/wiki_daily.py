@@ -56,7 +56,7 @@ N_ALIAS = 2
 
 
 def log(msg: str) -> None:
-    print(f"[wiki-daily] {msg}", flush=True)
+    print(f"[wiki-daily {time.strftime('%H:%M:%S')}] {msg}", flush=True)
 
 
 def _run(cmd: list[str], env: dict | None = None) -> str:
@@ -508,10 +508,14 @@ def run_daily(a) -> dict:
     if os.path.exists(rel_stage):
         shutil.rmtree(rel_stage)
     try:
+        t_step = time.time()
         _copy_release_skeleton(prev_rel, rel_stage, prev_manifest)
+        log(f"step skeleton copy: {round(time.time() - t_step)} s"); t_step = time.time()
         changed, deleted = _read_delta_files(os.path.join(delta_dir, "changed.tsv.gz"), os.path.join(delta_dir, "deleted.tsv"))
         reg_info = _update_registry(os.path.join(rel_stage, "registry.sqlite"), changed, deleted, release_id)
+        log(f"step registry: {round(time.time() - t_step)} s"); t_step = time.time()
         lookup_info = _update_lookup(os.path.join(rel_stage, "lookup.sqlite"), reg_info, release_id)
+        log(f"step lookup: {round(time.time() - t_step)} s"); t_step = time.time()
         pic_info = _update_pictures(os.path.join(rel_stage, "pictures.sqlite"), reg_info["deleted_dids"], release_id)
 
         os.makedirs(os.path.join(rel_stage, "text"), exist_ok=True)
@@ -524,6 +528,7 @@ def run_daily(a) -> dict:
               "--deleted", os.path.join(delta_dir, "deleted.tsv"),
               "--release", release_id])
         uc.tv_sort_segments(os.path.join(rel_stage, "text", "wiki"))
+        log(f"step text delta: {round(time.time() - t_step)} s"); t_step = time.time()
 
         if a.wait_vecs:                    # the embeddings are still being made elsewhere: do the text steps meanwhile, wait here
             t_wait = time.time()
@@ -539,6 +544,7 @@ def run_daily(a) -> dict:
         if a.no_drift_check:
             ivf_merge_cmd.append("--no-drift-check")
         _run(ivf_merge_cmd)
+        log(f"step vector merge: {round(time.time() - t_step)} s"); t_step = time.time()
 
         recall_info = {"skipped": True}
         if not a.no_recall_check:
@@ -547,9 +553,11 @@ def run_daily(a) -> dict:
                          "--min-recall", str(a.min_recall)])
             recall_info = json.loads(rout.strip().splitlines()[-1])
 
+        log(f"step recall check: {round(time.time() - t_step)} s"); t_step = time.time()
         _m, mbody = write_release_manifest(rel_stage, prev_manifest, release_id, a.sign)
         os.makedirs(os.path.dirname(out_rel), exist_ok=True)
         os.rename(rel_stage, out_rel)
+        log(f"step manifest + rename: {round(time.time() - t_step)} s")
     except BaseException:
         shutil.rmtree(rel_stage, ignore_errors=True)
         raise

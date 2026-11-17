@@ -6,6 +6,7 @@ import datetime as dt
 import math
 import os
 from stage_parts import part_run
+from stage_base import anchor_owns_name
 import re
 import threading
 import time
@@ -34,6 +35,7 @@ from search_api import (
     intent_of,
     lookups,
     official_ok,
+    norm_key,
     optional,
     parts_for,
     place_radius_km,
@@ -181,6 +183,21 @@ def _digest_of(obj) -> str:
     import parts as _parts
     return _parts.digest(obj)
 
+def demote_unowned_anchor(q: str, res: list[dict]) -> list[dict]:
+    """A site the web's anchor text names (rbi.org.in: a Reserve Bank page with many links labelled "Word") does not lead the list
+    for a query it carries no letters of when the article titled exactly the query is among the next rows: that article goes first.
+    The row stays (intent and confidence are as they were); only the lead is checked."""
+    if len(res) < 2:
+        return res
+    r = res[0]
+    if not r.get("anchor_named") or r.get("source") != "site" or anchor_owns_name(q, r.get("url") or "", r.get("title")):
+        return res
+    k = norm_key(q)
+    for i, x in enumerate(res[1:4], 1):
+        if x.get("source") == "wikipedia" and norm_key(re.sub(r"\s*\(.*\)$", "", x["title"].rsplit(" — Wikipedia", 1)[0])) == k:
+            return [x] + res[:i] + res[i + 1:]
+    return res
+
 def list_build(q: str, res: list[dict], card: dict | None, cur: list[dict] | None):
     """The list stage (parts stage "list" phase 2): the rows as shown, from the base rows after the card and the
     place, the card and the offline curated list (None when there is none). Returns (rows, sig). A function of its
@@ -224,6 +241,7 @@ def list_build(q: str, res: list[dict], card: dict | None, cur: list[dict] | Non
     if not cur:                    # after the web rerank (it must not move the row); a curated list is the large model's, left as chosen
         res = optional("site_intent", lambda: site_intent_rows(q, res, card), res)       # off unless SEARCH_SITE_SLOTS / SEARCH_SITE_BRIDGE
         res = optional("se_howto", lambda: se_howto(q, res), res)     # off unless SEARCH_SE_INDEX; how-to searches only (2026-11-10)
+        res = optional("unowned_anchor", lambda: demote_unowned_anchor(q, res), res)
     return res, sig
 
 def list_stage(q: str, res: list[dict], card: dict | None, cur: list[dict] | None):

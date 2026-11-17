@@ -1821,7 +1821,6 @@ PUBLIC_ONLY = {
     "SEARCH_HOME": "public has no home town; an install's is the owner's own (settings)",
     "SEARCH_NEWS_DB": "the Postgres news database's name: an install reads the news file (SEARCH_NEWS_SQLITE)",
     "SEARCH_MINE_BOX": "public has no feeds of its own to show; an install shows its owner's",
-    "SEARCH_RADAR_DIR": "HELD: the page loads radar pictures from search.logout.cloud, which would tell public the town searched",
     "SEARCH_SHOP_NAMES": "HELD: a list of Amazon's search suggestions; publishing it waits for a licence decision",
     "SEARCH_SHOP_BOX": "goes with SEARCH_SHOP_NAMES",
     "SEARCH_CE_GOV_DIR": "public names the same model as SEARCH_CE_DIR (st3); unset, government tasks use SEARCH_CE_DIR: the same",
@@ -1901,6 +1900,9 @@ def engine_env(base: str, port: int = 8090) -> dict:
     # news, scores and weather (installer/logout_search.py's collectors write it; `start` makes it before the engine starts)
     env["SEARCH_NEWS_BACKEND"] = "sqlite"
     env["SEARCH_NEWS_SQLITE"] = os.path.join(base, "state", "news.sqlite")
+    radar_dir = os.path.join(base, "state", "radar")
+    os.makedirs(radar_dir, exist_ok=True)
+    env["SEARCH_RADAR_DIR"] = os.environ.get("SEARCH_RADAR_DIR", radar_dir)
     # the result settings search.logout.cloud runs with (infra/search-public/docker-compose.yml), so an engine at home ranks
     # as the public site does (owner 2026-11-14). A value already in the environment wins.
     for k, v in PUBLIC_TUNING.items():

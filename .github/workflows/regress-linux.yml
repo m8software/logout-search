@@ -1,0 +1,81 @@
+# The regression suite (tests/regress) against a Linux install of a release, as a customer installs it: `install.sh`, the
+# data and the answers file taken in, then run.py over the engine's local port. Runs after every release workflow (a tag
+# v*), and by hand (Actions > regress-linux > Run workflow). The Windows twin is windows-customer-test, which runs the same
+# cases; tests/regress/run.py parity compares the two. Needs about 40 GB: the job clears the runner's preinstalled
+# toolchains first (its own commands, nothing downloaded).
+name: regress-linux
+
+on:
+  workflow_run:
+    workflows: [release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to test"
+        required: true
+        default: "v0.4.27"
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      TAG: ${{ inputs.tag || github.event.workflow_run.head_branch }}
+      LOGOUT_SEARCH_HOME: ${{ github.workspace }}/../logout-search-home
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.event.workflow_run.head_branch }}
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Make room (the install needs about 30 GB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL
+          df -h / | tail -1
+          free=$(df --output=avail -BG / | tail -1 | tr -dc 0-9)
+          [ "$free" -ge 40 ] || { echo "::error::only ${free} GB free, need 40"; exit 1; }
+      - name: Install the release's Linux bundle and set it up (what install.sh does, for this tag)
+        run: |
+          mkdir -p logs
+          N=logout-search-linux-x86_64
+          U="https://github.com/${{ github.repository }}/releases/download/$TAG"
+          curl -fL --retry 3 -sS -o "$N.tar.gz" "$U/$N.tar.gz"
+          curl -fsSL --retry 3 -o SHA256SUMS "$U/SHA256SUMS"
+          want=$(grep " $N.tar.gz\$" SHA256SUMS | cut -d' ' -f1); have=$(sha256sum "$N.tar.gz" | cut -d' ' -f1)
+          [ -n "$want" ] && [ "$want" = "$have" ] || { echo "::error::SHA-256 $have is not the published $want"; exit 1; }
+          mkdir -p "$LOGOUT_SEARCH_HOME/app"
+          tar -xzf "$N.tar.gz" -C "$LOGOUT_SEARCH_HOME/app" --strip-components=1
+          "$LOGOUT_SEARCH_HOME/app/logout-search" version | tee logs/version.txt
+          # setup leaves the engine running, so it is started in the background (a pipe would wait for the engine too)
+          LOGOUT_METERED=0 nohup "$LOGOUT_SEARCH_HOME/app/logout-search" setup --dest "$LOGOUT_SEARCH_HOME" --port 8090 > logs/setup.txt 2>&1 &
+          echo "setup started, pid $!"
+      - name: Wait for the engine (the download and the first start take a while)
+        run: |
+          for i in $(seq 1 720); do curl -fs http://127.0.0.1:8090/readyz >/dev/null 2>&1 && break; sleep 10; done
+          tail -5 logs/setup.txt
+          curl -fs http://127.0.0.1:8090/readyz
+      - name: Regression suite
+        run: |
+          pid=$(pgrep -f "logout-search engine" | head -1 || true)
+          python tests/regress/run.py --target http://127.0.0.1:8090 --name "linux $TAG (hosted runner)" --tag linux --tag install --tag pre-release2 \
+              --install-dir "$LOGOUT_SEARCH_HOME" ${pid:+--pid $pid} --rv wss://search.logout.cloud/rv \
+              --suite answers,stored,takein,startup,link,resources,lifecycle --out logs/regress.json 2>&1 | tee logs/regress.txt
+          exit ${PIPESTATUS[0]}
+      - name: Summary
+        if: always()
+        run: |
+          { echo "## regress-linux $TAG"; echo '```'; tail -40 logs/regress.txt 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: regress-linux-${{ env.TAG }}
+          path: logs
+          if-no-files-found: warn

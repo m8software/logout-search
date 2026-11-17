@@ -626,7 +626,9 @@ def tv_sort_segments(path: str) -> bool:
     text = json.dumps(meta, separators=(",", ":"))
     if text == raw:
         return False
-    open(p, "w", encoding="utf-8").write(text)
+    with open(p + ".tmp", "w", encoding="utf-8") as f:      # write and replace: a copied release file may be read-only
+        f.write(text)
+    os.replace(p + ".tmp", p)
     return True
 
 

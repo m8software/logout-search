@@ -1,0 +1,100 @@
+{
+ "group": "resources",
+ "title": "Resources",
+ "cases": [
+  {
+   "id": "RES-001",
+   "title": "memory: engine anonymous RSS stays under the 4 GB machine's bound after 2,000 searches, and does not grow across the run",
+   "guards": [
+    " (SQLite heap growth)",
+    "documented minimum: a 4 GB machine"
+   ],
+   "severity": "high",
+   "check": "rss",
+   "params": {
+    "names_file": "tests/regress/sets/parity-names.txt",
+    "searches": 10000,
+    "searches_short": 300,
+    "max_mb": 2500,
+    "growth": 0.15,
+    "workers": 3
+   },
+   "needs": [
+    "pid"
+   ]
+  },
+  {
+   "id": "RES-002",
+   "title": "latency per kind of search on the documented minimum CPU: stored names fast, computed phrases within the budget",
+   "guards": [
+    " speed budget",
+    "lr 10 s stalls"
+   ],
+   "severity": "high",
+   "check": "latency_budget",
+   "params": {
+    "kinds": {
+     "stored": {
+      "names": [
+       "google",
+       "gmail",
+       "taylor swift",
+       "costco hours",
+       "new york giants",
+       "netflix",
+       "python",
+       "weird al yankovic",
+       "lg",
+       "amazon"
+      ],
+      "runs": 3,
+      "median_ms": 600,
+      "p95_ms": 2000,
+      "max_ms": 6000
+     },
+     "computed": {
+      "names": [
+       "how long to boil an egg in altitude",
+       "who won the 1987 world series",
+       "cheap flights from newark to lisbon in march",
+       "how to remove a stripped screw from drywall",
+       "history of the roman aqueducts",
+       "best pizza near times square"
+      ],
+      "runs": 1,
+      "median_ms": 3000,
+      "p95_ms": 8000,
+      "max_ms": 15000
+     }
+    }
+   }
+  },
+  {
+   "id": "RES-003",
+   "title": "disk: the install is under 24 GB (documented 18 GB)",
+   "guards": [
+    "disk bound"
+   ],
+   "severity": "medium",
+   "check": "disk_bound",
+   "params": {
+    "max_gb": 24
+   },
+   "needs": [
+    "install"
+   ]
+  },
+  {
+   "id": "RES-004",
+   "title": "daily data use stays under the documented bound on a metered connection",
+   "guards": [
+    "metered wait"
+   ],
+   "severity": "medium",
+   "check": "pending",
+   "params": {
+    "why": "needs the engine's own byte counters over a day (netcost.py state); the monitor can sample them from /doctor output daily. Not measurable in a single run."
+   }
+  }
+ ]
+}

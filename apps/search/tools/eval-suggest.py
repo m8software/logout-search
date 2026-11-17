@@ -45,7 +45,7 @@ def problems(items, catalog_demand=None):
     return out
 
 
-def standin(api_dir):
+def _load_api(api_dir):
     sys.path.insert(0, api_dir)
     for m in ("psycopg",):
         try:
@@ -54,8 +54,13 @@ def standin(api_dir):
             import types
             mod = types.ModuleType(m); mod.Error = Exception; sys.modules[m] = mod
     import search_api as s
-    d = json.load(open(DATA))
-    ents = d["entities"]
+    return s
+
+
+def standin(api_dir, data_path=DATA):
+    s = _load_api(api_dir)
+    d = json.load(open(data_path))
+    ents = d.get("entities") or []
     demand = {e["url"]: e["demand"] for e in ents}
     old = not hasattr(s, "suggest_name")                      # the engine before the ranking layer
     res = []
@@ -68,21 +73,22 @@ def standin(api_dir):
             pos = 0 if (nm.startswith(t) or (lab and lab.startswith(t))) else 1 if any(w.startswith(t) for w in words[1:]) else None
             if pos is None:
                 continue
-            rows.append((e["id"], e["kind"], e["name"], e["url"], e["domain"], e["wiki"], 0.5, 0.0, float(e["demand"]), None, pos))
+            rows.append((e["id"], e["kind"], e["name"], e["url"], e["domain"], e["wiki"], e.get("pop", 0.5), 0.0, float(e["demand"]), None, pos))
         by = {}
         for r in rows:
             by.setdefault(r[1], []).append(r)
         rows = [r for v in by.values() for r in sorted(v, key=lambda r: -(r[8] or 0) * (0.03 if r[10] else 1))[:12]]
         kw = {} if old else {"typed": case["prefix"]}
         sug = s.rank_suggestions(rows, set(), **kw)
-        resp = {"suggest": sug, "phrases": d["phrases"].get(case["prefix"], [])[:3 if old or not (sug and sug[0].get("lead")) else s.PHRASE_N_LEAD],
+        phrases_map = d.get("phrases") or {}
+        resp = {"suggest": sug, "phrases": phrases_map.get(case["prefix"], [])[:3 if old or not (sug and sug[0].get("lead")) else s.PHRASE_N_LEAD],
                 "suggest_lead": 1 if sug and sug[0].get("lead") else 0}
         res.append((case, resp))
     return res, demand, old
 
 
-def live(base):
-    d = json.load(open(DATA))
+def live(base, data_path=DATA):
+    d = json.load(open(data_path))
     res = []
     for case in d["prefixes"]:
         u = f"{base}/instant?" + urllib.parse.urlencode({"q": case["prefix"], "results": "0"})
@@ -94,16 +100,45 @@ def live(base):
     return res, None, False
 
 
+def replay(api_dir, saved_path, data_path=None):
+    s = _load_api(api_dir)
+    saved = json.load(open(saved_path))
+    if data_path:
+        wanted = {c["prefix"]: c for c in json.load(open(data_path))["prefixes"]}
+        by_p = {it["case"]["prefix"]: it["resp"] for it in saved}
+        items = [{"case": wanted[p], "resp": by_p.get(p, {"suggest": [], "phrases": []})} for p in wanted]
+    else:
+        items = saved
+    res = []
+    fn = getattr(s, "rescore_suggest_response", None)
+    for it in items:
+        c, resp = it["case"], it["resp"]
+        if fn is None:
+            res.append((c, resp))
+        else:
+            new_sug, lead = fn(resp.get("suggest") or [], typed=c["prefix"])
+            res.append((c, dict(resp, suggest=new_sug, suggest_lead=lead)))
+    return res, None, False
+
+
 def main():
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--standin", action="store_true")
     g.add_argument("--live", metavar="URL")
+    g.add_argument("--replay", metavar="FILE", help="Replay saved staging JSON responses through --api engine rules")
+    ap.add_argument("--set", default=None, help="Path to prefix evaluation JSON (defaults to standin.json)")
     ap.add_argument("--api", default=os.path.join(HERE, "..", "serve", "api"))
     ap.add_argument("--min-first", type=float, default=0.0)
     ap.add_argument("-v", "--verbose", action="store_true")
     a = ap.parse_args()
-    res, demand, old = standin(os.path.abspath(a.api)) if a.standin else live(a.live.rstrip("/"))
+    data_path = os.path.abspath(a.set) if a.set else DATA
+    if a.standin:
+        res, demand, old = standin(os.path.abspath(a.api), data_path)
+    elif a.live:
+        res, demand, old = live(a.live.rstrip("/"), data_path)
+    else:
+        res, demand, old = replay(os.path.abspath(a.api), os.path.abspath(a.replay), os.path.abspath(a.set) if a.set else None)
     first = top3 = 0
     tot = {"title_page": 0, "infra": 0, "dup": 0, "obscure": 0}
     for case, resp in res:

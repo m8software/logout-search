@@ -14,9 +14,13 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import secrets
 import shutil
 import sqlite3
+import sys
 import time
+import urllib.request
 
 FIXED = ("wikipedia", "history of the bicycle")
 
@@ -175,3 +179,154 @@ def report(data: str, port: int, version: str, platform: str, frozen: bool, *, g
         L += timed_searches(port, names, get)
     L += ["", "Nothing in this report is a search of yours, your name, your place or a PIN; paths under your home folder are written ~."]
     return redact("\n".join(L), home)
+
+
+# ================================================================================================ opt-in daily health report
+HEALTH_URL = os.environ.get("LOGOUT_HEALTH_URL", "https://api.logout.cloud/health-report")
+HEALTH_SCHEMA = "logout.health.v1"
+HEALTH_EVERY_S = 20 * 3600
+HEALTH_ID_RE = re.compile(r"^[0-9a-f]{32}$")
+
+
+def health_state_path(data: str) -> str:
+    return os.path.join(data, "state", "health.json")
+
+
+def health_load(data: str) -> dict:
+    """Opt-in daily health report state (health_report is False by default)."""
+    default = {"health_report": False, "install_id": None, "last_sent": None, "last_status": None}
+    try:
+        with open(health_state_path(data), encoding="utf-8") as f:
+            got = json.load(f)
+        if not isinstance(got, dict):
+            return default
+    except (OSError, ValueError):
+        return default
+    out = dict(default)
+    out["health_report"] = got.get("health_report") is True
+    iid = got.get("install_id")
+    out["install_id"] = iid if isinstance(iid, str) and HEALTH_ID_RE.fullmatch(iid) else None
+    ls = got.get("last_sent")
+    out["last_sent"] = float(ls) if isinstance(ls, (int, float)) and not isinstance(ls, bool) else None
+    st = got.get("last_status")
+    out["last_status"] = st if isinstance(st, str) else None
+    return out
+
+
+def health_save(data: str, st: dict) -> None:
+    p = health_state_path(data)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(st, f, indent=1, sort_keys=True)
+    os.replace(p + ".tmp", p)
+
+
+def health_enabled(data: str) -> bool:
+    return health_load(data)["health_report"]
+
+
+def set_health_report(data: str, on: bool) -> dict:
+    st = health_load(data)
+    st["health_report"] = bool(on)
+    if on and not st["install_id"]:
+        st["install_id"] = secrets.token_hex(16)
+    health_save(data, st)
+    return st
+
+
+def reset_install_id(data: str) -> dict:
+    st = health_load(data)
+    st["install_id"] = secrets.token_hex(16)
+    st["last_sent"] = None
+    st["last_status"] = None
+    health_save(data, st)
+    return st
+
+
+def health_payload(data: str, port: int = 8090, version: str = "", platform: str = "", frozen: bool = False,
+                   *, ready=None, now: float | None = None, home: str | None = None) -> dict:
+    """Strictly non-personal health summary reusing doctor.py fields (no searches, paths, names, IPs or PINs)."""
+    import autoupdate as au
+    import homesettings as hs
+    import install
+    import release_ptr
+    st_h = health_load(data)
+    iid = st_h["install_id"] or secrets.token_hex(16)
+    cur = prev = None
+    try:
+        cur, prev = release_ptr.current_id(data), release_ptr.current_id(data, "previous")
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        lst = install.lists_state(data)
+    except Exception:  # noqa: BLE001
+        lst = {}
+    c = answers_counts(data, cur) if cur else {}
+    au_st = au.load(data)
+    sr = au_st.get("selftest") if isinstance(au_st.get("selftest"), dict) else None
+    rb = au_st.get("rollback") if isinstance(au_st.get("rollback"), dict) else None
+    try:
+        free_gb = round(shutil.disk_usage(data if os.path.isdir(data) else os.path.dirname(data) or ".").free / 1e9, 1)
+    except OSError:
+        free_gb = None
+    try:
+        code = int((ready or install._readyz)(port) or 0)
+    except Exception:  # noqa: BLE001
+        code = 0
+    return {
+        "schema": HEALTH_SCHEMA,
+        "install_id": iid,
+        "day": time.strftime("%Y-%m-%d", time.gmtime(time.time() if now is None else now)),
+        "program": {"version": str(version or "unknown")[:40], "platform": str(platform or sys.platform)[:24], "frozen": bool(frozen)},
+        "data": {"release": cur, "has_previous": bool(prev)},
+        "answers": {"version": lst.get("version"), "curated": int(c.get("curated", 0)), "finished": int(c.get("finished", 0)),
+                    "dept": int(c.get("dept", 0)), "quarantine": bool(lst.get("quarantine"))},
+        "updates": {"enabled": au.enabled(au_st), "channel": au.channel_of(au_st),
+                    "last_result": redact(str(au_st.get("last_result") or ""), home)[:120] or None,
+                    "selftest_ok": sr.get("ok") if sr else None,
+                    "selftest_kind": sr.get("kind") if sr else None,
+                    "rollback": rb.get("result") if rb else None},
+        "collectors": {"profile": hs.load(data).get("profile")},
+        "disk": {"free_gb": free_gb},
+        "engine": {"ready": code == 200, "code": code},
+    }
+
+
+def maybe_send_health(data: str, *, port: int = 8090, version: str = "", platform: str = "", frozen: bool = False,
+                      opener=None, ready=None, metered=None, now: float | None = None, url: str | None = None) -> str:
+    """Send at most once daily after autoupdate when opted in and unmetered. Never retries in a loop; silent on failure."""
+    st = health_load(data)
+    if not st["health_report"]:
+        return "off"
+    if metered is None:
+        try:
+            import netcost
+            metered = netcost.metered()
+        except Exception:  # noqa: BLE001
+            metered = None
+    if metered is True:
+        return "metered"
+    t = time.time() if now is None else float(now)
+    if st["last_sent"] is not None and t - st["last_sent"] < HEALTH_EVERY_S:
+        return "recent"
+    if not st["install_id"]:
+        st["install_id"] = secrets.token_hex(16)
+    st["last_sent"] = t                                    # stamp before sending so a failure never retries until tomorrow
+    health_save(data, st)
+    try:
+        body = json.dumps(health_payload(data, port=port, version=version, platform=platform, frozen=frozen, ready=ready, now=t),
+                          separators=(",", ":")).encode("utf-8")
+        req = urllib.request.Request(url or HEALTH_URL, data=body, method="POST",
+                                     headers={"Content-Type": "application/json", "User-Agent": "logout-health/1"})
+        with (opener or urllib.request.urlopen)(req, timeout=5) as r:
+            _ = r.read(256)
+        st["last_status"] = "sent"
+        health_save(data, st)
+        return "sent"
+    except Exception:  # noqa: BLE001 - health telemetry must fail silently and never retry in a loop
+        try:
+            st["last_status"] = "failed"
+            health_save(data, st)
+        except OSError:
+            pass
+        return "failed"

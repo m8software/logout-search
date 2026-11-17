@@ -1,0 +1,97 @@
+{
+ "group": "link",
+ "title": "The link from the page",
+ "cases": [
+  {
+   "id": "LNK-001",
+   "title": "the STUN server answers a binding request quickly (a slow or silent STUN makes every connection wait)",
+   "guards": [
+    "5 s STUN wait on connect after a refresh"
+   ],
+   "severity": "medium",
+   "check": "stun_rtt",
+   "params": {
+    "server": "search.logout.cloud:3478",
+    "max_ms": 500
+   }
+  },
+  {
+   "id": "LNK-002",
+   "title": "the rendezvous WebSocket accepts a connection (HTTP 101) within 3 s",
+   "guards": [
+    "link from the page"
+   ],
+   "severity": "high",
+   "check": "rv_handshake",
+   "params": {
+    "max_ms": 3000
+   },
+   "needs": [
+    "rv"
+   ]
+  },
+  {
+   "id": "LNK-003",
+   "title": "connect time after a page refresh stays under 3 s, with and without IPv6",
+   "guards": [
+    "5 s STUN wait (aioice gathers on every adapter)",
+    "IPv6-less machine"
+   ],
+   "severity": "high",
+   "check": "pending",
+   "params": {
+    "why": "needs a WebRTC client (aiortc) paired with a home engine: the sandbox driver pairs its own install with the public rendezvous; not available on this runner. Unit guards: test-search-rtc-connect.sh, test-search-rtc-candidates.sh."
+   }
+  },
+  {
+   "id": "LNK-004",
+   "title": "the link stays connected through 45 idle minutes and reconnects after a drop",
+   "guards": [
+    "link dies when idle"
+   ],
+   "severity": "high",
+   "check": "pending",
+   "params": {
+    "why": "needs the same paired WebRTC client plus 45 minutes; run on the release train, not per commit"
+   }
+  },
+  {
+   "id": "LNK-005",
+   "title": "the page never sends a search to the public site on its own while the user has an engine (the keep-alive and no-fallback page test); a slow answer is waited for",
+   "guards": [
+    "owner 2026-11-16 night: searches fell back to public silently",
+    "fc577c76 (master): the page keeps its link, never falls back"
+   ],
+   "severity": "high",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-public-keep.sh",
+     "bash tests/unit/test-search-public-connect.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ],
+   "xfail": []
+  },
+  {
+   "id": "LNK-006",
+   "title": "the page keeps its link alive and rebuilds it after an engine restart",
+   "guards": [
+    "fc577c76"
+   ],
+   "severity": "medium",
+   "check": "script",
+   "params": {
+    "commands": [
+     "bash tests/unit/test-search-page-own-engine.sh",
+     "bash tests/unit/test-search-rtc-pairing.sh"
+    ]
+   },
+   "needs": [
+    "repo"
+   ]
+  }
+ ]
+}

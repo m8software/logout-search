@@ -126,11 +126,12 @@ _pcs: set = set()
 # RT-07: what each connection is, so the table cannot be filled by strangers. Paired devices always have slots (MAX_PEERS minus
 # MAX_UNPAIRED are theirs); a source (the rendezvous' id of the page) holds at most MAX_PER_SOURCE; a connection that says
 # nothing is closed after IDLE_UNPAIRED_S (paired: IDLE_PAIRED_S); a refused offer is answered "busy", not left waiting.
-MAX_UNPAIRED = int(os.environ.get("RTC_MAX_UNPAIRED", "4"))
+MAX_UNPAIRED = int(os.environ.get("RTC_MAX_UNPAIRED", "8"))
 MAX_PER_SOURCE = int(os.environ.get("RTC_MAX_PER_SOURCE", "3"))
-IDLE_UNPAIRED_S = float(os.environ.get("RTC_IDLE_UNPAIRED_S", "120"))
+IDLE_UNPAIRED_S = float(os.environ.get("RTC_IDLE_UNPAIRED_S", "600"))
 IDLE_PAIRED_S = float(os.environ.get("RTC_IDLE_PAIRED_S", "1800"))
 _pc_info: dict = {}           # pc -> {"src": id, "paired": bool, "last": monotonic time of its last message or start}
+_pending: dict = {}           # in-flight offers awaiting turn_servers(), before pc joins _pcs (counted by admit)
 _turn_waiters: dict = {}      # websocket -> future for the next {"t": "turn"} reply
 
 
@@ -531,14 +532,44 @@ def _forget(pc) -> None:
     _pc_info.pop(pc, None)
 
 
+STALE_S = float(os.environ.get("RTC_STALE_S", "45"))      # a page pings every 20 s: a connection silent this long is a closed tab, not an idle one
+
+
+async def make_room(paired: bool) -> int:
+    """Before an offer is refused for lack of room (RT-07), close the connections that are stale: a page that was reloaded or
+    closed leaves its old connection here until the browser's consent checks fail or the idle time runs out, and four
+    reloads in two minutes filled the table, so the fifth page was answered "busy" and went without its engine (2026-11-17).
+    A live page pings every 20 s, so only connections silent for STALE_S are taken, the oldest first, and only as many as the
+    new offer needs. Returns how many were closed."""
+    why = admit(None, paired)
+    if not why or why == "too many connections from one source":
+        return 0
+    now, closed = time.monotonic(), 0
+    stale = sorted((p for p in _pcs if now - _pc_info.get(p, {}).get("last", now) > STALE_S and (paired or not _pc_info.get(p, {}).get("paired"))),
+                   key=lambda p: _pc_info.get(p, {}).get("last", now))
+    for p in stale:
+        if not admit(None, paired):
+            break
+        _forget(p)
+        try:
+            await p.close()
+        except Exception:  # noqa: BLE001
+            pass
+        closed += 1
+    if closed:
+        say(f"closed {closed} stale connection(s) to make room")
+    return closed
+
+
 def admit(src, paired: bool) -> str:
     """"" when a new connection may be taken, else why not (RT-07)."""
-    if len(_pcs) >= MAX_PEERS:
+    active = [_pc_info.get(p, {}) for p in _pcs] + list(_pending.values())
+    if len(active) >= MAX_PEERS:
         return "table full"
-    unpaired = sum(1 for p in _pcs if not _pc_info.get(p, {}).get("paired"))
+    unpaired = sum(1 for info in active if not info.get("paired"))
     if not paired and unpaired >= MAX_UNPAIRED:
         return "too many unpaired connections"
-    if src is not None and sum(1 for p in _pcs if _pc_info.get(p, {}).get("src") == src) >= MAX_PER_SOURCE:
+    if src is not None and sum(1 for info in active if info.get("src") == src) >= MAX_PER_SOURCE:
         return "too many connections from one source"
     return ""
 
@@ -566,8 +597,12 @@ async def reap_loop() -> None:
 
 
 async def on_offer(ws, m: dict) -> None:
-    frm, sdp, via = m.get("from"), m["sdp"], m.get("via")
-    secret = signed_offer_secret(m.get("auth"), sdp.get("sdp"))
+    frm, sdp, via = m.get("from"), m.get("sdp"), m.get("via")
+    if not isinstance(sdp, dict) or not isinstance(sdp.get("sdp"), str) or not isinstance(sdp.get("type"), str):
+        say("offer ignored: malformed sdp")
+        return
+    secret = signed_offer_secret(m.get("auth"), sdp["sdp"])
+    await make_room(secret is not None)
     why = admit(frm, secret is not None)
     if why:
         say(f"offer refused: {why}")
@@ -583,16 +618,26 @@ async def on_offer(ws, m: dict) -> None:
         return
     if secret is None and m.get("auth"):
         say("a home offer was signed by no paired device: answered unsigned")
-    ice = [RTCIceServer(urls=STUN_URL)] + (await turn_servers(ws) if via == "room" else [])
-    _gather_s.set(GATHER_NETWORK_S if via == "network" else None)         # this offer's own task: no other offer sees it
-    pc = RTCPeerConnection(RTCConfiguration(iceServers=ice))
-    _pcs.add(pc)
-    _pc_info[pc] = {"src": frm, "paired": secret is not None, "last": time.monotonic()}
+    slot = object()
+    _pending[slot] = {"src": frm, "paired": secret is not None}
+    try:
+        ice = [RTCIceServer(urls=STUN_URL)] + (await turn_servers(ws) if via == "room" else [])
+        _gather_s.set(GATHER_NETWORK_S if via == "network" else None)         # this offer's own task: no other offer sees it
+        pc = RTCPeerConnection(RTCConfiguration(iceServers=ice))
+        _pcs.add(pc)
+        _pc_info[pc] = {"src": frm, "paired": secret is not None, "last": time.monotonic()}
+    finally:
+        _pending.pop(slot, None)
 
     @pc.on("datachannel")
     def on_datachannel(channel):
         bucket = Bucket()
         conn = {}                                   # this connection's own state: the admin unlock
+
+        @channel.on("close")
+        def on_close():                               # the page closed it (a reload, a closed tab): the slot is free now
+            _forget(pc)
+            asyncio.ensure_future(pc.close())
 
         @channel.on("message")
         def on_message(raw):
