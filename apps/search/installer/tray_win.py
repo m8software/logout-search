@@ -144,9 +144,20 @@ def shortcut(path: str, target: str, args: str) -> bool:
                 _com(p, 2)                                     # Release
 
 
-def unregister() -> None:
+def unregister(base: str | None = None) -> None:
+    """Remove the Run entry, the Settings > Apps entry, the browser registrations and the Start menu folder. With `base`: only when the
+    registration points at that folder (removing a scratch install must not unregister the owner's)."""
     import shutil
     import winreg
+    if base is not None:
+        import uninstall_win
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, RUN_KEY) as k:
+                val = winreg.QueryValueEx(k, APP)[0]
+        except OSError:
+            val = ""
+        if not uninstall_win.registered_for(base, val):
+            return
     for root_key, sub, value in [(winreg.HKEY_CURRENT_USER, RUN_KEY, APP)]:
         try:
             with winreg.OpenKey(root_key, sub, 0, winreg.KEY_SET_VALUE) as k:
@@ -476,9 +487,9 @@ def uninstall(data, ask_first: bool = True, engine=None) -> bool:
     if engine:
         engine.stop()
     # anything else of ours still running (a second tray, a `start` from a terminal)
-    for image in ("logout-search.exe",):
-        subprocess.run(["taskkill", "/F", "/T", "/IM", image], capture_output=True, creationflags=CREATE_NO_WINDOW)
-    unregister()
+    import uninstall_win
+    uninstall_win.stop_under(base)                          # only this install's processes (not other installs', not ourselves)
+    unregister(base)
     # the folder holds this very program: a hidden shell removes it a few seconds after we exit
     subprocess.Popen(f'cmd /c ping -n 4 127.0.0.1 >nul & rmdir /s /q "{base}"', creationflags=CREATE_NO_WINDOW,
                      stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
