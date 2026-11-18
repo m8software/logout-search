@@ -123,7 +123,7 @@ jobs:
           # answer comes from this computer's own engine, and a search must be answered with ZERO requests to /api/instant.
           $out = Get-Content "$env:LOGS\setup.out.txt" -Raw
           $ready = $out.IndexOf('the page opens when it answers')
-          $open = $out.IndexOf('https://search.logout.cloud is open')
+          $open = $out.IndexOf('the page is open')       # setup's own line once it has opened the page (the closing "Done" line needs a real browser to confirm)
           "setup said it would wait for the engine: $($ready -ge 0); said the page is open afterwards: $($open -gt $ready)"
           if ($ready -lt 0 -or $open -lt $ready) { Write-Output "::error::setup's own words do not show it waited for the engine before opening the page"; exit 1 }
           python -m pip install --quiet playwright
@@ -219,12 +219,17 @@ jobs:
           foreach ($f in 'disks', 'searches', 'regress', 'store-inbox', 'left-behind') { if (Test-Path "$env:LOGS\$f.txt") { $s += "### $f"; $s += '```'; $s += (Get-Content "$env:LOGS\$f.txt"); $s += '```' } }
           $s | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
 
+      - name: Collect the engine logs into the logs folder
+        if: always()
+        run: |
+          # upload-artifact only takes paths under the workspace; the install is on another drive
+          Copy-Item "$env:DEST\data\state\*.log" $env:LOGS -ErrorAction SilentlyContinue
+          Copy-Item "$env:DEST\data\state\*.json" $env:LOGS -ErrorAction SilentlyContinue
+
       - name: Keep the logs
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-customer-test-${{ env.TAG }}
-          path: |
-            logs
-            ${{ env.DEST }}\data\state\*.log
+          path: logs
           if-no-files-found: warn
