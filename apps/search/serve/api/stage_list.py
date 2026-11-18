@@ -9,6 +9,7 @@ from stage_parts import part_run
 from stage_base import anchor_owns_name
 import re
 import threading
+import start_trace
 import time
 from urllib.parse import urlsplit
 from search_api import (
@@ -64,7 +65,7 @@ SITE_SLOTS_LEAD = os.environ.get("SEARCH_SITE_SLOTS_LEAD", "").strip().lower() i
 
 _site_tables: dict[str, object] = {}
 
-_site_tables_lock = threading.Lock()
+_site_tables_lock = start_trace.lock("site_tables")
 
 def _site_table(kind: str):
     """The slot table or the site-search table, read once; None when unset or unreadable (the feature stays off).

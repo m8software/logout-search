@@ -111,6 +111,15 @@ def report(data: str, port: int, version: str, platform: str, frozen: bool, *, g
     except Exception:  # noqa: BLE001
         pass
     L += ["Search data", f"  release in use: {cur or 'none installed'}", f"  previous release kept: {prev or 'none'}"]
+    try:                                                   # the warm-up files the installer builds beside the store (install.prepare_release)
+        with open(install.prepare_state_path(data), encoding="utf-8") as f:
+            pr = json.load(f)
+        if pr.get("ok"):
+            L.append(f"  warm-up files: prepared for {pr.get('release')} in {pr.get('seconds')} s ({when(pr.get('at'))})")
+        else:
+            L.append(f"  warm-up files: NOT prepared for {pr.get('release')} ({pr.get('error')}); the first start builds them, slower ({when(pr.get('at'))})")
+    except (OSError, ValueError, AttributeError):
+        L.append("  warm-up files: no record (installed before the installer prepared them: the first start builds them)")
     try:
         lst = install.lists_state(data)
     except Exception:  # noqa: BLE001

@@ -375,6 +375,31 @@ def peer_on_lan(pc) -> bool:
         return False
 
 
+_page_seen_at = [0.0]
+
+
+def note_page_seen(via) -> None:
+    """A page's message came over a data channel: write STATE's folder/page-seen.json (at most every 5 s) so the installer's first run can
+    tell that a real browser reached this engine. Never raises; nothing but the time, the route and a count is written."""
+    now = time.time()
+    if now - _page_seen_at[0] < 5:
+        return
+    _page_seen_at[0] = now
+    try:
+        p = os.path.join(os.path.dirname(os.path.abspath(STATE)), "page-seen.json")
+        n = 0
+        try:
+            with open(p, encoding="utf-8") as f:
+                n = int(json.load(f).get("n") or 0)
+        except (OSError, ValueError, TypeError):
+            pass
+        with open(p + ".tmp", "w", encoding="utf-8") as f:
+            json.dump({"at": now, "via": via, "n": n + 1}, f)
+        os.replace(p + ".tmp", p)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def say(msg: str) -> None:
     print(f"rtc_peer: {msg}", flush=True)       # connection-level events only, never a search
 
@@ -643,6 +668,7 @@ async def on_offer(ws, m: dict) -> None:
         def on_message(raw):
             if pc in _pc_info:
                 _pc_info[pc]["last"] = time.monotonic()
+            note_page_seen(via)
             if bucket.allow():
                 asyncio.ensure_future(reply(channel, raw, via, lambda: peer_on_lan(pc), conn))
             elif channel.readyState == "open":

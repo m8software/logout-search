@@ -580,6 +580,12 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
         fsync_path(rel_dir)
         if FAIL_AFTER == "renamed":
             os.kill(os.getpid(), signal.SIGKILL)
+        try:                                                   # the warm-up files of the new release, before `current` moves (never fails the update)
+            sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "installer"))
+            import install as _inst
+            notes["prepare"] = {k: v for k, v in _inst.prepare_release(base, to, final).items() if k in ("ok", "seconds", "error")}
+        except Exception as e:  # noqa: BLE001
+            notes["prepare"] = {"ok": False, "error": f"{type(e).__name__}: {e}"[:200]}
         set_pointer(base, "previous", cur)
         set_pointer(base, "current", to)
         notes["pruned_releases"] = prune_old_releases(base, {to, cur})

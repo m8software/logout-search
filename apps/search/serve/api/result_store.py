@@ -21,6 +21,7 @@ Privacy: only the warmer's requests write (search_api: warm=1). A visitor's sear
 from __future__ import annotations
 
 import contextlib
+import contextvars
 import hashlib
 import json
 import os
@@ -32,6 +33,7 @@ import zlib
 
 # Settings that change how fast or where, never which results: left out of the fingerprint.
 NOT_RESULTS = frozenset((
+    "SEARCH_START_TRACE", "SEARCH_TEST_NO_READAHEAD", "SEARCH_WARM_POSTINGS", "SEARCH_WARM_MAX_S", "SEARCH_START_WARM", "SEARCH_WARM_READ_S", "SEARCH_TYPING_WAIT_S", "SEARCH_PREPARE_ONLY", "SEARCH_SELFCHECK_STAGE_MS",
     "SEARCH_BG_QUIET_S", "SEARCH_COLD_BUDGET_S", "SEARCH_WARMUP_MAX_S", "SEARCH_WARMUP_MAX_BYTES", "SEARCH_STORE_OPEN_WAIT_S",
     "SEARCH_CACHE_TTL_S", "SEARCH_COMPUTE_CACHE", "SEARCH_PARTS", "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_MAX", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
     "SEARCH_CE_THREADS", "SEARCH_API_ALLOW_FROM", "SEARCH_MEMSTAT", "SEARCH_SQLITE_CACHE_KB", "SEARCH_IVF_KERN",
@@ -145,6 +147,9 @@ def norm_key(parts) -> str:
     return json.dumps(conv(parts), separators=(",", ":"), ensure_ascii=False, default=str)
 
 
+skip_box = contextvars.ContextVar("store_skip", default=None)     # the engine sets [False] per visitor request: set to [True] by the first read that timed out on the lock
+
+
 class ResultStore:
     """rows(fp, kind, key, body, at). Thread-safe: one connection behind a lock (reads are well under a millisecond)."""
 
@@ -212,14 +217,24 @@ class ResultStore:
         self.db.execute(sql)
 
     yield_hook = None             # set by the engine: called between the chunks of an intake (waits for the searches in flight)
+    trace_hook = None             # set by the engine under SEARCH_START_TRACE=1: (name, ms) of every wait for the lock
     READ_WAIT_S = 0.5             # a visitor's search that cannot get the store this soon computes without it (the intake no longer holds the lock; this is the bound)
     is_builder = staticmethod(lambda: False)   # set by the engine: True for a warm=1 request (the warmer, the builders): those always wait, an answer built without the store would be a wrong stored answer
 
     @contextlib.contextmanager
-    def _rd(self):
+    def _rd(self):  # noqa: C901
         """The store for a read: yields True with the lock held, or False when the lock stayed taken for READ_WAIT_S (the reader treats
         that as "no stored row" and computes). The intake of a lists base used to hold this lock for the whole replace."""
-        got = self.lock.acquire() if self.is_builder() else self.lock.acquire(timeout=self.READ_WAIT_S)
+        t0 = time.monotonic() if self.trace_hook is not None else 0.0
+        box = skip_box.get()
+        if box is not None and box[0] and not self.is_builder():
+            got = False                           # this request already waited once for the lock: its other reads do not wait again (4 reads x 500 ms = a 2 s search, buildbox 2026-11-18)
+        else:
+            got = self.lock.acquire() if self.is_builder() else self.lock.acquire(timeout=self.READ_WAIT_S)
+            if not got and box is not None:
+                box[0] = True
+        if self.trace_hook is not None:
+            self.trace_hook("store lock (read)", (time.monotonic() - t0) * 1000)
         if not got:
             self.stats["busy"] = self.stats.get("busy", 0) + 1
         try:
