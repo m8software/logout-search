@@ -87,8 +87,6 @@ taken on our public server, which runs both add-ons.
   built and measured on; `user@jump-host`, `user@index-host` and `10.0.0.x` for their addresses.
   Scripts that mention them record how something was built or measured and will not run
   elsewhere unchanged.
-- **Jev and TypeSafe** appear in comments as history. Since 2026-10-01 nothing produced by that
-  service is used to build, train or ship any part of the engine or its data.
 - **Not copied:** deployment scripts tied to our servers, build scripts of earlier releases,
   the public website (search.logout.cloud), the eval sets of real places, and tests that need those.
 
