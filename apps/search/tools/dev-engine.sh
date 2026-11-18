@@ -68,7 +68,7 @@ cmd_deploy() {
     source "${REPO}/utility/deploy-lock.sh"
     lock_acquire indexhost "dev-engine.sh deploy" "$REPO"
     trap 'lock_release indexhost || true' EXIT
-    api=$(tar czf - -C "${REPO}/apps/search/serve/api" native_host.py rtc_peer.py search_api.py gov_state.py site_slots.py product_table.py site_pages.py news_sqlite.py instant_answers.py ranker.json Dockerfile.rtc av_absent.py rtc_selfcheck.py lookups_release.py lookups_sqlite.py facts.py memstat.py sq_candidates.py warm.py result_store.py compute_cache.py parts.py stage_version.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py stage_base.py stage_parts.py | base64 -w0)
+    api=$(tar czf - -C "${REPO}/apps/search/serve/api" native_host.py rtc_peer.py search_api.py gov_state.py site_slots.py product_table.py site_pages.py news_sqlite.py instant_answers.py ranker.json Dockerfile.rtc av_absent.py rtc_selfcheck.py lookups_release.py lookups_sqlite.py facts.py memstat.py sq_candidates.py warm.py result_store.py compute_cache.py parts.py stage_version.py start_trace.py warmplan.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py stage_base.py stage_parts.py | base64 -w0)
     news=$(tar czf - -C "${REPO}/apps/search/news" Dockerfile poller.py newsdb.py pg_to_sqlite.py schema.sql schema-sqlite.sql feeds.tsv feeds-more.tsv feeds-public.tsv sports.py sports_personal.py weather.py wxall.py fx.py | base64 -w0)
     remote <<EOF
 set -euo pipefail
