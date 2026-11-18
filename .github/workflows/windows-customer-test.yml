@@ -121,7 +121,9 @@ jobs:
           # What a customer sees right after setup (owner 2026-11-17: "when the search page pops up it's pointed to public and I have
           # to refresh"): a clean browser profile opens the page with the hint setup opens it with; within 90 s its pill must say the
           # answer comes from this computer's own engine, and a search must be answered with ZERO requests to /api/instant.
-          $out = Get-Content "$env:LOGS\setup.out.txt" -Raw
+          # setup writes its progress lines to stderr (measured on lr, 2026-11-18: these two lines were in setup.err, and this check
+          # read stdout only and failed every run): both files are read
+          $out = ((Get-Content "$env:LOGS\setup.out.txt" -Raw) + "`n" + (Get-Content "$env:LOGS\setup.err.txt" -Raw))
           $ready = $out.IndexOf('the page opens when it answers')
           $open = $out.IndexOf('the page is open')       # setup's own line once it has opened the page (the closing "Done" line needs a real browser to confirm)
           "setup said it would wait for the engine: $($ready -ge 0); said the page is open afterwards: $($open -gt $ready)"
