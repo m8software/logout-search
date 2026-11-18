@@ -136,6 +136,15 @@ def _patch_gather() -> bool:
 
 _patch_gather()
 
+# The engine's state as the rendezvous tells pages (2026-11-18, owner: a phone on the same network saw no engine, only "get a
+# SearchSilo", while the Silo's engine restarted and warmed for a minute): the peer signs in AS SOON AS IT STARTS, "starting", and says
+# "ready" when the engine answers. `ready` (given by the downloaded program) is asked every 2 s; the servers' own in-process peer
+# gives none and is ready.
+STATE_EVERY_S = 2.0
+_ready_fn = None
+_state = "ready"
+_wss: set = set()
+
 _answer = None
 _info = None                  # how the engine is reached, for {details}; None = native_host.engine_info (in-process engine)
 _admin = None                 # the downloaded program's admin_handler: settings a paired device changes with the admin PIN
@@ -738,8 +747,9 @@ async def rendezvous(family: int, label: str) -> None:
             async with websockets.connect(RV_URL, family=family, open_timeout=10,
                                           ping_interval=25, ping_timeout=20, max_size=64 * 1024) as ws:
                 await ws.send(json.dumps({"t": "engine", "name": NAME, "room": load_state()["room"],
-                                          "v": native_host.VERSION}))
-                say(f"registered over {label}")
+                                          "v": native_host.VERSION, "state": _state}))
+                _wss.add(ws)
+                say(f"registered over {label} ({_state})")
                 delay, told = 2, False
                 async for raw in ws:
                     m = json.loads(raw)
@@ -750,6 +760,7 @@ async def rendezvous(family: int, label: str) -> None:
                         if fut and not fut.done():
                             fut.set_result(m.get("iceServers") or [])
         except (OSError, websockets.WebSocketException, asyncio.TimeoutError) as e:
+            _wss.discard(ws) if "ws" in locals() else None
             if family_unavailable(family, e):
                 if not told:
                     say(f"{label}: not available from here ({type(e).__name__}); using IPv4 only, looking again every {IPV6_RETRY_S // 60} minutes")
@@ -761,14 +772,38 @@ async def rendezvous(family: int, label: str) -> None:
         delay = min(delay * 2, 300)
 
 
-async def main(answer=None, info=None, admin=None) -> None:
+async def watch_ready() -> None:
+    """Tell the rendezvous when the engine can answer (and when it cannot any more: it restarted)."""
+    global _state
+    loop = asyncio.get_running_loop()
+    while True:
+        try:
+            now = "ready" if await loop.run_in_executor(None, _ready_fn) else "starting"
+        except Exception:  # noqa: BLE001 - a probe that fails is "not ready"
+            now = "starting"
+        if now != _state:
+            _state = now
+            say(f"engine {now}")
+            for w in list(_wss):
+                try:
+                    await w.send(json.dumps({"t": "state", "state": now}))
+                except Exception:  # noqa: BLE001
+                    _wss.discard(w)
+        await asyncio.sleep(STATE_EVERY_S)
+
+
+async def main(answer=None, info=None, admin=None, ready=None) -> None:
     """answer: where searches go. None (the servers' own peer): the engine is loaded into this process. Given (the
     downloaded program, `logout-search peer`): a call that asks an engine already running on this computer, so this
     process holds no index and the two can be started and stopped apart."""
-    global _answer, _info, _admin
+    global _answer, _info, _admin, _ready_fn, _state
     if answer is not None:
         _answer, _info, _admin = answer, info, admin
-        await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"), reap_loop())
+        extra = []
+        if ready is not None:
+            _ready_fn, _state = ready, "starting"          # signs in before the engine is warm; watch_ready says when it is
+            extra = [watch_ready()]
+        await asyncio.gather(rendezvous(socket.AF_INET, "IPv4"), rendezvous(socket.AF_INET6, "IPv6"), reap_loop(), *extra)
         return
     _answer = native_host.search_api_answer()
     if os.environ.get("SEARCH_STORE") and int(os.environ.get("WARM_HEAD", "0") or 0) > 0:

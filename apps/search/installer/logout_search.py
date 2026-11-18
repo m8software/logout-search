@@ -262,6 +262,11 @@ def start(a) -> None:
     proc = subprocess.Popen(program() + ["engine"], env={**os.environ, **env})
     start_phase("engine process spawned")
     peer = None
+    if not getattr(a, "no_peer", False):
+        # the page's way in, and the other devices' (see `peer`): started WITH the engine, not after it is ready (2026-11-18): it signs
+        # in to the rendezvous at once as "starting" and says "ready" when the engine answers, so a page that arrives while the engine
+        # restarts and warms (a minute) sees that a Silo is starting, not "no engine here". It ends with the engine.
+        peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)])
     # the daily update runs from the start, ready or not: a release whose engine cannot start must still be replaceable
     has_se = "SEARCH_SE_INDEX" in env
     restart = start_updater(base, proc, a.port, has_se)
@@ -285,11 +290,6 @@ def start(a) -> None:
             if act == "handed-over":                     # Windows: the new setup program closes this one; wait for it
                 import time
                 time.sleep(300)
-        if state == "ready" and not getattr(a, "no_peer", False):
-            # the page's way in, and the other devices' (see `peer`); it ends with the engine, and the engine runs on without it.
-            # Started BEFORE the smoke searches (2026-11-17): they take seconds to a minute on a cold engine, and the first
-            # page of a new install found no engine for that long and showed the public site until it was refreshed
-            peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)])
         if state == "ready" and not a.no_smoke and install.run_smoke(a.port, "SEARCH_SE_INDEX" in env):
             proc.terminate()
             proc.wait()
@@ -746,7 +746,7 @@ def peer_run(a) -> int:
         admin = None
     say("other devices on this network can now pair: open https://search.logout.cloud on one and tap Pair")
     try:
-        asyncio.run(rp.main(answer=http_answer(a.port, nh), info=details, admin=admin))
+        asyncio.run(rp.main(answer=http_answer(a.port, nh), info=details, admin=admin, ready=lambda: install._readyz(a.port) == 200))
     except KeyboardInterrupt:
         pass
     return 0
