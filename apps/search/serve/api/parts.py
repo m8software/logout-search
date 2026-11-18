@@ -24,6 +24,7 @@ import hashlib
 import json
 import os
 import threading
+import start_trace
 
 from stage_version import Module
 
@@ -148,12 +149,20 @@ class Stage:
         self.clock_ok, self.unseen_env_ok = frozenset(clock_ok), frozenset(unseen_env_ok)
 
 
+def _aliases() -> dict:
+    try:
+        import stage_aliases
+        return stage_aliases.ALIASES
+    except ImportError:                       # an engine folder without the table: every version stands as computed
+        return {}
+
+
 class Parts:
     def __init__(self, store, module_path: str, stages, ctxvars: dict, env=None):
         self.store, self.mod, self.ctx = store, Module(module_path), ctxvars
         self.stages = {s.name: s for s in stages}
         self.env = os.environ if env is None else env
-        self.lock = threading.Lock()
+        self.lock = start_trace.lock("parts")
         self._info: dict = {}
         self.stats = {"hit": 0, "miss": 0, "put": 0, "unstorable": 0, "error": 0}
         self.by: dict = {}                       # the same per stage: {"card": {"hit": n, "miss": n, "put": n}}
@@ -165,8 +174,10 @@ class Parts:
                 s = self.stages[stage]
                 roots = list(s.roots) + (self.mod.roots_of(*s.method) if s.method else [])
                 env_names = [n for n in self.mod.env_reads(roots, s.stop) if n not in s.not_results]
+                real = self.mod.version(roots, settings=env_names, stop=s.stop)
                 self._info[stage] = {
-                    "version": self.mod.version(roots, settings=env_names, stop=s.stop),
+                    "version": _aliases().get(stage, {}).get(real, real),          # a start-up-only change declared answer-identical (stage_aliases.py)
+                    "real": real,
                     "env": env_names,
                     "ctx": [n for n in self.mod.contextvars_read(roots, s.stop) if n not in INSTRUMENTATION],
                     "clock": [n for n in self.mod.clock_reads(roots, s.stop) if n not in s.clock_ok],

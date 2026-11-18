@@ -20,7 +20,7 @@ Minimums:
 
 - **Memory:** 4 GB
 - **Processor:** 2 cores, 2015 or newer (Intel Core 6th generation, AMD Ryzen or Apple silicon)
-- **Storage:** 50 GB free, on an SSD
+- **Storage:** 30 GB free, on an SSD
 
 ## Quick start (from source)
 

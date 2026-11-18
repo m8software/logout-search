@@ -27,6 +27,7 @@ import re
 import sqlite3
 import struct
 import threading
+import start_trace
 import zlib
 
 import lookups_sqlite as v0
@@ -40,7 +41,9 @@ SITE_CLAIMS_MAX = 100           # site_claims: articles on one domain whose card
 CHAIN_HOURS_KEEP = 2000          # chain_hours: chains whose web hours are kept between searches (cleared when full)
 # SQLite page cache per connection, KiB (was 32 MB: 12 search workers + request threads each grew one;
 # the files are read-only and the OS page cache holds them anyway)
-SQLITE_CACHE_KB = int(os.environ.get("SEARCH_SQLITE_CACHE_KB", "8000"))
+import warmplan as _wp
+_SMALL = _wp.small_machine()          # 6 GB or less: the settings the minimum-machine tests found free (minspec F), chosen here, not by the customer
+SQLITE_CACHE_KB = int(os.environ.get("SEARCH_SQLITE_CACHE_KB", "2000" if _SMALL else "8000"))
 # Released request-thread connections kept for the next request. ThreadingHTTPServer runs each request on a
 # new thread; its first lookup opened a connection (lookup + 7 attached files, ~22 MB of page cache, 4 temp fts5vocab
 # tables) that outlived the thread: a sqlite3.Connection sits in a reference cycle (its statement cache, CPython 3.11+)
@@ -52,7 +55,7 @@ SQLITE_POOL = int(os.environ.get("SEARCH_SQLITE_POOL", "4"))
 # connection and per file: PRAGMA cache_size reaches only lookup.sqlite, the 7 attached files keep SQLite's default
 # 2,000 KiB each, so one connection holds up to ~22 MB and 16 of them ~350 MB. Under the limit SQLite drops
 # clean cache pages instead of growing; results do not change.
-SQLITE_HEAP_MB = int(os.environ.get("SEARCH_SQLITE_HEAP_MB", "0"))
+SQLITE_HEAP_MB = int(os.environ.get("SEARCH_SQLITE_HEAP_MB", "128" if _SMALL else "0"))
 N_TITLE, N_ALIAS, N_SITE_LABEL, N_HOST, N_DOMAIN, N_HOST_NAV, N_ACCOUNT, N_YOUTUBE, N_STOCK, N_OFFICIAL, N_SELF, N_TICKER = range(1, 13)
 F_KEY, F_HKEY, F_WKEY, F_SKEY = 1, 2, 4, 8
 CELL, NLON, SEQ_BITS = 0.5, 720, 20
@@ -237,6 +240,40 @@ def soft_heap_limit(n_bytes: int) -> str:
         return f"soft limit not set ({type(e).__name__}: {e})"
 
 
+class _StringDict:
+    """The release's string dictionary (lookup.sqlite `dict`: id INTEGER PRIMARY KEY, s TEXT UNIQUE) as a read-through mapping: get/[] ask the
+    file, one indexed row each, and keep the last 4096 answers. Replaces two Python dicts of 2.2 M strings (340 MB of the 2.5-2.7 GB start peak
+    and 1.4 s of CPU at every start); a search asks for a handful of them."""
+    MAX = 4096
+
+    def __init__(self, owner, key: str, val: str):
+        self._o, self._seen = owner, {}
+        self._sql = f"SELECT {val} FROM dict WHERE {key} = ?"
+
+    def get(self, k, default=None):
+        if k is None:
+            return default
+        r = self._seen.get(k)
+        if r is not None:
+            return r
+        row = self._o.db.execute(self._sql, (k,)).fetchone()
+        if row is None:
+            return default
+        if len(self._seen) >= self.MAX:
+            self._seen.clear()
+        self._seen[k] = row[0]
+        return row[0]
+
+    def __getitem__(self, k):
+        v = self.get(k)
+        if v is None:
+            raise KeyError(k)
+        return v
+
+    def __contains__(self, k) -> bool:
+        return self.get(k) is not None
+
+
 class ReleaseLookups:
     name = "release"
 
@@ -245,7 +282,7 @@ class ReleaseLookups:
         self.root, self.s = release_root.resolve(root).rstrip("/"), s
         self._local = threading.local()
         self._free: list = []                  # (connection, Registry) released by finished request threads (SQLITE_POOL)
-        self._free_lock = threading.Lock()
+        self._free_lock = start_trace.lock("sqlite_conn_free")
         if SQLITE_HEAP_MB:
             print(f"sqlite heap: {soft_heap_limit(SQLITE_HEAP_MB << 20)}", flush=True)
         self.sig = Signals(self.root)
@@ -272,8 +309,8 @@ class ReleaseLookups:
         if stamp.get("format") != FORMAT_VERSION or stamp.get("role") != "typo":
             raise RuntimeError(f"release {self.root}: typo index is stamped {stamp} — refusing")
         self.release_id = dict(db.execute("SELECT key, value FROM meta"))["built_release"]
-        self.dict = dict(db.execute("SELECT id, s FROM dict"))
-        self.sid = {v: k for k, v in self.dict.items()}
+        self.dict = _StringDict(self, "id", "s")       # 2.2 M strings: a dict and its reverse took 1.4 s CPU and 340 MB at every start (trace, 2026-11-17)
+        self.sid = _StringDict(self, "s", "id")
         self.pdict = {a: dict(db.execute(f"SELECT id, s FROM {a}.dict")) for a, _r in self.pfiles}
         self.pkind = {a: {v: k for k, v in d.items()} for a, d in self.pdict.items()}
         self.place_doc: dict = {}              # place id (as the engine sees it) -> (doc_id, places file, pid), for hours
@@ -287,7 +324,8 @@ class ReleaseLookups:
         self.names_queries = 0
         s_ = s
         P = s_.PLACES_SQL
-        self._pid_map, self._pid_lock = None, threading.Lock()
+        self._pid_map, self._pid_lock = None, start_trace.lock("pid_map")
+        self._yt_lock = start_trace.lock("yt_index")
         self._junk = None
         self._chain_hours: dict = {}           # chain name keys -> its branches' web hours (chain_hours)
         # Shared by every thread, each capped (cleared when full). They were per thread: 12 search
@@ -464,35 +502,86 @@ class ReleaseLookups:
     def pid_map(self):
         """Wikipedia page_id -> doc_id as two sorted arrays (8 bytes an article, built once): the
         IVF folder's ids.i32 are page_ids and the registry keeps them in `ext`, unindexed — with
-        stable ids (registry --previous) doc_id order is no longer page_id order."""
+        stable ids (registry --previous) doc_id order is no longer page_id order.
+
+        Building them reads 6.8 M registry rows through SQL (4.0 s CPU on testbox and on buildbox, 420 MB of the registry read), and it used to happen on the
+        first semantic search of every start, under this lock: that was the 4-8 s first search and the 14-31 s of lock wait in the start trace
+        (2026-11-17). Now the arrays are kept in a file next to the result store (`pidmap-<release>.npy`, 54 MB) and mapped: a start finds
+        them in milliseconds; only the first start of a release builds them (the engine's start-up does it before the port opens)."""
         if self._pid_map is None:
             with self._pid_lock:
                 if self._pid_map is None:
-                    import numpy as np
-                    self.db                                   # opens this thread's connection + registry
-                    reg = self._local.registry
-                    if reg.t5:
-                        lo, hi = WIKI << reg.shift, (WIKI + 1) << reg.shift
-                        rows = self.db.execute("SELECT ext, doc_id FROM r.registry WHERE doc_id >= ? AND doc_id < ?", (lo, hi))
-                    else:
-                        rows = self.db.execute("SELECT CAST(key AS INTEGER), doc_id FROM r.doc WHERE type = ?", (WIKI,))
-                    # page_ids and wiki doc_ids (1 << 28 | seq) both fit int32: 8 bytes an article. Read in slices of 500,000 rows
-                    # straight into int32 arrays: materialising 6.8 M tuples peaked at 897 MB at start-up (audit DB-10)
-                    ids, dcs = [], []
-                    while True:
-                        chunk = rows.fetchmany(500_000)
-                        if not chunk:
-                            break
-                        a = np.array(chunk, dtype=np.int64).reshape(-1, 2)
-                        ids.append(a[:, 0].astype(np.int32))
-                        dcs.append(a[:, 1].astype(np.int32))
-                        del chunk, a
-                    pid_a = np.concatenate(ids) if ids else np.zeros(0, np.int32)
-                    doc_a = np.concatenate(dcs) if dcs else np.zeros(0, np.int32)
-                    order = np.argsort(pid_a, kind="stable")
-                    self._pid_map = (pid_a[order], doc_a[order])
-                    del ids, dcs, pid_a, doc_a, order
+                    self._pid_map = self._pid_map_cached() or self._pid_map_build()
         return self._pid_map
+
+    def _pid_map_file(self):
+        """Where this release's arrays are kept: beside the result store (SEARCH_STORE) or in the release folder itself when it is writable
+        and ships none; None = no place, build in memory every start."""
+        import os
+        st = os.path.getsize(f"{self.root}/registry.sqlite") if os.path.exists(f"{self.root}/registry.sqlite") else 0
+        name = f"pidmap-{self.release_id}-{st}.npy".replace("/", "_")
+        shipped = f"{self.root}/{name}"
+        if os.path.exists(shipped):
+            return shipped, False
+        store = os.environ.get("SEARCH_STORE", "")
+        if store:
+            return os.path.join(os.path.dirname(store) or ".", name), True
+        return None, False
+
+    def _pid_map_cached(self):
+        import os
+        import numpy as np
+        path, _w = self._pid_map_file()
+        if not path or not os.path.exists(path):
+            return None
+        try:
+            a = np.load(path, mmap_mode="r")
+            if a.ndim == 2 and a.shape[0] == 2 and a.shape[1] > 0 and a.dtype == np.int32:
+                return a[0], a[1]
+        except Exception as e:  # noqa: BLE001 - a bad cache file is rebuilt, never fatal
+            print(f"pid map: cache {path} unusable ({type(e).__name__}), rebuilding", flush=True)
+        return None
+
+    def _pid_map_build(self):
+        import os
+        import numpy as np
+        self.db                                   # opens this thread's connection + registry
+        reg = self._local.registry
+        if reg.t5:
+            lo, hi = WIKI << reg.shift, (WIKI + 1) << reg.shift
+            rows = self.db.execute("SELECT ext, doc_id FROM r.registry WHERE doc_id >= ? AND doc_id < ?", (lo, hi))
+        else:
+            rows = self.db.execute("SELECT CAST(key AS INTEGER), doc_id FROM r.doc WHERE type = ?", (WIKI,))
+        # page_ids and wiki doc_ids (1 << 28 | seq) both fit int32: 8 bytes an article. Read in slices of 500,000 rows
+        # straight into int32 arrays: materialising 6.8 M tuples peaked at 897 MB at start-up (audit DB-10)
+        ids, dcs = [], []
+        while True:
+            chunk = rows.fetchmany(500_000)
+            if not chunk:
+                break
+            a = np.array(chunk, dtype=np.int64).reshape(-1, 2)
+            ids.append(a[:, 0].astype(np.int32))
+            dcs.append(a[:, 1].astype(np.int32))
+            del chunk, a
+        pid_a = np.concatenate(ids) if ids else np.zeros(0, np.int32)
+        doc_a = np.concatenate(dcs) if dcs else np.zeros(0, np.int32)
+        order = np.argsort(pid_a, kind="stable")
+        pid_a, doc_a = pid_a[order], doc_a[order]
+        del ids, dcs, order
+        path, writable = self._pid_map_file()
+        if path and writable and len(pid_a):
+            try:                                   # beside the store; atomic, so a second engine never maps half a file
+                tmp = f"{path}.{os.getpid()}.tmp"
+                with open(tmp, "wb") as f:
+                    np.save(f, np.stack([pid_a, doc_a]))
+                os.replace(tmp, path)
+                for old in os.listdir(os.path.dirname(path) or "."):
+                    if old.startswith("pidmap-") and old.endswith(".npy") and old != os.path.basename(path):
+                        os.unlink(os.path.join(os.path.dirname(path) or ".", old))      # the previous release's
+                return self._pid_map_cached() or (pid_a, doc_a)
+            except OSError as e:
+                print(f"pid map: not kept ({type(e).__name__}: {e})", flush=True)
+        return pid_a, doc_a
 
     def ivf_docs(self, p):
         """SEM_IVF_DOCS_SQL: (page_id, title, lead) for the IVF hits, from the registry and the cards."""
@@ -1039,15 +1128,34 @@ class ReleaseLookups:
         148k channels in rc3: a few seconds, once per process (YT_SEARCH_SQL had no release port and
         returned 503 for every channel-topic query under SEARCH_POSTGRES=off, rc3 acceptance arm C)."""
         if self._yt_ix is None:
-            with self._pid_lock:
+            with self._yt_lock:               # its own lock: it shared the page-id map's and made searches wait for a 3-7 s build
                 if self._yt_ix is None:
+                    import os
+                    import shutil
                     tv, s_ = self.tv, self.s
                     name = s_.TANTIVY_ANALYZER
                     sb = tv.SchemaBuilder()
                     sb.add_unsigned_field("doc_id", stored=False, indexed=True, fast=True)
                     sb.add_text_field("body", stored=False, tokenizer_name=name)
-                    ix = tv.Index(sb.build())
+                    schema = sb.build()
                     an = s_.TantivyWikiText.build_analyzer(tv, name)
+                    # kept on disk beside the page-id map (3.9 s CPU at every start otherwise): the first start of a release builds it
+                    # into a folder beside it (the marker written last), a later start opens it
+                    pm, writable = self._pid_map_file()
+                    keep = pm.replace("pidmap-", "ytindex-").removesuffix(".npy") if pm and writable else None
+                    if keep and os.path.exists(os.path.join(keep, ".complete")):
+                        try:
+                            ix = tv.Index(schema, path=keep, reuse=True)
+                            ix.register_tokenizer(name, an)
+                            ix.reload()
+                            self._yt_ix = (ix, an, ix.searcher())
+                            return self._yt_ix
+                        except Exception as e:  # noqa: BLE001 - a bad copy is rebuilt
+                            print(f"channel index: kept copy {keep} unusable ({type(e).__name__}), rebuilding", flush=True)
+                    if keep:                           # no marker = a build that did not finish: start over in the same folder
+                        shutil.rmtree(keep, ignore_errors=True)
+                        os.makedirs(keep)
+                    ix = tv.Index(schema, path=keep) if keep else tv.Index(schema)
                     ix.register_tokenizer(name, an)
                     w = ix.writer(heap_size=100_000_000, num_threads=1)
                     for d, handle, desc, wiki in self.db.execute("SELECT doc_id, handle, description, wiki FROM youtube").fetchall():
@@ -1058,6 +1166,11 @@ class ReleaseLookups:
                     w.commit()
                     w.wait_merging_threads()
                     ix.reload()
+                    if keep:                           # the marker last; the previous release's copy goes
+                        open(os.path.join(keep, ".complete"), "w").close()
+                        for old in os.listdir(os.path.dirname(keep) or "."):
+                            if old.startswith("ytindex-") and old != os.path.basename(keep):
+                                shutil.rmtree(os.path.join(os.path.dirname(keep) or ".", old), ignore_errors=True)
                     self._yt_ix = (ix, an, ix.searcher())
         return self._yt_ix
 
