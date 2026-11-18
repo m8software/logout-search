@@ -882,7 +882,10 @@ def first_run(port: int, data: str, *, wait=None, opener=None, link=None, pair=N
     site). Whatever happens the page is opened: a slow computer gets the hint and the page keeps looking."""
     import firstrun
     wait, opener = wait or firstrun.wait_first_run, opener or open_browser
-    link = link or (lambda: firstrun.link_test(engine_name()))
+    def _real_link():
+        load_peer()                                      # the link test imports aiortc, which imports PyAV: the bundle has the stand-in only (the first run on testbox waited 420 s for "No module named 'av'")
+        return firstrun.link_test(engine_name())
+    link = link or _real_link
     pair = pair or (lambda: pair_fragment(data))
     state = os.path.join(data, "state", "first-run.json")
 

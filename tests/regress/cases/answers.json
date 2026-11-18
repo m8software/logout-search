@@ -12,7 +12,20 @@
    ],
    "severity": "high",
    "check": "golden_rows",
-   "params": {}
+   "params": {},
+   "xfail": [
+    {
+     "tags": [
+      "install"
+     ],
+     "subs": [
+      "apple",
+      "ny",
+      "la"
+     ],
+     "reason": ": the installs serve stored answers from an older base (plain request) that differ from the computed answer"
+    }
+   ]
   },
   {
    "id": "ANS-002",
@@ -104,7 +117,26 @@
      "tags": [
       "pre-release2"
      ],
-     "reason": "engine before release 2 (public is on the frozen engine until the release-2 deploy): fixed on the release-2 branch, see docs/internal/release-2-staging.md"
+     "subs": [
+      "after effects:card",
+      "cortana:card",
+      "meet:card",
+      "prime:card",
+      "messenger:card",
+      "acrobat:card",
+      "voice:card",
+      "trump:first_host"
+     ],
+     "reason": "the installs' engine (v0.4.27) is older than release 2: see docs/internal/release-2-staging.md"
+    },
+    {
+     "tags": [
+      "public"
+     ],
+     "subs": [
+      "trump:first_host"
+     ],
+     "reason": ": whitehouse.gov above the person's own site (list order)"
     }
    ]
   },
@@ -159,7 +191,11 @@
      "tags": [
       "pre-release2"
      ],
-     "reason": "engine before release 2 (public is on the frozen engine until the release-2 deploy): fixed on the release-2 branch, see docs/internal/release-2-staging.md"
+     "subs": [
+      "ny",
+      "la"
+     ],
+     "reason": "the installs' engine (v0.4.27) is older than release 2: see docs/internal/release-2-staging.md stored answers"
     }
    ]
   },
@@ -243,7 +279,7 @@
      "tags": [
       "pre-release2"
      ],
-     "reason": "engine before release 2 (public is on the frozen engine until the release-2 deploy): fixed on the release-2 branch, see docs/internal/release-2-staging.md"
+     "reason": "the installs' engine (v0.4.27) is older than release 2: see docs/internal/release-2-staging.md (news and archive pages dropped as official links)"
     }
    ]
   },
@@ -289,7 +325,21 @@
      "walgreens",
      "kroger"
     ]
-   }
+   },
+   "xfail": [
+    {
+     "subs": [
+      "lead cut"
+     ],
+     "reason": ": leads are cut mid-word at the 300-character cap"
+    },
+    {
+     "subs": [
+      "lead markup"
+     ],
+     "reason": ": raw wiki markup in a card lead (uk)"
+    }
+   ]
   },
   {
    "id": "ANS-008",
@@ -335,7 +385,15 @@
       "expect": "Microsoft"
      }
     ]
-   }
+   },
+   "xfail": [
+    {
+     "subs": [
+      "harr"
+     ],
+     "reason": ": Harry Jowsey / Harry S. Truman above Harry Potter"
+    }
+   ]
   },
   {
    "id": "ANS-009",

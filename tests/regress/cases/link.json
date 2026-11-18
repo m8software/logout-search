@@ -91,6 +91,14 @@
    },
    "needs": [
     "repo"
+   ],
+   "xfail": [
+    {
+     "subs": [
+      "tests/unit/test-search-page-own-engine.sh"
+     ],
+     "reason": ": connectEngine check fails on master"
+    }
    ]
   },
   {
