@@ -22,6 +22,20 @@ Minimums:
 - **Processor:** 2 cores, 2015 or newer (Intel Core 6th generation, AMD Ryzen or Apple silicon)
 - **Storage:** 50 GB free, on an SSD
 
+## Other devices and pairing
+
+A phone or another computer uses your engine through the page at search.logout.cloud. On the same network the page
+finds the engine; tap **Pair** once and that device reaches it from any network.
+
+- The site only introduces the page to your engine (a rendezvous). Searches do not go to the site.
+- The page and the engine then talk over a WebRTC data channel, encrypted from one end to the other. A paired device
+  and the engine each prove they hold the pairing secret, so the rendezvous cannot put itself in the middle.
+- They connect directly when they can. When no direct path exists (the device is away from home, or the engine's
+  computer does not accept incoming connections, as with Windows Firewall's defaults), the encrypted stream passes
+  through a relay on our server. The relay carries it and cannot read it.
+
+The engine's side of this is `apps/search/serve/api/rtc_peer.py`.
+
 ## Quick start (from source)
 
 ```bash
