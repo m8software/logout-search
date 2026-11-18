@@ -1,6 +1,6 @@
 # Descriptive "find me a site/app of this kind" queries (2026-09-28 follow-up).
 # Hand-written, independent of every data source the kinds index is built from.
-# Odd lines (1st, 3rd, ...) = dev (tuning), even lines = test (held out). Judged by Jev's SITE noul.
+# Odd lines (1st, 3rd, ...) = dev (tuning), even lines = test (held out).
 free email service
 email provider with privacy
 online photo editor

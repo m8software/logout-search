@@ -3,7 +3,7 @@
 # arm.sh NAME BACKEND [FILE]  — (re)start the throwaway search-api for one T4 eval arm on 127.0.0.1:18097.
 #   BACKEND postgres | sqlite | release;  FILE = lookup file name in ~/t4 (sqlite) or release folder in ~/t4 (release)
 set -euo pipefail
-name=$1 backend=$2 file=${3:-lookup-jev.sqlite}
+name=$1 backend=$2 file=${3:-lookup-judged.sqlite}
 # Tantivy takes a lock file in the index directory even to read: the typo index is mounted
 # from a writable copy owned by uid 1000 (typo-rw-<tag>), the lookup file read-only.
 tag=${file#lookup-}; tag=${tag%.sqlite}

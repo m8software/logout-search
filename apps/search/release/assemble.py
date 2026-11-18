@@ -427,7 +427,7 @@ def build(a) -> dict:
                             "--no-reranker is for test fixtures only)")
     # rc5 W7: the release carries everything the engine reads. kinds.sqlite's vectors are useless without the model that
     # embeds the query (the match switched itself off, silently, on a box), and the ranker weights came from whatever
-    # image ran: rc4's acceptance image carried a ranker fitted on Jev labels, not the repo's.
+    # image ran, not the repo's.
     if a.kinds and not a.kinds_model_dir and not a.no_kinds_model:
         raise AssembleError("--kinds without --kinds-model-dir: the kinds meaning match needs bge-small-en-v1.5 in the release "
                             "(--no-kinds-model is for test fixtures only)")

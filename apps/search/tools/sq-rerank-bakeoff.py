@@ -47,7 +47,7 @@ SPEC: onnx:DIR[:FILE]   tokenizer.json + model_int8.onnx / model.onnx (or FILE, 
                         (a model that is not a sequence classifier, e.g. Qwen3-Reranker's yes/no logits).
       replay            the dump's own rounded `ce` scores (checks the mirror, no model).
 
-Selection split (docs/internal/search-jev/14-reranker-bakeoff-plan.md): the labels v2 are drawn from the
+Selection split (internal reranker bake-off plan): the labels v2 are drawn from the
 dev-half queries, so a model trained on them has seen the dev halves. held_out() puts one third of the dev rows
 aside, by entity (else by the query's key) and a fixed seed; `holdout` writes those queries for the trainer to
 leave out, and `table --rows select` scores on them alone. A zero-shot model can be scored on --rows all.

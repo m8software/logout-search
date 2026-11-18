@@ -1,12 +1,10 @@
-"""The open kinds build (ADR-065, 2026-10-01): kinds of site without Jev, Tranco or WDC.
+"""The open kinds build: kinds of site from open sources only, without Tranco or WDC.
 
     search_import.py kinds-build --open [--import DIR]   every source, then this step
     search_import.py kinds-open                          this step alone, over an existing site_kinds_new
 
-The old build kept each category-like phrase by an offline Jev verdict, judged each kind's
-best-known members with Jev, ordered them by a Jev "first choice" verdict, and added Jev-approved
-(site, kind) pairs from homepages (`jevhome`). None of that may ship. This step replaces each one
-with evidence the sources themselves carry, so anyone with the same dumps gets the same tables.
+Each step works from evidence the sources themselves carry, so anyone with the same dumps gets
+the same tables.
 
 Sources and families. A family is one independent editorial effort; two rows from one family
 are one vote, however many `source` strings they come under:
@@ -17,17 +15,17 @@ are one vote, however many `source` strings they come under:
     awesome     permissively licensed awesome lists                                    per list (CC0/MIT/CC BY)
     ut1         Université Toulouse 1 blacklist categories (not the unsafe lists)      CC BY-SA 4.0
     homebrew / flathub / debian / publicapis — each its own family                     BSD-2 / facts / facts / MIT
-Left out: jevhome (Jev), wdcplace (Web Data Commons, D3), anchor (Common Crawl anchor text) and
+Left out: judgedhome (homepage pairs), wdcplace (Web Data Commons, D3), anchor (Common Crawl anchor text) and
 appmeta (homepage schema.org types) — the last two are Common Crawl ToU material, not on the
 open-source list in docs/legal/SEARCH-DATA-LICENSES.md.
 
-1. Kind names (replaces the Jev phrase filter). Serving matches normalised kind names
+1. Kind names. Serving matches normalised kind names
    (kinds.kind_key), so the filter works on keys, not raw phrases. A key is kept when
        it passes the junk rules (junk_reason), and
        KEY_MIN_SITES <= sites naming it <= KEY_MAX_SITES, and
        (a Wikidata class that >= WD_CLASS_MIN sites are directly an instance/use/genre of)
        or (>= FAMILY_MIN independent families name it).
-2. Members (replaces the Jev member verdicts): conf in [0, 1] per (kind, site), from
+2. Members: conf in [0, 1] per (kind, site), from
        direct Wikidata statement P31/P136 to a class with that name — the strongest (P366 use is a
        full vote but not direct: v1 lifted chatgpt.com for "language learning app");
        votes = families naming the pair, where a Wikidata vote that is only P452 industry /
@@ -36,14 +34,13 @@ open-source list in docs/legal/SEARCH-DATA-LICENSES.md.
        found microsoft.com in "budgeting app" and deloitte.com in "accounting software"
        exactly that way.
    conf >= LIFT_CONF is what serving may lift above the article (search_api KIND_LIFT_CONF).
-3. Lead order (replaces the Jev "first choice" verdict): lead in [0, 1], how central the kind
+3. Lead order: lead in [0, 1], how central the kind
    is to the site — 0.5 when it is the site's own Wikidata class (P31/P136), 0.3 when the
    site's Wikipedia first sentence names it, 0.2 x agreement of further families. Popularity
    (Common Crawl host rank, Wikidata sitelinks, Wikipedia pageviews — no Tranco) is added at
    serving time (search_api KIND_POP_OPEN).
 
-Thresholds are written down with their reasons next to each constant, and the audit
-(docs/internal/audits/2026-10-01-kinds-nojev.md) records what each one removed.
+Thresholds are written down with their reasons next to each constant.
 """
 
 from __future__ import annotations
@@ -78,7 +75,7 @@ LIFT_CONF = 0.7       # serving lifts members at or above this (search_api KIND_
 
 # Wikidata trees whose classes name things that HAVE websites but are not kinds of website people
 # search for: a query "film", "university" or "united states" wants the article, not three random
-# official sites (the old Jev phrase filter dropped these). A key is dropped when every class of
+# official sites. A key is dropped when every class of
 # that name is under a NOT_SITE root and not under a SITE root (website / software / online service /
 # app / mass media — "video game" is a creative work AND software, so it stays). From
 # `search_import.py kinds-roots` (kw_class_roots, CC0).
@@ -238,7 +235,7 @@ CREATE INDEX ON site_kinds (domain);
 ANALYZE site_kinds;
 """
 # kind_docs as in kinds.KIND_DOCS_SQL, with tranco_rank always NULL (D2: Tranco does not ship; the
-# column stays so older search-api builds read the table) and no Jev keep list.
+# column stays so older search-api builds read the table).
 KIND_DOCS_SQL = """
 DROP TABLE IF EXISTS kind_docs_new;
 CREATE TABLE kind_docs_new AS

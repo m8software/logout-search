@@ -1,8 +1,8 @@
 """Build lookup.sqlite from the serving Postgres (T4, SEARCH-HOME-ENGINE-PLAN.md).
 
-  python export.py OUT.sqlite [GROUPS] [--no-jev]
+  python export.py OUT.sqlite [GROUPS] [--open]
       GROUPS: comma list of places,suggest,wiki,nav,kinds,misc (default: all). Read-only on PGHOST.
-      --no-jev: the shippable file (ADR-065): no kinds tier, only UT1's junk-filter rows.
+      --open: the shippable file (ADR-065): no kinds tier, only UT1's junk-filter rows.
       Also writes OUT.typo-keys/ (Tantivy index of the suggestion keys) beside OUT.
 
 Everything search_api does as an exact / structured lookup (serve/api/lookups_sqlite.py reads it):
@@ -15,11 +15,11 @@ Everything search_api does as an exact / structured lookup (serve/api/lookups_sq
   nav          nav_sites, host_nav, serve_sites, docs_meta (homepages: url/title/description)
                + label_trgm / label_sub (FTS5), site_junk (domain, source)
   kinds        kind_keys + kind_key_words, kind_members, kind_docs (no search_text), kind_vecs
-               — ALL Jev-derived (ADR-065): left out by --no-jev
+               — ALL legacy (ADR-065): left out by --open
   misc         stock_keys, stock_tickers (+ tord), subreddits, youtube_channels (lookup columns)
 
-Jev-derived (ADR-065), never in the shipped file: every kinds table; site_quality rows whose
-source is "jev" (only "ut1" / "jev+ut1" — flagged by UT1's lists — are kept by --no-jev).
+Legacy (ADR-065), never in the shipped file: every kinds table; site_quality rows whose
+source is "jev" (only "ut1" / "jev+ut1" — flagged by UT1's lists — are kept by --open).
 tord / vord = the row's rank in Postgres's en_US order, for ORDER BY on text.
 Ids are stable from month to month: places.id = cell << 20 | seq (0.5-degree grid square,
 seq in osm order at first build). Exports are ORDER BY'd so two builds of the same data are
@@ -32,11 +32,10 @@ import trgm
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
 OUT = ARGS[0]
 GROUPS = set((ARGS[1] if len(ARGS) > 1 else "places,suggest,wiki,nav,kinds,misc").split(","))
-# ADR-065: the shipped file holds no Jev-derived data. --no-jev leaves out the whole kinds tier
-# (kind_docs phrases were Jev-filtered; kind_keys / kind_members / kind_vecs derive from it)
-# and keeps only the junk-filter rows UT1's lists flag (source ut1 or jev+ut1), not Jev's.
-NO_JEV = "--no-jev" in sys.argv
-if NO_JEV:
+# --open (ADR-065) leaves out the whole kinds tier (kind_keys / kind_members / kind_vecs derive from
+# kind_docs) and keeps only the junk-filter rows UT1's lists flag (source ut1 or jev+ut1).
+NO_JUDGE = "--open" in sys.argv
+if NO_JUDGE:
     GROUPS.discard("kinds")
 TYPO_DIR = os.path.join(os.path.dirname(os.path.abspath(OUT)), os.path.basename(OUT).rsplit(".", 1)[0] + ".typo-keys")
 T0 = time.time()
@@ -275,9 +274,9 @@ if "nav" in GROUPS:
     db.commit()
     log(f"label_trgm, label_sub: {len(lab)} labels")
     if "site_quality" in HAS:
-        # source: jev | ut1 | jev+ut1 (importer/junk.py). Jev's verdicts never ship (ADR-065).
+        # source: jev | ut1 | jev+ut1 (importer/junk.py); only the ut1 rows ship (ADR-065).
         copy("site_junk", "CREATE TABLE site_junk (domain TEXT PRIMARY KEY, source TEXT) WITHOUT ROWID",
-             "SELECT domain, source FROM site_quality WHERE junk" + (" AND source IN ('ut1', 'jev+ut1')" if NO_JEV else "")
+             "SELECT domain, source FROM site_quality WHERE junk" + (" AND source IN ('ut1', 'jev+ut1')" if NO_JUDGE else "")
              + " ORDER BY domain COLLATE \"C\"", 2)
 
 # ---------------------------------------------------------------- kinds

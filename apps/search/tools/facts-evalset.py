@@ -3,7 +3,7 @@
 
     tools/facts-evalset.py FACTS.sqlite REGISTRY.sqlite SIGNALS.bin [--out tools/evalsets/open/facts.tsv] [--per 12]
 
-Built like the other open sets (open-evalsets.py / head-brand-evalset.py): no Jev, no LLM, no browsing history.
+Built like the other open sets (open-evalsets.py / head-brand-evalset.py): no LLM, no browsing history.
 Every row is one template of the table in facts.sqlite filled with one article's title (the bare title, no
 "(film)" qualifier) whose Wikidata value for that property is on file; the expected answer is "<title>|<value>"
 (the value as the build stored it: ISO date, decimal amount + unit, item label). Entities are the head of each

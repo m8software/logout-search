@@ -279,7 +279,7 @@ def _templates(rows) -> dict:
 
 # The universe, one statement per source. Same rules as the lookup builder's staged universe
 # (registry_idents.py documents the ident of each type); every statement goes through
-# export.check_sql_one, so no refused table, no history, no Jev column, no subreddit, no WDC.
+# export.check_sql_one, so no refused table, no history, no legacy column, no subreddit, no WDC.
 SITE_SQL = """
 SELECT DISTINCT ON (host COLLATE "C") host, title, url FROM (
     SELECT domain AS host, title, url, 0 AS pr, fetched_at, crawl FROM docs WHERE error IS NULL AND domain NOT IN (__OUT__)
@@ -1431,7 +1431,7 @@ _PAGE_WORDS = ("(SELECT coalesce(string_agg(w, ' ' ORDER BY w COLLATE \"C\"), ''
 # One statement per index; column 0 is the ident (host / url / host), the rest are web_input.py's columns for
 # that KIND (its docstring is the contract). One row per ident: the latest crawl, the registry's own tie-break
 # (SITE_SQL / PAGE_SQL). Every statement goes through export.check_sql_one (block list on anchor_docs, no refused
-# table, no history, no Jev column).
+# table, no history, no legacy column).
 WEB_INPUT_SQL = {
     "sites": ("SELECT DISTINCT ON (d.domain COLLATE \"C\") d.domain, "
               "regexp_replace(d.domain, '[.-]+', ' ', 'g') || ' ' || coalesce(d.title, '') || ' ' || coalesce(d.h1, ''), "

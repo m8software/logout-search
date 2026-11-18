@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LEGACY, Postgres-bound (SEARCH-POSTGRES-EXIT.md phase 3): it stages from Postgres (stage-rel1.sqlite) and runs the Postgres arm. Delete at phase 7.
 # eval2.sh — build the release-format lookup folder (build.py) and run arm D (release backend)
-# against the same queries as eval.sh's arms (A postgres, C sqlite without Jev data).
+# against the same queries as eval.sh's arms (A postgres, C sqlite without the legacy data).
 set -uo pipefail   # -e off on purpose: a failed step is logged and the rest still runs
 cd ~/t4 || exit 1
 say() { echo "== $(date -u +%T) $*"; }

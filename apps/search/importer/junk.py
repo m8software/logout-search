@@ -1,6 +1,6 @@
 """The junk filter's table (search-api drop_junk, 2026-09-30): site_quality, from two sources.
 
-  jev   Jev's homepage judgements (utility/search-site-quality.py, 283k sites; private file
+  jev   legacy homepage scores (utility/search-site-quality.py, 283k sites; private file
         site_quality.sql): junk = the conservative v4 rule already in that file
         (unsafe >= 0.85 and useful <= 0.6 on a titled capture; top 2,000 exempt below 0.95).
   ut1   UT1's unsafe lists (Université Toulouse Capitole, CC BY-SA 4.0; site-directories2.sh
@@ -52,7 +52,7 @@ def cmd_junk_load(conn, quality: str | None, ut1: str | None) -> None:
                         seen.add(p[0])
                         cp.write_row((p[0], p[1], p[2], p[3], p[4], p[5] == "t", "jev"))
                         n += 1
-        log(f"jev: {n} homepage verdicts from {quality}")
+        log(f"jev: {n} legacy homepage rows from {quality}")
     if ut1 and os.path.exists(ut1):
         conn.execute("DROP TABLE IF EXISTS junk_ut1")
         conn.execute("CREATE TABLE junk_ut1 (domain text, category text)")

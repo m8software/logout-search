@@ -1,6 +1,6 @@
 #!/bin/bash
 # rc9 (2026-10-20): the rc8 script of the same name with rc8 -> rc9 and rc7 -> rc8 (rc8 is --previous). Inputs stay in rc5in; places release 2026-10-10-us as rc8. rc9 = rc8 code (branch rc9-build) on the refreshed build tables: Gutenberg links, open dumps + Stack Exchange pages (profiled: words only), full-crawl anchors, YouTube followers.
-#   5.1 kinds.sqlite from the judged open-tier dump (no Jev in it), kind-name vectors from bge-small-en-v1.5, built twice
+#   5.1 kinds.sqlite from the open-tier dump, kind-name vectors from bge-small-en-v1.5, built twice
 #   5.2 the three web text indexes (sites, pages, anchors) from step 3's web-input rows, analyzer en_pg2
 # Needs steps 1 and 3 (registry, web-input). Reads no Postgres. Output: rc9-web/kinds.sqlite, rc9-web/text/sites/{sites,pages,anchors}.
 set -eo pipefail

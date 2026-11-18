@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Regression check on the open answer-known sets: ask one search-api, score hit@1/@5.
 
-    tools/kinds-nojev-open.py --api URL --arm NAME --out DIR SET.tsv [SET.tsv ...]
-    tools/kinds-nojev-open.py --report DIR --arms off,old,new2
+    tools/kinds-open-sets.py --api URL --arm NAME --out DIR SET.tsv [SET.tsv ...]
+    tools/kinds-open-sets.py --report DIR --arms off,old,new2
 
 SET.tsv: tools/evalsets/open format (query, category, expected, set, stratum, split, entity).
 Per-arm answers go to DIR/open-<arm>.json; --report prints one table per set plus paired

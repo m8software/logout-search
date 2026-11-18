@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Maker-product eval set ("keep" showed no Google Keep): a maker's product or service asked by its
-bare word, without the maker. No Tranco, no Jev, no database: Wikidata (CC0) through QLever and Wikipedia pageviews
+bare word, without the maker. No Tranco, no database: Wikidata (CC0) through QLever and Wikipedia pageviews
 (CC0) through the Wikimedia REST API, as head-brand-evalset.py (whose helpers this reads).
 
     tools/maker-product-evalset.py [--out tools/evalsets/open] [--n 400] [--month 2026-09]

@@ -3,8 +3,8 @@
 
     release_v1.py kinds REGISTRY OUT.sqlite RELEASE_ID DUMP.sql.gz [--vecs kind-vecs.tsv] [--embed MODEL_DIR]
 
-Input is the judged open-tier tables as a pg_dump plain-format text dump (kinds_judge, kind_members,
-kind_docs, kinds_open_rows; Postgres is not needed to read it). Nothing from Jev may be in it: this
+Input is the open-tier tables as a pg_dump plain-format text dump (kinds_judge, kind_members,
+kind_docs, kinds_open_rows; Postgres is not needed to read it). No legacy column may be in it: this
 module reads no column named jev, builds none, and `release_v1.sqlguard_file` refuses the file if one
 appears (kinds_guard below).
 
@@ -275,9 +275,9 @@ _FTS_SHADOW = re.compile(r"^kind_docs_fts_(data|idx|docsize|config|content)$")
 
 def kinds_guard(db) -> list:
     """Problems of a file whose meta.role is `kinds`: only the named tables and columns of the open tier. Any
-    other table (kind_site_vec, kinds_member_jev, kinds_judge, kinds_open_rows, ...) or column (jev, a Jev `lead` on a
+    other table (kind_site_vec, kinds_member_judged, kinds_judge, kinds_open_rows, ...) or column (jev, a legacy `lead` on a
     kind_members without `conf`, tranco_rank, url/title/descr/search_text) is refused by name; an unknown one is refused
-    because it is unknown. The open `lead` is told from Jev's by the sibling `conf` column (same table)."""
+    because it is unknown. The open `lead` is told from the legacy one by the sibling `conf` column (same table)."""
     problems = []
     tables = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type IN ('table', 'view')")]
     for t in tables:
@@ -288,12 +288,12 @@ def kinds_guard(db) -> list:
         cols = {r[1] for r in db.execute(f'PRAGMA table_info("{t}")')}
         for c in cols:
             if "jev" in c.lower() or "jev" in t.lower():
-                problems.append(f"column {t}.{c} (Jev-derived, ADR-064/065)")
+                problems.append(f"column {t}.{c} (legacy column, ADR-064/065)")
         want = KINDS_COLUMNS.get(t)
         if want is not None and cols != want:
             problems.append(f"{t} columns {sorted(cols ^ want)} differ from the open tier's")
         if t == "kind_members" and "conf" not in cols and "lead" in cols:
-            problems.append("kind_members.lead without conf (the Jev-built layout)")
+            problems.append("kind_members.lead without conf (the legacy layout)")
     return problems
 
 

@@ -26,7 +26,7 @@ if [ ! -f "$R/models/bge-small-en-v1.5/model.onnx" ]; then
     sudo -n docker cp "$c:/models/bge-small-en-v1.5" "$R/models/bge-small-en-v1.5"; docker rm "$c" >/dev/null
 fi
 echo "$BGE_SHA  $R/models/bge-small-en-v1.5/model.onnx" | sha256sum -c -
-# the ranker weights are the repo's (fitted without Jev labels), never an image's: rc8's acceptance image held another file
+# the ranker weights are the repo's (from the repo), never an image's: rc8's acceptance image held another file
 echo "ranker.json: $(sha256sum "$P/code/apps/search/serve/api/ranker.json")"
 # the Wikipedia text index: same articles and ids as rc8, so rc8's folder with this release's stamp
 if [ ! -d "$P/text/wiki" ]; then

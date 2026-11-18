@@ -2,7 +2,7 @@
 
 search-api answers them with links only — a live quote page, the company's own site and its SEC
 filings — never a price we fetch or pass on (exchange data licences; see
-docs/internal/search-jev/12-stock-queries.md and ADR-061). These tables say which company a
+the internal stock-queries note and ADR-061). These tables say which company a
 query names:
 
   stock_tickers  ticker, exchange, name, cik, qid, label, site, sitelinks — one row per ticker

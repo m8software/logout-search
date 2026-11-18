@@ -7,7 +7,7 @@
 --release reads a release folder: suggest_keys in lookup.sqlite + the pop / demand arrays of signals.bin
 (SEARCH-POSTGRES-EXIT.md phase 3). Same keys, same max, same log scale as the SQL below.
 
-QUERIES.tsv: query <TAB> kind (the Jev eval set). OUT.tsv: query <TAB> kind <TAB> pop.
+QUERIES.tsv: query <TAB> kind (a judged eval set). OUT.tsv: query <TAB> kind <TAB> pop.
 
 pop is suggest_items.pop — the 0..1 popularity autocomplete already ranks by (Wikidata
 sitelinks + Wikipedia pageviews for articles, Tranco rank for sites; log-scaled, so a few

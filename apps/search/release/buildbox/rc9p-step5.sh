@@ -1,6 +1,6 @@
 #!/bin/bash
 # rc9p (2026-10-23): rc9 corrected for publishing (audit 2026-10-22 G1-G6 + Stack Exchange credits), --previous rc9. Same inputs as rc9; places release 2026-10-23-us (rc9's, re-read with Overture's provider names).
-#   5.1 kinds.sqlite from the judged open-tier dump (no Jev in it), kind-name vectors from bge-small-en-v1.5, built twice
+#   5.1 kinds.sqlite from the open-tier dump, kind-name vectors from bge-small-en-v1.5, built twice
 #   5.2 the three web text indexes (sites, pages, anchors) from step 3's web-input rows, analyzer en_pg2
 # Needs steps 1 and 3 (registry, web-input). Reads no Postgres. Output: rc9p-web/kinds.sqlite, rc9p-web/text/sites/{sites,pages,anchors}.
 set -eo pipefail

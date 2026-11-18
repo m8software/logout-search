@@ -1,9 +1,9 @@
 # Open answer-known eval sets
 
-These are labelled query sets built only from open data. They use no Jev, no LLM judging and no browsing
+These are labelled query sets built only from open data. They use no LLM judging and no browsing
 history (ADR-064/065). Each label is a fact that an open dataset already states. The sets are public
 and reproducible, so they can live in git. They serve as evaluation sets now and as training labels for
-the non-Jev reranker and intent models later.
+the reranker and intent models later.
 
 To regenerate, run `tools/open-evalsets.py --host deploy`. It reads testbox's serving database read-only
 and makes one QLever request, which is cached in `~/.cache/logout/p856-enwiki.tsv`. Sampling is
@@ -177,11 +177,11 @@ Workers AI is the query, the result's title, its URL and its kind — never a sn
 
 **Why it replaces info-v1.** info-v1 (183 queries, `utility/ce-train/yardstick_eval.py --info info-v1`) was judged
 by Clef 27B, and Clef 27B also labelled 25,140 of the reranker's training pairs
-(`docs/internal/search-jev/13-jev-free-rerankers.md`), so a gain on it can be the model learning the judge.
+so a gain on it can be the model learning the judge.
 judged-info is the yardstick now (`--info judged-info`, the default); info-v1 stays for continuity, labelled contaminated.
 
 **Unlike every set above, this one has no answer from the data**: `expected` is `-` and `category` is `judged`.
-The queries are open and written by fixed templates (no LLM writes a query, no Jev, no history); the verdicts on
+The queries are open and written by fixed templates (no LLM writes a query, no history); the verdicts on
 one engine's top-5 are an LLM judge's, frozen in `judged-info.verdicts.tsv`. It is not a training-label source.
 
 Built by `tools/judged-info-evalset.py --gov <gov-services.tsv>` (QLever + the pageview API through head-brand's
@@ -496,7 +496,7 @@ the engine serves. They measure ranking and fusion around known lookups, and reg
 infobox) and the typo sets are the least circular.
 
 **Not used.** Strata use only `suggest_items.pop` and Wikidata sitelinks. History-derived columns
-(`suggest_items.hist/demand`, `*history_visits`, `serve_sites`) and Jev-derived columns
+(`suggest_items.hist/demand`, `*history_visits`, `serve_sites`) and the legacy columns
 (`site_quality`, `kind_members`) are never read.
 
 **Not built (yet).** The optional "kind" set: Wikidata P31 classes → members, graded and lower

@@ -496,7 +496,7 @@ def cmd_vectors(out: str) -> None:
                 sys.exit(f"wiki_bit spot check failed at id {pid}")
             checked += 1
     parts["wiki_bit"]["spot_checked"] = checked
-    # kind_vecs / kind_site_vec are NOT exported: the kinds tier is Jev-filtered (ADR-065).
+    # kind_vecs / kind_site_vec are NOT exported: the legacy kinds tier is refused (ADR-065).
     report("vectors", t0, path=out, parts=parts, bytes=tree_bytes(out))
 
 
@@ -504,8 +504,8 @@ def cmd_vectors(out: str) -> None:
 
 # Every lookup file: table -> SELECT. One file per licence (G3 D5); the tag each file gets
 # in the manifest is LICENCES below. Never selected: browsing history (history_visits, hist),
-# anything Jev produced or filtered (ADR-065: the whole kinds tier, site_quality's Jev rows
-# and probabilities, d2q_docs), WDC listings or anything derived only from them (D3), the
+# the legacy tables (ADR-065: the whole kinds tier, site_quality's legacy rows
+# and scores, d2q_docs), WDC listings or anything derived only from them (D3), the
 # build-only tables (D10). Data only, no secondary indexes: T4 designs those.
 LEAD_CHARS = int(os.environ.get("LEAD_CHARS", 1000))     # cards never show more
 LOOKUP_FILES = {
@@ -532,7 +532,7 @@ LOOKUP_FILES = {
     "lookup-phrases.sqlite": {
         "suggest_phrases": "SELECT prefix, phrases, counts FROM suggest_phrases",
     },
-    # UT1 unsafe lists only (CC BY-SA 4.0): the junk filter without Jev's verdicts (ADR-065).
+    # UT1 unsafe lists only (CC BY-SA 4.0): the junk filter from UT1 rows only (ADR-065).
     "lookup-unsafe-ut1.sqlite": {
         "site_unsafe": "SELECT domain, category FROM site_quality WHERE source IN ('ut1', 'jev+ut1')",
     },
@@ -561,7 +561,7 @@ LICENCES = {
     "lookup-phrases.sqlite": "CDLA-Permissive-2.0 (AmazonQAC)",
     "lookup-unsafe-ut1.sqlite": "CC-BY-SA-4.0 (UT1, Universite Toulouse Capitole)",
     "kinds.sqlite": "CC-BY-SA-4.0 (combined kind-label set: Wikidata CC0, Wikipedia categories/lists CC BY-SA, UT1 CC BY-SA, DMOZ CC BY 3.0, "
-                    "Homebrew BSD-2, public-apis MIT, awesome lists per list, Flathub/Debian facts); no Jev, no Tranco, no page text (D2, release_v1.py kinds)",
+                    "Homebrew BSD-2, public-apis MIT, awesome lists per list, Flathub/Debian facts); no Tranco, no page text (D2, release_v1.py kinds)",
     "lookup-sites.sqlite": "CC0-1.0 (M8 Software's own layer); third-party titles/descriptions and Tranco/Common Crawl ranks inside (G3 D2/D4)",
     "text/wiki": "CC-BY-SA-4.0 (Wikipedia)",
     "text/sites": "CC0-1.0 (M8 Software's own layer); third-party titles/descriptions and Common Crawl anchor phrases inside (G3 D4/D9)",
@@ -569,17 +569,17 @@ LICENCES = {
     "english.stop": "PostgreSQL",
 }
 # Never named by any export SQL: build-only tables (D10), subreddits, and everything
-# Jev produced or filtered (ADR-065) — the old kinds tier is built from Jev-kept phrases. The OPEN kinds tier ships as
-# kinds.sqlite from kinds_build.py (D2): it is read from the judged open-build dump, never from these Postgres tables.
+# the legacy tables (ADR-065). The open kinds tier ships as
+# kinds.sqlite from kinds_build.py (D2): it is read from the open-build dump, never from these Postgres tables.
 FORBIDDEN_TABLES = {"site_meta", "site_inlinks", "kw_country", "wiki_pop", "subreddits",
                     "kind_docs", "kind_members", "kind_keys", "kind_vecs", "kind_site_vec", "site_kinds",
-                    "kinds_phrase_keep", "kinds_phrase_keys", "kinds_member_jev", "d2q_docs"}
+                    "kinds_phrase_keep", "kinds_phrase_keys", "kinds_member_judged", "d2q_docs"}
 # Tables that mix in rows that must not ship, and the filter their export SQL must carry.
 REQUIRED_FILTERS = {"suggest_items": "kind <> 'subreddit'", "suggest_keys": "kind <> 'subreddit'",
                     "places": "osm NOT LIKE 'wdc:%'",
                     "site_quality": "source IN ('ut1', 'jev+ut1')",
                     "anchors": BLOCK_SQL, "anchor_docs": BLOCK_SQL}
-# Columns never selected, not even banded: browsing history anywhere, Jev scores (ADR-065).
+# Columns never selected, not even banded: browsing history anywhere, legacy scores (ADR-065).
 FORBIDDEN_COLUMNS = {"*": {"history_visits", "hist"},
                      "site_quality": {"useful", "parked", "spam", "unsafe", "junk", "source"}}
 
@@ -587,7 +587,7 @@ FORBIDDEN_COLUMNS = {"*": {"history_visits", "hist"},
 def check_sql_one(q: str, allow_tables: tuple = ()) -> None:
     """One statement against the release rules: no refused table (except `allow_tables`, which a
     caller names for one statement, with its reason), every required filter present, no forbidden
-    column selected (in any form: no bands of Jev scores either, ADR-065)."""
+    column selected (in any form: no bands of legacy scores either, ADR-065)."""
     import re
     low = re.sub(r"'[^']*'", "''", q.lower())
     bad = (FORBIDDEN_TABLES - set(allow_tables)) & set(re.findall(r"[a-z0-9_]+", low))
@@ -760,10 +760,10 @@ def cmd_removed(out: str) -> None:
                        ("site_quality", "junk")):
             r = one(f"SELECT count({col}), coalesce(sum(pg_column_size({col})), 0) FROM {t}")
             cols[f"{t}.{col}"] = {"non_null": r[0], "bytes": r[1]}
-        res["jev_columns"] = cols
+        res["judged_columns"] = cols
         r = one("SELECT count(*) FILTER (WHERE source IN ('ut1', 'jev+ut1')), count(*) FILTER (WHERE source = 'jev'), "
                 "count(*) FILTER (WHERE source = 'jev+ut1'), count(*) FROM site_quality")
-        res["site_quality_rows"] = {"ut1_kept": r[0], "jev_only_dropped": r[1], "jev_plus_ut1_kept_as_ut1": r[2], "all": r[3]}
+        res["site_quality_rows"] = {"ut1_kept": r[0], "judged_only_dropped": r[1], "judged_plus_ut1_kept_as_ut1": r[2], "all": r[3]}
         r = one("SELECT count(*), coalesce(sum(pg_column_size(places.*)), 0) FROM places WHERE osm LIKE 'wdc:%'")
         res["wdc_places"] = {"rows": r[0], "row_bytes": r[1]}
         r = one("SELECT count(*), coalesce(sum(pg_column_size(suggest_items.*)), 0) FROM suggest_items WHERE kind = 'subreddit'")
@@ -876,7 +876,7 @@ def cmd_manifest(rel: str, release_id: str, stopfile: str, keyfile: str) -> None
                        "sqlite_meta": "role, format, built_release", "tantivy_sidecar": "release.json",
                        "signals_header": "LOSIGNL1 + JSON (format, built_release, fields)"},
             "refused": {"tables": sorted(FORBIDDEN_TABLES), "columns": {k: sorted(v) for k, v in FORBIDDEN_COLUMNS.items()},
-                        "rules": ["ADR-059 page text", "ADR-065 Jev", " subreddits", "G3 D3 WDC", "G3 D10 build-only",
+                        "rules": ["ADR-059 page text", "ADR-065 legacy tables", " subreddits", "G3 D3 WDC", "G3 D10 build-only",
                                   "G3 D9 anchor block list"]},
         },
         "files": files,

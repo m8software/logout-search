@@ -11,7 +11,7 @@ Registry): nothing about the file layout is re-implemented here. No psycopg, no 
 
 Every function returns what the Postgres query it replaces returned (same column order, same population);
 the sampling ones draw with the caller's random.Random instead of ORDER BY random(), so the same seed gives the
-same sample on the same release. Things a release never ships (subreddits, page text ADR-059, the Jev
+same sample on the same release. Things a release never ships (subreddits, page text ADR-059, the legacy
 kinds tier ADR-065) have no function here: the tool says so and skips that kind.
 """
 from __future__ import annotations

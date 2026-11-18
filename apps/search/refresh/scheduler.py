@@ -1,7 +1,7 @@
 """search-refresh — runs the refresh jobs in sources.py on their schedule.
 
 A job starts only when ALL of these hold (freshness.may_start):
-  - it is not retired (ADR-065: the Jev-fed sources never run again)
+  - it is not retired (retired sources never run)
   - refresh.json "enabled": true                      (master switch, default false)
   - refresh.json "jobs": {"<source>": true}           (per job, default false)
   - refresh.json "approved": {"<source>": true}       (only for jobs that spend money or risk a

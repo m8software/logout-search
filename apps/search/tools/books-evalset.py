@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Book eval sets for Project Gutenberg links (ADR-064/065): no Jev, no LLM, no judge for the exact-answer set.
+"""Book eval sets for Project Gutenberg links (ADR-064/065): no LLM, no judge for the exact-answer set.
 
     tools/books-evalset.py [--ssh indexhost] [--out tools/evalsets/open] [--per 120] [--judged-n 200]
 

@@ -13,20 +13,16 @@ Sources, each row keeping its `source` so any one can be dropped for licensing:
   awesome    section headings of permissively licensed awesome lists (CC0/MIT/CC BY …).
 Category-like phrases are noisy ("Companies based in Seattle", "2005 establishments").
 
-The OPEN build (`--open`, 2026-10-01, ADR-065 — the one that may ship) keeps or drops them with
+The open build (`--open`) keeps or drops them with
 rules over the sources themselves (kinds_open.py): a kind name is kept when it is a Wikidata class
 that enough sites with an official website are an instance of, or when two independent source
 families name it, and it passes the junk rules. Members get a confidence from the same open
-evidence, and the lead order from open popularity. No Jev, no Tranco, no WDC, no Common Crawl
+evidence, and the lead order from open popularity. No Tranco, no WDC, no Common Crawl
 anchor text or homepage schema types.
-
-The OLD build (`--phrases FILE`, history only) kept each phrase by an offline Jev verdict
-(the deleted utility/search-kind-phrases.py) — none of its output may ship (ADR-065).
 
     search_import.py kinds-wikidata              -> kw_items, kw_edges, kw_classes
     search_import.py kinds-build --open [--import DIR]
                                                  -> site_kinds, kind_docs (+ BM25), kind_members, kind_keys
-    search_import.py kinds-build [--import DIR] [--phrases FILE]     (old, Jev)
 """
 
 from __future__ import annotations
@@ -266,11 +262,11 @@ DELETE FROM site_kinds_new k WHERE NOT EXISTS (SELECT 1 FROM kinds_domains d WHE
 ANALYZE site_kinds_new;
 """
 
-# The phrases Jev kept (the deleted utility/search-kind-phrases.py; history): source, phrase, p(kind of site)
+# Legacy kept-phrase table: source, phrase, p(kind of site)
 KEEP_MIN = 0.5
 
 KIND_DOCS_SQL = """
-DELETE FROM site_kinds_new k WHERE k.source NOT IN ('jevhome') AND NOT EXISTS
+DELETE FROM site_kinds_new k WHERE k.source NOT IN ('judgedhome') AND NOT EXISTS
   (SELECT 1 FROM kinds_phrase_keep p WHERE p.source = k.source AND p.phrase = k.phrase AND p.p >= %(keep)s);
 DROP TABLE IF EXISTS site_kinds;
 ALTER TABLE site_kinds_new RENAME TO site_kinds;
@@ -350,11 +346,10 @@ SELECT key, string_to_array(key, ' ') AS words, count(*)::int AS n FROM kind_mem
 CREATE UNIQUE INDEX ON kind_keys (key);
 CREATE INDEX kind_keys_words ON kind_keys USING gin (words);
 """
-# Jev's verdict per (kind, site) for each kind's best-known members
-# (the deleted utility/search-kind-members.py; history): ranking puts judged-good sites first.
-MEMBER_JEV_SQL = """
+# Legacy per-(kind, site) score column on kind_members (not filled by the open build).
+MEMBER_JUDGED_SQL = """
 ALTER TABLE kind_members ADD COLUMN jev real;
-UPDATE kind_members m SET jev = j.p FROM kinds_member_jev j WHERE j.key = m.key AND j.domain = m.domain;
+UPDATE kind_members m SET jev = j.p FROM kinds_member_judged j WHERE j.key = m.key AND j.domain = m.domain;
 """
 
 
@@ -383,8 +378,8 @@ def _load_tsv(conn, table: str, cols: str, path: str) -> int:
 # source for licensing is deleting its file and rebuilding. `*-unsafe.*` files (UT1's
 # adult / malware lists) are for a junk filter, never kinds. wikiinfobox-raw.tsv.gz is
 # title-keyed (article, infobox, field, value) and joins through the owner like categories.
-# jevhome.tsv.gz (utility/search-kind-homepages.py) holds (site, kind name) pairs Jev already
-# approved from the homepage itself, so the phrase filter does not apply to it.
+# judgedhome.tsv.gz (utility/search-kind-homepages.py) holds (site, kind name) pairs read from the
+# homepage itself, so the phrase filter does not apply to it.
 EXTRA_SKIP = ("-unsafe", "-raw")
 
 
@@ -501,13 +496,11 @@ def _load_extra(conn, folder: str, allow: frozenset | None = None) -> None:
 def cmd_kinds_build(conn, import_dir: str, phrases: str | None, members: str | None = None,
                     leaders: str | None = None, open_build: bool = False) -> None:
     """--open: every open source -> site_kinds_new -> the open filter, members and lead order
-    (kinds_open.py) -> kind_docs, kind_members, kind_keys. Old path, history only: without
-    --phrases build site_kinds_new and list its phrases in kinds_phrase_todo for Jev; with
-    --phrases keep only Jev's kept phrases -> kind_docs."""
+    (kinds_open.py) -> kind_docs, kind_members, kind_keys. --phrases/--members/--leaders are
+    refused."""
     t0 = time.time()
     if phrases or members or leaders:
-        # the tools that wrote these Jev verdict files were deleted (2026-10-05, ADR-065)
-        raise SystemExit("kinds-build: --phrases/--members/--leaders were Jev verdict files (ADR-065, tools deleted); "
+        raise SystemExit("kinds-build: --phrases/--members/--leaders are no longer supported (ADR-065); "
                          "build the open kinds with --open (kinds_open.py)")
     _load_tsv(conn, "kinds_wikicat", "title text, category text", os.path.join(import_dir, "wiki-cats.tsv.gz"))
     _load_tsv(conn, "kinds_wikilist", "list text, title text", os.path.join(import_dir, "wiki-listlinks.tsv.gz"))
@@ -572,20 +565,20 @@ def cmd_kinds_build(conn, import_dir: str, phrases: str | None, members: str | N
             cp.write_row((ph, kind_key(ph)))
     conn.execute(MEMBERS_SQL)
     if members:
-        conn.execute("DROP TABLE IF EXISTS kinds_member_jev")
-        conn.execute("CREATE TABLE kinds_member_jev (key text, domain text, p real)")
-        with open(members, encoding="utf-8") as f, conn.cursor().copy("COPY kinds_member_jev FROM STDIN") as cp:
+        conn.execute("DROP TABLE IF EXISTS kinds_member_judged")
+        conn.execute("CREATE TABLE kinds_member_judged (key text, domain text, p real)")
+        with open(members, encoding="utf-8") as f, conn.cursor().copy("COPY kinds_member_judged FROM STDIN") as cp:
             for line in f:
                 p = line.rstrip("\n").split("\t")
                 if len(p) >= 3:
                     cp.write_row((p[0], p[1], float(p[2])))
-        conn.execute("CREATE INDEX ON kinds_member_jev (key, domain)")
-        conn.execute(MEMBER_JEV_SQL)
+        conn.execute("CREATE INDEX ON kinds_member_judged (key, domain)")
+        conn.execute(MEMBER_JUDGED_SQL)
         j = conn.execute("SELECT count(jev), count(*) FILTER (WHERE jev >= 0.7) FROM kind_members").fetchone()
-        log(f"kind_members: {j[0]} judged by Jev, {j[1]} good")
+        log(f"kind_members: {j[0]} scored, {j[1]} good")
     else:
         conn.execute("ALTER TABLE kind_members ADD COLUMN jev real")
-    # Which approved sites people mean first (the deleted utility/search-kind-leaders.py; history): orders the lift.
+    # Which sites people mean first: orders the lift.
     conn.execute("ALTER TABLE kind_members ADD COLUMN IF NOT EXISTS lead real")
     if leaders:
         _load_tsv_plain(conn, "kinds_member_lead", "key text, domain text, p real", leaders)
@@ -600,7 +593,7 @@ def cmd_kinds_build(conn, import_dir: str, phrases: str | None, members: str | N
 
 
 def _load_tsv_plain(conn, table: str, cols: str, path: str) -> None:
-    """An uncompressed TSV (the Jev verdict files) -> table."""
+    """An uncompressed TSV -> table."""
     conn.execute(f"DROP TABLE IF EXISTS {table}")
     conn.execute(f"CREATE TABLE {table} ({cols})")
     n = cols.count(",") + 1

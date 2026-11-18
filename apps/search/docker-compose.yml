@@ -88,7 +88,7 @@ services:
     # Release rc5, no database (owner 2026-10-08: "indexhost to match production"). The engine answers from
     # ./release-data/rc5 only: the settings below are `installer/install.py start --print-env` for that folder, the same
     # the acceptance run used. It no longer depends on search-postgres (the BUILD database stays up for the importer
-    # and the refresh jobs; nothing here reads it, so no Tranco rank and no Jev verdict can reach a result).
+    # and the refresh jobs; nothing here reads it, so no Tranco rank can reach a result).
     # Back to the Postgres engine: docker-compose.yml.pre-rc5 and the image tagged logout/search-api:pre-rc5.
     # rc6 (2026-10-08) = rc5 rebuilt after the homepage-language repair (thunderbird.net answered with its Turkish page):
     # same builder code, same settings. Back to rc5: the two rc6 lines below (./release-data/rc5 is kept).
@@ -101,7 +101,7 @@ services:
     # hard-links the 44 files that did not change).
     # rc10 and rc11 were built and tested, never served. rc12 (2026-11-01) = the link crawl's pages, 1.9M, with their
     # meaning search (vectors/pages-ivf) and the searcher's state; engine master. Installed by installer/install.py from the signed
-    # publish tree (./release-data/rc12 -> rc12-base/current). Back to rc9: SEARCH_RELEASE_ID, SEARCH_CE_DIR (rerank-turbo-jevfree), the volume,
+    # publish tree (./release-data/rc12 -> rc12-base/current). Back to rc9: SEARCH_RELEASE_ID, SEARCH_CE_DIR (the CPU reranker's folder), the volume,
     # and the image tagged logout/search-api:1-pre-rc12-20261101 (./release-data/rc9 is kept).
     # rc13 (2026-11-02) = rc12 + New Jersey's own sites read directly, 50,069 pages, with their meaning codes. Back to rc12: SEARCH_RELEASE_ID,
     # the volume and the image tagged logout/search-api:1-pre-rc13-20261102 (./release-data/rc12 is kept).
@@ -175,7 +175,7 @@ services:
       - /mnt/nas/logout/search/ce-st3:/ce:ro
     ports:
       - "${SEARCH_API_BIND:-127.0.0.1}:8090:8090"
-    mem_limit: 4g     # rc5 acceptance 2026-10-08: 2.6 GB of its own under a 4 GB limit, the rest file cache. Before (Postgres engine): 1g, 2026-09-26: 512m OOM-killed it twice under 4 concurrent Jev collectors (~500 MiB); 332 MiB steady with the cross-encoder (204 before it pool + workers)
+    mem_limit: 4g     # rc5 acceptance 2026-10-08: 2.6 GB of its own under a 4 GB limit, the rest file cache. Before (Postgres engine): 1g, 2026-09-26: 512m OOM-killed it twice under 4 concurrent collectors (~500 MiB); 332 MiB steady with the cross-encoder (204 before it pool + workers)
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8090/readyz', timeout=10).status == 200 else 1)"]
       interval: 30s

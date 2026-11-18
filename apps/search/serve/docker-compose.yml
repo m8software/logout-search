@@ -64,7 +64,7 @@ services:
       - "${SEARCH_DRI:-/dev/null}:/dev/dri/renderD128"
     group_add:
       - "${RENDER_GID:-65534}"
-    # Measured 2026-09-27 (testbox, jina-turbo-jev): reranker alone 240 MiB on the CPU; 514 MiB
+    # Measured 2026-09-27 (testbox): reranker alone 240 MiB on the CPU; 514 MiB
     # steady / 711 MiB peak on the iGPU (OpenVINO compile). 256m no longer fits either path;
     # deploy.sh sets 1g when the host has an iGPU, 512m otherwise.
     mem_limit: ${SEARCH_API_MEM:-512m}

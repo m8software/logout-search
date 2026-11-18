@@ -58,8 +58,8 @@ WEIGHTS: dict[tuple[str, str], float] = {}
 
 def load_labels(paths: list[str]) -> list[tuple[str, str, list[str]]]:
     """Unique (query, category, expected answers) for site and wiki labels, first file wins.
-    An optional 4th column is the label's weight — the Jev-labelled set carries how
-    sure Jev was, so a 0.4 label counts 0.4 in the rates, not a full vote (no threshold)."""
+    An optional 4th column is the label's weight — a weighted label set carries how
+    sure the label was, so a 0.4 label counts 0.4 in the rates, not a full vote (no threshold)."""
     seen: dict[tuple[str, str], list[str]] = {}
     for path in paths:
         for line in open(path, encoding="utf-8"):

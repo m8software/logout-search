@@ -43,8 +43,7 @@
     search_import.py kinds-wikidata                          what kind of site each official site is (Wikidata) -> kw_*
     search_import.py kinds-build --open [--import DIR]             site kinds, open sources only (ADR-065) -> site_kinds, kind_docs, kind_members
     search_import.py kinds-open                                  re-run the open filter over site_kinds_new
-    search_import.py kinds-build [--import DIR] [--phrases F] [--members F]  (old, Jev) site kinds -> site_kinds, kind_docs, kind_members
-    search_import.py junk-load [--quality F] [--ut1 F]        junk filter (Jev + UT1 unsafe) -> site_quality
+    search_import.py junk-load [--quality F] [--ut1 F]        junk filter (legacy quality file + UT1 unsafe) -> site_quality
     search_import.py kinds-vecs --file F                      kind-name embeddings (tools/embed-kinds.py) -> kind_vecs
     search_import.py vec-load --table T_vec --ids I --vecs V  GPU-made embeddings -> pgvector + HNSW
     search_import.py stats                what is loaded
@@ -492,15 +491,15 @@ def main() -> None:
     sub.add_parser("kinds-wikidata", help="instance of / use / industry / genre of every official site -> kw_*")
     kb = sub.add_parser("kinds-build", help="what kind of site each site is, all sources -> site_kinds, kind_docs")
     kb.add_argument("--import", dest="import_dir", default="/import")
-    kb.add_argument("--phrases", help="REFUSED: Jev-judged kind phrases (ADR-065, tool deleted) — use --open")
-    kb.add_argument("--members", help="REFUSED: Jev verdicts per (kind, site) (ADR-065, tool deleted) — use --open")
-    kb.add_argument("--leaders", help="REFUSED: Jev 'first choice' verdicts (ADR-065, tool deleted) — use --open")
+    kb.add_argument("--phrases", help="REFUSED (legacy) — use --open")
+    kb.add_argument("--members", help="REFUSED (legacy) — use --open")
+    kb.add_argument("--leaders", help="REFUSED (legacy) — use --open")
     kb.add_argument("--open", dest="open_build", action="store_true",
-                    help="the open build (ADR-065): rules over open sources, no Jev files, no Tranco")
+                    help="the open build: rules over open sources, no Tranco")
     sub.add_parser("kinds-roots", help="which broad Wikidata trees each kind class is under (P279*) -> kw_class_roots")
     ko = sub.add_parser("kinds-open", help="re-run only the open filter/members/lead step over an existing site_kinds_new")
     ko.add_argument("--judge", nargs="*", default=[], help="optional judge output files (utility/search-kinds-judge.py), any model")
-    jl = sub.add_parser("junk-load", help="junk filter: Jev homepage verdicts + UT1 unsafe lists -> site_quality")
+    jl = sub.add_parser("junk-load", help="junk filter: legacy quality file + UT1 unsafe lists -> site_quality")
     jl.add_argument("--quality", help="private site_quality.sql (utility/search-site-quality.py)")
     jl.add_argument("--ut1", help="kinds-unsafe/ut1-unsafe.tsv.gz (site-directories2.sh)")
     sub.add_parser("kinds-country", help="country of each official site's owner (Wikidata P17) -> kw_country")

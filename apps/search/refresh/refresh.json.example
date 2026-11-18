@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to refresh.json beside the refresh compose file to change it. Everything is OFF by default. AWS / Common Crawl / Commons jobs also need \"approved\"; the Jev-fed sources are retired (ADR-065) and can never run.",
+  "_comment": "Copy to refresh.json beside the refresh compose file to change it. Everything is OFF by default. AWS / Common Crawl / Commons jobs also need \"approved\"; the retired sources can never run.",
   "enabled": false,
   "night": [1, 6],
   "jobs": {

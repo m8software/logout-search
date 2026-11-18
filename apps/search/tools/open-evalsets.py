@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # LEGACY, Postgres-bound (SEARCH-POSTGRES-EXIT.md phase 3): it reads wiki_docs.aliases (raw redirect titles), wiki_links (Wikidata ids) and suggest_items from Postgres; a release keeps only normalised name keys, so it cannot be ported without a new release table. Delete at phase 7.
-"""Answer-known eval sets from open data (ADR-064/065): no Jev, no LLM, no browsing history.
+"""Answer-known eval sets from open data (ADR-064/065): no LLM, no browsing history.
 
     tools/open-evalsets.py [--host deploy] [--out tools/evalsets/open] [--scale 1.0]
 
@@ -18,7 +18,7 @@ The data comes from testbox's serving database (read-only, `ssh testbox`), which
 public tables built from the Wikipedia dump (wiki_docs.aliases = redirect titles), the
 Wikidata dump (wiki_links) and OSM extracts (places). Popularity strata use only
 suggest_items.pop (Wikipedia pageviews) and Wikidata sitelinks — never the history- or
-Jev-derived columns (suggest_items.hist/demand, *history_visits, site_quality, kind_members).
+legacy columns (suggest_items.hist/demand, *history_visits, site_quality, kind_members).
 
 Sampling is deterministic (md5 of a fixed seed and the entity), so a rerun on the same
 data writes the same files. The split is by ENTITY, the same key in every set (the

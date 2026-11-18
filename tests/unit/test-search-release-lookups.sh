@@ -44,17 +44,17 @@ print("history", refused("SELECT domain, history_visits FROM serve_sites"))
 print("hist", refused("SELECT id, hist FROM suggest_items WHERE kind <> 'subreddit'"))
 print("wdc", refused("SELECT osm, name FROM places"))
 print("subreddit items", refused("SELECT id FROM suggest_items"))
-print("jev junk", refused("SELECT domain, junk FROM site_quality WHERE source IN ('ut1', 'jev+ut1')"))
+print("legacy junk", refused("SELECT domain, junk FROM site_quality WHERE source IN ('ut1', 'jev+ut1')"))
 print("stage ok", all(refused(sql) == "allowed" for _c, sql in b.STAGE.values() if sql))
 PY
 )
 expect "subreddits refused" "subreddits never ship"
-expect "kinds refused" "the Jev-derived kinds tier never ships (ADR-065)"
+expect "kinds refused" "the legacy kinds tier never ships (ADR-065)"
 expect "history refused" "history_visits is never selected"
 expect "hist refused" "suggest_items.hist is never selected"
 expect "wdc refused" "places without the WDC filter are refused (G3 D3)"
 expect "subreddit items refused" "suggest_items without the subreddit filter are refused"
-expect "jev junk refused" "site_quality's Jev columns are never selected"
+expect "legacy junk refused" "site_quality's legacy columns are never selected"
 expect "stage ok True" "every staging SELECT of the builder passes the guard"
 
 echo ""; echo "=== Part 1b: the stage takes the block lists and UT1's file itself (rc5 W3) ==="

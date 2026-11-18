@@ -24,9 +24,9 @@ doc_id scheme (proposal, mirrored here until registry.sqlite lands):
   signals.bin is a plain array by doc_id.
 
 Release guards (refuse, never warn; mirror release/export.py check_export_sql): no refused
-table (subreddits, build-only tables, the Jev-derived kinds tier and d2q, ADR-065), no
+table (subreddits, build-only tables, the legacy kinds tier and d2q, ADR-065), no
 history_visits / hist, the required filters (no subreddit suggestions, no WDC places, UT1 rows
-only of site_quality). Output guard: no popularity / history / Jev column, no kinds table,
+only of site_quality). Output guard: no popularity / history / legacy column, no kinds table,
 secure_delete=ON while building, VACUUM at the end of the build, freelist_count = 0,
 application_id + user_version, meta(release_id).
 Popularity never enters lookup.sqlite: ranks, sitelinks, followers, demand, suggestion weights
@@ -56,7 +56,7 @@ SELF_NAMED_SUFFIX = ("online", "hq", "app", "official", "usa", "us", "inc", "co"
 
 FORBIDDEN_TABLES = {"site_meta", "site_inlinks", "kw_country", "wiki_pop", "subreddits",
                     "kind_docs", "kind_members", "kind_keys", "kind_vecs", "kind_site_vec", "site_kinds",
-                    "kinds_phrase_keep", "kinds_phrase_keys", "kinds_member_jev", "d2q_docs"}
+                    "kinds_phrase_keep", "kinds_phrase_keys", "kinds_member_judged", "d2q_docs"}
 REQUIRED_FILTERS = {"suggest_items": "kind <> 'subreddit'", "suggest_keys": "kind <> 'subreddit'",
                     "places": "osm NOT LIKE 'wdc:%'", "site_quality": "source IN ('ut1', 'jev+ut1')"}
 FORBIDDEN_COLUMNS = {"*": {"history_visits", "hist"},

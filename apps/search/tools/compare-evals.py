@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Is profile B as accurate as baseline A? The acceptance rule of docs/internal/SEARCH-BOX-PLAN.md.
 
-    tools/compare-evals.py jev A.jsonl B.jsonl        search-ranker.py evaluate --out files
+    tools/compare-evals.py judged A.jsonl B.jsonl        search-ranker.py evaluate --out files
     tools/compare-evals.py labels A.tsv B.tsv          eval-queries.py --details files
 
 Per query it pairs A with B and reports, for each metric, the mean of A, the mean of B,
@@ -10,7 +10,7 @@ A cut PASSES a metric when the interval includes 0 and the drop is at most 0.5 p
 (0.005 on a 0-1 scale). It also counts queries whose top-5 URLs are identical — the
 test for a LOSSLESS cut is that this is every query, not that the metrics agree.
 
-Jev runs are also broken out PER KIND (a cut can be neutral overall and wreck typos),
+Judged runs are also broken out PER KIND (a cut can be neutral overall and wreck typos),
 and with --demand DEMAND.tsv (tools/eval-demand.py) scored the way real searching is
 distributed: each kind weighted by the real query mix (MIX, from 3 months of real
 searches), each query inside its kind by how much people want its answer (FLOOR + pop).
@@ -42,13 +42,13 @@ MIX = {
 
 
 def ndcg5(p: list[float]) -> float:
-    """utility/search-ranker.py ndcg5: DCG@5 with Jev relevance as the gain, over the DCG of
+    """utility/search-ranker.py ndcg5: DCG@5 with the judged relevance as the gain, over the DCG of
     a perfect top five (all 1.0), so an empty list scores 0."""
     disc = [1 / math.log2(i + 2) for i in range(5)]
     return sum(g * d for g, d in zip(p[:5], disc)) / sum(disc)
 
 
-def load_jev(path: str) -> dict:
+def load_judged(path: str) -> dict:
     out = {}
     for line in open(path, encoding="utf-8"):
         if line.strip():
@@ -180,9 +180,9 @@ def main() -> None:
         i = args.index("--demand")
         demand = load_demand(args[i + 1])
         del args[i:i + 2]
-    if len(args) != 3 or args[0] not in ("jev", "labels"):
+    if len(args) != 3 or args[0] not in ("judged", "labels"):
         sys.exit(__doc__)
-    load = load_jev if args[0] == "jev" else load_labels
+    load = load_judged if args[0] == "judged" else load_labels
     a, b = load(args[1]), load(args[2])
     qs = sorted(set(a) & set(b))
     if not qs:
@@ -199,11 +199,11 @@ def main() -> None:
         ok_all &= ok
         print(f"{m:<7} {ma:7.3f} {mb:7.3f} {mb - ma:+8.3f}  [{lo:+.3f}, {hi:+.3f}]  {'pass' if ok else 'FAIL'}")
     print(f"(all queries, uniform: {'pass' if ok_all else 'FAIL'})")
-    if args[0] == "jev":
+    if args[0] == "judged":
         per_kind(a, b, qs)
         if demand is not None:
             ok_all = real_mix(a, b, qs, demand)
-    label = "real-mix line" if demand is not None and args[0] == "jev" else "uniform line"
+    label = "real-mix line" if demand is not None and args[0] == "judged" else "uniform line"
     print("\nPASS" if ok_all else "\nFAIL", f"— the acceptance rule on the {label} "
           "(CI includes 0 and drop <= 0.5 pt, or a significant gain)")
 

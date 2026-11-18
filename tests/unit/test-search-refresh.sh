@@ -206,11 +206,11 @@ steps = [st[0] for s in S.SOURCES for st in s["job"]["steps"]]
 builtin = {"@serve-refresh"}
 print("OK every scheduled step is a real importer subcommand or a scheduler built-in" if steps and all(x in subs or x in builtin for x in steps) else "BAD steps %r" % [x for x in steps if x not in subs and x not in builtin])
 retired = {s["name"] for s in S.SOURCES if s.get("retired")}
-print("OK the Jev-fed sources are retired (ADR-065): kinds, site_quality, d2q" if {"kinds", "site_quality", "d2q"} <= retired else "BAD retired %r" % retired)
+print("OK the legacy sources are retired (ADR-065): kinds, site_quality, d2q" if {"kinds", "site_quality", "d2q"} <= retired else "BAD retired %r" % retired)
 print("OK every job that reloads a table is heavy (night only, re-warm after)" if all(s["job"]["heavy"] for s in S.SOURCES if s["job"]["ready"]) else "BAD light reloads %r" % [s["name"] for s in S.SOURCES if s["job"]["ready"] and not s["job"]["heavy"]])
 print("OK a ready job has steps; a job with no steps is not ready" if all(bool(s["job"]["steps"]) == s["job"]["ready"] for s in S.SOURCES) else "BAD ready/steps")
 spend = {s["name"] for s in S.SOURCES if s["job"]["approval"]}
-print("OK the AWS, Jev and Common Crawl jobs need approval" if {"anchors", "kinds", "site_quality", "homepages", "pages"} <= spend else "BAD approval set %r" % spend)
+print("OK the AWS, model and Common Crawl jobs need approval" if {"anchors", "kinds", "site_quality", "homepages", "pages"} <= spend else "BAD approval set %r" % spend)
 ex = json.load(open(os.path.join(os.environ["REFRESH"], "refresh.json.example")))
 print("OK the example config ships with everything off" if ex["enabled"] is False and not any(ex["jobs"].values()) and not any(ex["approved"].values()) else "BAD example")
 print("OK the example lists only real sources" if set(ex["jobs"]) <= set(names) else "BAD example names")

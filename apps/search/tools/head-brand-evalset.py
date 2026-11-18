@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Head-brand eval set (step 2): "type a well-known site's name, get that site". No Tranco, no Jev,
+"""Head-brand eval set (step 2): "type a well-known site's name, get that site". No Tranco,
 no database, no history: Wikidata (CC0) through QLever and Wikipedia pageviews (CC0) through the Wikimedia REST API.
 
     tools/head-brand-evalset.py [--out tools/evalsets/open] [--n 1000] [--pool 5000] [--month 2026-09]

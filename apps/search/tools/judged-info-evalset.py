@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The judged informational set: ~1,000 informational queries from open sources, written by FIXED
-TEMPLATES — no LLM writes a query, no Jev, no browsing history (ADR-064/065). Clef 27B judges the engine's
+TEMPLATES — no LLM writes a query, no browsing history (ADR-064/065). Clef 27B judges the engine's
 answers once (judged-info-judge.py) and the verdicts are frozen beside the set.
 
     tools/judged-info-evalset.py [--out tools/evalsets/open] [--per 90] [--pool 300] [--month 2026-09]

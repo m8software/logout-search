@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Kinds A/B without Jev (ADR-064): ask one search-api for every eval query, save the top 10.
+"""Kinds A/B (ADR-064): ask one search-api for every eval query, save the top 10.
 
-    tools/kinds-nojev-eval.py collect --api http://127.0.0.1:PORT --arm NAME [--extra '&off=...'] --out DIR
-    tools/kinds-nojev-eval.py report DIR --arms off,old,new
+    tools/kinds-open-eval.py collect --api http://127.0.0.1:PORT --arm NAME [--extra '&off=...'] --out DIR
+    tools/kinds-open-eval.py report DIR --arms off,old,new
 
 Sets (all read from DIR/sets/): hand46.tsv (query, site, gold domains — tools/eval-queries.py
 format), controls.txt + topics.txt (the article is right), descriptive.txt (258, unlabelled),
-q349.txt. Scoring uses tools/eval-queries.py's hit() — no Jev, no model.
+q349.txt. Scoring uses tools/eval-queries.py's hit() — no model.
   hand46        #1 / top-5 gold-domain hits
   controls      the article kinds-off puts first is still first / still in the top 5
   descriptive   lift coverage; #1 agreement and top-5 overlap between arms (diagnostic only)

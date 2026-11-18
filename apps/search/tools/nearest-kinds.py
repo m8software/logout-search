@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Nearest kind names for each homepage — candidates for Jev's "is this a <kind>?" pass.
+"""Nearest kind names for each homepage — candidate kind names for a later "is this a <kind>?" check.
 
     <domain TAB text lines> | docker run --rm -i -v KV:/kv.tsv:ro -v THIS:/t.py:ro \
         logout/search-api:<tag> python /t.py /kv.tsv [n] [min_sim]  > domain TAB key TAB sim

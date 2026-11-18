@@ -47,7 +47,7 @@ THE RECIPE (docs/legal/SEARCH-DATA-LICENSES.md 2.6, docs/internal/SEARCH-RELEASE
             signal at all. The scale is a dense rank over our own universe, so the popularity formulas
             written for a Tranco-sized scale (14 - ln(rank), CONFIDENT_RANK) keep their meaning.
 
-Nothing here reads, derives from, or is tuned on the Tranco list, Jev, or browser history.
+Nothing here reads, derives from, or is tuned on the Tranco list or browser history.
 """
 import argparse
 import csv

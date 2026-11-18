@@ -1,7 +1,7 @@
 # Bulk tier of the news box (ADR-060) — live-checked 2026-09-30 by utility/search-feed-live-check.py:
 # answered 200, parsed, posted within 30 days (official feeds: 120), mostly English (Wikidata rows).
 # Sources: agencies' and outlets' own RSS pages, their long-standing feed addresses, and Wikidata P1019
-# (CC0) vetted by Jev (utility/search-feed-vet.py). The user approved polling these (2026-09-30).
+# (CC0) vetted by utility/search-feed-vet.py. The user approved polling these (2026-09-30).
 # Remove a line to stop polling it (a publisher that objects is removed). Columns as feeds.tsv:
 # section	name	lean	kind	poll	url        — provenance of each line follows in a trailing comment block.
 official	USGS Earthquakes	-	official	15	https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom

@@ -1,5 +1,5 @@
 """T4 whole-engine A/B: two arms' answers (run.py) on the hand / click label sets, agreement,
-speed. No Jev anywhere (ADR-064).
+speed.
 
   python3 compare.py search A.json B.json LABELS.tsv...     hit@1 / hit@5 per set, B - A with the
                                                           95% paired bootstrap, the acceptance rule;

@@ -23,7 +23,7 @@ jobs:
       matrix:
         # Linux on the oldest machine offered: the bundle carries the build machine's Python, which needs that
         # machine's C library or newer (built on 24.04 it would not start on Debian 12 or Ubuntu 22.04)
-        os: [ubuntu-22.04, windows-latest]
+        os: [ubuntu-22.04, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

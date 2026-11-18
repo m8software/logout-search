@@ -51,10 +51,10 @@ Each `export.py` stage prints one JSON line (rows, seconds, bytes, peak RSS, cgr
 - **Text indexes never store page text** (`check_no_page_text()`).
 - **`check_export_sql()` refuses:**
   - any SQL naming a refused table: build-only (`site_meta`, `site_inlinks`, `kw_country`,
-    `wiki_pop`), `subreddits`, and everything Jev produced or filtered (ADR-065):
+    `wiki_pop`), `subreddits`, and the legacy kinds tier (ADR-065):
     `kind_docs`, `kind_members`, `kind_keys`, `kind_vecs`, `kind_site_vec`, `site_kinds`,
     `kinds_*`, `d2q_docs`;
-  - any selection of `history_visits`/`hist` or a Jev score (`site_quality.useful/parked/spam/
+  - any selection of `history_visits`/`hist` or a legacy score (`site_quality.useful/parked/spam/
     unsafe/junk/source`), in any form — no bands;
   - SQL missing a required filter: no subreddit suggestions, no WDC places
     (`osm NOT LIKE 'wdc:%'`), only UT1 rows of `site_quality`, and anchor text through

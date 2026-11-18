@@ -62,7 +62,7 @@ ce = C.load_tool("compare_evals", C.TOOLS / "compare-evals.py")
 fe = C.load_tool("facts_eval", C.TOOLS / "facts-eval.py")
 KEEP = ("url", "title", "source", "score", "lat", "lon", "official", "popular", "lr", "ce", "corrected")
 DETAILS_HEADER = "query\tcategory\trank\ttop_score\ttop_url\tconfident\tset\tstratum"
-JUDGED_DEFAULT = Path.home() / ".local/share/logout-search/dbperf/jev-eval-1167.tsv"
+JUDGED_DEFAULT = Path.home() / ".local/share/logout-search/dbperf/judged-eval-1167.tsv"
 
 
 def log(msg: str) -> None:
