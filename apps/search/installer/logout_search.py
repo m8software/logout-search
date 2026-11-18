@@ -897,7 +897,7 @@ def setup(a) -> int:
 PAGE_URL = "https://search.logout.cloud/"
 
 
-def first_run(port: int, data: str, *, wait=None, opener=None, link=None, pair=None, seen=None, now=None) -> dict:
+def first_run(port: int, data: str, *, wait=None, opener=None, link=None, pair=None, seen=None, now=None, intake=None) -> dict:
     """The end of setup (owner 2026-11-18: "when the installer is done it works out of the gate, no refresh, no extra steps").
     1. wait until this computer's engine is warm, signed in to the rendezvous and quick (firstrun.local_link);
     2. only then open the page, auto-paired for this browser (#pair=...&engine=1);
@@ -929,6 +929,13 @@ def first_run(port: int, data: str, *, wait=None, opener=None, link=None, pair=N
         return {**r, "ok": False, "opened": False, "page_connected": False}
     ms = r.get("searches_ms") or []
     say(f"     ready after {r.get('waited_s', 0)} s; the first searches took " + ", ".join(f"{m / 1000:.1f}" for m in ms) + " s")
+    ia = (intake or firstrun.wait_intake)(data, say, lambda text: write(text, False))
+    if ia.get("ok"):
+        if ia.get("waited_s"):
+            say(f"     the answers file is in ({ia['waited_s']} s): stored names answer at once")
+    else:
+        say(f"     the answers are not all in yet ({ia.get('why')}): searches for stored names take a little longer for a few minutes; the page works")
+    r["intake"] = ia
     frag = ""
     try:
         frag = pair() or ""

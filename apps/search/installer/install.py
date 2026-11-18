@@ -610,21 +610,51 @@ def resolve_source(arg: str, pub: bytes):
 
 
 # ================================================================================================ decoding
+def preallocate(fo, size) -> bool:
+    """Reserve `size` bytes for the file about to be written, in one request, so the file system can place it in one run instead of
+    handing each of many small writes the next small gap (buildbox, 2026-11-18, a 99.5% full disk: lookup.sqlite in 7,119 pieces, the wiki
+    postings in 12,008, read 4 times slower and collapsing to 80 MB/s under concurrent reads). Linux: posix_fallocate. Windows: seek to
+    the size and SetEndOfFile. Never raises (a file system that cannot do it simply gets the old behaviour). -> whether it was done.
+    The file is written from byte 0 afterwards; a file that ends up shorter than `size` is caught by the size/hash check that follows."""
+    try:
+        size = int(size or 0)
+        if size <= 0:
+            return False
+        fo.flush()
+        if hasattr(os, "posix_fallocate"):
+            os.posix_fallocate(fo.fileno(), 0, size)
+            return True
+        if os.name == "nt":
+            import ctypes
+            import msvcrt
+            fo.seek(size)
+            ok = bool(ctypes.windll.kernel32.SetEndOfFile(ctypes.c_void_p(msvcrt.get_osfhandle(fo.fileno()))))
+            fo.seek(0)
+            return ok
+    except Exception:  # noqa: BLE001 - an optimisation, never a failure
+        try:
+            fo.seek(0)
+        except Exception:  # noqa: BLE001
+            pass
+    return False
+
+
 def zstd_decoder():
     try:
         from compression import zstd            # Python 3.14+
-        return lambda src, dst: _stream_decode(zstd.ZstdDecompressor(), src, dst)
+        return lambda src, dst, size=None: _stream_decode(zstd.ZstdDecompressor(), src, dst, None, size)
     except ImportError:
         pass
     try:
         import zstandard
-        return lambda src, dst: _zstandard_decode(zstandard, src, dst)
+        return lambda src, dst, size=None: _zstandard_decode(zstandard, src, dst, size)
     except ImportError:
         pass
     exe = shutil.which("zstd")
     if exe:
-        def run(src, dst):
+        def run(src, dst, size=None):
             with open(dst, "wb") as fo:
+                preallocate(fo, size)
                 r = subprocess.run([exe, "-dc", src], stdout=fo, stderr=subprocess.PIPE)
             if r.returncode:
                 raise InstallError(f"zstd could not decode {src}: {r.stderr.decode(errors='replace')[:200]}")
@@ -633,10 +663,11 @@ def zstd_decoder():
                        "nor the `zstd` command is available: install one of them (or use a release stored as xz)")
 
 
-def _stream_decode(dec, src, dst, on=None):
-    """on(bytes written so far): the install's progress line."""
+def _stream_decode(dec, src, dst, on=None, size=None):
+    """on(bytes written so far): the install's progress line. size: the decoded size (the manifest's), reserved before writing."""
     n = 0
     with open(src, "rb") as fi, open(dst, "wb") as fo:
+        preallocate(fo, size)
         for b in iter(lambda: fi.read(CHUNK), b""):
             o = dec.decompress(b)
             fo.write(o)
@@ -645,14 +676,15 @@ def _stream_decode(dec, src, dst, on=None):
                 on(n)
 
 
-def _zstandard_decode(zstandard, src, dst):
+def _zstandard_decode(zstandard, src, dst, size=None):
     with open(src, "rb") as fi, open(dst, "wb") as fo:
+        preallocate(fo, size)
         zstandard.ZstdDecompressor().copy_stream(fi, fo)
 
 
-def xz_decode(src, dst, on=None):
+def xz_decode(src, dst, on=None, size=None):
     try:
-        _stream_decode(lzma.LZMADecompressor(format=lzma.FORMAT_XZ), src, dst, on)
+        _stream_decode(lzma.LZMADecompressor(format=lzma.FORMAT_XZ), src, dst, on, size)
     except lzma.LZMAError as e:
         raise InstallError(f"{src}: not valid xz data ({e})")
 
@@ -873,6 +905,7 @@ def stream_install(src: Source, rel: str, part: str, tsize: int, tsha: str, enc:
     h_in, h_out, n_in, n_out = hashlib.sha256(), hashlib.sha256(), 0, 0
     try:
         with open(tmp, "wb") as fo:
+            preallocate(fo, out_bytes)                          # the final size, reserved in one request (one run on disk, not thousands)
             for b in seg.chunks():
                 h_in.update(b)
                 n_in += len(b)
@@ -1094,10 +1127,10 @@ def install(a) -> dict:
                 if enc == "identity":
                     os.replace(part, tmp)
                 elif enc == "xz":
-                    xz_decode(part, tmp, (lambda n: prog.unpacked(p, n)) if prog is not None else None)
+                    xz_decode(part, tmp, (lambda n: prog.unpacked(p, n)) if prog is not None else None, f["bytes"])
                     os.remove(part)
                 else:
-                    zstd_decoder()(part, tmp)
+                    zstd_decoder()(part, tmp, f["bytes"])
                     os.remove(part)
                 if prog is not None:
                     prog.unpacked(p, f["bytes"])
@@ -1427,8 +1460,11 @@ def addon_install(a) -> dict:
                 tmp = dst + ".tmp"
                 if enc == "identity":
                     os.replace(part, tmp)
+                elif enc == "xz":
+                    xz_decode(part, tmp, size=f["bytes"])
+                    os.remove(part)
                 else:
-                    (xz_decode if enc == "xz" else zstd_decoder())(part, tmp)
+                    zstd_decoder()(part, tmp, f["bytes"])
                     os.remove(part)
                 sha, n = file_digest(tmp)
                 if n != f["bytes"] or sha != f["sha256"]:
@@ -1763,7 +1799,7 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
         xz = os.path.join(work, t["name"] + ".sqlite.xz")
         download(src, f"parts/{t['name']}.sqlite.xz", xz, t["xz_bytes"], t["xz_sha256"], f"lists {t['name']}")
         tmp = os.path.join(work, t["name"] + ".sqlite")
-        xz_decode(xz, tmp)
+        xz_decode(xz, tmp, size=t["bytes"])
         os.remove(xz)
         sha, n = file_digest(tmp)
         if (n, sha) != (t["bytes"], t["sha256"]):
@@ -1782,7 +1818,7 @@ def lists_update(base: str, source: str, pub, metered: bool = False, big: int = 
         xz = os.path.join(work, vtodo["name"] + ".sqlite.xz")
         download(src, f"parts/{vtodo['name']}.sqlite.xz", xz, vtodo["xz_bytes"], vtodo["xz_sha256"], f"lists {vtodo['name']}")
         tmp = os.path.join(work, vtodo["name"] + ".sqlite")
-        xz_decode(xz, tmp)
+        xz_decode(xz, tmp, size=vtodo["bytes"])
         os.remove(xz)
         sha, n = file_digest(tmp)
         if (n, sha) != (vtodo["bytes"], vtodo["sha256"]):

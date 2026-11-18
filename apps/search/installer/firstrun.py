@@ -264,3 +264,46 @@ def wait_first_run(port: int, say, link, *, get_ready=readyz, clock=time.monoton
             sleep(8.0)
             continue
         return {"ok": True, "waited_s": int(clock() - t0), "searches_ms": ms}
+
+
+INTAKE_MAX_S = 900             # the answers file (2.4 GB) is taken in within this, on a slow disk; after it setup goes on and says so
+
+
+def wait_intake(data: str, say, progress=None, *, waiting=None, clock=time.monotonic, sleep=time.sleep, max_s: float = INTAKE_MAX_S) -> dict:
+    """Setup does not declare itself done, and does not open the page, while the answers file the installer just fetched is still being
+    taken in by the engine (an install that opened the page at once answered stored names in 0.3-1.7 s for the first minutes, testbox 2026-11-18).
+    Progress is said as it goes. -> {"ok", "waited_s", "why"?}: not ok when a part was refused or the time ran out (the caller says so and
+    goes on: the answers arrive a little later, the page works)."""
+    import os
+
+    def left():
+        if waiting:
+            return waiting()
+        try:
+            return sorted(n for n in os.listdir(os.path.join(data, "store", "inbox")) if n.startswith("lists-") and n.endswith(".sqlite"))
+        except OSError:
+            return []
+
+    def refused():
+        try:
+            return [n for n in os.listdir(os.path.join(data, "store", "inbox")) if n.startswith("lists-") and n.endswith(".bad")]
+        except OSError:
+            return []
+    t0, last_say = clock(), -1e9
+    while True:
+        parts = left()
+        if not parts:
+            return {"ok": True, "waited_s": int(clock() - t0)}
+        bad = refused()
+        if bad:
+            return {"ok": False, "waited_s": int(clock() - t0), "why": f"the engine refused an answers part ({bad[0]})"}
+        waited = clock() - t0
+        if waited >= max_s:
+            return {"ok": False, "waited_s": int(waited), "why": f"the answers file is still being taken in after {int(waited)} s ({len(parts)} part(s) left)"}
+        if waited - last_say >= 15:
+            last_say = waited
+            text = f"taking in the answers ({len(parts)} part(s) left, {int(waited)} s)"
+            say("     " + text)
+            if progress:
+                progress(text)
+        sleep(3.0)
