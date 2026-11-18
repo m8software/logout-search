@@ -5118,7 +5118,7 @@ _TASK = re.compile(r"^(how to|how do i|how do you|how can i|best way to)\b"
 # "car rental comparison". web >= 0.9 and not a sites-of-a-kind query (sites < 0.7). A lower cut
 # (0.6) only swapped junk lists for empty ones — a hand-off is not an answer,
 # so it was not kept.
-# 2026-10-02: REMOVED from the image — Jev-trained (TypeSafe's terms changed 10-01). Measured
+# 2026-10-02: REMOVED from the image. Measured
 # on the public engine with intent=0: no navigational first result changed (2,403 queries),
 # the "sites" signal changed no first result, and on 1,718 informational queries it handed
 # 20 to the web that local answered with junk ("kayak under 100" -> kayak.com.au). The rules
