@@ -822,6 +822,10 @@ def setup(a) -> int:
     # everything public answers with beside the release (owner 2026-11-14: "every single feature public has the search silos get"):
     # the signed add-ons, then the hand-picked lists and finished answers. The daily update keeps both current; a failure here
     # leaves it to that update rather than stopping the install
+    try:                                                 # an install made before the warm-up files were prepared: once, now (never fails the setup)
+        install.prepare_if_needed(data)
+    except Exception as e:  # noqa: BLE001
+        say(f"     (warm-up files not prepared: {type(e).__name__}); the first start builds them")
     import autoupdate as au
     say("     and what public uses beside it: the add-ons (Wikipedia links, how-to answers, the card's sections and links) and the hand-picked lists")
     for what, step in (("add-ons", lambda: au.addons_update(data, program(), DATA_SOURCE, DATA_PUBKEY, PLATFORM)),
@@ -876,52 +880,60 @@ def setup(a) -> int:
 PAGE_URL = "https://search.logout.cloud/"
 
 
-def first_run(port: int, data: str, *, wait=None, opener=None, link=None, pair=None) -> dict:
-    """The end of setup: wait until the page can open and be right (firstrun.py), then open it with the hint that an engine
-    is expected on this computer (the page waits for it and attaches without a refresh, instead of settling on the public
-    site). Whatever happens the page is opened: a slow computer gets the hint and the page keeps looking."""
+def first_run(port: int, data: str, *, wait=None, opener=None, link=None, pair=None, seen=None, now=None) -> dict:
+    """The end of setup (owner 2026-11-18: "when the installer is done it works out of the gate, no refresh, no extra steps").
+    1. wait until this computer's engine is warm, signed in to the rendezvous and quick (firstrun.local_link);
+    2. only then open the page, auto-paired for this browser (#pair=...&engine=1);
+    3. wait (bounded) for the peer to report that a REAL browser's message reached the engine (state/page-seen.json).
+    When 1 fails the page is NOT opened (it would show the public site): setup says what failed and what to do. When 3 fails it says that
+    the page opened but never reached the engine. -> {"ok", "opened", "page_connected", "why"?, ...}."""
     import firstrun
-    wait, opener = wait or firstrun.wait_first_run, opener or open_browser
-    def _real_link():
-        load_peer()                                      # the link test imports aiortc, which imports PyAV: the bundle has the stand-in only (the first run on testbox waited 420 s for "No module named 'av'")
-        return firstrun.link_test(engine_name())
-    link = link or _real_link
+    import time as _t
+    wait, opener, seen = wait or firstrun.wait_first_run, opener or open_browser, seen or firstrun.wait_page_seen
+    link = link or (lambda: firstrun.local_link(port, engine_name()))
     pair = pair or (lambda: pair_fragment(data))
     state = os.path.join(data, "state", "first-run.json")
 
-    def progress(text: str) -> None:                     # the tray's tooltip reads this while setup runs
+    def write(text: str, done: bool, **extra) -> None:
         try:
             os.makedirs(os.path.dirname(state), exist_ok=True)
             with open(state, "w", encoding="utf-8") as f:
-                json.dump({"text": text, "at": __import__("time").time(), "done": False}, f)
+                json.dump({"text": text, "at": _t.time(), "done": done, **extra}, f)
         except OSError:
             pass
     say("     starting your search engine and joining the search page; the page opens when it answers (about a minute)")
-    r = wait(port, say, link, progress=progress)
-    if r.get("ok"):
-        ms = r.get("searches_ms") or []
-        say(f"     ready after {r.get('waited_s', 0)} s; the first searches took " + ", ".join(f"{m / 1000:.1f}" for m in ms) + " s")
-    else:
-        say(f"     not quite ready ({r.get('why')}): opening the page anyway, it waits for your engine and switches to it by itself")
-    try:
-        with open(state, "w", encoding="utf-8") as f:
-            json.dump({"text": "ready" if r.get("ok") else "starting", "at": __import__("time").time(), "done": True}, f)
-    except OSError:
-        pass
-    # A pairing made for THIS browser rides in the address (the part after # never leaves the browser): the page then reaches the
-    # engine through its room, which does not depend on the page and the engine being seen from the same address. The same-network
-    # match fails when the browser reaches the rendezvous over IPv6 and the engine over IPv4 only (demonstrated against rv.py,
-    # 2026-11-17), which is a refresh away from working or not, by chance.
+    r = wait(port, say, link, progress=lambda text: write(text, False))
+    if not r.get("ok"):
+        why = r.get("why") or "slow searches"
+        say(f"     NOT ready: {why}.")
+        say("     The page was not opened (it would show the public site, not your engine). Your engine keeps starting in the background: "
+            "open https://search.logout.cloud in a minute, or run `logout-search doctor` and send it to us.")
+        write(f"not ready: {why}", True, ok=False, opened=False)
+        return {**r, "ok": False, "opened": False, "page_connected": False}
+    ms = r.get("searches_ms") or []
+    say(f"     ready after {r.get('waited_s', 0)} s; the first searches took " + ", ".join(f"{m / 1000:.1f}" for m in ms) + " s")
     frag = ""
     try:
         frag = pair() or ""
     except Exception as e:  # noqa: BLE001 - the plain hint still works where the networks match
         say(f"     (no pairing for this browser: {type(e).__name__}); the page will look for the engine on this network")
+    t_open = (now or _t.time)()
     try:
         opener(PAGE_URL + (f"#{frag}&engine=1" if frag else firstrun.PAGE_HINT))
-    except Exception:  # noqa: BLE001
-        pass
-    return r
+    except Exception as e:  # noqa: BLE001
+        say(f"     the page could not be opened ({type(e).__name__}): open https://search.logout.cloud yourself")
+        write("the page could not be opened", True, ok=False, opened=False)
+        return {**r, "ok": False, "opened": False, "page_connected": False, "why": "the browser could not be started"}
+    say("     the page is open: waiting for it to reach your engine")
+    s2 = seen(os.path.join(data, "state"), t_open)
+    if s2.get("ok"):
+        say(f"     connected: your browser is talking to your engine ({s2.get('after_s')} s after the page opened)")
+        write("connected", True, ok=True, opened=True, page_after_s=s2.get("after_s"))
+        return {**r, "ok": True, "opened": True, "page_connected": True, "page_after_s": s2.get("after_s")}
+    say(f"     the page opened but did not reach your engine within {int(s2.get('after_s') or 0)} s. Refresh the page once; if it still shows "
+        "the public site, your browser may block local connections: run `logout-search doctor` and send it to us.")
+    write("the page did not reach the engine", True, ok=False, opened=True, page_connected=False)
+    return {**r, "ok": False, "opened": True, "page_connected": False, "why": "the page opened but never reached the engine"}
 
 
 def pair_fragment(data: str) -> str:
@@ -950,8 +962,7 @@ def uninstall(a) -> int:
     base = os.path.abspath(a.dest) if a.dest else default_base()
     data = os.path.join(base, "data")
     if PLATFORM == "win32":
-        tray = os.path.join(base, "app", "logout-search-tray.exe")
-        return subprocess.call([tray, "--uninstall", "--dest", base]) if os.path.isfile(tray) else 1
+        return uninstall_windows(base, a.yes)
     # only a folder that is one of ours: an app or data folder of this program inside it
     ours = os.path.basename(base.rstrip(os.sep)) and (os.path.isdir(os.path.join(base, "app")) or os.path.isdir(data))
     if not ours or base in ("/", home()):
@@ -981,6 +992,41 @@ def uninstall(a) -> int:
     shutil.rmtree(base, ignore_errors=True)
     say("removed" if not os.path.exists(base) else f"mostly removed; some files under {base} were in use: delete the folder by hand")
     return 0 if not os.path.exists(base) else 1
+
+
+def uninstall_windows(base: str, yes: bool, *, stop=None, unregister=None, rmdir=None, remove_later=None, confirm=None, say_=None) -> int:
+    """`uninstall` on Windows, done here (uninstall_win.py says why the old call to the tray's own uninstall failed). The tray's menu
+    and Settings > Apps keep the tray's own, interactive uninstall. Parts are injectable for the tests."""
+    import shutil
+    import uninstall_win as uw
+    say_ = say_ or say
+    data = os.path.join(base, "data")
+    if not (os.path.isdir(os.path.join(base, "app")) or os.path.isdir(data)) or os.path.normcase(base).rstrip("\\/") in (os.path.normcase(home()).rstrip("\\/"), ""):
+        say_(f"refused: {base} does not look like a logout search install (no app or data folder in it)")
+        return 2
+    say_(f"This removes logout search from this computer: {base} (the program, the search data, news, settings and pairings), and stops it starting at logon.")
+    if not yes:
+        if not (sys.stdin and sys.stdin.isatty()):
+            say_("run it again with --yes to go ahead")
+            return 2
+        if (confirm or (lambda: input("Remove it? [y/N] ").strip().lower() in ("y", "yes")))() is not True:
+            say_("nothing removed")
+            return 1
+    stopped = (stop or uw.stop_under)(base)
+    say_(f"stopped {len(stopped)} process(es) of this install")
+    try:
+        (unregister or _unregister_windows)(base)
+    except Exception as e:  # noqa: BLE001
+        say_(f"could not remove the Start menu / Settings entries ({type(e).__name__}): they may remain")
+    (rmdir or (lambda b: shutil.rmtree(os.path.join(b, "data"), ignore_errors=True)))(base)     # the big part, now; the program's own folder after we exit
+    (remove_later or uw.remove_folder_later)(base)
+    say_("removed; the program folder goes a few seconds after this window closes")
+    return 0
+
+
+def _unregister_windows(base: str) -> None:
+    import tray_win
+    tray_win.unregister(base)
 
 
 # ================================================================================================ autostart

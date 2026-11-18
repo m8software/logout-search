@@ -62,6 +62,36 @@ def _load_kern():
 _kern = _load_kern()
 
 
+def _prefetch_ranges(mm: "np.memmap", starts: list, ends: list) -> None:
+    """Hint the OS to read mm[start:end] for each pair (byte offsets into the mapped file)."""
+    import sys
+    if sys.platform == "win32":
+        import ctypes
+        from ctypes import wintypes
+
+        class RANGE(ctypes.Structure):
+            _fields_ = [("VirtualAddress", ctypes.c_void_p), ("NumberOfBytes", ctypes.c_size_t)]
+        k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        fn = getattr(k32, "PrefetchVirtualMemory", None)        # Windows 8 and later; absent = no hint
+        if fn is None:
+            raise OSError("PrefetchVirtualMemory not available")
+        fn.argtypes = [wintypes.HANDLE, ctypes.c_size_t, ctypes.POINTER(RANGE), wintypes.ULONG]
+        fn.restype = wintypes.BOOL
+        k32.GetCurrentProcess.restype = wintypes.HANDLE
+        base = mm.ctypes.data
+        arr = (RANGE * len(starts))(*[RANGE(base + a, b - a) for a, b in zip(starts, ends)])
+        fn(k32.GetCurrentProcess(), len(starts), arr, 0)
+        return
+    import mmap
+    inner = getattr(mm, "_mmap", None)
+    if inner is None or not hasattr(inner, "madvise"):
+        raise OSError("no madvise on this mapping")
+    page = mmap.PAGESIZE
+    for a, b in zip(starts, ends):
+        a0 = (a // page) * page
+        inner.madvise(mmap.MADV_WILLNEED, a0, min(b, len(inner)) - a0)
+
+
 def _ort_lean(opts) -> None:
     """Memory, measured on testbox with rc3 (2026-10-05): no arena / no memory pattern (the arena grows to
     the largest input and never shrinks; ~60 MB less idle, no slower); SEARCH_ORT_PREPACK=0 also skips
@@ -127,13 +157,40 @@ class IvfIndex:
         n = int(self.offs[-1])
         if len(self.offs) != len(self.cent) + 1:
             raise ValueError(f"{path}: {len(self.cent)} centroids but {len(self.offs) - 1} lists")
-        self.codes = np.memmap(os.path.join(path, "codes.u8"), np.uint8, "r", shape=(n, DIM_BYTES)).view(np.uint64)
+        self._codes_map = np.memmap(os.path.join(path, "codes.u8"), np.uint8, "r", shape=(n, DIM_BYTES))
+        self.codes = self._codes_map.view(np.uint64)
         self.ids = np.memmap(os.path.join(path, "ids.i32"), np.int32, "r", shape=(n,))
         if n != meta.get("rows"):
             raise ValueError(f"{path}: {n} codes but ivf.json says {meta.get('rows')}")
 
     def __len__(self) -> int:
         return len(self.ids)
+
+    def prefetch(self, lists: np.ndarray) -> None:
+        """Ask the OS to read the code runs of the lists about to be scanned, in a few large merged requests, before the scan faults them in
+        4 KB at a time: 200 lists are 50 MB of codes in runs of about 250 KB. Linux: madvise(MADV_WILLNEED) on the mapping; Windows:
+        PrefetchVirtualMemory (no read-ahead for mapped pages there, each fault a synchronous read through the antivirus filter). A failure
+        turns it off for the process: it is only a hint."""
+        if self._prefetch_off or len(lists) == 0:
+            return
+        try:
+            a = self.offs[lists] * DIM_BYTES
+            b = self.offs[lists + 1] * DIM_BYTES
+            o = np.argsort(a)
+            a, b = a[o], b[o]
+            keep = a < b
+            a, b = a[keep], b[keep]
+            if not len(a):
+                return
+            gap = np.concatenate(([True], a[1:] > np.maximum.accumulate(b)[:-1] + (64 << 10)))      # a run that starts within 64 KB of the last one joins it
+            starts = a[gap]
+            ends = np.maximum.reduceat(b, np.flatnonzero(gap))
+            _prefetch_ranges(self._codes_map, starts.tolist(), ends.tolist())
+        except Exception as e:  # noqa: BLE001 - a hint, never an error
+            self._prefetch_off = True
+            print(f"ivf prefetch off: {type(e).__name__}: {e}", flush=True)
+
+    _prefetch_off = False
 
     def search(self, code: np.ndarray, k: int = 5, probes: int = 200) -> list[tuple[int, int]]:
         """(page_id, Hamming distance) of the k nearest codes in the `probes` nearest lists, nearest
@@ -144,6 +201,7 @@ class IvfIndex:
         lists = np.argpartition(dc, probes - 1)[:probes] if probes < len(dc) else np.arange(len(dc))
         if _kern is not None and 0 < k <= 4096:
             lists = np.ascontiguousarray(lists, dtype=np.int64)
+            self.prefetch(lists)
             out_d = np.empty(k, np.int32)
             out_r = np.empty(k, np.int64)
             n = _kern(self.codes.ctypes.data, self.offs.ctypes.data, lists.ctypes.data, len(lists),

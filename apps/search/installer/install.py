@@ -1170,16 +1170,85 @@ def install(a) -> dict:
         # ---- 6. the one rename, then the pointer
         os.rename(stage, final)
         release_ptr.fsync_path(os.path.join(base, "releases"))
+        prep = prepare_release(base, rid, final)                 # before `current` moves; a failure here never fails the install
         warn = point(base, rid, cur)
         if not a.keep_download:
             shutil.rmtree(os.path.join(base, ".download"), ignore_errors=True)
         r = {"release": rid, "installed": True, "files": len(m["files"]), "downloaded_files": fetched, "skipped_files": skipped,
              "total_bytes": need, "seconds": round(time.time() - t0, 2)}
+        r["prepare"] = {"ok": prep["ok"], "seconds": prep["seconds"], **({"error": prep["error"]} if prep["error"] else {})}
         if warn:
             r["warning"] = warn
         return r
     finally:
         lock()
+
+
+PREPARE_TIMEOUT_S = 900
+
+
+def prepare_command() -> list:
+    """What runs the engine in its prepare mode (SEARCH_PREPARE_ONLY=1): the bundle's own `engine`, or search_api.py in a checkout.
+    LOGOUT_PREPARE_CMD (a JSON list) replaces it: the tests' stand-in."""
+    v = os.environ.get("LOGOUT_PREPARE_CMD")
+    if v:
+        return json.loads(v)
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "engine"]
+    return [sys.executable, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "serve", "api", "search_api.py"))]
+
+
+def prepare_state_path(base: str) -> str:
+    return os.path.join(base, "state", "prepare.json")
+
+
+def prepare_release(base: str, rid: str, release_dir: str, runner=subprocess.run) -> dict:
+    """Build what the engine would otherwise build at its first start of a release (the warm plan, the page-id map, the channel
+    index: about 8 s), beside the result store, while nobody waits. Run after the release is unpacked and before the `current`
+    pointer moves, and after every data update. NEVER raises and never fails the install: a failed prepare only means the first
+    start builds the files (slower). The last outcome is BASE/state/prepare.json, which `doctor` shows."""
+    t0 = time.time()
+    rec = {"release": rid, "at": int(t0), "ok": False, "seconds": 0.0, "error": None}
+    try:
+        env = engine_env(base, release_dir=release_dir)
+        os.makedirs(os.path.join(base, "store"), exist_ok=True)              # the engine keeps the files beside the store: its folder must exist
+        env["SEARCH_PREPARE_ONLY"] = "1"
+        r = runner(prepare_command(), env={**os.environ, **env}, capture_output=True, text=True, timeout=PREPARE_TIMEOUT_S)
+        rec["ok"] = r.returncode == 0 and "prepared" in (r.stdout or "")
+        if not rec["ok"]:
+            tail = ((r.stderr or "").strip().splitlines() or (r.stdout or "").strip().splitlines() or ["(no output)"])[-1]
+            rec["error"] = f"exit {r.returncode}: {tail}"[:300]
+    except Exception as e:  # noqa: BLE001 - see above
+        rec["error"] = f"{type(e).__name__}: {e}"[:300]
+    rec["seconds"] = round(time.time() - t0, 1)
+    try:
+        p = prepare_state_path(base)
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        with open(p + ".tmp", "w", encoding="utf-8") as f:
+            json.dump(rec, f, indent=1, sort_keys=True)
+        os.replace(p + ".tmp", p)
+    except OSError:
+        pass
+    if os.environ.get("LOGOUT_INSTALL_QUIET") != "1":
+        print(f"  warm-up files for {rid}: " + (f"prepared in {rec['seconds']} s" if rec["ok"] else
+              f"NOT prepared ({rec['error']}); the first start builds them, slower"), file=sys.stderr, flush=True)   # stdout is the JSON result
+    return rec
+
+
+def prepare_if_needed(base: str, runner=subprocess.run):
+    """An install made before the installer prepared the warm-up files (or one whose last record is for another release): prepare the
+    CURRENT release once (setup calls it). -> the record, or None when there is nothing to do."""
+    rid = release_ptr.current_id(base)
+    if not rid:
+        return None
+    try:
+        with open(prepare_state_path(base), encoding="utf-8") as f:
+            last = json.load(f)
+        if last.get("ok") and last.get("release") == rid:
+            return None
+    except (OSError, ValueError):
+        pass
+    return prepare_release(base, rid, os.path.join(base, "releases", rid), runner=runner)
 
 
 def point(base: str, rid: str, cur) -> str:
@@ -1844,9 +1913,10 @@ def _move_lists_parts(base: str, frm: str, to: str) -> None:
         pass
 
 
-def engine_env(base: str, port: int = 8090) -> dict:
-    """The environment search_api.py needs to answer from BASE/current (names read from search_api.py, not guessed)."""
-    cur = os.path.join(base, "current")
+def engine_env(base: str, port: int = 8090, release_dir: str | None = None) -> dict:
+    """The environment search_api.py needs to answer from BASE/current (names read from search_api.py, not guessed).
+    release_dir: a release folder of its own instead of the `current` pointer (prepare_release runs before the pointer moves)."""
+    cur = release_dir or os.path.join(base, "current")
     if not os.path.isfile(os.path.join(os.path.realpath(cur), "manifest.json")):
         raise InstallError(f"{cur} is not an installed release: run `install.py install` first")
     real = os.path.realpath(cur)
