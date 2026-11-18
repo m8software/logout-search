@@ -13,6 +13,7 @@ from stage_parts import part_run
 import psycopg
 import re
 import threading
+import start_trace
 import time
 import unicodedata
 from urllib.parse import urlsplit
@@ -399,7 +400,7 @@ _qcode_cache: dict = {}
 
 _qcode_busy: dict = {}                 # query -> Event while one thread embeds it
 
-_qcode_lock = threading.Lock()
+_qcode_lock = start_trace.lock("qcode")
 
 def _qcode_compute(si, enc, q: str):
     """The nomic code of q: from the compute cache (SEARCH_COMPUTE_CACHE) when this model already coded this
@@ -2536,7 +2537,7 @@ CE_ALT_DIR = os.environ.get("SEARCH_CE_ALT_DIR", "")
 
 _ce_alt = None
 
-_ce_alt_lock = threading.Lock()
+_ce_alt_lock = start_trace.lock("ce_alt")
 
 def ce_alt():
     """?drop=cealt (eval only): the reranker in SEARCH_CE_ALT_DIR, on the CPU. Fails loudly —
@@ -3415,7 +3416,7 @@ SITE_PAGES_W = float(os.environ.get("SEARCH_SITE_PAGES_W", "1.0"))
 
 _site_pages_state: list = []
 
-_site_pages_lock = threading.Lock()
+_site_pages_lock = start_trace.lock("site_pages")
 
 def site_pages_table():
     """The table, opened once; None when unset or unreadable (the feature stays off, and says so once)."""

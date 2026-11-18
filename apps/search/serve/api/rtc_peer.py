@@ -71,6 +71,24 @@ import time
 
 import websockets
 from aiortc import RTCConfiguration, RTCIceServer, RTCPeerConnection, RTCSessionDescription
+try:
+    import ice_addresses
+    ice_addresses.install()                  # offer the real adapters only: a WSL/Hyper-V/Tailscale/link-local address cost every link a 5 s STUN wait (buildbox)
+except ImportError:
+    pass
+
+
+async def _close(pc) -> None:
+    """pc.close() for at most 5 s. On Windows (buildbox, aiortc 1.15) closing a connected pair never returned and the first-run link test waited 12 minutes.
+    asyncio.wait, not wait_for: wait_for cancels the close and then waits for the cancellation to finish, which is what never happens; the stuck
+    task is abandoned."""
+    task = asyncio.ensure_future(pc.close())
+    try:
+        done, _pending = await asyncio.wait({task}, timeout=5)
+        if done and not task.cancelled():
+            task.exception()                    # a failed close is not an error here
+    except Exception:  # noqa: BLE001 - a connection that will not close is dropped
+        pass
 
 import native_host
 
@@ -375,6 +393,31 @@ def peer_on_lan(pc) -> bool:
         return False
 
 
+_page_seen_at = [0.0]
+
+
+def note_page_seen(via) -> None:
+    """A page's message came over a data channel: write STATE's folder/page-seen.json (at most every 5 s) so the installer's first run can
+    tell that a real browser reached this engine. Never raises; nothing but the time, the route and a count is written."""
+    now = time.time()
+    if now - _page_seen_at[0] < 5:
+        return
+    _page_seen_at[0] = now
+    try:
+        p = os.path.join(os.path.dirname(os.path.abspath(STATE)), "page-seen.json")
+        n = 0
+        try:
+            with open(p, encoding="utf-8") as f:
+                n = int(json.load(f).get("n") or 0)
+        except (OSError, ValueError, TypeError):
+            pass
+        with open(p + ".tmp", "w", encoding="utf-8") as f:
+            json.dump({"at": now, "via": via, "n": n + 1}, f)
+        os.replace(p + ".tmp", p)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def say(msg: str) -> None:
     print(f"rtc_peer: {msg}", flush=True)       # connection-level events only, never a search
 
@@ -637,12 +680,13 @@ async def on_offer(ws, m: dict) -> None:
         @channel.on("close")
         def on_close():                               # the page closed it (a reload, a closed tab): the slot is free now
             _forget(pc)
-            asyncio.ensure_future(pc.close())
+            asyncio.ensure_future(_close(pc))
 
         @channel.on("message")
         def on_message(raw):
             if pc in _pc_info:
                 _pc_info[pc]["last"] = time.monotonic()
+            note_page_seen(via)
             if bucket.allow():
                 asyncio.ensure_future(reply(channel, raw, via, lambda: peer_on_lan(pc), conn))
             elif channel.readyState == "open":
@@ -652,14 +696,14 @@ async def on_offer(ws, m: dict) -> None:
     async def on_state():
         if pc.connectionState in ("failed", "closed"):
             _forget(pc)
-            await pc.close()
+            await _close(pc)
 
     try:
         await pc.setRemoteDescription(RTCSessionDescription(sdp=without_mdns(sdp["sdp"]), type=sdp["type"]))
     except Exception as e:                            # a bad offer must not kill anything else
         say(f"offer rejected: {type(e).__name__}")
         _forget(pc)
-        await pc.close()
+        await _close(pc)
         return
     try:
         # aiortc gathers every candidate before setLocalDescription returns: one answer, no trickle
@@ -672,7 +716,7 @@ async def on_offer(ws, m: dict) -> None:
     except Exception as e:  # noqa: BLE001 - a failed answer must not keep its slot (RT-07)
         say(f"answer failed: {type(e).__name__}")
         _forget(pc)
-        await pc.close()
+        await _close(pc)
 
 
 IPV6_RETRY_S = 1800           # no IPv6 here: look again every half hour, silently

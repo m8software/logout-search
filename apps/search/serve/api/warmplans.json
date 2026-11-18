@@ -1,0 +1,35 @@
+{
+ "proto-20261108-rc15": {
+  "sizes": {
+   "lookup.sqlite": 6864752640,
+   "registry.sqlite": 1474039808
+  },
+  "tier2": [
+   [
+    "lookup.sqlite",
+    24576,
+    81920
+   ],
+   [
+    "lookup.sqlite",
+    4534995760,
+    278433792
+   ],
+   [
+    "lookup.sqlite",
+    4821622784,
+    113803264
+   ],
+   [
+    "lookup.sqlite",
+    5101215744,
+    1433206784
+   ],
+   [
+    "registry.sqlite",
+    4096,
+    1385279488
+   ]
+  ]
+ }
+}

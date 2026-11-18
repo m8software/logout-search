@@ -251,4 +251,21 @@ print(rp.current_id(b), rp.current_id(b, 'previous'), os.path.islink(os.path.joi
 grep -q "CreateJunction" "$REPO_ROOT/apps/search/release/release_ptr.py" && grep -q 'os.name != "nt"' "$REPO_ROOT/apps/search/release/release_ptr.py" \
     && ok "on Windows a refused symlink becomes an NTFS junction (code present; exercised by the public repo's CI on windows-latest)" || bad "junction fallback missing"
 
+out=$(REPO="$REPO_ROOT" python3 -I - <<'PYS' 2>&1
+import os, sys
+R = os.environ["REPO"]; sys.path[:0] = [os.path.join(R, "apps/search/installer"), os.path.join(R, "apps/search/release"), os.path.join(R, "apps/search/serve/api")]
+import logout_search as ls
+import io, contextlib
+buf = io.StringIO()
+with contextlib.redirect_stderr(buf):
+    ls.start_phase("engine environment built")
+lines = buf.getvalue().splitlines()
+ok = len(lines) == 1 and lines[0].startswith("start: engine environment built at +") and lines[0].endswith(" s")
+src = open(os.path.join(R, "apps/search/installer/logout_search.py")).read()
+need = ("launcher up, guard checked, engine environment built", "news file and collectors started", "engine process spawned")
+print("ok" if ok and all(f'start_phase("{n}")' in src for n in need) else "bad: " + repr(lines))
+PYS
+)
+[[ "$out" == "ok" ]] && ok "start logs each phase with its time since the launcher began (launcher up, environment, collectors, engine spawned): a slow start can be attributed" || bad "start phases" "$out"
+
 finish

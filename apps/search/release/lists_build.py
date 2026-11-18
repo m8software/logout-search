@@ -87,6 +87,16 @@ def read_allow(path: str | None):
 # it (eng, pk, dev: a re-stamped answer is the same answer). A delta carries the rows whose content is not there.
 STATE = "published.sqlite"
 STAMPS = ("eng", "pk", "dev")
+# ... and without each result row's reading-model score ("ce"). Measured 2026-11-18 on 200 answers of each of two deltas:
+# 108 and 92 differed from the published row in nothing but that number (the same rows in the same order, the same text
+# and card); an answer first built on the CPU and rebuilt on the GPU gets it from another build of the model. Nothing
+# shown or decided from a stored answer reads it: the page's "How this was ranked" takes its numbers from /explain, the
+# engine uses ce only while it builds the list. Row order, row text, card, links, kinds, places, cur_at stay in the hash.
+# A field that is null counts as absent: release 2 added "cur_at_card", null for most answers, and that alone made 53% of a
+# delta's rows "changed" (1,605 of 3,000 sampled). An install treats the two alike except that a row WITH the null field
+# stops being served if a hand-picked list for its card's name appears later; a row without it is kept until rebuilt.
+ROW_SCORES = ("ce",)
+HASH_V = "2"                                         # the rule the table was made with; another rule = seed it again
 
 
 def content_hash(table: str, text: bytes) -> bytes:
@@ -94,7 +104,10 @@ def content_hash(table: str, text: bytes) -> bytes:
         try:
             b = json.loads(text)
             if isinstance(b, dict):
-                text = json.dumps({k: v for k, v in b.items() if k not in STAMPS}, sort_keys=True, separators=(",", ":")).encode()
+                b = {k: v for k, v in b.items() if k not in STAMPS and v is not None}     # a null field is an absent one
+                if isinstance(b.get("results"), list):
+                    b["results"] = [{k: v for k, v in r.items() if k not in ROW_SCORES} if isinstance(r, dict) else r for r in b["results"]]
+                text = json.dumps(b, sort_keys=True, separators=(",", ":")).encode()
         except ValueError:
             pass
     return hashlib.sha1(text).digest()
@@ -108,6 +121,17 @@ def state_open(out: str, create: bool = False):
     db = sqlite3.connect(p)
     db.execute("CREATE TABLE IF NOT EXISTS pub (tbl TEXT NOT NULL, key TEXT NOT NULL, h BLOB NOT NULL, PRIMARY KEY (tbl, key)) WITHOUT ROWID")
     return db
+
+
+def state_rule(db, write: bool = False) -> None:
+    """The table says which rule made its hashes; a table of another rule would call every row changed. Refused, not guessed."""
+    if write:
+        db.execute("INSERT OR REPLACE INTO pub VALUES ('meta', 'hash', ?)", (HASH_V.encode(),))
+        return
+    r = db.execute("SELECT h FROM pub WHERE tbl = 'meta' AND key = 'hash'").fetchone()
+    if (r[0].decode() if r else "1") != HASH_V:
+        raise SystemExit(f"{STATE} was made with content rule {r[0].decode() if r else '1'}, this publisher uses {HASH_V}: run "
+                         "`lists_build.py seed --out OUT PART...` with the published parts first (nothing was built)")
 
 
 def content_share(store: str, release: str, state, allow=None) -> tuple[int, int]:
@@ -135,6 +159,7 @@ def state_seed(out: str, parts: list[str]) -> dict:
     """Make the table from published part files (decoded .sqlite, oldest first): what installs hold today."""
     db = state_open(out, create=True)
     db.execute("DELETE FROM pub")
+    state_rule(db, write=True)
     n = 0
     for f in parts:
         src = sqlite3.connect(f"file:{f}?mode=ro", uri=True)
@@ -145,7 +170,7 @@ def state_seed(out: str, parts: list[str]) -> dict:
                 n += 1
         src.close()
     db.commit()
-    rows = db.execute("SELECT count(*) FROM pub").fetchone()[0]
+    rows = db.execute("SELECT count(*) FROM pub WHERE tbl != 'meta'").fetchone()[0]
     db.close()
     return {"seeded": rows, "rows_read": n, "parts": len(parts)}
 
@@ -166,6 +191,7 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
     n, until, new, held, same = {}, since, 0, 0, 0
     if state is not None and reset:
         state.execute("DELETE FROM pub")
+        state_rule(state, write=True)
     lo = -1.0 if reset else since
     for t in ("curated", "finished"):
         c = 0
@@ -280,6 +306,7 @@ def build(a) -> dict:
     overlap = OVERLAP_S
     probe = None if base else state_open(a.out)
     if probe is not None:
+        state_rule(probe)
         # with the published-content table, "is this a base?" is asked of the content too: the day after an engine
         # release most rows are REWRITTEN (58% on 2026-11-17) while a fifth CHANGED; by write time that was a 515 MB base
         differ, total = content_share(a.store, a.release, probe, read_allow(a.allow))

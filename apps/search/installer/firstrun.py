@@ -26,6 +26,7 @@ import json
 import statistics
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 RV_URL = "wss://search.logout.cloud/rv"
@@ -58,6 +59,11 @@ def warming(body: str):
 
 async def _link_test(rv_url: str, name: str, searches, timeout: float, stun=STUN) -> dict:
     import websockets
+    try:
+        import ice_addresses                               # the engine's own filter: real adapters only (WSL / Tailscale / link-local ones cost a 5 s STUN wait each)
+        ice_addresses.install()
+    except Exception:  # noqa: BLE001 - not on the path (a checkout's tests): aiortc's default
+        pass
     from aiortc import RTCConfiguration, RTCIceServer, RTCPeerConnection, RTCSessionDescription
     t0 = time.monotonic()
     out = {"ok": False, "steps": {}, "searches_ms": []}
@@ -104,15 +110,112 @@ async def _link_test(rv_url: str, name: str, searches, timeout: float, stun=STUN
             out["ok"] = True
             return out
         finally:
-            await pc.close()
+            try:                                           # a close that never returns held buildbox's setup for 12+ minutes (2026-11-17); wait_for cannot
+                await asyncio.wait({asyncio.ensure_future(pc.close())}, timeout=5)      # bound it, asyncio.wait can (engine agent, buildbox)
+            except Exception:  # noqa: BLE001
+                pass
 
 
-def link_test(name: str, rv_url: str = RV_URL, searches=FIRST_SEARCHES, timeout: float = 20.0, stun=STUN) -> dict:
-    """One connection, made the way the page makes it, then a ping and the searches. Never raises: {"ok": False, "why"}."""
+PAGE_SEEN_WAIT_S = 60          # after the page is opened: a message from it must reach the engine within this
+
+
+def local_link(port: int, name: str, rv_url: str = RV_URL, searches=FIRST_SEARCHES, search_timeout: float = 20.0, fetch=None, rv_list=None) -> dict:
+    """What must hold BEFORE the page is opened, without a WebRTC connection made by this program (it never returned on buildbox: the link
+    test from the engine's own computer): the peer is signed in to the rendezvous under this computer's name, and the engine answers the
+    first searches quickly over plain HTTP. -> {"ok", "why"?, "searches_ms"} (the shape wait_first_run wants)."""
+    out = {"ok": False, "searches_ms": [], "steps": {}}
     try:
-        return asyncio.run(_link_test(rv_url, name, searches, timeout, stun))
+        names = (rv_list or _rv_names)(rv_url)
     except Exception as e:  # noqa: BLE001
-        return {"ok": False, "why": f"{type(e).__name__}: {str(e)[:160]}", "steps": {}, "searches_ms": []}
+        out["why"] = f"the rendezvous could not be asked ({type(e).__name__}: {str(e)[:100]})"
+        return out
+    if name not in names:
+        out["why"] = f"the rendezvous does not list {name!r} yet ({len(names)} engine(s) on this network)"
+        return out
+    for q in searches:
+        t1 = time.monotonic()
+        try:
+            if fetch:
+                fetch(q)
+            else:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/instant?results=1&full=1&q={urllib.parse.quote(q)}", timeout=search_timeout) as r:
+                    r.read(2000000)
+        except Exception as e:  # noqa: BLE001
+            out["why"] = f"a search on the engine failed: {type(e).__name__}"
+            return out
+        out["searches_ms"].append(int((time.monotonic() - t1) * 1000))
+    out["ok"] = True
+    return out
+
+
+def _rv_names(rv_url: str) -> list:
+    """The names of the engines the rendezvous lists for this network (one websocket, one `find`; no WebRTC)."""
+    import threading
+    box: dict = {}
+
+    async def go():
+        import websockets
+        async with websockets.connect(rv_url, open_timeout=10, max_size=64 * 1024) as ws:
+            await ws.send(json.dumps({"t": "find"}))
+            while True:
+                m = json.loads(await asyncio.wait_for(ws.recv(), 8))
+                if m.get("t") == "engines" or "list" in m:
+                    return [e.get("name") for e in m.get("list") or []]
+
+    def run():
+        try:
+            box["r"] = asyncio.run(go())
+        except Exception as e:  # noqa: BLE001
+            box["e"] = e
+    th = threading.Thread(target=run, daemon=True)
+    th.start()
+    th.join(30)
+    if "r" not in box:
+        raise box.get("e") or TimeoutError("no answer")
+    return box["r"]
+
+
+def wait_page_seen(state_dir: str, since: float, wait_s: float = PAGE_SEEN_WAIT_S, clock=time.time, sleep=time.sleep) -> dict:
+    """After the page was opened: has a REAL browser reached this engine? The peer writes state/page-seen.json when a message from a page
+    arrives over its data channel. -> {"ok", "after_s"?, "via"?}; bounded by wait_s."""
+    import os
+    p = os.path.join(state_dir, "page-seen.json")
+    t0 = clock()
+    while True:
+        try:
+            with open(p, encoding="utf-8") as f:
+                d = json.load(f)
+            if float(d.get("at") or 0) >= since:
+                return {"ok": True, "after_s": round(clock() - t0, 1), "via": d.get("via")}
+        except (OSError, ValueError, TypeError):
+            pass
+        if clock() - t0 >= wait_s:
+            return {"ok": False, "after_s": round(clock() - t0, 1)}
+        sleep(1.0)
+
+
+LINK_HARD_S = 60.0       # one link attempt never takes longer than this, whatever aiortc is doing
+
+
+def link_test(name: str, rv_url: str = RV_URL, searches=FIRST_SEARCHES, timeout: float = 20.0, stun=STUN, hard: float = LINK_HARD_S) -> dict:
+    """One connection, made the way the page makes it, then a ping and the searches. Never raises and never hangs: {"ok": False, "why"}.
+    The attempt runs in its own thread with its own loop and is given up after `hard` seconds (the thread is a daemon: it cannot hold the
+    process)."""
+    import threading
+    box: dict = {}
+
+    def run():
+        try:
+            box["r"] = asyncio.run(_link_test(rv_url, name, searches, timeout, stun))
+        except Exception as e:  # noqa: BLE001
+            box["r"] = {"ok": False, "why": f"{type(e).__name__}: {str(e)[:160]}", "steps": {}, "searches_ms": []}
+
+    th = threading.Thread(target=run, name="link-test", daemon=True)
+    th.start()
+    th.join(hard)
+    if "r" not in box:
+        return {"ok": False, "why": f"the link test did not finish in {int(hard)} s", "steps": {}, "searches_ms": []}
+    return box["r"]
 
 
 def wait_first_run(port: int, say, link, *, get_ready=readyz, clock=time.monotonic, sleep=time.sleep, total_max: float = TOTAL_MAX_S,

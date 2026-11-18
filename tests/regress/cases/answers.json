@@ -328,16 +328,24 @@
    },
    "xfail": [
     {
+     "tags": [
+      "public",
+      "install"
+     ],
      "subs": [
       "lead cut"
      ],
-     "reason": ": leads are cut mid-word at the 300-character cap"
+     "reason": " fixed on branch launch-cards (clean_lead); expected to fail on targets that run an engine without it: drop this marker when it ships"
     },
     {
+     "tags": [
+      "public",
+      "install"
+     ],
      "subs": [
       "lead markup"
      ],
-     "reason": ": raw wiki markup in a card lead (uk)"
+     "reason": " fixed on branch launch-cards (strip_wiki_markup); drop this marker when it ships"
     }
    ]
   },
