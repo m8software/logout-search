@@ -32,6 +32,8 @@ import re
 import sys
 import threading
 import time
+
+import start_trace      # the startup trace (SEARCH_START_TRACE=1): a no-op unless it is on
 import unicodedata
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
@@ -519,7 +521,7 @@ class TantivyReleaseWikiText:
 
 
 _wiki_text = None
-_wiki_text_lock = threading.Lock()
+_wiki_text_lock = start_trace.lock("wiki_text")
 
 
 # Wikipedia meaning search (T3b, ADR-063): Postgres (wiki_vec, bge-small, HNSW) or the release's
@@ -1087,7 +1089,7 @@ class _Embedder:
         return cls / np.linalg.norm(cls, axis=1, keepdims=True)
 
 
-_embedder_lock = threading.Lock()
+_embedder_lock = start_trace.lock("embedder")
 _embedder_retry = [0.0]                                    # monotonic time before which a failed load is not retried
 EMBED_RETRY_S = float(os.environ.get("SEARCH_EMBED_RETRY_S", "30"))
 
@@ -1143,7 +1145,7 @@ def embed(text: str, prefix: str = QUERY_PREFIX) -> list[float] | None:
 # news lookup for a popular name took 140-700 ms embedding its headlines, a repeat 41 ms.
 _NEWS_VEC_MAX = int(os.environ.get("SEARCH_NEWS_VEC_MAX", "30000"))
 _news_vecs: OrderedDict = OrderedDict()
-_news_vec_lock = threading.Lock()
+_news_vec_lock = start_trace.lock("news_vec")
 
 
 def news_vectors(items: list[tuple[str, str]]) -> dict | None:
@@ -1426,7 +1428,7 @@ _pt: contextvars.ContextVar = contextvars.ContextVar("pt", default=None)     # e
 #   median own rank of the three listed sites goes from 94,151 to 68,843.
 KIND_RANK_W_OPEN = float(os.environ.get("SEARCH_KIND_RANK_W_OPEN", "0.15"))
 _kvec = (None, None, None)          # (generation, keys, unit-row matrix)
-_kvec_lock = threading.Lock()
+_kvec_lock = start_trace.lock("kind_vec")
 
 
 KIND_VECS_SQL = "SELECT key, v FROM kind_vecs"
@@ -2133,8 +2135,9 @@ def place_exact(q: str) -> dict | None:
 # ---------------------------------------------------------------------------
 POOL_MAX = int(os.environ.get("SEARCH_POOL_MAX", "12"))
 _pool: list = []
-_pool_lock = threading.Lock()
-_EXEC = ThreadPoolExecutor(max_workers=int(os.environ.get("SEARCH_WORKERS", "12")), thread_name_prefix="q")
+_pool_lock = start_trace.lock("conn_pool")
+START_TRACE = start_trace.ON
+_EXEC = start_trace.pool(int(os.environ.get("SEARCH_WORKERS", "12")), "q")      # a plain ThreadPoolExecutor unless SEARCH_START_TRACE=1
 
 
 # 2 s serves people; the box bench (deploy.sh box-api-up) raises it so a cold candidate
@@ -2236,7 +2239,7 @@ RELEASE_DIR = _release_root(os.environ.get("SEARCH_RELEASE_DIR", "/data/release"
 LOOKUP_DB = os.environ.get("SEARCH_LOOKUP_DB", "/data/lookup/lookup.sqlite")
 TYPO_INDEX = os.environ.get("SEARCH_TYPO_INDEX", "/data/lookup/typo-keys")
 _lookups = None
-_lookups_lock = threading.Lock()
+_lookups_lock = start_trace.lock("lookups")
 
 
 def lookups():
@@ -2314,9 +2317,12 @@ def stage(name: str):
     if _warm.get():
         _warm_yield()                               # the warmer pauses between stages while a visitor's search is in flight (RT-01)
     st, t, sc, c = _stages.get(), time.monotonic(), _stages_cpu.get(), time.thread_time()
+    tok = start_trace.stage_begin(name) if START_TRACE else None
     try:
         yield
     finally:
+        if START_TRACE:
+            start_trace.stage(name, (time.monotonic() - t) * 1000, (time.thread_time() - c) * 1000, tok)
         if st is not None:
             st[name] = st.get(name, 0.0) + (time.monotonic() - t) * 1000
         if sc is not None:
@@ -4113,7 +4119,7 @@ CACHE_TTL_S = int(os.environ.get("SEARCH_CACHE_TTL_S", "300"))
 CACHE_STATIC_TTL_S = int(os.environ.get("SEARCH_CACHE_STATIC_TTL_S", "21600"))
 CACHE_MAX = int(os.environ.get("SEARCH_CACHE_MAX", "4096"))
 _cache: OrderedDict = OrderedDict()
-_cache_lock = threading.Lock()
+_cache_lock = start_trace.lock("result_cache")
 # The head-query warmer (warm.py WARM_HEAD, 2026-11-04) asks /instant?warm=1: a static entry past half its life is
 # computed again, so a popular name never expires between the warmer's visits (a hit does not renew an entry).
 # Only the engine's own network reaches it: the public gateway forwards q/results/full/near/reach and nothing else.
@@ -4135,7 +4141,7 @@ _store = [None, False]                      # the ResultStore, tried
 _store_tried = [False]                      # a first attempt was made (by a request, or by store_open_loop at start)
 _store_state = {"error": None, "tries": 0, "gave_up": False}    # why it is not open, how often tried, whether the wait ran out
 STORE_OPEN_WAIT_S = float(os.environ.get("SEARCH_STORE_OPEN_WAIT_S", "60"))   # /readyz holds for the store this long, then says so and goes on
-_store_lock = threading.Lock()
+_store_lock = start_trace.lock("store_open")
 _audit: contextvars.ContextVar = contextvars.ContextVar("audit", default=False)
 _store_note: contextvars.ContextVar = contextvars.ContextVar("store_note", default=None)   # "disk" / "prev" / "same" / "diff"
 _prev_served: contextvars.ContextVar = contextvars.ContextVar("prev_served", default=None)   # a [bool] cached() reads
@@ -4266,7 +4272,7 @@ def store_ready() -> bool:
 # Only the builder (warm=1) writes; ?parts=0 computes live (the shadow compare's old path). Any trouble = computed live.
 PARTS_ON = frozenset(x.strip() for x in os.environ.get("SEARCH_PARTS", "").split(",") if x.strip())
 # Settings that change speed, capacity or logging, never an answer: named so a part's key is the same on every machine
-PARTS_SPEED_ONLY = ("SEARCH_BG_QUIET_S", "SEARCH_COLD_BUDGET_S", "SEARCH_CACHE_MAX", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_TTL_S", "SEARCH_CE_THREADS", "SEARCH_COMPUTE_CACHE",
+PARTS_SPEED_ONLY = ("SEARCH_START_TRACE", "SEARCH_BG_QUIET_S", "SEARCH_COLD_BUDGET_S", "SEARCH_CACHE_MAX", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_TTL_S", "SEARCH_CE_THREADS", "SEARCH_COMPUTE_CACHE",
                     "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_OV_CACHE", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
                     "SEARCH_PARTS", "SEARCH_POOL_MAX", "SEARCH_STATEMENT_TIMEOUT_MS", "SEARCH_STORE", "SEARCH_STORE_FOLD_CASE",
                     "SEARCH_STORE_MAX_AGE_S", "SEARCH_STORE_PREV", "SEARCH_STORE_REFRESH_S", "SEARCH_WORKERS", "SEARCH_LOG",
@@ -4942,7 +4948,12 @@ def cached(key, compute, static: bool = False):
             held = _MISS
         if fl[1] == threading.get_ident() or _round:     # our own compute asks for its own key, or already waited once
             break
-        fl[0].wait(CACHE_FLIGHT_WAIT_S)
+        if START_TRACE:
+            _t = time.monotonic()
+            fl[0].wait(CACHE_FLIGHT_WAIT_S)
+            start_trace.lock_wait("single-flight (cached)", (time.monotonic() - _t) * 1000)
+        else:
+            fl[0].wait(CACHE_FLIGHT_WAIT_S)
         now = time.monotonic()                           # the leader's entry is dated after our first look
     if held is not _MISS:
         return _clone(held)
@@ -5080,7 +5091,7 @@ INTENT_DIR = os.environ.get("SEARCH_INTENT_DIR", "")
 WEB_INTENT_MIN = float(os.environ.get("SEARCH_WEB_INTENT_MIN", "0.9"))
 SITES_BLOCK_WEB = float(os.environ.get("SEARCH_SITES_BLOCK_WEB", "0.7"))
 _intent = None
-_intent_lock = threading.Lock()
+_intent_lock = start_trace.lock("intent")
 
 
 def _intent_model():
@@ -5388,7 +5399,7 @@ def require_filtered_web():
 # rerank-turbo), every other query by st1. Loaded once beside it; unset, unreadable or ?drop=cegov: the one reranker.
 CE_GOV_DIR = os.environ.get("SEARCH_CE_GOV_DIR", "").strip()
 _ce_gov = None
-_ce_gov_lock = threading.Lock()
+_ce_gov_lock = start_trace.lock("ce_gov")
 
 
 def ce_gov():
@@ -6934,6 +6945,7 @@ class Handler(BaseHTTPRequestHandler):
             with _busy_lock:
                 _busy[0] += 1
                 _last_visitor[0] = time.monotonic()
+        rid = start_trace.req_begin() if START_TRACE and visitor else 0
         try:
             return self._do_get()
         except PartStale:
@@ -6942,6 +6954,8 @@ class Handler(BaseHTTPRequestHandler):
             self.log_message("request failed: %s", type(e).__name__)
             return self._send(503, json.dumps({"error": type(e).__name__}).encode())
         finally:
+            if rid:
+                start_trace.req_end(rid)
             if visitor:
                 with _busy_lock:
                     _busy[0] -= 1
@@ -7285,6 +7299,8 @@ class Handler(BaseHTTPRequestHandler):
         def emit(res, conf, card, place, intent, kinds, local, sig):     # the answer goes out: built here, or stored (fin)
             ms = int((time.monotonic() - t0) * 1000)
             note = _store_note.get()
+            if START_TRACE:
+                start_trace.request_done(ms, st)
             self.log_message("instant suggest=%d phrases=%d results=%d ms=%d cache=%s%s%s stages=%s cpu=%s full=%d fin=%s", len(sug), len(phrases),
                              len(res), ms, _cache_state.get(), " warm" if _warm.get() else "",
                              f" audit={note}" if note in ("same", "diff") else "", stages_text(st), stages_text(_stages_cpu.get()),
@@ -7383,6 +7399,11 @@ def warming_note() -> str:
     return f"warming {int(100 * _warmup['done'] / tot) if tot else 0}%"
 
 
+def _tr_step(name: str, fn):
+    """A start step; timed with its CPU, bytes read and faults into the trace table when SEARCH_START_TRACE=1."""
+    return start_trace.step(name, fn) if START_TRACE else fn()
+
+
 def warm_kinds() -> None:
     """Load the kind-name vectors at start, not on the first kind search (that search took
     2.7 s on testbox, 2026-09-28). Best effort: no table or no database yet = loaded later."""
@@ -7403,7 +7424,7 @@ def warm_models() -> None:
     for name, fn in (("embedder", lambda: embed("warm up")), ("intent", _intent_model),
                      ("cross-encoder", cross_encoder), ("cross-encoder (government tasks)", ce_gov)):
         try:
-            fn()
+            _tr_step("model " + name, fn)
         except Exception as e:
             print(f"warm {name}: {type(e).__name__}", flush=True)
     print(f"models warmed in {time.time() - t0:.1f} s", flush=True)
@@ -8032,24 +8053,27 @@ if __name__ == "__main__":
     sys.modules.setdefault("search_api", sys.modules["__main__"])
     # one after the other: loaded together, the cross-encoder's iGPU compile and the kind
     # vectors went over testbox's 1 GB limit at start (OOM-killed once, 2026-09-30)
+    start_trace.start(RELEASE_DIR)          # the report thread (SEARCH_START_TRACE=1) and the Windows-like test aid (SEARCH_TEST_NO_READAHEAD=1)
     require_filtered_web()  # release lookups + Postgres web lists: refused
     require_reranker()  # SEARCH_REQUIRE_RERANKER=1: loads the CPU model once, here, before the warm thread
     require_kinds_model()  # SEARCH_REQUIRE_KINDS_MODEL=1: the same for the kinds query model
-    threading.Thread(target=lambda: (warm_kinds(), warm_models(), warm_lookups()), daemon=True).start()
+    threading.Thread(target=lambda: (_tr_step("kind vectors", warm_kinds), warm_models(), _tr_step("lookup dictionaries", warm_lookups)), daemon=True).start()
     if NEWS_FILL_EVERY_S > 0:
         threading.Thread(target=news_vec_fill_loop, daemon=True, name="news-vec-fill").start()
     if STORE_PATH:
         import result_store as _rs
         _rs.ResultStore.yield_hook = staticmethod(bg_wait_idle)    # an intake of a lists base pauses for every search in flight
         _rs.ResultStore.is_builder = staticmethod(lambda: _warm.get())   # the warmer and the builders never skip a store read
+        if START_TRACE:
+            _rs.ResultStore.trace_hook = staticmethod(start_trace.lock_wait)    # time waiting for the store lock, in the trace table
     _cold[0] = True
     threading.Thread(target=engine_warmup, daemon=True, name="warmup").start()
     if STORE_PATH:
         threading.Thread(target=store_open_loop, daemon=True, name="store-open").start()
     if STORE_PATH and STORE_INBOX_EVERY_S > 0:
         threading.Thread(target=store_inbox_loop, daemon=True, name="store-inbox").start()
-    sem_ivf()          # a configured IVF folder / nomic model that does not load stops the start, loudly
-    wiki_text()        # a configured Tantivy index that does not open stops the start, loudly
-    web_text()
-    lookups()          # a configured SQLite lookup file that does not open stops the start, loudly
+    _tr_step("sem_ivf", sem_ivf)          # a configured IVF folder / nomic model that does not load stops the start, loudly
+    _tr_step("wiki_text", wiki_text)      # a configured Tantivy index that does not open stops the start, loudly
+    _tr_step("web_text", web_text)
+    _tr_step("lookups", lookups)          # a configured SQLite lookup file that does not open stops the start, loudly
     ThreadingHTTPServer((BIND, PORT), Handler).serve_forever()

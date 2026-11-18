@@ -12,6 +12,7 @@ import os
 from urllib.parse import quote
 import re
 import threading
+import start_trace
 import unicodedata
 from urllib.parse import urlsplit
 from search_api import (
@@ -167,7 +168,7 @@ SITENAV_MAX = 6
 
 _sitenav: dict[str, list[dict]] | None = None
 
-_sitenav_lock = threading.Lock()
+_sitenav_lock = start_trace.lock("sitenav")
 
 def sitenav() -> dict[str, list[dict]]:
     """{site host (no www.): [{title, url}, ...]}, read once."""

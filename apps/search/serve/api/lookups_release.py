@@ -27,6 +27,7 @@ import re
 import sqlite3
 import struct
 import threading
+import start_trace
 import zlib
 
 import lookups_sqlite as v0
@@ -245,7 +246,7 @@ class ReleaseLookups:
         self.root, self.s = release_root.resolve(root).rstrip("/"), s
         self._local = threading.local()
         self._free: list = []                  # (connection, Registry) released by finished request threads (SQLITE_POOL)
-        self._free_lock = threading.Lock()
+        self._free_lock = start_trace.lock("sqlite_conn_free")
         if SQLITE_HEAP_MB:
             print(f"sqlite heap: {soft_heap_limit(SQLITE_HEAP_MB << 20)}", flush=True)
         self.sig = Signals(self.root)
@@ -287,7 +288,7 @@ class ReleaseLookups:
         self.names_queries = 0
         s_ = s
         P = s_.PLACES_SQL
-        self._pid_map, self._pid_lock = None, threading.Lock()
+        self._pid_map, self._pid_lock = None, start_trace.lock("pid_map")
         self._junk = None
         self._chain_hours: dict = {}           # chain name keys -> its branches' web hours (chain_hours)
         # Shared by every thread, each capped (cleared when full). They were per thread: 12 search

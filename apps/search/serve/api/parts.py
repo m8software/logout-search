@@ -24,6 +24,7 @@ import hashlib
 import json
 import os
 import threading
+import start_trace
 
 from stage_version import Module
 
@@ -153,7 +154,7 @@ class Parts:
         self.store, self.mod, self.ctx = store, Module(module_path), ctxvars
         self.stages = {s.name: s for s in stages}
         self.env = os.environ if env is None else env
-        self.lock = threading.Lock()
+        self.lock = start_trace.lock("parts")
         self._info: dict = {}
         self.stats = {"hit": 0, "miss": 0, "put": 0, "unstorable": 0, "error": 0}
         self.by: dict = {}                       # the same per stage: {"card": {"hit": n, "miss": n, "put": n}}

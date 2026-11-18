@@ -19,6 +19,7 @@ import hashlib
 import os
 import sqlite3
 import threading
+import start_trace
 import time
 
 _FILE_HASHES: dict = {}
@@ -38,7 +39,7 @@ def file_sha256(path: str) -> str:
 class ComputeCache:
     def __init__(self, path: str):
         self.path = path
-        self.lock = threading.Lock()
+        self.lock = start_trace.lock("compute_cache")
         self.db = sqlite3.connect(path, check_same_thread=False, isolation_level=None, timeout=3)       # a second process on the file stalled every writer behind the global lock for up to 30 s (audit DB-09)
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("PRAGMA synchronous=NORMAL")

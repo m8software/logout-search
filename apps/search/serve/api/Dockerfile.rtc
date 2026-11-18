@@ -17,6 +17,6 @@ COPY rtc_selfcheck.py /app/
 # fails the build if a data channel cannot open and carry a message without FFmpeg
 RUN python /app/rtc_selfcheck.py
 # search_api.py too: the engine answers with this branch's code whatever the base image is
-COPY search_api.py site_pages.py gov_state.py site_slots.py news_sqlite.py instant_answers.py product_table.py ranker.json native_host.py rtc_peer.py lookups_release.py lookups_sqlite.py facts.py memstat.py sq_candidates.py warm.py result_store.py compute_cache.py parts.py stage_version.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py stage_base.py stage_parts.py /app/
+COPY search_api.py site_pages.py gov_state.py site_slots.py news_sqlite.py instant_answers.py product_table.py ranker.json native_host.py rtc_peer.py lookups_release.py lookups_sqlite.py facts.py memstat.py sq_candidates.py warm.py result_store.py compute_cache.py parts.py stage_version.py start_trace.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py stage_base.py stage_parts.py /app/
 USER 1000:1000
 CMD ["python", "/app/rtc_peer.py"]

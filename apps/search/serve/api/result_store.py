@@ -32,6 +32,7 @@ import zlib
 
 # Settings that change how fast or where, never which results: left out of the fingerprint.
 NOT_RESULTS = frozenset((
+    "SEARCH_START_TRACE", "SEARCH_TEST_NO_READAHEAD",
     "SEARCH_BG_QUIET_S", "SEARCH_COLD_BUDGET_S", "SEARCH_WARMUP_MAX_S", "SEARCH_WARMUP_MAX_BYTES", "SEARCH_STORE_OPEN_WAIT_S",
     "SEARCH_CACHE_TTL_S", "SEARCH_COMPUTE_CACHE", "SEARCH_PARTS", "SEARCH_FINISHED", "SEARCH_FINISHED_MAX_AGE_S", "SEARCH_CACHE_STATIC_TTL_S", "SEARCH_CACHE_MAX", "SEARCH_ORT_PREPACK", "SEARCH_ORT_SPIN",
     "SEARCH_CE_THREADS", "SEARCH_API_ALLOW_FROM", "SEARCH_MEMSTAT", "SEARCH_SQLITE_CACHE_KB", "SEARCH_IVF_KERN",
@@ -212,6 +213,7 @@ class ResultStore:
         self.db.execute(sql)
 
     yield_hook = None             # set by the engine: called between the chunks of an intake (waits for the searches in flight)
+    trace_hook = None             # set by the engine under SEARCH_START_TRACE=1: (name, ms) of every wait for the lock
     READ_WAIT_S = 0.5             # a visitor's search that cannot get the store this soon computes without it (the intake no longer holds the lock; this is the bound)
     is_builder = staticmethod(lambda: False)   # set by the engine: True for a warm=1 request (the warmer, the builders): those always wait, an answer built without the store would be a wrong stored answer
 
@@ -219,7 +221,10 @@ class ResultStore:
     def _rd(self):
         """The store for a read: yields True with the lock held, or False when the lock stayed taken for READ_WAIT_S (the reader treats
         that as "no stored row" and computes). The intake of a lists base used to hold this lock for the whole replace."""
+        t0 = time.monotonic() if self.trace_hook is not None else 0.0
         got = self.lock.acquire() if self.is_builder() else self.lock.acquire(timeout=self.READ_WAIT_S)
+        if self.trace_hook is not None:
+            self.trace_hook("store lock (read)", (time.monotonic() - t0) * 1000)
         if not got:
             self.stats["busy"] = self.stats.get("busy", 0) + 1
         try:
