@@ -525,6 +525,93 @@ def without_mdns(sdp: str) -> str:
                          if not (line.startswith("a=candidate:") and ".local " in line))
 
 
+# The browser's "<uuid>.local" candidate, resolved after the engine has answered (pairing without a firewall rule). A Windows firewall drops every ICE check
+# the browser sends IN, but lets in the reply to UDP this engine sent OUT: when the engine knows the browser's LAN address it checks OUT to it, the
+# browser's replies and then its own checks come back through that flow, and the pair completes with no rule and no relay (and peer_on_lan is true, so the
+# pairing button works). Only the operating system's resolver can ask: the firewall drops the multicast reply to any socket of ours (measured on Windows 11:
+# an own query from an ephemeral port and from 5353 never heard Chromium answer, while getaddrinfo got the address in 16-1,170 ms), so it is getaddrinfo, in
+# threads. aioice cannot be handed the name (it opens 5353; OSError 98 beside Avahi), so the candidate is added as an address, later: aiortc signals
+# end-of-candidates when the offer carries it, and aioice takes no candidate after that, so the line is held back and signalled here once the names have
+# answered or MDNS_WAIT_S has passed. The answer itself is never delayed. A name that has not answered is dropped, as before.
+MDNS_WAIT_S = 3.0
+
+
+def _platform() -> str:
+    return sys.platform
+
+
+def mdns_enabled() -> bool:
+    v = os.environ.get("LOGOUT_MDNS_RESOLVE", "").strip()
+    if v in ("0", "1"):
+        return v == "1"
+    return _platform() == "win32"               # where the firewall needs it; elsewhere on request, so those engines work exactly as before
+
+
+def mdns_candidate_lines(sdp: str) -> list[str]:
+    """The "a=candidate:" lines of an offer whose address is a "<uuid>.local" name."""
+    return [ln for ln in sdp.split("\r\n") if ln.startswith("a=candidate:") and len(ln.split(" ")) > 4 and ln.split(" ")[4].lower().endswith(".local")]
+
+
+def offer_for_aiortc(sdp: str) -> tuple[str, list[str]]:
+    """(the offer as aiortc is given it, the "<uuid>.local" candidate lines to resolve later). With resolution on and names present: the names are
+    dropped and end-of-candidates is held back (add_late_candidates signals it); otherwise exactly without_mdns(sdp) and nothing to resolve."""
+    late = mdns_candidate_lines(sdp) if mdns_enabled() else []
+    if not late:
+        return without_mdns(sdp), []
+    kept = [ln for ln in without_mdns(sdp).split("\r\n") if ln != "a=end-of-candidates"]
+    return "\r\n".join(kept), late
+
+
+def _resolve_one(name: str) -> str | None:
+    try:
+        infos = socket.getaddrinfo(name, None, socket.AF_UNSPEC, socket.SOCK_DGRAM)
+    except OSError:
+        return None
+    v4 = [i[4][0] for i in infos if i[0] == socket.AF_INET]
+    v6 = [i[4][0] for i in infos if i[0] == socket.AF_INET6 and not ipaddress.ip_address(i[4][0].split("%")[0]).is_link_local]
+    return (v4 or v6 or [None])[0]
+
+
+def resolved_candidate_lines(lines: list[str], resolved: dict) -> list[str]:
+    """Each candidate line with its "<uuid>.local" replaced by the address it resolved to; a name that did not resolve leaves its lines out."""
+    out = []
+    for ln in lines:
+        parts = ln.split(" ")
+        ip = resolved.get(parts[4].lower())
+        if ip:
+            parts[4] = ip
+            out.append(" ".join(parts))
+    return out
+
+
+async def add_late_candidates(pc, lines: list[str], wait_s: float = MDNS_WAIT_S, resolver=_resolve_one) -> int:
+    """Resolve the names (the system resolver, in threads, at most wait_s), hand each address to the ICE transport as a remote candidate so this engine's
+    checks go out first, then signal end-of-candidates, whatever happened. Returns how many candidates were added; never raises."""
+    ice = None
+    added = 0
+    try:
+        ice = pc.sctp.transport.transport
+        if lines:
+            from aiortc.sdp import candidate_from_sdp
+            loop = asyncio.get_running_loop()
+            names = sorted({ln.split(" ")[4].lower() for ln in lines})
+            futs = {n: loop.run_in_executor(None, resolver, n) for n in names}
+            done, _pending = await asyncio.wait(set(futs.values()), timeout=wait_s)
+            resolved = {n: f.result() for n, f in futs.items() if f in done and not f.cancelled() and f.exception() is None}
+            for ln in resolved_candidate_lines(lines, resolved):
+                await ice.addRemoteCandidate(candidate_from_sdp(ln[len("a=candidate:"):]))
+                added += 1
+    except Exception:  # noqa: BLE001 - the connection goes on without them
+        pass
+    finally:
+        try:
+            if ice is not None:
+                await ice.addRemoteCandidate(None)
+        except Exception:  # noqa: BLE001
+            pass
+    return added
+
+
 def own_addresses() -> set:
     """The addresses this machine goes out on (UDP connect: no packet is sent), plus LOGOUT_ENGINE_IP."""
     out = {os.environ.get("LOGOUT_ENGINE_IP", "")}
@@ -708,7 +795,8 @@ async def on_offer(ws, m: dict) -> None:
             await _close(pc)
 
     try:
-        await pc.setRemoteDescription(RTCSessionDescription(sdp=without_mdns(sdp["sdp"]), type=sdp["type"]))
+        offer_sdp, late = offer_for_aiortc(sdp["sdp"])
+        await pc.setRemoteDescription(RTCSessionDescription(sdp=offer_sdp, type=sdp["type"]))
     except Exception as e:                            # a bad offer must not kill anything else
         say(f"offer rejected: {type(e).__name__}")
         _forget(pc)
@@ -722,6 +810,8 @@ async def on_offer(ws, m: dict) -> None:
         if secret:
             out["auth"] = {"mac": mac(secret, "answer", answer)}
         await ws.send(json.dumps(out))
+        if late:
+            asyncio.ensure_future(add_late_candidates(pc, late))        # after the answer: the connection is never held up by a name
     except Exception as e:  # noqa: BLE001 - a failed answer must not keep its slot (RT-07)
         say(f"answer failed: {type(e).__name__}")
         _forget(pc)
