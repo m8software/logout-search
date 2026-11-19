@@ -83,8 +83,9 @@ jobs:
               ev = " ".join(str(r.get("evidence", "")).split())[:260]
               if r.get("status") in ("FAIL", "ERROR"):
                   print(f"::error::{r['id']} [{r.get('sub')}] {r['status']}: {ev}")
-              elif r["id"].startswith(("LIF-", "STA-")):
-                  print(f"::notice::{r['id']} [{r.get('sub')}] {r['status']}: {ev}")
+          life = [f"{r['id']}[{r.get('sub')}]={r['status']}" for r in d.get("results", []) if r["id"].startswith(("LIF-", "STA-")) and r.get("status") != "SKIP"]
+          print("::notice::lifecycle: " + "; ".join(life))
+
           PY
           exit $rc
       - name: Summary
