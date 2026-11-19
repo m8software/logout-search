@@ -78,7 +78,10 @@ def agg(sub, bad, total, what):
 
 def golden_rows(ctx, p):
     """Every enforced row of the golden file: the card title, the card's official-site host and the first result's host."""
-    rows = [r for r in read_expect(ctx.path(p.get("expect", "apps/search/twin/golden/expect.tsv"))) if r["status"] == "ok"]
+    path = ctx.path(p.get("expect", "apps/search/twin/golden/expect.tsv"))
+    if not os.path.exists(path):                        # the public copy leaves apps/search/twin out: no golden file there
+        return [("golden", SKIP, f"no golden file at {path} (not in this checkout)")]
+    rows = [r for r in read_expect(path) if r["status"] == "ok"]
     got = ask_many(ctx, [r["name"] for r in rows])
     res = []
     bad = []

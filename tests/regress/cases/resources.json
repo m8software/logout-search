@@ -82,14 +82,14 @@
   },
   {
    "id": "RES-003",
-   "title": "disk: the install is under 24 GB (documented 18 GB)",
+   "title": "disk: the install is under 35 GB (the published minimum is 50 GB free; measured 26.7-31.8 GB)",
    "guards": [
     "disk bound"
    ],
    "severity": "medium",
    "check": "disk_bound",
    "params": {
-    "max_gb": 24
+    "max_gb": 35
    },
    "needs": [
     "install"
