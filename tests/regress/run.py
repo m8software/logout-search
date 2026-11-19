@@ -40,6 +40,7 @@ class Ctx:
         self.install_dir = a.install_dir
         self.pid = a.pid
         self.sandbox = a.sandbox
+        self.uninstall = a.uninstall or a.sandbox      # a disposable install may also be removed
         self.long = a.long
         self.quick = a.quick
         self.soak_s = a.soak
@@ -108,8 +109,10 @@ def xfail_reason(case, tags, sub=""):
 
 def unmet(case, ctx):
     need = case.get("needs", [])
-    for n, have in (("sandbox", ctx.sandbox), ("install", ctx.install_dir), ("pid", ctx.pid), ("rv", ctx.rv), ("long", ctx.long), ("repo", ctx.repo), ("compare", ctx.compare)):
+    for n, have in (("sandbox", ctx.sandbox), ("uninstall", ctx.uninstall), ("install", ctx.install_dir), ("pid", ctx.pid), ("rv", ctx.rv), ("long", ctx.long), ("repo", ctx.repo), ("compare", ctx.compare)):
         if n in need and not have:
+            if n == "uninstall":
+                return "needs --uninstall (the install is REMOVED by this case; a hosted runner or a sandbox)"
             return f"needs --{n.replace('install', 'install-dir')}" + (" (a disposable install: the case restarts or feeds the engine)" if n == "sandbox" else "")
     if case.get("only_tags") and not (set(case["only_tags"]) & ctx.tags):
         return f"only for targets tagged {case['only_tags']}"
@@ -211,6 +214,7 @@ def main(argv=None):
     ap.add_argument("--compare", help="the other platform's engine URL (parity group)")
     ap.add_argument("--start-cmd", help="the command that (re)starts the sandbox engine (restart cases)")
     ap.add_argument("--sandbox", action="store_true", help="the target is a DISPOSABLE install: cases that restart it or feed its inbox may run")
+    ap.add_argument("--uninstall", action="store_true", help="the install may be REMOVED: the update-check and uninstall cases run, uninstall last (a hosted runner; implied by --sandbox)")
     ap.add_argument("--long", action="store_true", help="the long variants (10,000-search memory run)")
     ap.add_argument("--quick", action="store_true", help="short variants for the suite's own unit test (3-second soak)")
     ap.add_argument("--soak", type=int, default=0, help="seconds for the stability soak (default: the case's own, 30)")

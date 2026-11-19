@@ -1010,12 +1010,70 @@ def uninstall(a) -> int:
             return 1
     if os.path.isdir(data):
         autostart(argparse.Namespace(state="off", dest=data, port=8090, print=False))   # stops the service too
+    n = _stop_under_posix(base)                          # an engine not started by the service (setup's own, a hand start) is ours too
+    if n:
+        say(f"stopped {n} process(es) of this install")
     link = os.path.join(home(), ".local", "bin", "logout-search")
     if os.path.islink(link) and os.path.realpath(link).startswith(os.path.realpath(base) + os.sep):
         os.remove(link)
     shutil.rmtree(base, ignore_errors=True)
     say("removed" if not os.path.exists(base) else f"mostly removed; some files under {base} were in use: delete the folder by hand")
     return 0 if not os.path.exists(base) else 1
+
+
+def _stop_under_posix(base: str) -> int:
+    """Stop every process whose program file is inside this install's folder, except this one and its parents: SIGTERM, then
+    SIGKILL after 5 s. Uninstall used to stop only the service; an engine that setup itself had started (or a hand start) kept
+    running from a deleted folder and wrote its state files back (regression case LIF-099, 2026-11-18)."""
+    import signal
+    import subprocess
+    import time
+    root = os.path.realpath(base) + os.sep
+    keep, p = {os.getpid()}, os.getppid()
+    for _ in range(8):                                   # this command's own parents (a shell started from the install is not killed)
+        if p <= 1:
+            break
+        keep.add(p)
+        try:
+            p = int(open(f"/proc/{p}/stat").read().rsplit(")", 1)[1].split()[1])
+        except (OSError, ValueError, IndexError):
+            break
+    pids = []
+    if os.path.isdir("/proc"):
+        for d in os.listdir("/proc"):
+            if d.isdigit() and int(d) not in keep:
+                try:
+                    exe = os.path.realpath(f"/proc/{d}/exe")
+                except OSError:
+                    continue
+                if exe.startswith(root) or exe.replace(" (deleted)", "").startswith(root):
+                    pids.append(int(d))
+    else:                                                # macOS: comm is the program's full path
+        try:
+            out = subprocess.run(["ps", "-axo", "pid=,comm="], capture_output=True, text=True, timeout=10).stdout
+        except (OSError, subprocess.SubprocessError):
+            out = ""
+        for ln in out.splitlines():
+            pid, _, comm = ln.strip().partition(" ")
+            if pid.isdigit() and int(pid) not in keep and os.path.realpath(comm.strip()).startswith(root):
+                pids.append(int(pid))
+    for sig, wait in ((signal.SIGTERM, 5.0), (signal.SIGKILL, 1.0)):
+        alive = []
+        for pid in pids:
+            try:
+                os.kill(pid, sig)
+                alive.append(pid)
+            except OSError:
+                pass
+        t0 = time.time()
+        while alive and time.time() - t0 < wait:
+            time.sleep(0.2)
+            alive = [x for x in alive if os.path.exists(f"/proc/{x}")] if os.path.isdir("/proc") else alive
+            if not os.path.isdir("/proc"):
+                break
+        if not alive:
+            break
+    return len(pids)
 
 
 def uninstall_windows(base: str, yes: bool, *, stop=None, unregister=None, rmdir=None, remove_later=None, confirm=None, say_=None) -> int:

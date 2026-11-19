@@ -1,6 +1,7 @@
 """Sandbox cases: they restart the engine, feed its inbox and uninstall it, so they run only with --sandbox against a
 DISPOSABLE install (never an owner's real one). Linux only (they read /proc to find the install's own processes).
 They use the same (ctx, params) -> [(sub, status, evidence)] contract as rg_checks."""
+import json
 import os
 import shlex
 import signal
@@ -227,8 +228,13 @@ def setup_exits(ctx, p):
     return [("setup", FAIL if bad else PASS, f"engine processes {engines}" + (" -- " + "; ".join(bad) if bad else ""))]
 
 
+def app_path(ctx):
+    """The install's program: logout-search, or logout-search.exe on Windows."""
+    return os.path.join(ctx.install_dir, "app", "logout-search" + (".exe" if os.name == "nt" else ""))
+
+
 def install_tools(ctx, p):
-    app = os.path.join(ctx.install_dir, "app", "logout-search")
+    app = app_path(ctx)
     if not os.path.exists(app):
         return [("tools", SKIP, f"{app} not found")]
     env = dict(os.environ, **({"HOME": ctx.home} if ctx.home else {}))
@@ -252,24 +258,96 @@ def install_tools(ctx, p):
     return res
 
 
-def uninstall_residue(ctx, p):
-    app = os.path.join(ctx.install_dir, "app", "logout-search")
+def update_check(ctx, p):
+    """The in-product updater on the beta channel: asked to check now, it must report a check with no failure and no rollback
+    within wait_s. (The install is disposable: the channel is changed.)"""
+    app = app_path(ctx)
+    if not os.path.exists(app):
+        return [("update check", FAIL, f"{app} not found")]
     env = dict(os.environ, **({"HOME": ctx.home} if ctx.home else {}))
+    data = os.path.join(ctx.install_dir, "data")
+
+    def run(*argv):
+        r = subprocess.run([app, *argv, "--dest", data], capture_output=True, text=True, timeout=180, env=env)
+        return r.returncode, (r.stdout + r.stderr).strip()
+
+    def status():
+        rc, out = run("autoupdate", "status")
+        try:
+            return json.loads(out[out.index("{"):])
+        except ValueError:
+            return None
+    before = status() or {}
+    res = []
+    rc, out = run("channel", "beta")
+    res.append(("channel beta", PASS if rc == 0 else FAIL, f"exit {rc}: {(out.splitlines() or [''])[-1][:100]}"))
+    rc, out = run("autoupdate", "now")
+    res.append(("autoupdate now", PASS if rc == 0 else FAIL, f"exit {rc}: {(out.splitlines() or [''])[-1][:100]}"))
+    t0, st = time.time(), None
+    while time.time() - t0 < float(p.get("wait_s", 150)):
+        st = status()
+        if st and (st.get("last_check") or 0) > (before.get("last_check") or 0):
+            break
+        time.sleep(5)
+    if not st or (st.get("last_check") or 0) <= (before.get("last_check") or 0):
+        res.append(("checked", FAIL, f"no new check within {p.get('wait_s', 150)} s (last_check {before.get('last_check')} -> {(st or {}).get('last_check')})"))
+        return res
+    bad = [f"{k}: {st.get(k)}" for k in ("failed", "rollback") if st.get(k)]
+    res.append(("checked", FAIL if bad else PASS, f"after {int(time.time() - t0)} s: channel {st.get('channel')}, result {st.get('last_result')!r}, "
+                f"program {st.get('program')}" + (" -- " + "; ".join(bad) if bad else "")))
+    return res
+
+
+WIN_RESIDUE = r"""
+$d = $args[0]; $left = @()
+if (Test-Path -LiteralPath $d) { $n = @(Get-ChildItem -LiteralPath $d -Recurse -Force -File -ErrorAction SilentlyContinue).Count; if ($n -gt 0) { $left += "folder ${d}: $n file(s)" } }
+$run = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -ErrorAction SilentlyContinue
+if ($run) { $run.PSObject.Properties | Where-Object { "$($_.Value)" -like "*$d*" } | ForEach-Object { $left += "Run key: $($_.Name)" } }
+Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue | Where-Object { "$((Get-ItemProperty $_.PSPath).InstallLocation)$((Get-ItemProperty $_.PSPath).UninstallString)" -like "*$d*" } | ForEach-Object { $left += "Apps entry: $($_.PSChildName)" }
+Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Recurse -Filter '*logout*' -ErrorAction SilentlyContinue | ForEach-Object { $left += "Start menu: $($_.Name)" }
+Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and $_.ExecutablePath -like "$d\*" } | ForEach-Object { $left += "process: $($_.Name) $($_.ProcessId)" }
+$left
+"""
+
+
+def uninstall_residue(ctx, p):
+    """`uninstall --yes` exits 0, and afterwards nothing of the install is left: no process whose program is in its folder, no
+    autostart entry, no Apps entry, no Start menu item, no file. On Windows the program folder is removed after the command has
+    ended, so the look waits up to settle_s."""
+    app = app_path(ctx)
+    if not os.path.exists(app):
+        return [("uninstall", FAIL, f"{app} not found")]
+    env = dict(os.environ, **({"HOME": ctx.home} if ctx.home else {}))
+    keep = os.environ.get("REGRESS_KEEP_LOGS")                 # the engine's logs are evidence: copied out before they are removed
+    if keep and os.path.isdir(keep):
+        import glob, shutil
+        for f in glob.glob(os.path.join(ctx.install_dir, "data", "state", "*.log")) + glob.glob(os.path.join(ctx.install_dir, "data", "state", "*.json")):
+            try:
+                shutil.copy2(f, keep)
+            except OSError:
+                pass
     r = subprocess.run([app, "uninstall", "--yes", "--dest", ctx.install_dir], capture_output=True, text=True, timeout=300, env=env)
-    time.sleep(3)
-    left = []
-    if sys.platform.startswith("linux"):
-        left += [f"process {d}" for d in own_pids(ctx)]
-    roots = [ctx.install_dir] + ([ctx.home] if ctx.home else [])
-    for root in roots:
-        for dp, dn, fn in os.walk(root):
-            for f in fn:
-                if f in ("regress-start.log",) or dp.startswith(os.path.join(ctx.install_dir, "..")) and False:
-                    continue
-                left.append(os.path.join(dp, f))
-    left = [x for x in left if not x.endswith(("regress-start.log", "install.log"))]
+    says = ((r.stdout + r.stderr).strip().splitlines() or [""])[-1][:120]
+    left, t0 = [], time.time()
+    while True:
+        time.sleep(3)
+        left = []
+        if os.name == "nt":
+            q = subprocess.run(["powershell", "-NoProfile", "-Command", WIN_RESIDUE.replace("$args[0]", "'" + os.path.normpath(ctx.install_dir).replace("'", "''") + "'")],
+                               capture_output=True, text=True, timeout=120)
+            left = [ln.strip() for ln in q.stdout.splitlines() if ln.strip()]
+            if q.returncode != 0:
+                left.append("the residue look itself failed: " + (q.stderr.strip().splitlines() or [""])[-1][:120])
+        else:
+            if sys.platform.startswith("linux"):
+                left += [f"process {d}" for d in own_pids(ctx)]
+            for root in [ctx.install_dir] + ([ctx.home] if ctx.home else []):
+                for dp, dn, fn in os.walk(root):
+                    left += [os.path.join(dp, f) for f in fn if f not in ("regress-start.log", "install.log")]
+        if not left or time.time() - t0 > float(p.get("settle_s", 60)):
+            break
     return [("uninstall", PASS if r.returncode == 0 and not left else FAIL,
-             f"exit {r.returncode}; left over: {len(left)} item(s) {left[:8]}; says: {(r.stdout.strip().splitlines() or [''])[-1][:120]}")]
+             f"exit {r.returncode}; left over after {int(time.time() - t0)} s: {len(left)} item(s) {left[:8]}; says: {says}")]
 
 
 def proc_sample(pid):
@@ -330,4 +408,4 @@ def restart_profile(ctx, p):
     return [("profile", PASS if ready_at is not None else FAIL, f"ready after {ready_at and round(ready_at)} s; first {p.get('watch_s', 300)} s: {summ}; samples in {out}")]
 
 
-CHECKS = {f.__name__: f for f in (restart_profile, restart_serving, restart_stored, takein_serving, takein_refused, setup_exits, install_tools, uninstall_residue)}
+CHECKS = {f.__name__: f for f in (restart_profile, restart_serving, restart_stored, takein_serving, takein_refused, setup_exits, install_tools, update_check, uninstall_residue)}

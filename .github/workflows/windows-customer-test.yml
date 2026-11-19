@@ -180,38 +180,34 @@ jobs:
           # tests/regress/run.py needs nothing but the Python standard library. Cases that restart the engine or feed its
           # inbox need a disposable install (--sandbox) and are skipped here; the link and lifecycle cases that cannot run
           # on a hosted runner say PENDING. Exit 1 on any FAIL: a release does not pass with one.
+          # doctor, the update check on the beta channel and uninstall are cases of the suite (LIF-003, LIF-007, LIF-099; owner
+          # 2026-11-18): --uninstall lets the last two run on this disposable PC, uninstall last. They can no longer be skipped by
+          # an earlier failure, which is what happened to every run before this one.
           $env:PYTHONUTF8 = "1"
+          $env:REGRESS_KEEP_LOGS = $env:LOGS          # the uninstall case copies the engine's logs here before it removes them
           python tests/regress/run.py --target http://127.0.0.1:8090 --name "windows $env:TAG (hosted runner)" --tag windows --tag install --tag pre-release2 `
-              --install-dir $env:DEST --rv wss://search.logout.cloud/rv --suite answers,stored,takein,startup,link,resources,lifecycle `
+              --install-dir $env:DEST --rv wss://search.logout.cloud/rv --suite answers,stored,takein,startup,link,resources,lifecycle --uninstall `
               --out "$env:LOGS\regress.json" *>&1 | Tee-Object "$env:LOGS\regress.txt"
-          if ($LASTEXITCODE -ne 0) { Write-Output "::error::the regression suite failed (exit $LASTEXITCODE); see regress.txt"; exit 1 }
+          $rc = $LASTEXITCODE
+          # every failed case as an annotation (readable without the logs): the case line and the line that says what it got
+          $lines = @(Get-Content "$env:LOGS\regress.txt")
+          for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i] -match '^\s+(FAIL|ERROR)\s') { $got = if ($i + 2 -lt $lines.Count) { $lines[$i + 2].Trim() } else { '' }; Write-Output ("::error::" + ($lines[$i].Trim() -replace '\s+', ' ') + " :: " + $got) } }
+          $tot = $lines | Where-Object { $_ -match '^total\s' } | Select-Object -First 1
+          if ($tot) { Write-Output ("::notice::regression totals (checks pass fail xfail xpass flag skip pending error): " + ($tot -replace '\s+', ' ')) }
+          if ($rc -ne 0) { Write-Output "::error::the regression suite failed (exit $rc); see regress.txt"; exit 1 }
 
-      - name: doctor
+      - name: What is left after the suite's uninstall
+        if: ${{ !cancelled() }}
         run: |
-          & "$env:DEST\app\logout-search.exe" doctor --dest "$env:DEST\data" 2>&1 | Tee-Object "$env:LOGS\doctor.txt"
-
-      - name: Beta channel and an update check
-        run: |
-          $exe = "$env:DEST\app\logout-search.exe"; $data = "$env:DEST\data"
-          & $exe channel beta --dest $data 2>&1 | Tee-Object "$env:LOGS\channel.txt"
-          & $exe autoupdate now --dest $data 2>&1 | Tee-Object -Append "$env:LOGS\channel.txt"
-          Start-Sleep 90
-          & $exe autoupdate status --dest $data 2>&1 | Tee-Object -Append "$env:LOGS\channel.txt"
-          Get-Content "$data\state\update.log" -Tail 30 -ErrorAction SilentlyContinue | Tee-Object "$env:LOGS\update.log.txt"
-
-      - name: Uninstall and what is left
-        run: |
-          $exe = "$env:DEST\app\logout-search.exe"
-          & $exe uninstall --dest $env:DEST --yes 2>&1 | Tee-Object "$env:LOGS\uninstall.txt"
-          Start-Sleep 30
+          # the suite's last case ran `uninstall --yes` (LIF-099 judges it); this is the same look written to the logs, and it
+          # removes nothing
           $left = @()
-          if (Test-Path $env:DEST) { $left += "folder $env:DEST: $(@(Get-ChildItem $env:DEST -Recurse -Force -ErrorAction SilentlyContinue).Count) items" }
+          if (Test-Path $env:DEST) { $left += "folder $env:DEST: $(@(Get-ChildItem $env:DEST -Recurse -Force -File -ErrorAction SilentlyContinue).Count) files" }
           $run = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -ErrorAction SilentlyContinue
           if ($run) { $run.PSObject.Properties | Where-Object { $_.Value -match 'logout' } | ForEach-Object { $left += "Run key: $($_.Name)" } }
-          Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -match 'logout' } | ForEach-Object { $left += "Apps entry: $($_.PSChildName)" }
-          Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Filter '*logout*' -ErrorAction SilentlyContinue | ForEach-Object { $left += "Start menu: $($_.Name)" }
+          Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Recurse -Filter '*logout*' -ErrorAction SilentlyContinue | ForEach-Object { $left += "Start menu: $($_.Name)" }
           Get-Process | Where-Object { $_.Name -like 'logout-search*' } | ForEach-Object { $left += "process: $($_.Name) $($_.Id)" }
-          if ($left) { $left | Tee-Object "$env:LOGS\left-behind.txt"; Write-Output "::warning::left behind after uninstall: $($left -join '; ')" } else { "nothing left behind" | Tee-Object "$env:LOGS\left-behind.txt" }
+          if ($left) { $left | Tee-Object "$env:LOGS\left-behind.txt" } else { "nothing left behind" | Tee-Object "$env:LOGS\left-behind.txt" }
 
       - name: Summary
         if: always()

@@ -79,16 +79,34 @@
    }
   },
   {
-   "id": "LIF-006",
-   "title": "uninstall leaves nothing unexpected (no engine process, no autostart unit, no data folder beyond what it names)",
+   "id": "LIF-007",
+   "title": "the updater checks for a new version on the beta channel and reports no failure and no rollback",
    "guards": [
-    "uninstall residue"
+    "owner 2026-11-18: doctor, the update check and uninstall belong in the regression suite"
    ],
-   "severity": "medium",
+   "severity": "high",
+   "check": "update_check",
+   "params": {
+    "wait_s": 150
+   },
+   "needs": [
+    "uninstall",
+    "install"
+   ]
+  },
+  {
+   "id": "LIF-099",
+   "title": "uninstall --yes exits 0 and leaves nothing: no process, no autostart entry, no Apps entry, no Start menu item, no folder",
+   "guards": [
+    "uninstall residue",
+    "Windows uninstall exited 1 and left the install (2026-11-18)",
+    "was LIF-006; numbered last because cases run in id order and this one removes the install"
+   ],
+   "severity": "high",
    "check": "uninstall_residue",
    "params": {},
    "needs": [
-    "sandbox",
+    "uninstall",
     "install"
    ]
   }
