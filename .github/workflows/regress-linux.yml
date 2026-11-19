@@ -63,7 +63,11 @@ jobs:
       - name: Wait for the engine (the download and the first start take a while)
         run: |
           for i in $(seq 1 720); do curl -fs http://127.0.0.1:8090/readyz >/dev/null 2>&1 && break; sleep 10; done
-          tail -5 logs/setup.txt
+          # setup itself finishes later: it takes the answers file in before it says done (v0.4.39+); the suite tests the
+          # finished install, as a customer would use it, so it waits for setup to exit (up to 30 more minutes)
+          for i in $(seq 1 180); do pgrep -f "logout-search setup" >/dev/null || break; sleep 10; done
+          pgrep -f "logout-search setup" >/dev/null && echo "::warning::setup still running after 30 minutes"
+          tail -8 logs/setup.txt
           curl -fs http://127.0.0.1:8090/readyz
       - name: Regression suite
         run: |
