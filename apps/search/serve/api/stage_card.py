@@ -2,7 +2,13 @@
 search_api (imported at the end of that file's definitions) and the stdlib."""
 from __future__ import annotations
 
+from card_text import card_image
+from card_text import clean_lead
+from card_text import cut_lead
+from card_text import strip_wiki_markup
 from stage_parts import PartStale
+from stage_parts import _card_live
+import card_text
 from stage_parts import _parts_off
 from stage_parts import _pcheck
 import base64
@@ -78,92 +84,7 @@ CARD_SITE_SQL = ("SELECT ws.url FROM wiki_sites ws JOIN wiki_docs w USING (page_
 # as small WebP and sent inline, with the credit the licence asks for.
 CARD_IMAGE_SQL = "SELECT img, w, h, author, licence, licence_url, file FROM card_images WHERE title = %(t)s"
 
-def card_image(row) -> dict | None:
-    """A card_images row -> the card's picture: a data: URI, its size, and the credit
-    (author, licence + deed, the file's Commons page)."""
-    if not row:
-        return None
-    img, w, h, author, licence, licence_url, file = row
-    out = {"src": "data:image/webp;base64," + base64.b64encode(bytes(img)).decode("ascii"), "w": w, "h": h,
-           "licence": licence, "source": "https://commons.wikimedia.org/wiki/File:" + quote(file.replace(" ", "_"))}
-    if author:
-        out["author"] = author
-    if licence_url:
-        out["licence_url"] = licence_url
-    return out
-
 CARD_WITHIN = 3
-
-# What the lead keeps of stripped pronunciation markup: "Roblox (, ) is", "The Eiffel Tower ( ; )
-# is" (card UI audit, 2026-09-30).
-_EMPTY_PARENS = re.compile(r"\s*\(\s*[,;:\s]*\)")
-
-# Wiki markup that reaches a lead (the wiki index keeps 300 characters of the article's text as it was written):
-# [[target|label]] and [[target]] links, a link cut by the 300-character cap ("[[European mainland|the contine"),
-# {{templates}}, {| tables, <ref>...</ref> and other tags, bold and italic quote marks, [http://x label] links, HTML entities.
-_WIKI_LINK = re.compile(r"\[\[(?:[^\[\]|]*\|)?([^\[\]|]*)\]\]")
-_WIKI_LINK_CUT = re.compile(r"\[\[(?:[^\[\]|]*\|)?([^\[\]|]*)$")
-_WIKI_TEMPLATE = re.compile(r"\{\{[^{}]*\}\}")
-_WIKI_TEMPLATE_CUT = re.compile(r"\{\{[^{}]*$")
-_WIKI_REF = re.compile(r"<ref\b[^>]*/>|<ref\b[^>]*>.*?</ref>|<ref\b[^>]*>.*$", re.S | re.I)
-_WIKI_TAG = re.compile(r"</?[A-Za-z][^<>]*>?|<!--.*?-->")
-_WIKI_QUOTES = re.compile(r"'{2,5}")
-_WIKI_TABLE = re.compile(r"\{\|.*$|\s\|[-}+].*$|\|\|.*$", re.S)                      # a table that starts where the lead should be: nothing after it is text
-_WIKI_EXTLINK = re.compile(r"\[(?:https?:)?//\S+\s+([^\]]*)\]")
-_ENTITY = re.compile(r"&(nbsp|amp|lt|gt|quot|#\d+|#x[0-9a-fA-F]+|ndash|mdash);")
-_ENTITIES = {"nbsp": " ", "amp": "&", "lt": "<", "gt": ">", "quot": '"', "ndash": "–", "mdash": "—"}
-
-def _entity(m):
-    k = m.group(1)
-    if k in _ENTITIES:
-        return _ENTITIES[k]
-    return chr(int(k[2:], 16)) if k[:2] == "#x" else chr(int(k[1:]))
-
-def strip_wiki_markup(text: str) -> str:
-    """The plain text of a lead that may carry wiki markup. Nothing else changes."""
-    if not text or not any(c in text for c in "[]{}<>&'"):
-        return text
-    t = _WIKI_REF.sub("", text)
-    t = _WIKI_LINK.sub(r"\1", t)
-    t = _WIKI_LINK_CUT.sub(r"\1", t)
-    for _ in range(3):                                     # templates nest
-        t2 = _WIKI_TEMPLATE.sub("", t)
-        if t2 == t:
-            break
-        t = t2
-    t = _WIKI_TEMPLATE_CUT.sub("", t)
-    t = _WIKI_TABLE.sub("", t)
-    t = _WIKI_EXTLINK.sub(r"\1", t)
-    t = _WIKI_TAG.sub("", t)
-    t = _WIKI_QUOTES.sub("", t)
-    return re.sub(r" {2,}", " ", _ENTITY.sub(_entity, t))
-
-# The wiki index keeps only the start of the lead (300 characters, sometimes fewer): it is cut where the cap fell, often
-# in the middle of a word ("...the company re", "...banking and auxili", "...[[European mainland|the contine"). A
-# Wikipedia lead ends with a sentence end, so one that does not was cut.
-_LEAD_SENTENCE_END = re.compile(r"[.!?][\"')\]”]*(?=\s+[A-Z0-9\"'(“]|\s*$)")
-_NOT_SENTENCE = re.compile(r"(?:\b[A-Z]|\b(?:Mr|Mrs|Ms|Dr|St|Jr|Sr|Inc|Ltd|Co|Corp|No|vs|etc|Prof|Gen|Col|Lt|Sgt|Mt|Ft|approx|ca|fl|c|b|d|r))\.$")
-
-def cut_lead(text: str) -> str:
-    """A lead cut by the 300-character cap ends where a sentence ends or, failing that, at a word with an ellipsis:
-    never in the middle of a word. A lead that ends on its own (a sentence end) is unchanged."""
-    if len(text) < 40 or text.rstrip()[-1:] in ".!?…)\"'”":
-        return text
-    best = 0
-    for m in _LEAD_SENTENCE_END.finditer(text):
-        if m.end() >= 60 and not _NOT_SENTENCE.search(text[:m.end()]):
-            best = m.end()
-    if best:
-        return text[:best].rstrip()
-    head = text.rsplit(" ", 1)[0] if " " in text else text      # the last word may be cut: it goes
-    return head.rstrip(" ,;:–—-") + "…"
-
-def clean_lead(text: str) -> str:
-    """A lead for the card: wiki markup stripped, empty brackets and the spacing they leave removed, and a lead cut
-    by the 300-character cap ended at a sentence or a word."""
-    raw = text or ""
-    t = re.sub(r"\s+([,;.])", r"\1", _EMPTY_PARENS.sub("", strip_wiki_markup(raw))).strip()
-    return cut_lead(t)
 
 def card_article(res: list[dict]) -> dict | None:
     """The exact-answer article the card is about: the first one in the top CARD_WITHIN,
@@ -733,6 +654,7 @@ def card_stage(q: str, res: list[dict], top, cres, base):
         if _pcheck.get():
             raise PartStale("card")
         card, res2, failed = card_build(q, res, top, cres, base)
+        _card_live.set(card_text.VERSION)
         if failed:
             print(f"card failed: {failed}", flush=True)
         return card, res2
@@ -750,6 +672,7 @@ def card_stage(q: str, res: list[dict], top, cres, base):
     if _pcheck.get():
         raise PartStale("card")
     card, res2, failed = card_build(q, res, top, cres, base)
+    _card_live.set(card_text.VERSION)
     if failed:
         print(f"card failed: {failed}", flush=True)
     elif key is not None and _warm.get():                # only the builder writes (a visitor's search is never kept)

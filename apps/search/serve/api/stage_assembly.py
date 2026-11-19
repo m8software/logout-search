@@ -3,6 +3,7 @@ search_api (imported at the end of that file's definitions) and the stdlib."""
 from __future__ import annotations
 
 from stage_parts import PartStale
+from stage_parts import _card_live
 from stage_parts import _part_keys
 from stage_card import card_pre
 from stage_card import card_stage
@@ -93,6 +94,7 @@ def finished_answer(q: str, qs, want: bool, full: bool, plain: bool, fin_full: b
         import copy
         pre = copy.deepcopy(res)                     # the verdict is judged on the rows before the card marks them
     card = None
+    _card_live.set(None)
     with stage("card"):
         try:                                                    # a card is extra: never fail the answer
             top, cres, base = card_pre(q, res)
@@ -132,7 +134,8 @@ def finished_answer(q: str, qs, want: bool, full: bool, plain: bool, fin_full: b
                 (_part_keys.get() or {}).pop("local", None)      # not part of this answer: its thread may or may not have noted it
     if _warm.get() and plain and (qs.get("fin") or [""])[0] == "1":     # the builder (twin/ship.sh) keeps what it computed
         fin_put(q, fin_full, {"results": res, "confident": conf, "card": card, "place": place, "intent": intent, "kinds": kinds,
-                              "local": local, "sig": sig, "pk": part_stamp()})
+                              "local": local, "sig": sig, "pk": part_stamp(),
+                              "ct": _card_live.get() if card else None})
     return res, conf, card, place, intent, kinds, local, sig
 
 # A stop or a car park named after the store is not a branch of it (2026-11-06: "Ikea" listed "IKEA · ferry terminal",
@@ -165,6 +168,8 @@ def fin_put(q: str, full: bool, answer: dict) -> bool:
             **{k: answer[k] for k in FIN_FIELDS}}
     if answer.get("pk"):
         body["pk"] = answer["pk"]       # the parts it was made from (part_stamp): a deploy that changes none of them re-stamps it
+    if answer.get("ct"):
+        body["ct"] = answer["ct"]       # card_text.VERSION, only when the card was computed for this answer (card_text.join reads it)
     ok = st.put_finished(CURATED_RELEASE, fin_key(q, full), body)
     if ok:
         prov_put(q, full)

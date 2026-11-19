@@ -713,7 +713,12 @@ def run(once: bool = False) -> None:
                     due[part] = time.time() + 600
             if once:
                 return
-            time.sleep(TICK_S)
+            # on an install a search for a new area waits for its radar: look for a station newly asked for every 5 s, not
+            # once a minute (the page asks again for about a minute and a half, owner 2026-11-18)
+            for _ in range(max(1, TICK_S // 5)):
+                time.sleep(min(5, TICK_S))
+                if RADAR_DIR and RADAR_DEMAND and any(sid not in radar.get("fetched_ids", ()) for sid in read_radar_interest(RADAR_DIR)):
+                    break
 
 
 if __name__ == "__main__":

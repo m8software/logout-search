@@ -86,7 +86,7 @@ def read_allow(path: str | None):
 # keeps <out>/lists/published.sqlite: for every published row the sha1 of its content, without the stamps of what built
 # it (eng, pk, dev: a re-stamped answer is the same answer). A delta carries the rows whose content is not there.
 STATE = "published.sqlite"
-STAMPS = ("eng", "pk", "dev")
+STAMPS = ("eng", "pk", "dev", "ct")          # ct: which card text code made the answer's own lead (cards once); not content
 # ... and without each result row's reading-model score ("ce"). Measured 2026-11-18 on 200 answers of each of two deltas:
 # 108 and 92 differed from the published row in nothing but that number (the same rows in the same order, the same text
 # and card); an answer first built on the CPU and rebuilt on the GPU gets it from another build of the model. Nothing
@@ -168,6 +168,14 @@ def state_seed(out: str, parts: list[str]) -> dict:
                 text = body if isinstance(body, bytes) else str(body).encode()
                 db.execute("INSERT OR REPLACE INTO pub VALUES (?, ?, ?)", (t, key, content_hash(t, text)))
                 n += 1
+        if src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'cards'").fetchone():     # the card set a part carries
+            for subject, field, title, body in src.execute("SELECT subject, field, title, body FROM cards"):
+                try:
+                    h = hashlib.sha1(title.encode() + b"\x00" + zlib.decompress(body)).digest()
+                except zlib.error:
+                    continue
+                db.execute("INSERT OR REPLACE INTO pub VALUES ('cards', ?, ?)", (subject + "\x1f" + field, h))
+                db.execute("INSERT OR IGNORE INTO pub VALUES ('subject', ?, x'')", (title,))
         src.close()
     db.commit()
     rows = db.execute("SELECT count(*) FROM pub WHERE tbl != 'meta'").fetchone()[0]
@@ -175,8 +183,22 @@ def state_seed(out: str, parts: list[str]) -> dict:
     return {"seeded": rows, "rows_read": n, "parts": len(parts)}
 
 
+CARD_FIELDS = ("lead", "image")
+
+
+def _card_value(src, release: str, title: str, field: str):
+    """(found, value) of a subject's card-set field in the store, by the card's title."""
+    r = src.execute("SELECT body FROM cards WHERE release = ? AND title = ? AND field = ? ORDER BY at DESC LIMIT 1", (release, title, field)).fetchone()
+    if not r:
+        return False, None
+    try:
+        return True, json.loads(zlib.decompress(r[0]))
+    except (zlib.error, ValueError):
+        return False, None
+
+
 def write_part(store: str, out_db: str, release: str, since: float, reset: bool, new_after: float = 0.0, dept: bool = False,
-               allow=None, state=None) -> dict:
+               allow=None, state=None, card_fields=(), refresh_embedded: bool = False) -> dict:
     """Rows of `store` written after `since` (all when reset) -> out_db. -> {table: rows, "until": newest at, "new": rows
     after new_after, "held": rows left out because their name is not in `allow`}."""
     if os.path.exists(out_db):
@@ -188,6 +210,17 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
     dst.execute("CREATE TABLE finished (release TEXT NOT NULL, key TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (release, key)) WITHOUT ROWID")
     dst.execute("CREATE TABLE dept (key TEXT PRIMARY KEY, p REAL NOT NULL, d TEXT NOT NULL, c REAL NOT NULL, at REAL NOT NULL) WITHOUT ROWID")
     dst.execute("CREATE TABLE lists_meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)")
+    # The card set (cards once): the lead / picture of each card subject, once. Only the fields asked for, and only for
+    # subjects a PUBLISHED answer shows (a visitor-only name's card stays home with its answer). An engine from before the
+    # card set ignores the table and shows the card each answer carries.
+    has_cards = bool(src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'cards'").fetchone())
+    card_fields = tuple(g for f in card_fields if f in CARD_FIELDS for g in (("lead", "lead_full") if f == "lead" else (f,))) if has_cards else ()   # the lead in both its lengths
+    if has_cards and refresh_embedded:
+        src.execute("CREATE TEMP TABLE _ct AS SELECT title, field, max(at) AS at FROM cards WHERE release = ? GROUP BY title, field", (release,))
+        src.execute("CREATE INDEX temp._ct_i ON _ct (title)")
+        titled = {r[0] for r in src.execute("SELECT DISTINCT title FROM _ct")}
+    shown: set = set()                                                 # card titles of the publishable answers read in this run
+    whole: set = set()                                                 # ... of those whose card carries the whole lead (longer than a row's 300)
     n, until, new, held, same = {}, since, 0, 0, 0
     if state is not None and reset:
         state.execute("DELETE FROM pub")
@@ -201,9 +234,31 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
                 continue
             try:
                 text = zlib.decompress(body)
-                json.loads(text)
+                obj = json.loads(text)
             except (zlib.error, ValueError):
                 continue                                   # a damaged body is not passed on
+            card = obj.get("card") if t == "finished" and isinstance(obj, dict) else None
+            if isinstance(card, dict) and isinstance(card.get("title"), str):
+                shown.add(card["title"])
+                if len(card.get("lead") or "") > 300:
+                    whole.add(card["title"])
+                if refresh_embedded and has_cards and card["title"] in titled:
+                    # --refresh-embedded: the answer's own lead and picture are brought to the card set's, for engines from
+                    # before the card set. Every answer whose text differs is then sent again (about a base after a text fix).
+                    changed = False
+                    for f in CARD_FIELDS:
+                        found, val = _card_value(src, release, card["title"], f)
+                        if f == "lead" and len(card.get("lead") or "") > 300:          # a card built with the whole lead keeps that length
+                            found2, val2 = _card_value(src, release, card["title"], "lead_full")
+                            found, val = (found2, val2) if found2 and val2 is not None else (found, val)
+                        if found and card.get(f) != val:
+                            changed = True
+                            if val is None:
+                                card.pop(f, None)
+                            else:
+                                card[f] = val
+                    if changed:
+                        text = json.dumps(obj, separators=(",", ":"), ensure_ascii=False).encode()
             if state is not None:                          # by content: only what the last published state does not hold
                 h = content_hash(t, text)
                 old = state.execute("SELECT h FROM pub WHERE tbl = ? AND key = ?", (t, key)).fetchone()
@@ -231,7 +286,42 @@ def write_part(store: str, out_db: str, release: str, since: float, reset: bool,
         new += row[4] > new_after
         until = max(until, row[4])
     n["dept"] = c
-    dst.executemany("INSERT INTO lists_meta VALUES (?, ?)", [("reset", "1" if reset else "0"), ("body", "plain"), ("release", release),
+    c = 0
+    if card_fields:
+        if state is not None:
+            for title in shown:                            # remembered: a later delta may send a subject's new text with no answer of it
+                state.execute("INSERT OR IGNORE INTO pub VALUES ('subject', ?, x'')", (title,))
+            for title in whole:
+                state.execute("INSERT OR IGNORE INTO pub VALUES ('subject_whole', ?, x'')", (title,))
+        dst.execute("CREATE TABLE cards (release TEXT NOT NULL, subject TEXT NOT NULL, field TEXT NOT NULL, title TEXT NOT NULL, ver TEXT NOT NULL, "
+                    "body BLOB NOT NULL, at REAL NOT NULL, PRIMARY KEY (release, subject, field)) WITHOUT ROWID")
+        by_time = state is None and not reset              # no published-content table: the write times decide, as for the answers
+        q = "SELECT subject, field, title, ver, body, at FROM cards WHERE release = ? AND field IN (%s)" % ",".join("?" * len(card_fields))
+        for subject, field, title, ver, body, at in src.execute(q + (" AND at > ?" if by_time else ""), (release, *card_fields) + ((lo,) if by_time else ())).fetchall():
+            if title not in shown and not (state is not None and state.execute("SELECT 1 FROM pub WHERE tbl = 'subject' AND key = ?", (title,)).fetchone()):
+                continue
+            # the whole lead only where a published answer carries it (234 of 176,991 answers; the set of whole leads is three
+            # times the size of the row-length one)
+            if field == "lead_full" and title not in whole and not (
+                    state is not None and state.execute("SELECT 1 FROM pub WHERE tbl = 'subject_whole' AND key = ?", (title,)).fetchone()):
+                continue
+            if state is not None:
+                try:
+                    h = hashlib.sha1(title.encode() + b"\x00" + zlib.decompress(body)).digest()
+                except zlib.error:
+                    continue
+                k = subject + "\x1f" + field
+                old = state.execute("SELECT h FROM pub WHERE tbl = 'cards' AND key = ?", (k,)).fetchone()
+                if not reset and old and old[0] == h:
+                    same += 1
+                    continue
+                state.execute("INSERT OR REPLACE INTO pub VALUES ('cards', ?, ?)", (k, h))
+            dst.execute("INSERT INTO cards VALUES (?, ?, ?, ?, ?, ?, ?)", (release, subject, field, title, ver, body, at))    # zlib bodies, as the store keeps them
+            c += 1
+            new += at > new_after
+            until = max(until, at)
+    n["cards"] = c
+    dst.executemany("INSERT INTO lists_meta VALUES (?, ?)", [("reset", "1" if reset else "0"), ("body", "plain"), ("release", release), ("rows_cards", str(c)),
                                                               ("rows_curated", str(n["curated"])), ("rows_finished", str(n["finished"]))])   # a base is checked against them (DB-05)
     dst.commit()
     dst.execute("VACUUM")
@@ -341,11 +431,13 @@ def build(a) -> dict:
     # With the published-content table a delta reads the whole store and keeps what differs (new_after -1: every row it
     # keeps is new); a base makes the table. Without one (a delta before any base made it) the write times decide, as before.
     state = state_open(a.out, create=base)
+    cf = tuple(f for f in (a.card_fields or "").replace(",", " ").split() if f in CARD_FIELDS)
     if state is not None and not base:
-        n = write_part(a.store, raw, a.release, -1.0, False, -1.0, a.with_dept, allow, state)
+        n = write_part(a.store, raw, a.release, -1.0, False, -1.0, a.with_dept, allow, state, cf, a.refresh_embedded)
         print(f"lists: {n['same']} rows are what installs already hold (same content): not sent again", flush=True)
     else:
-        n = write_part(a.store, raw, a.release, 0.0 if base else float(prev["until"]) - overlap, base, 0.0 if base else float(prev["until"]), a.with_dept, allow, state)
+        n = write_part(a.store, raw, a.release, 0.0 if base else float(prev["until"]) - overlap, base, 0.0 if base else float(prev["until"]), a.with_dept, allow, state,
+                       cf, a.refresh_embedded)
     if state is not None:
         state.close()
     if allow is not None:
@@ -447,6 +539,10 @@ def main() -> int:
     b.add_argument("--base", action="store_true", help="start again from everything; the old parts are dropped on upload")
     b.add_argument("--with-dept", action="store_true", help="also the shopping departments (names from Amazon's search suggestions: "
                    "HELD until the owner decides on their licence)")
+    b.add_argument("--card-fields", default="", help="the card-set fields to publish beside the answers: lead, image or both (cards once; "
+                   "default none). The pictures are about 6 KB a subject and every published answer still carries its own")
+    b.add_argument("--refresh-embedded", action="store_true", help="also bring each published answer's own lead and picture to the card set's, for "
+                   "installs from before the card set (v0.4.38 and older); after a text fix that sends every carded answer again")
     b.add_argument("--manifest", help="the manifest now published (default: OUT/lists/manifest.json)")
     b.add_argument("--allow", help="a file of names (one a line): only their lists and answers are published (open-data "
                                    "and hand-added names; no visitor searches, no names from Amazon's suggestions)")

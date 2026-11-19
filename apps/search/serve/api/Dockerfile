@@ -15,17 +15,15 @@ RUN pip install --no-cache-dir "psycopg[binary]==3.3.6" "onnxruntime==1.30.0" "t
 # (BAAI/bge-small-en-v1.5, MIT), as ONNX, baked in so search-api never downloads at run time.
 ADD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/onnx/model.onnx /models/bge-small-en-v1.5/model.onnx
 ADD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json /models/bge-small-en-v1.5/tokenizer.json
-# Cross-encoder rerankers, Jev-free (2026-10-02; replace jina-turbo-jev — Jev's terms changed
-# 10-01). Trained on constructed answers + two-judge agreement (Clef 27B, Qwen3-14B):
-#   rerank-turbo-jevfree    jina-reranker-v1-turbo-en (Apache-2.0), int8 ONNX — the CPU
-#   rerank-ettin68m-jevfree Ettin-68M (MIT), OpenVINO fp16 IR (static 8x96) for an Intel iGPU,
-#                           + its int8 ONNX for the iGPU-vs-CPU agreement check at start
+# Cross-encoder rerankers, trained on constructed answers + two-judge agreement (Clef 27B, Qwen3-14B), one folder per device:
+#   the CPU folder   jina-reranker-v1-turbo-en (Apache-2.0), int8 ONNX
+#   the iGPU folder  Ettin-68M (MIT), OpenVINO fp16 IR (static 8x96) for an Intel iGPU,
+#                    + its int8 ONNX for the iGPU-vs-CPU agreement check at start
 # The files come from Gitea's package registry (login needed), so ./deploy.sh fetch-model puts
 # them in the build context first, sha256-checked: models/<name>/. Licences: /app/NOTICE.
 COPY models/rerank-turbo-jevfree/ /models/rerank-turbo-jevfree/
 COPY models/rerank-ettin68m-jevfree/ /models/rerank-ettin68m-jevfree/
-# No web-intent classifier since 2026-10-02: intent-jev was Jev-trained, and the hand rules
-# (_SHOP/_FRESH/_TASK) now catch what it caught (docs/internal/search-jev/13).
+# No web-intent classifier since 2026-10-02: the hand rules (_SHOP/_FRESH/_TASK) catch what it caught.
 # Intel iGPU runtime for OpenVINO. Box hardware is undecided, so BOTH driver lines:
 #   current NEO 26.35 + IGC 2.41.5  -> Gen12 and newer (Alder Lake-N / N100 class)
 #   legacy1 NEO 24.35 + IGC 1.0.17537 -> Gen8-Gen11 (Skylake HD 530 class — testbox)
@@ -61,7 +59,7 @@ RUN pip install --no-cache-dir "tantivy==0.26.2"
 RUN chmod -R a+rX /models
 # one malloc arena pair, not one per thread: anonymous memory after 3,060 queries 2.67 -> 2.12 GB (rc3, testbox 2026-10-05)
 ENV MALLOC_ARENA_MAX=2
-COPY search_api.py site_pages.py lookups_sqlite.py lookups_release.py kinds_release.py tv_open.py release_root.py sem_ivf.py gov_state.py state_anchor.py result_store.py compute_cache.py provenance.py parts.py stage_version.py stage_aliases.py start_trace.py warmplan.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py stage_base.py stage_parts.py site_slots.py facts.py news_sqlite.py instant_answers.py product_table.py ranker.json warmplans.json shop_stores.json warm.py native_host.py NOTICE ./
+COPY search_api.py site_pages.py lookups_sqlite.py lookups_release.py kinds_release.py tv_open.py release_root.py sem_ivf.py gov_state.py state_anchor.py result_store.py compute_cache.py provenance.py parts.py stage_version.py stage_aliases.py start_trace.py warmplan.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py card_text.py stage_base.py stage_parts.py site_slots.py facts.py news_sqlite.py instant_answers.py product_table.py ranker.json warmplans.json shop_stores.json warm.py native_host.py NOTICE ./
 COPY licenses/ /app/licenses/
 COPY --from=kern /src/libivf_kern.so /app/libivf_kern.so
 USER 1000:1000

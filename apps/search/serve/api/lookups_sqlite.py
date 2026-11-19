@@ -123,7 +123,7 @@ class Rows(list):
 
 
 # Tables whose presence the SQLite file decides (search_api.tables() asks the file, not
-# Postgres): a file built without the Jev-derived kinds tables turns the whole kinds tier off.
+# Postgres): a file built without the legacy kinds tables turns the whole kinds tier off.
 OWNED = frozenset("places suggest_keys suggest_top suggest_phrases suggest_items wiki_aliases wiki_sites wiki_links "
                   "wiki_next wiki_facts host_nav nav_sites kind_docs kind_members kind_keys kind_vecs stock_tickers "
                   "stock_keys card_images site_quality".split())
@@ -518,7 +518,7 @@ class SqliteLookups:
             out.append((title, lead[0] if lead else None, sm))
         return out
 
-    # -- kinds (absent from a Jev-free file: search_api never asks then)
+    # -- kinds (absent from an open-data file: search_api never asks then)
     def kind_keys(self, p):
         key, w, mn = p["key"], sorted(set(p["w"])), p["min"]
         cands = {r[0] for r in self.db.execute(f"SELECT key FROM kind_key_words WHERE word IN ({qm(w)}) GROUP BY key "

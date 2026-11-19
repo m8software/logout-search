@@ -78,7 +78,7 @@ import importlib.machinery
 class _StageFinder:    # only the stage_* parts and the trace's helpers are found; the api dir stays off sys.path so release_root still takes the by-file fallback
     @staticmethod
     def find_spec(name, path=None, target=None):
-        if name.startswith("stage_") or name in ("start_trace", "lookups_release", "compute_cache", "parts", "warmplan"):   # leaf helpers search_api and the stages import (the trace)
+        if name.startswith("stage_") or name in ("start_trace", "lookups_release", "compute_cache", "parts", "warmplan", "card_text"):   # leaf helpers search_api and the stages import (the trace)
             return importlib.machinery.PathFinder.find_spec(name, [sys.argv[1]])
 sys.meta_path.insert(0, _StageFinder)
 spec.loader.exec_module(m)

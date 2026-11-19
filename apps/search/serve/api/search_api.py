@@ -35,6 +35,7 @@ import time
 
 _PROC_T0 = time.monotonic()      # for the start-up log: seconds since this file began (the interpreter's own start is before it)
 
+import card_text       # the card set (cards once): lead and picture per subject
 import start_trace      # the startup trace (SEARCH_START_TRACE=1): a no-op unless it is on
 import unicodedata
 from collections import OrderedDict
@@ -263,13 +264,13 @@ _no_webrr: contextvars.ContextVar = contextvars.ContextVar("no_webrr", default=F
 BODY_VARIANTS = ("full", "bow", "none")
 _body: contextvars.ContextVar = contextvars.ContextVar("body", default="full")
 # Drop-cost evals (ADR-065, 2026-10-01; docs/internal/audits/2026-10-01-drop-costs.md):
-# ?drop=a,b searches as if a Jev-derived (or Tranco) input were gone, to measure what each
+# ?drop=a,b searches as if a legacy-derived (or Tranco) input were gone, to measure what each
 # removal costs. Ignored unless SEARCH_DROP_EVAL=1 (a throwaway eval container): on any
 # other box a query string must not be able to switch the junk filter off.
 #   cealt    the reranker runs the model in SEARCH_CE_ALT_DIR (e.g. the untrained base)
 #   intent   the web-intent model answers 0 (regex intent only)
-#   kindjev  kinds ignore kind_members.jev / .lead: every member trusted, no first-choice order
-#   junk     no junk filter;  junkut1  only site_quality rows UT1 flagged (source ut1 / jev+ut1)
+#   kindjev  kinds ignore the legacy judged column and .lead: every member trusted, no first-choice order
+#   junk     no junk filter;  junkut1  only site_quality rows UT1 flagged (the ut1 sources)
 #   tranco   Tranco rank replaced by the Common Crawl host rank, mapped onto Tranco's scale
 #   cewiki   the reranker may sink a Wikipedia article it scores at its floor (CE_WIKI_FLOOR off)
 DROP_EVAL = os.environ.get("SEARCH_DROP_EVAL", "0") == "1"
@@ -2334,7 +2335,11 @@ def stage(name: str):
             sc[name] = sc.get(name, 0.0) + (time.thread_time() - c) * 1000
 
 
+_in_pool: contextvars.ContextVar = contextvars.ContextVar("in_pool", default=False)   # True inside a task run on the _EXEC workers
+
+
 def _staged(name: str, fn, *args):
+    _in_pool.set(True)                  # this runs in a copied context on a pool worker: the warmer must not sleep here (see _warm_yield)
     with stage(name):
         return fn(*args)
 
@@ -2575,7 +2580,7 @@ def outlet(feed_name: str) -> str:
 
 # The news box shows only when some matched story is near the query in meaning (2026-09-30).
 # Word matching still picks and orders the stories. On 61 news queries (indexhost, last 48 h,
-# Jev-judged) a 0.60 cosine gate kept every news box (top story right 37/61, as without it)
+# hand-judged) a 0.60 cosine gate kept every news box (top story right 37/61, as without it)
 # and cut boxes on 50 non-news queries from 3 to 1. Filtering stories one by one, or
 # ordering them by meaning, lost right top stories (33-36) on broad queries ("nyc news").
 NEWS_SEM_GATE = float(os.environ.get("SEARCH_NEWS_SEM_GATE", "0.60"))
@@ -4224,8 +4229,8 @@ _warm_waited: contextvars.ContextVar = contextvars.ContextVar("warm_waited", def
 
 def _warm_yield() -> None:
     w = _warm_waited.get()
-    if w is None or _busy[0] <= 0:
-        return
+    if w is None or _busy[0] <= 0 or _in_pool.get():
+        return      # never sleep on a pool worker: the pool is shared, and a visitor's lists queue behind the sleeper (4 workers, ~3.9 s stalls)
     t = time.monotonic()
     while _busy[0] > 0 and w[0] < WARM_YIELD_TOTAL_S:
         time.sleep(WARM_YIELD_STEP_S)
@@ -4313,7 +4318,9 @@ PART_STAGES = {
                            "SEARCH_ACCOUNTS_IN_CARD", "SEARCH_CARDLINKS", "SEARCH_CONFIDENT_RANK", "SEARCH_CONFIDENT_RANK_OWN",
                            "SEARCH_LOOKUP_BACKEND", "SEARCH_LOOKUP_DB", "SEARCH_OWN_RANK_TSV", "SEARCH_POSTGRES",
                            "SEARCH_RELEASE_DIR", "SEARCH_SHORT_ENTITY_VIEWS", "SEARCH_SHORT_FLOOR", "SEARCH_SHORT_NAMES", "SEARCH_SHORT_RATIO",
-                           "SEARCH_SITE_RANK", "SEARCH_SITENAV", "SEARCH_SITES_BACKEND", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK),
+                           "SEARCH_SITE_RANK", "SEARCH_SITENAV", "SEARCH_SITES_BACKEND", "SEARCH_TYPO_INDEX", "SEARCH_WEB_BACKEND"), not_results=PARTS_SPEED_ONLY, clock_ok=PARTS_CLOCK_OK,
+                 # the lead and the picture are the card set's (card_text.py, cards once): their code is not this stage's version
+                 stop=("clean_lead", "card_image")),
     # the ranked candidates of one search: retrieval, fusion, the models (their real devices are in the key)
     "base": dict(roots=("_search_retry",), settings=(
                            "SEARCH_ACCOUNTS_IN_CARD", "SEARCH_ANSWER_DEAD", "SEARCH_BRAND_SITES",
@@ -4735,6 +4742,36 @@ def fin_plain(qs) -> bool:
 _fin_miss = threading.local()
 
 
+CARD_SET = os.environ.get("SEARCH_CARD_SET", "1") == "1"       # 0: stored answers are served with the card they were built with
+
+
+def card_text_build(title: str) -> dict | None:
+    """{"lead", "image"} of the article `title` from the release data alone (the builder: /cardtext), as card_build makes them;
+    None when the release has no such article."""
+    lk = lookups()
+    if lk is not None and lk.name == "release":
+        top = wiki_top(lk, title)
+        if top is None:
+            return None
+        img = lk.card_parts(title, 0)[2]
+    else:
+        with _conn() as c:
+            top = wiki_top(c, title)
+            if top is None:
+                return None
+            img = c.execute(CARD_IMAGE_SQL, {"t": title}).fetchone() if "card_images" in tables(c) else None
+    return card_text.text_of(top.get("content"), img)
+
+
+def card_text_put(url: str, title: str) -> dict:
+    """Build and keep the card-set entries of one subject (the builder only). {"lead": written|stamped|same, ...} or {"none": 1}."""
+    st = result_store() if CURATED_RELEASE else None
+    t = card_text_build(title) if st is not None else None
+    if t is None:
+        return {"none": 1}
+    return {f: st.put_card(CURATED_RELEASE, same_page(url), f, title, card_text.VERSION, t[f]) for f in card_text.SET_FIELDS}
+
+
 def fin_get(q: str, full: bool) -> dict | None:
     """The finished answer for q, or None: none stored, too old, another layout, or the hand-picked list of q was
     written, changed or removed since (a removal must win over a stored answer)."""
@@ -4745,8 +4782,8 @@ def fin_get(q: str, full: bool) -> dict | None:
     if st is None:
         return _miss("miss:nostore")
     try:
-        why_m = []
-        b = st.get_finished(CURATED_RELEASE, fin_key(q, full), FIN_MAX_AGE_S, miss=why_m)
+        why_m, meta = [], {}
+        b = st.get_finished(CURATED_RELEASE, fin_key(q, full), FIN_MAX_AGE_S, miss=why_m, meta=meta)
         if not b:
             return _miss("miss:" + (why_m[0] if why_m else "none"))
         if b.get("v") != FIN_V or any(k not in b for k in FIN_FIELDS):
@@ -4760,6 +4797,8 @@ def fin_get(q: str, full: bool) -> dict | None:
         if HOME and (b.get("local") or b.get("place") or any(r.get("source") == "place" for r in b["results"])):
             return _miss("miss:pos")                     # built with no position: here a position would change it
         _fin_miss.why = "hit"
+        if CARD_SET and b.get("card"):                   # cards once: the lead and picture from the card set, else as stored
+            b["card"] = card_text.join(b["card"], lambda s, f: st.get_card(CURATED_RELEASE, s, f), meta.get("at") or 0.0, b.get("ct"), same_page)
         return b
     except Exception:  # noqa: BLE001 - a stored answer is extra
         return _miss("miss:err")
@@ -4853,6 +4892,9 @@ def store_inbox_once() -> list:
                 if any(c.values()):
                     n = dict(n, **{f"dept_{k}": v for k, v in c.items()})
             if CURATED_RELEASE:                              # curated answers ride the same inbox (2026-11-05)
+                c = st.import_cards(p, CURATED_RELEASE)                  # the card set (cards once): lead and picture per subject; a base carries it too
+                if any(c.values()):
+                    n = dict(n, **{f"cards_{k}": v for k, v in c.items()})
                 if not reset_done:
                     c = st.import_curated(p, CURATED_RELEASE)
                     if any(c.values()):
@@ -5073,7 +5115,7 @@ _FRESH = re.compile(r"\b(news|today|tonight|tomorrow|yesterday|latest|score|scor
                     r"price of|release date|live|schedule|when is|when are|earnings|20[2-3][0-9])\b|\bvs\.?\b")
 _SHOP = re.compile(r"\b(buy|price|prices|cheap|cheapest|deal|deals|sale|for sale|coupon|review|reviews|"
                    r"best|vs|compare|shop|order|size|sizes|accessories)\b"
-                   r"|\b(under|below) \$?\d+\b")     # "kayak under 100" (Jev-free rules, 2026-10-02)
+                   r"|\b(under|below) \$?\d+\b")     # "kayak under 100" (hand rules, 2026-10-02)
 _HOWTO = re.compile(r"^(how|what|why|when|where|which|who|can|could|should|is|are|does|do|will)\b"
                     r"|\b(how to|how do|fix|error|install|setup|set up|tutorial|guide|recipe|convert|replace)\b")
 
@@ -5096,7 +5138,7 @@ def intent_of(q: str, results: list[dict]) -> str:
 
 # Web-only wording (2026-09-24). Shopping, fresh and task queries the index has no
 # exact answer for got a tangential Wikipedia article ("boston weather tomorrow" ->
-# Tomorrow.io): first-result Jev relevance shop 0.12, fresh 0.15, how-to 0.17 on the
+# Tomorrow.io): first-result relevance shop 0.12, fresh 0.15, how-to 0.17 on the
 # set, and SearXNG weighs our #1 like a web engine's #1. For those the local engine now
 # answers nothing and the web fills the page. On both eval sets (1,167 queries) that
 # empties 192 answers averaging 0.15; 7 were good (real sites the web lists too); no
@@ -5107,10 +5149,10 @@ _TASK = re.compile(r"^(how to|how do i|how do you|how can i|best way to)\b"
                    r"|\b(fix|install|setup|set up|tutorial|recipe|replace|repair|unclog|clean)\b")
 
 
-# Learned web intent (2026-09-27): Ettin-32M trained on Jev's query-only answer-type
+# Learned web intent (2026-09-27): Ettin-32M trained on query-only answer-type
 # labels (16k synthetic queries). It catches web-only wording the regexes above cannot see —
 # "patch a hole in drywall", "gaming mouse under 100", "descale a kettle". On the 1,167
-# held-out queries, of 977 where local returned results, 51 showed junk (best Jev < 0.3);
+# held-out queries, of 977 where local returned results, 51 showed junk (best relevance < 0.3);
 # web >= 0.75 sends 23 of them to the web: 17 junk pages replaced, 0 good answers hidden
 # (0.70: 19/0; 0.65 hid "sharpen a knife"). fp32 on purpose: int8 drifted up to 0.29 and
 # changed decisions. 3.3 ms p50 on one CPU thread-pair. Missing model = regexes only.
@@ -5118,13 +5160,13 @@ _TASK = re.compile(r"^(how to|how do i|how do you|how can i|best way to)\b"
 # "car rental comparison". web >= 0.9 and not a sites-of-a-kind query (sites < 0.7). A lower cut
 # (0.6) only swapped junk lists for empty ones — a hand-off is not an answer,
 # so it was not kept.
-# 2026-10-02: REMOVED from the image. Measured
+# 2026-10-02: REMOVED from the image (its training labels cannot ship). Measured
 # on the public engine with intent=0: no navigational first result changed (2,403 queries),
 # the "sites" signal changed no first result, and on 1,718 informational queries it handed
 # 20 to the web that local answered with junk ("kayak under 100" -> kayak.com.au). The rules
 # above now catch 19 of those 20 ("under 100", "earnings", "accessories", "change a …") and
 # 6 earnings queries it let through as junk; nothing changes on 14,166 training queries.
-# The code stays: SEARCH_INTENT_DIR can point at a Jev-free model later. Unset = off.
+# The code stays: SEARCH_INTENT_DIR can point at an open-data model later. Unset = off.
 INTENT_DIR = os.environ.get("SEARCH_INTENT_DIR", "")
 WEB_INTENT_MIN = float(os.environ.get("SEARCH_WEB_INTENT_MIN", "0.9"))
 SITES_BLOCK_WEB = float(os.environ.get("SEARCH_SITES_BLOCK_WEB", "0.7"))
@@ -5222,16 +5264,16 @@ def exact_name_top(q: str, r: dict) -> bool:
 # Learned ranker. features() turns one (query, result) into numbers; the SAME
 # function feeds training (utility/search-ranker.py) and serving, so they cannot drift.
 # ranker.json holds logistic-regression weights fitted offline; without the file the
-# hand-tuned order stands. Since 2026-10-02 it is Jev-free (utility/ce-train/ranker_jf.py):
+# hand-tuned order stands. Since 2026-10-02 it is fitted on open data only (utility/ce-train/ranker_jf.py):
 # 191,489 rows — answers known by construction + pairs two open judges agreed on. Replayed
-# with the Jev-free reranker after it: nav hit@1 0.897 -> 0.905 [+0.003, +0.012] vs the
-# Jev-fitted weights, informational within noise; no ranker at all lost 0.042 there.
+# with the open-data reranker after it: nav hit@1 0.897 -> 0.905 [+0.003, +0.012] vs the
+# legacy-fitted weights, informational within noise; no ranker at all lost 0.042 there.
 # ---------------------------------------------------------------------------
 RANKER_PATH = os.environ.get("SEARCH_RANKER", os.path.join(os.path.dirname(os.path.abspath(__file__)), "ranker.json"))
 # ---------------------------------------------------------------------------
 # Cross-encoder reranker (2026-09-24). A small model reads the query and each
 # result together and scores the pair — the largest single gain in the IR literature
-# (Nogueira & Cho 2019, https://arxiv.org/abs/1901.04085). Measured on 1,167 Jev-judged
+# (Nogueira & Cho 2019, https://arxiv.org/abs/1901.04085). Measured on 1,167 hand-judged
 # queries (798 navigational + 369 informational), reordering the first 8 results BELOW
 # the exact tiers (named sites, articles, places keep their hand order on top):
 #   first-result relevance 0.639 -> 0.659, nDCG@5 0.361 -> 0.372; 60 queries better, 19
@@ -5240,20 +5282,20 @@ RANKER_PATH = os.environ.get("SEARCH_RANKER", os.path.join(os.path.dirname(os.pa
 # jina-reranker-v1-tiny-en (Apache-2.0, int8) at 8 pairs x 96 tokens: 42 ms p50 on
 # indexhost's CPU, same gain as its full-list run (114 ms). Missing model = off.
 #
-# 2026-09-27 ( §2): jina-turbo-jev — jina-reranker-v1-turbo-en (Apache-2.0) fine-tuned on
-# 294,747 Jev relevance labels for synthetic queries. Top result agrees with Jev on 79.7% of
+# 2026-09-27 ( §2): a legacy-labelled jina-reranker-v1-turbo-en (Apache-2.0), fine-tuned on
+# 294,747 relevance labels for synthetic queries. Top result agreed with the labels on 79.7% of
 # held-out queries vs 57.8% for the untrained jina-tiny; hand-label AUC 0.964 vs 0.875
-# (docs/internal/search-jev/). On an Intel iGPU it runs as OpenVINO fp16 at a static
+# (retired 2026-10-02). On an Intel iGPU it runs as OpenVINO fp16 at a static
 # 8 x 96 shape — 57 ms per search on testbox's HD 530 vs ~65 ms for jina-tiny on 2 CPU cores —
 # and on the CPU as int8 ONNX (107 ms there). SEARCH_CE_DEVICE=auto tries the iGPU and keeps
 # it only if it agrees with the CPU on a built-in check (a GPU that returns garbage while
 # looking healthy is a known failure: runbook 20260826).
 # ---------------------------------------------------------------------------
-# Jev-free rerankers (2026-10-02; Jev's terms changed 10-01: nothing it labelled trains or ships).
+# The shipped rerankers (2026-10-02): nothing trained on legacy labels ships.
 # Both were trained on constructed answers + two-judge agreement (utility/ce-train/yardstick_labels.py)
 # and read the domain format. One model per device, because the budget differs:
-#   CPU   rerank-turbo-jevfree   jina-reranker-v1-turbo-en size: ~85 ms on a 4-core VPS, like before
-#   iGPU  rerank-ettin68m-jevfree Ettin-68M: ~180 ms on Gen9 HD 530 (300 ms budget), ~300+ ms on a CPU
+#   CPU   jina-reranker-v1-turbo-en size: ~85 ms on a 4-core VPS, like before
+#   iGPU  Ettin-68M: ~180 ms on Gen9 HD 530 (300 ms budget), ~300+ ms on a CPU
 CE_DIR = os.environ.get("SEARCH_CE_DIR", "/models/rerank-turbo-jevfree")
 CE_DIR_IGPU = os.environ.get("SEARCH_CE_DIR_IGPU", "/models/rerank-ettin68m-jevfree")
 CE_DEVICE = os.environ.get("SEARCH_CE_DEVICE", "auto")        # auto | gpu | cpu
@@ -5261,7 +5303,7 @@ CE_TOP = int(os.environ.get("SEARCH_CE_TOP", "8"))   # iGPU compiles this static
 CE_MAX_TOKENS = int(os.environ.get("SEARCH_CE_MAX_TOKENS", "96"))
 # What the model reads per result: "title" = title + text (models trained before
 # 2026-09-29); "domain" = the site's domain first. Must match how the models in CE_DIR and
-# CE_DIR_IGPU were trained (both Jev-free models: domain).
+# CE_DIR_IGPU were trained (both shipped models: domain).
 CE_TEXT = os.environ.get("SEARCH_CE_TEXT", "domain")
 CE_EXACT = WIKI_EXACT_SCORE - 3      # tiers 1-2 and places: never moved by the model
 _ce = None
@@ -5465,7 +5507,7 @@ def ce_text(r: dict) -> str:
     return text
 
 
-# Curated index ( §3, 2026-09-27): `site_quality` holds Jev's judgement of every served
+# Curated index ( §3, 2026-09-27): `site_quality` holds the legacy judgement of every served
 # homepage (useful / parked / spam / unsafe — utility/search-site-quality.py). Sites flagged
 # `junk` by its conservative rule are left out of answers. Reversible and optional: no table
 # (every snapshot so far) = nothing filtered; DROP TABLE site_quality undoes it. Loaded once
@@ -5491,7 +5533,7 @@ def junk_domains() -> frozenset:
 def query_names_domain(q: str, host: str) -> bool:
     """The query spells this site's name: the typed domain, or its label ("playkaro365" ->
     playkaro365.com). Such a site is what was asked for, junk or not (2026-09-27 eval: the
-    junk filter would have hidden the gambling site the query named, Jev 0.91)."""
+    junk filter would have hidden the gambling site the query named, judged 0.91)."""
     host = host[4:] if host.startswith("www.") else host
     dq = domain_query(q.lower().strip())
     if dq:
@@ -5504,7 +5546,7 @@ _junk_ut1 = (_NEVER, frozenset())
 
 
 def junk_domains_ut1() -> frozenset:
-    """?drop=junkut1 (eval only): the junk domains UT1's blocklist flags, without Jev's."""
+    """?drop=junkut1 (eval only): the junk domains UT1's blocklist flags, without the legacy ones."""
     global _junk_ut1
     at, dom = _junk_ut1
     if time.monotonic() - at < _JUNK_TTL:
@@ -7044,6 +7086,11 @@ class Handler(BaseHTTPRequestHandler):
             if st and sample and sample[0].isascii() and sample[0].isdigit():     # the warmer audits rows another engine computed
                 z["sample"] = st.sample_queries(min(int(sample[0]), 200))
             return self._send(200, json.dumps(z).encode())
+        # the builder: (re)build one subject's card-set entries (twin/cards_build.py). It writes the store, so only a caller inside
+        # the engine's own container is answered (the builder's scripts run there; a visitor's request never comes from loopback)
+        if u.path == "/cardtext" and self.client_address[0] in ("127.0.0.1", "::1"):
+            q_ = parse_qs(u.query)
+            return self._send(200, json.dumps({"ver": card_text.VERSION, **card_text_put((q_.get("u") or [""])[0], (q_.get("t") or [""])[0])}).encode())
         if u.path == "/provcheck" and PROVCHECK:        # the builder: replay the base searches of a stored answer (release_delta.py recheck)
             return self._send(200, json.dumps(provcheck((parse_qs(u.query or "").get("calls") or ["[]"])[0])).encode())
         if u.path == "/instant":
@@ -7463,6 +7510,14 @@ def startup_warm() -> bool:
         # cold pages of the big postings files cost the +142-198 s requests of 1.8-5 s on buildbox (wiki 1.8 s, sites 2.0 s: T1, 2026-11-17)
         small_a = [r for r in small if r[2] <= (100 << 20)]
         small_b = [r for r in small if r[2] > (100 << 20)]       # signals.bin, the wiki term dictionary: after the codes when the room is short
+        for envn in ("SEARCH_SE_INDEX", "SEARCH_WIKILINKS", "SEARCH_CARDLINKS", "SEARCH_SITENAV"):      # the add-ons beside the release: the first how-to question read the
+            ap = os.environ.get(envn, "").strip()                                                    # Stack Exchange index cold, 1-1.8 s of waiting (buildbox, 2026-11-18)
+            try:
+                asz = os.path.getsize(ap) if ap else 0
+            except OSError:
+                asz = 0
+            if 0 < asz <= (800 << 20):
+                small_b.append([ap, 0, asz])
         for rows, label in ((small_a, "read"), (codes, "read"), (small_b, "read"), (t2_lookup, "read hot ranges"), (t2_rest, "read hot ranges"), (plan.get("postings", []) if WARM_POSTINGS else [], "read postings")):
             by_file: dict[str, list] = {}
             for r in rows:
@@ -8022,6 +8077,11 @@ from stage_base import (
 
 # The stage modules: each stage's private code, moved out of this file unchanged. They import what they need from here, so
 # they are loaded after everything above is defined; their names come back into this namespace for the code that calls them.
+from card_text import (
+    _EMPTY_PARENS,
+    card_image,
+    clean_lead,
+)
 from stage_card import (
     CARDLINKS_MAIN,
     CARDLINKS_MORE,
@@ -8044,7 +8104,6 @@ from stage_card import (
     SITENAV_PATH,
     TWO_LETTER_KEEP,
     _CARDLINK_KIND,
-    _EMPTY_PARENS,
     _LOGIN_TAIL,
     _PLATFORM_IS,
     _PLATFORM_NOT,
@@ -8060,12 +8119,10 @@ from stage_card import (
     card_article,
     card_build,
     card_description,
-    card_image,
     card_links,
     card_of,
     card_pre,
     card_stage,
-    clean_lead,
     lead_with_official,
     mark_respelled,
     own_name_site,
@@ -8127,7 +8184,7 @@ from stage_list import (
     _scores,
     _scores_reuse,
     _se_ix_credit,
-    _se_ix_db,
+    _se_ix_pool,
     _site_of,
     _site_table,
     _site_tables,

@@ -49,6 +49,9 @@ class PartStale(Exception):
 
 _pcheck: contextvars.ContextVar = contextvars.ContextVar("pcheck", default=False)       # ?pcheck=1: answer only whether every part is current
 
+# card_text.VERSION when this answer's card was computed here and now (not read from a stored part): fin_put stamps it ("ct")
+_card_live: contextvars.ContextVar = contextvars.ContextVar("card_live", default=None)
+
 _part_keys: contextvars.ContextVar = contextvars.ContextVar("part_keys", default=None)  # the keys of the parts this answer was made from
 
 def _warm_q(qs) -> bool:

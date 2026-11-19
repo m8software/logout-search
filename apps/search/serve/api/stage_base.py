@@ -1217,7 +1217,7 @@ def lift_famous(out: list[dict], exact_titles: list[str], famous: str, lead_of) 
 # editor" name a KIND of site, not a site. Before this the Wikipedia article about the kind
 # won (tier 2: "Password manager"), or a tiny domain that spells the words (tier 1:
 # photo-editor.one, audiobook.com, recipes.net): 34% of 258 hand-written descriptive queries
-# had a real site of that kind first (Jev, testbox). kind_docs (importer kinds.py) holds, per
+# had a real site of that kind first (hand-judged, testbox). kind_docs (importer kinds.py) holds, per
 # site, the kinds Wikidata, Wikipedia categories and list pages, the Open Directory and
 # awesome lists give it; kind_members maps a normalised kind name to the sites carrying it.
 #   - The query IS a kind name (kind_key in kind_members, >= KIND_MIN_MEMBERS sites) and is
@@ -1246,13 +1246,13 @@ KIND_MIN_MEMBERS = 2      # a kind name needs this many sites to be looked up at
 KIND_MIN_GOOD = 2         # ... and this many judged good to go above the article
 
 # Popularity: the SITES_SQL Tranco / Common Crawl terms plus Wikidata sitelinks (how many
-# Wikipedias write about the site) — the best-known sites of a kind lead. Old (Jev-built) tables
+# Wikipedias write about the site) — the best-known sites of a kind lead. Old (legacy) tables
 # only; the open tables use KIND_POP_OPEN (no Tranco: D2, docs/legal/SEARCH-DATA-LICENSES.md).
 KIND_POP = ("(0.15 * greatest(0, 14 - ln(coalesce(k.tranco_rank, 2000000)))"
             " + 0.10 * greatest(0, 18 - ln(coalesce(k.cc_hc_pos, 100000000)))"
             " + 0.08 * ln(1 + coalesce(k.sitelinks, 0)))")
 
-# Jev's verdict (kind_members.jev, from the deleted utility/search-kind-members.py; ADR-065) decides the order first:
+# The legacy judged column of kind_members (from the deleted utility/search-kind-members.py; ADR-065) decides the order first:
 # a site judged a real one of the kind (>= 0.7) beats an unjudged one, which beats a doubtful
 # one; below 0.3 it is dropped. Popularity orders within each band.
 KIND_JEV_BAND = "10 * max(CASE WHEN m.jev >= 0.7 THEN 2 WHEN m.jev IS NULL THEN 1 WHEN m.jev >= 0.4 THEN 0.5 ELSE 0 END)"
@@ -1270,14 +1270,14 @@ ORDER BY score DESC LIMIT %(k)s
 
 # The open tables (importer/kinds_open.py, ADR-065, 2026-10-01) carry kind_members.conf — a
 # membership confidence from open evidence (direct Wikidata statement, independent source
-# families) — instead of Jev's verdict. A site is lifted only when conf >= KIND_LIFT_CONF: the
+# families) — instead of the legacy verdict. A site is lifted only when conf >= KIND_LIFT_CONF: the
 # lift is an explicit predicate, so popularity can never carry an unsupported site over the
-# line (in the Jev formula an unjudged, popular, exact-name site could reach KIND_GOOD).
+# line (in the legacy formula an unjudged, popular, exact-name site could reach KIND_GOOD).
 # Popularity is Common Crawl host rank + Wikidata sitelinks + Wikipedia pageviews.
 KIND_LIFT_CONF = float(os.environ.get("SEARCH_KIND_LIFT_CONF", "0.7"))
 
 # The open lead is coarse (own Wikidata class 0.5, named in the first sentence 0.3, agreement 0.2):
-# weighted 1.5, not the Jev verdict's 4, so popularity still orders sites with the same lead
+# weighted 1.5, not the legacy verdict's 4, so popularity still orders sites with the same lead
 # (v1 used 2; changed with KIND_POP_OPEN after the v1 eval).
 KIND_LEAD_W_OPEN = float(os.environ.get("SEARCH_KIND_LEAD_W_OPEN", "1.5"))
 
@@ -1317,14 +1317,14 @@ ORDER BY key = %(key)s DESC, array_length(words, 1), n DESC LIMIT 3
 
 # Meaning match (kind_vecs, tools/embed-kinds.py): a query whose words name no kind finds
 # the nearest kind names by embedding ("photo editor" ~ "raster graphics editor"). Only kind
-# names with >= 2 liftable sites are embedded (Jev-approved in the old tables, conf >=
+# names with >= 2 liftable sites are embedded (approved in the old tables, conf >=
 # KIND_LIFT_CONF in the open ones), and only those sites are ever lifted.
 KIND_SIM = float(os.environ.get("SEARCH_KIND_SIM", "0.86"))
 
 KIND_KEY_EXACT_SQL = "SELECT key FROM kind_keys WHERE key = %(k)s AND n >= %(m)s"
 
-# Jev's "first choice" verdict (kind_members.lead, from the deleted utility/search-kind-leaders.py) orders the
-# approved sites of a kind; it never admits a site (the Jev-approval band still decides that).
+# The legacy "first choice" verdict (kind_members.lead, from the deleted utility/search-kind-leaders.py) orders the
+# approved sites of a kind; it never admits a site (the approval band still decides that).
 # Older tables have no lead column: the term is left out, as before (2026-09-30).
 KIND_LEAD_W = float(os.environ.get("SEARCH_KIND_LEAD_W", "4"))
 
@@ -1358,7 +1358,7 @@ def kind_cols(c) -> frozenset:
     return _kind_cols[1]
 
 def kind_open(c) -> bool:
-    """The open tables (kind_members.conf) rather than the old Jev-built ones."""
+    """The open tables (kind_members.conf) rather than the old legacy ones."""
     return "kind_members.conf" in kind_cols(c)
 
 def kind_bm25_sql(c) -> str:
@@ -1383,7 +1383,7 @@ def kind_key_sql(c) -> str:
     sql = sql.replace("@HOME@", f"+ CASE WHEN k.country = '{esc}' THEN {KIND_HOME_W} ELSE 0 END" if home else "")
     sql = sql.replace("@HOMEG@", ", k.country" if home else "")
     if "kindjev" in _drop.get():
-        # eval only: no Jev verdicts — every member in the top band, no floor, no lead term
+        # eval only: no legacy verdicts — every member in the top band, no floor, no lead term
         sql = (sql.replace(KIND_JEV_BAND, "10 * 2").replace(" AND coalesce(m.jev, 0.5) >= 0.3", "")
                   .replace(f"+ {KIND_LEAD_W} * max(coalesce(m.lead, 0.5))", ""))
     return sql
@@ -1426,7 +1426,7 @@ def _kind_site_rows(q: str) -> list[tuple]:
     vec = "[" + ",".join(f"{x:.5f}" for x in e) + "]"
     return [r for r in _rows(KIND_SITE_SQL, {"e": vec}, "SET hnsw.ef_search = 40") if r[4] >= KIND_SITE_SIM]
 
-KIND_GOOD = 20.0          # a member Jev judged a real site of the kind (>= 0.7): only these are lifted
+KIND_GOOD = 20.0          # a member judged a real site of the kind (>= 0.7): only these are lifted
 
 KIND_SQL = f"""
 SELECT url, title, descr, domain, bm25 * (1 + pop) AS score FROM (
@@ -1478,7 +1478,7 @@ def kind_base(q: str, has_article: bool) -> float:
 
 # A task names the tool that does it ("merge pdf files online" -> "pdf merger", "convert video
 # to mp3" -> "video converter" / "file converter"). Only candidate kind names: a lift still
-# needs >= 2 Jev-approved sites of that kind, so a wrong rewrite finds nothing (2026-09-30).
+# needs >= 2 approved sites of that kind, so a wrong rewrite finds nothing (2026-09-30).
 TASK_TOOL = {"merge": "merger", "combine": "merger", "convert": "converter", "edit": "editor",
              "record": "recorder", "track": "tracker", "compress": "compressor", "translate": "translator",
              "shorten": "shortener", "download": "downloader", "generate": "generator", "make": "maker",
@@ -2023,7 +2023,7 @@ def one_home_page(res: list[dict]) -> list[dict]:
             out.append(r)
     return out
 
-# "Wants sites of a kind" (2026-09-30): the intent model's sixth label, Jev's answer to "is the
+# "Wants sites of a kind" (2026-09-30): the intent model's sixth label, the answer to "is the
 # best answer a short list of real websites or apps of a certain kind?" (password manager,
 # video sharing site). A query that says so without a site word ("tollywood ott", "discord
 # bots") gets its kind's sites above the article, like "... app" does. 0.0 on older models.
@@ -2230,7 +2230,7 @@ def untitled_last(q: str, res: list[dict]) -> list[dict]:
 # Stock and ticker searches (2026-09-30, ADR-061): "netflix stock", "nflx share price",
 # "$nflx". Answered with three links, never a price we fetch: the Google Finance quote (live for
 # NYSE/Nasdaq trades and the fewest trackers of 17 quote pages measured), the company's official
-# site, and its SEC filings. Reasoning and measurements: docs/internal/search-jev/12-stock-queries.md.
+# site, and its SEC filings. Reasoning and measurements: the stock-query notes under docs/internal.
 # stock_tickers / stock_keys come from importer/stocks.py (SEC ticker list + Wikidata).
 STOCK_SCORE = NAV_SCORE + 2             # above the company's own homepage match
 
@@ -2349,8 +2349,8 @@ def stock_results(row) -> list[dict]:
     return out
 
 # The article the query names exactly (its title or a redirect) and that the hand rules put first. Measured 2026-10-07
-# on the release engine, wiki-redirect dev half: with the Jev-free ranker.json that ships, the learned ranker moved a
-# reference link (899.5) above that article for 99 of 1,201 queries (86.2% hit@1); the Jev-fitted weights the rc4
+# on the release engine, wiki-redirect dev half: with the ranker.json that ships, the learned ranker moved a
+# reference link (899.5) above that article for 99 of 1,201 queries (86.2% hit@1); the legacy-fitted weights the rc4
 # acceptance image carried did not (94.4%). SEARCH_PIN_EXACT_ARTICLE=0 lets the ranker move it again.
 PIN_EXACT_ARTICLE = os.environ.get("SEARCH_PIN_EXACT_ARTICLE", "1").strip() != "0"
 
@@ -2523,7 +2523,7 @@ def rerank(q: str, results: list[dict]) -> list[dict]:
     scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
     return [r for _, _, r in scored]
 
-# The Jev-free models score a Wikipedia article at their floor (-7.9) unless the query is close to its title or
+# The shipped models score a Wikipedia article at their floor (-7.9) unless the query is close to its title or
 # worded as a question: their constructed training rows hold an article as the answer only for its own title
 # (yardstick "wiki-topic"). At the floor the score says nothing — "illinois foid card": Firearm Owner's
 # Identification -7.86, Firearms regulation in France -7.97 — and the article fell under whatever site scored
@@ -2580,7 +2580,7 @@ def ce_rerank(q: str, results: list[dict], scorer=None) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Typo correction (2026-09-24). A misspelt name matched nothing exact and fell to
 # weak keyword / semantic hits ("decathhlon" -> Red herring; typos scored 0.39 on the
-# Jev eval vs 0.80 overall). When no exact tier answered, the closest suggest key by
+# hand-judged eval vs 0.80 overall). When no exact tier answered, the closest suggest key by
 # trigram similarity ("decathlon") is searched instead and its results are marked
 # corrected — never `confident`: a guessed spelling must not skip the web.
 # ---------------------------------------------------------------------------
@@ -2826,8 +2826,8 @@ def correct_words(q: str) -> str | None:
     changed = sum(a != b for a, b in zip(words, out))
     return " ".join(out) if changed and changed < len(words) else None
 
-# A misspelt name runs to six words ("byrd polar and climate ersearch center", Jev typo
-# set); a longer sentence ("how to fix a squeaky door hinge") is never within two edits of
+# A misspelt name runs to six words ("byrd polar and climate ersearch center", from the
+# typo set); a longer sentence ("how to fix a squeaky door hinge") is never within two edits of
 # one, and its trigram scan was the slowest step (67 ms cold). At 4 words "national
 # fund for heealth insurance" lost its correction.
 TYPO_MAX_WORDS = 6

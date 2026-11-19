@@ -1678,6 +1678,8 @@ def lists_rekey(path: str, release: str) -> dict:
                 n[t] = db.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
         if "dept" in have:
             n["dept"] = db.execute("SELECT count(*) FROM dept").fetchone()[0]
+        if "cards" in have:                         # the card set (cards once): lead / picture per card subject; not counted in n (the manifest's rows name three tables)
+            db.execute("UPDATE cards SET release = ?", (release,))
         db.commit()
         return n
     finally:

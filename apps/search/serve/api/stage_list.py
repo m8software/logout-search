@@ -529,7 +529,24 @@ SE_INDEX_POOL = int(os.environ.get("SEARCH_SE_POOL", "20"))      # candidates re
 # asked about the candidates and the unscored rows only. Off = every row is scored again with the candidates.
 SE_INDEX_REUSE = os.environ.get("SEARCH_SE_REUSE", "").strip() == "1"
 
-_se_ix_db = threading.local()
+_se_ix_pool: list = []                  # read-only connections to the index kept for the next request: a request thread is new each time, and a
+_se_ix_lock = threading.Lock()          # connection of its own started with an empty page cache and re-read the FTS pages (110-190 ms CPU a question)
+
+def _se_ix_conn():
+    import sqlite3
+    with _se_ix_lock:
+        if _se_ix_pool:
+            return _se_ix_pool.pop()
+    c = sqlite3.connect(f"file:{SE_INDEX_PATH}?mode=ro", uri=True, check_same_thread=False)
+    c.execute("PRAGMA cache_size = -16000")           # 16 MB of the index's pages per connection
+    return c
+
+def _se_ix_keep(c) -> None:
+    with _se_ix_lock:
+        if len(_se_ix_pool) < 4:
+            _se_ix_pool.append(c)
+            return
+    c.close()
 
 _SE_STOP = frozenset(("the", "a", "an", "of", "and", "in", "on", "for", "to", "is", "are", "was", "how", "do", "does", "what",
                       "who", "why", "when", "where", "can", "i", "my", "me", "you", "with", "at", "by", "from", "it", "this",
@@ -559,23 +576,25 @@ def se_ix_lookup(q: str, n: int | None = None) -> list[tuple]:
     words = [w for w in re.findall(r"[a-z0-9]+", (q or "").lower()) if w not in _SE_STOP]
     if not words:
         return []
-    db = getattr(_se_ix_db, "db", None)
-    if db is None:
-        try:
-            db = sqlite3.connect(f"file:{SE_INDEX_PATH}?mode=ro", uri=True, check_same_thread=False)
-            _se_ix_db.db = db
-        except sqlite3.Error:
-            return []
+    try:
+        db = _se_ix_conn()
+    except sqlite3.Error:
+        return []
     rows: list[tuple] = []
+    ok = True
     for op in (" AND ", " OR "):
         try:
             rows = db.execute("SELECT s.site, s.qid, s.title, s.score, s.acc, s.asker, s.answerer, s.aid, s.adate, s.snip "
                               "FROM fts JOIN s ON s.id = fts.rowid WHERE fts MATCH ? ORDER BY bm25(fts, 6.0, 2.0, 1.0, 1.0) LIMIT ?",
                               (op.join(f'"{w}"' for w in words[:12]), n)).fetchall()
         except sqlite3.Error:
-            rows = []
+            rows, ok = [], False
         if len(rows) >= 5:
             break
+    if ok:
+        _se_ix_keep(db)
+    else:
+        db.close()
     return rows
 
 def _se_ix_credit(packed: str) -> tuple:
@@ -598,10 +617,19 @@ def se_ix_row(r: tuple) -> dict:
 
 def se_howto(q: str, res: list[dict], scorer=None) -> list[dict]:
     """The shown list with index rows for a how-to or question search (intent_of, the engine's own signal). Returns the
-    list as it was when the index is off, the search is another kind, or no candidate clears the floor."""
+    list as it was when the index is off, the search is another kind, or no candidate clears the floor. The answer for one
+    question over one list is kept for CACHE_TTL_S like every other cached block: it was computed again for every repeat of
+    a question (an index query and a reranker batch, 250-330 ms here and 4.4 s on buildbox under load)."""
     if not SE_INDEX_PATH or not _se_on.get() or not res or intent_of(q, res) != "howto":
         return res
-    cands = [se_ix_row(r) for r in se_ix_lookup(q)]
+    if scorer is not None:                                # a caller's own scorer (a test, an A/B): not shared
+        return _se_howto_rows(q, res, scorer)
+    return cached(("se_howto", (q or "").lower(), tuple(r.get("url") for r in res), SE_INDEX_ROWS, SE_INDEX_MIN), lambda: [_se_howto_rows(q, res, None)])[0]
+
+
+def _se_howto_rows(q: str, res: list[dict], scorer=None) -> list[dict]:
+    with stage("se_lookup"):
+        cands = [se_ix_row(r) for r in se_ix_lookup(q)]
     if not cands:
         return res
     have = {same_page(r["url"]): r for r in res}
@@ -619,14 +647,16 @@ def se_howto(q: str, res: list[dict], scorer=None) -> list[dict]:
         return out
     if SE_INDEX_REUSE:                                    # the rows' own scores stand; only what has none is asked
         todo = [k for k, r in enumerate(out) if not isinstance(r.get("ce"), (int, float))]
-        sc = _scores(q, [out[k] for k in todo] + new, scorer)
+        with stage("se_scores"):
+            sc = _scores(q, [out[k] for k in todo] + new, scorer)
         if sc is not None:
             rs = [float(r["ce"]) if isinstance(r.get("ce"), (int, float)) else 0.0 for r in out]
             for k, v in zip(todo, sc):
                 rs[k] = v
             sc = rs + sc[len(todo):]
     else:
-        sc = _scores(q, out + new, scorer)
+        with stage("se_scores"):
+            sc = _scores(q, out + new, scorer)
     if sc is None:
         return out
     rs, ns = sc[:len(out)], sc[len(out):]

@@ -44,7 +44,7 @@ NOT_RESULTS = frozenset((
     "SEARCH_WIKILINKS", "SEARCH_BREADTH_WIKI", "SEARCH_BREADTH_CITE", "SEARCH_BREADTH_WIKI_MIN", "SEARCH_BREADTH_WIKI_FROM",
     "SEARCH_SE_INDEX", "SEARCH_SE_ROWS", "SEARCH_SE_MIN", "SEARCH_SE_POOL", "SEARCH_SE_REUSE",                                           # the Stack Exchange how-to rows: after the store too  # W / C letters: same place, after the store
 ))
-STAMP_KEYS = frozenset(("eng", "pk", "dev"))      # what built a finished answer, not what it says
+STAMP_KEYS = frozenset(("eng", "pk", "dev", "ct"))      # what built a finished answer, not what it says
 CODE_SUFFIXES = (".py", ".json", ".so")
 # Files in the engine folder that never change a search's results (the warmer, the WebRTC peer and its stand-ins,
 # dev tooling, this store): a change to them must not retire every stored row.
@@ -204,6 +204,11 @@ class ResultStore:
         # by position. prune() drops parts nobody has read for weeks; a part not in here counts from its write time.
         self._ddl("CREATE TABLE IF NOT EXISTS parts_used (stage TEXT NOT NULL, key TEXT NOT NULL, used REAL NOT NULL, "
                         "PRIMARY KEY (stage, key)) WITHOUT ROWID")
+        # The card set (cards once; card_text.py): a card's lead and picture, once per subject (the card's page) and field,
+        # keyed by RELEASE. ver = the card_text version that made it; body = zlib(JSON value), a JSON null = "no picture".
+        self._ddl("CREATE TABLE IF NOT EXISTS cards (release TEXT NOT NULL, subject TEXT NOT NULL, field TEXT NOT NULL, "
+                        "title TEXT NOT NULL, ver TEXT NOT NULL, body BLOB NOT NULL, at REAL NOT NULL, "
+                        "PRIMARY KEY (release, subject, field)) WITHOUT ROWID")
         self._touched: set = set()
         self.stats = {"hit": 0, "miss": 0, "put": 0, "skip": 0, "curated_hit": 0, "finished_hit": 0, "prev_hit": 0}
         self.opened = time.time()
@@ -288,9 +293,16 @@ class ResultStore:
         src = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
         try:
             has = src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'rows'").fetchone()
-            rows = src.execute("SELECT fp, kind, key, body, at FROM rows").fetchall() if has else []   # a curated-only file
+            if not has:                                    # a curated-only file
+                return n
+            for chunk in _batches(src.execute("SELECT fp, kind, key, body, at FROM rows"), self.INTAKE_CHUNK):   # never the whole file in memory
+                self._import_rows(chunk, kinds, now, n)
+                self._pause(self.INTAKE_YIELD_S)
         finally:
             src.close()
+        return n
+
+    def _import_rows(self, rows, kinds, now: float, n: dict) -> None:
         for fp, kind, key, body, at in rows:
             try:
                 ok = (fp == self.fp and kind in kinds and isinstance(key, str) and len(key) < 4096
@@ -310,7 +322,6 @@ class ResultStore:
                     continue
                 self.db.execute("INSERT OR REPLACE INTO rows VALUES (?, ?, ?, ?, ?)", (fp, kind, key, body, float(at)))
             n["newer" if old else "added"] += 1
-        return n
 
     def get_curated(self, release: str, key: str):
         """The curated body for (release, key), or None."""
@@ -327,7 +338,97 @@ class ResultStore:
             r = self.db.execute("SELECT at FROM curated WHERE release = ? AND key = ?", (release, key)).fetchone() if ok else None
         return r[0] if r else None
 
-    def get_finished(self, release: str, key: str, max_age: float, miss: list | None = None):
+    def get_card(self, release: str, subject: str, field: str):
+        """(value, version, at, title) of a subject's card field, or None (not held, or the store is busy: the stored card stands)."""
+        with self._rd() as ok:
+            r = self.db.execute("SELECT body, ver, at, title FROM cards WHERE release = ? AND subject = ? AND field = ?",
+                                (release, subject, field)).fetchone() if ok else None
+        if not r:
+            return None
+        try:
+            return json.loads(zlib.decompress(r[0])), r[1], r[2], r[3]
+        except (zlib.error, ValueError):
+            return None
+
+    def put_card(self, release: str, subject: str, field: str, title: str, ver: str, value) -> str:
+        """Keep a subject's card field (the builder). The same value by the same version is left alone ("same": its time stays, so
+        it is not shipped again); the same value by another version only moves the version ("stamped"); else "written"."""
+        raw = json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode()
+        with self.lock:
+            r = self.db.execute("SELECT body, ver, title FROM cards WHERE release = ? AND subject = ? AND field = ?",
+                                (release, subject, field)).fetchone()
+            if r:
+                try:
+                    same = zlib.decompress(r[0]) == raw and r[2] == title
+                except zlib.error:
+                    same = False
+                if same and r[1] == ver:
+                    return "same"
+                if same:
+                    self.db.execute("UPDATE cards SET ver = ? WHERE release = ? AND subject = ? AND field = ?", (ver, release, subject, field))
+                    return "stamped"
+            self.db.execute("INSERT OR REPLACE INTO cards VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            (release, subject, field, title, ver, zlib.compress(raw, 6), time.time()))
+        return "written"
+
+    CARD_FIELDS = ("lead", "lead_full", "image")
+
+    def _ok_card(self, rel, subject, field, title, ver, body, at, release, now) -> bool:
+        try:
+            ok = (rel == release and isinstance(subject, str) and 0 < len(subject) < 2048 and field in self.CARD_FIELDS
+                  and isinstance(title, str) and isinstance(ver, str) and isinstance(body, bytes) and len(body) < (1 << 20)
+                  and isinstance(at, float | int) and at <= now + 60)
+            if ok:
+                v = json.loads(zlib.decompress(body))
+                ok = (isinstance(v, str) if field == "lead" else v is None or isinstance(v, str) if field == "lead_full"
+                      else v is None or (isinstance(v, dict) and isinstance(v.get("src"), str)))
+            return ok
+        except (zlib.error, ValueError):
+            return False
+
+    def import_cards(self, path: str, release: str, chunk: int = 200, yield_s: float = 0.002) -> dict:
+        """Card-set rows of this release from a file (twin/ship-answers.sh, a lists base or delta); newer replaces ours. Bounded:
+        `chunk` rows are read, checked and written at a time on a connection of its own (the store lock is never taken, so no
+        search waits behind it), with a pause for the searches in flight between chunks."""
+        n = {"added": 0, "newer": 0, "kept": 0, "refused": 0}
+        now = time.time()
+        src = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            if not src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'cards'").fetchone():
+                return n
+            cols = [c[1] for c in src.execute("PRAGMA table_info(cards)")]
+            if cols[:7] != ["release", "subject", "field", "title", "ver", "body", "at"]:
+                return n
+            cur = src.execute("SELECT release, subject, field, title, ver, body, at FROM cards")
+            w = self._writer()
+            try:
+                while True:
+                    rows = cur.fetchmany(chunk)
+                    if not rows:
+                        break
+                    good = [r for r in rows if self._ok_card(*r, release, now)]
+                    n["refused"] += len(rows) - len(good)
+                    w.execute("BEGIN IMMEDIATE")
+                    try:
+                        for rel, subject, field, title, ver, body, at in good:
+                            old = w.execute("SELECT at FROM cards WHERE release = ? AND subject = ? AND field = ?", (rel, subject, field)).fetchone()
+                            if old and old[0] >= at:
+                                n["kept"] += 1
+                                continue
+                            w.execute("INSERT OR REPLACE INTO cards VALUES (?, ?, ?, ?, ?, ?, ?)", (rel, subject, field, title, ver, body, float(at)))
+                            n["newer" if old else "added"] += 1
+                        w.execute("COMMIT")
+                    except BaseException:
+                        w.execute("ROLLBACK")
+                        raise
+                    self._pause(yield_s)
+            finally:
+                w.close()
+        finally:
+            src.close()
+        return n
+
+    def get_finished(self, release: str, key: str, max_age: float, miss: list | None = None, meta: dict | None = None):
         """The finished answer for (release, key) whose newest confirmation (its time, or the builder's re-verification of
         it, finished_checked) is younger than max_age, or None."""
         with self._rd() as ok:
@@ -342,6 +443,8 @@ class ResultStore:
                 miss.append("age")
             return None
         self.stats["finished_hit"] += 1
+        if meta is not None:
+            meta["at"] = r[1]
         return json.loads(zlib.decompress(r[0]))
 
     def finished_at(self, release: str, key: str):
@@ -411,40 +514,54 @@ class ResultStore:
         except (zlib.error, ValueError):
             return False
 
-    def _put_newer(self, table: str, rows, n: dict) -> None:
-        """Rows (release, key, body, at) that pass their check, newer than ours, in ONE transaction (the caller holds the lock)."""
+    def _put_newer(self, table: str, rows, n: dict, db=None) -> None:
+        """Rows (release, key, body, at) that pass their check, newer than ours, in ONE transaction (on `db`, the intake's own
+        connection; on the store's connection the caller holds the lock)."""
+        db = db or self.db
         for rel, key, body, at in rows:
-            old = self.db.execute(f"SELECT at FROM {table} WHERE release = ? AND key = ?", (rel, key)).fetchone()
+            old = db.execute(f"SELECT at FROM {table} WHERE release = ? AND key = ?", (rel, key)).fetchone()
             if old and old[0] >= at:
                 n["kept"] += 1
                 continue
-            self.db.execute(f"INSERT OR REPLACE INTO {table} VALUES (?, ?, ?, ?)", (rel, key, body, float(at)))
+            db.execute(f"INSERT OR REPLACE INTO {table} VALUES (?, ?, ?, ?)", (rel, key, body, float(at)))
             n["newer" if old else "added"] += 1
 
+    INTAKE_CHUNK = 200            # rows read, checked and written per transaction of an intake
+    INTAKE_YIELD_S = 0.002        # ... and the pause after each, on top of waiting for the searches in flight (yield_hook)
+
     def _import_table(self, path: str, table: str, check) -> dict:
-        """Rows of `table` from a file, checked, newer-wins, 1,000 rows per transaction and per hold of the lock
-        (audit DB-05: one autocommit per row took 545 us each, 54.5 s per 100k rows, against the request threads)."""
+        """Rows of `table` from a file, checked, newer-wins, in bounded chunks on a connection of its own.
+
+        (2026-11-18): this ran 1,000 rows per transaction on the store's one connection, holding the store lock for each
+        chunk. A visitor's read gives up on the lock after READ_WAIT_S and computes the answer live, so during the take-in of a
+        137,000-answer file half the requests took 2.8 s or more and the slowest 22.7 s (scratch engine, 18 ms median before).
+        Now the lock is never taken (the write goes through the write-ahead log beside the readers), a chunk is INTAKE_CHUNK
+        rows, and between chunks the intake waits for the searches in flight."""
         n = {"added": 0, "newer": 0, "kept": 0, "refused": 0}
         src = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
         try:
             if not src.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", (table,)).fetchone():
                 return n
             cur = src.execute(f"SELECT release, key, body, at FROM {table}")
-            for chunk in _batches(cur):
-                good = []
-                for rel, key, body, at in chunk:
-                    if check(rel, key, body, at):
-                        good.append((rel, key, body, at))
-                    else:
-                        n["refused"] += 1
-                with self.lock:
-                    self.db.execute("BEGIN IMMEDIATE")
+            w = self._writer()
+            try:
+                for chunk in _batches(cur, self.INTAKE_CHUNK):
+                    good = []
+                    for rel, key, body, at in chunk:
+                        if check(rel, key, body, at):
+                            good.append((rel, key, body, at))
+                        else:
+                            n["refused"] += 1
+                    w.execute("BEGIN IMMEDIATE")
                     try:
-                        self._put_newer(table, good, n)
-                        self.db.execute("COMMIT")
+                        self._put_newer(table, good, n, w)
+                        w.execute("COMMIT")
                     except BaseException:
-                        self.db.execute("ROLLBACK")
+                        w.execute("ROLLBACK")
                         raise
+                    self._pause(self.INTAKE_YIELD_S)
+            finally:
+                w.close()
         finally:
             src.close()
         return n

@@ -14,7 +14,7 @@ ones search_api's kinds tier issues, matched by their exact text (the constants 
   kind_bm25_sql(c) (KIND_SQL, open pop)  the fused "kinds BM25" list, over the kind labels
 
 A site's url, title and description come from the registry and lookup.sqlite (what exact_anchor does), its Common Crawl
-host rank from signals.bin. The Jev-built formula (kind_members.jev) is NOT implemented: a statement that names it is
+host rank from signals.bin. The legacy formula (the old judged column of kind_members) is NOT implemented: a statement that names it is
 refused (NoPort), never answered with the open data.
 """
 from __future__ import annotations
@@ -66,7 +66,7 @@ class KindsRelease:
             return [tuple(c.split(".")) for c in sorted(self.cols) if c in ("kind_members.conf", "kind_members.lead", "kind_docs.country")]
         if sql.lstrip().startswith(KEY_SQL_HEAD) and "kind_members" in sql:
             if "m.conf" not in sql or "m.jev" in sql:
-                raise NoPort("kinds: the Jev-built kind_members formula has no release port: " + " ".join(sql.split())[:100])
+                raise NoPort("kinds: the legacy kind_members formula has no release port: " + " ".join(sql.split())[:100])
             return self.kind_key(p)
         return None
 
