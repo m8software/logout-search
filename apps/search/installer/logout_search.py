@@ -266,7 +266,7 @@ def start(a) -> None:
         # the page's way in, and the other devices' (see `peer`): started WITH the engine, not after it is ready (2026-11-18): it signs
         # in to the rendezvous at once as "starting" and says "ready" when the engine answers, so a page that arrives while the engine
         # restarts and warms (a minute) sees that a Silo is starting, not "no engine here". It ends with the engine.
-        peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)])
+        peer = subprocess.Popen(program() + ["peer", "--dest", base, "--port", str(a.port)], env={**os.environ, **env})   # the engine's settings (news file, ...)
     # the daily update runs from the start, ready or not: a release whose engine cannot start must still be replaceable
     has_se = "SEARCH_SE_INDEX" in env
     restart = start_updater(base, proc, a.port, has_se)

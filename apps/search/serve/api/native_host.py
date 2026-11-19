@@ -200,6 +200,13 @@ def settings_status() -> dict:
         pass
     try:
         lite = os.environ.get("SEARCH_NEWS_SQLITE", "") if os.environ.get("SEARCH_NEWS_BACKEND") == "sqlite" else ""
+        if not lite and os.environ.get("SEARCH_NEWS_BACKEND") != "postgres":
+            # an install's peer may run without the engine's settings in its environment: the news file sits beside the
+            # settings (2026-11-18: the Postgres branch then waited its 2 s connect timeout on every settings request)
+            guess = os.path.join(os.path.dirname(settings_path()), "news.sqlite")
+            lite = guess if os.path.exists(guess) else ""
+            if not lite and not os.environ.get("SEARCH_NEWS_DB"):
+                return st                         # no news file and no news database named: no feed status to give
         if lite:                                  # the news file (ADR-063): last_ok is Unix seconds already
             import sqlite3
             rows = []
