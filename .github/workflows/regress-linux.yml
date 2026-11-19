@@ -9,6 +9,8 @@ on:
   workflow_run:
     workflows: [release]
     types: [completed]
+  push:
+    tags: ["lintest-*"]              # the same run from a tag: lintest-v0.4.40 tests v0.4.40 (for a caller without the Actions button)
   workflow_dispatch:
     inputs:
       tag:
@@ -25,9 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
-      TAG: ${{ inputs.tag || github.event.workflow_run.head_branch }}
+      TAG: ${{ inputs.tag || github.event.workflow_run.head_branch || github.ref_name }}
       LOGOUT_SEARCH_HOME: ${{ github.workspace }}/../logout-search-home
     steps:
+      - name: The tag under test
+        run: echo "TAG=${TAG#lintest-}" >> "$GITHUB_ENV"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag || github.event.workflow_run.head_branch }}
@@ -66,8 +70,23 @@ jobs:
           pid=$(pgrep -f "logout-search engine" | head -1 || true)
           python tests/regress/run.py --target http://127.0.0.1:8090 --name "linux $TAG (hosted runner)" --tag linux --tag install --tag pre-release2 \
               --install-dir "$LOGOUT_SEARCH_HOME" ${pid:+--pid $pid} --rv wss://search.logout.cloud/rv \
-              --suite answers,stored,takein,startup,link,resources,lifecycle --out logs/regress.json 2>&1 | tee logs/regress.txt
-          exit ${PIPESTATUS[0]}
+              --suite answers,stored,takein,startup,link,resources,lifecycle --uninstall --out logs/regress.json 2>&1 | tee logs/regress.txt
+          rc=${PIPESTATUS[0]}
+          # every failed case, and every lifecycle/startup result, readable without the logs
+          python3 - <<'PY' || true
+          import json
+          try:
+              d = json.load(open("logs/regress.json"))
+          except Exception as e:
+              print(f"::warning::could not read regress.json: {e}"); raise SystemExit
+          for r in d.get("results", []):
+              ev = " ".join(str(r.get("evidence", "")).split())[:260]
+              if r.get("status") in ("FAIL", "ERROR"):
+                  print(f"::error::{r['id']} [{r.get('sub')}] {r['status']}: {ev}")
+              elif r["id"].startswith(("LIF-", "STA-")):
+                  print(f"::notice::{r['id']} [{r.get('sub')}] {r['status']}: {ev}")
+          PY
+          exit $rc
       - name: Summary
         if: always()
         run: |
