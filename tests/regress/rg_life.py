@@ -244,7 +244,7 @@ def install_tools(ctx, p):
                       ("channel", [app, "channel", "--dest", os.path.join(ctx.install_dir, "data")]),
                       ("autoupdate status", [app, "autoupdate", "status", "--dest", os.path.join(ctx.install_dir, "data")])):
         try:
-            r = subprocess.run(argv, capture_output=True, text=True, timeout=120, env=env)
+            r = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, env=env)
         except subprocess.TimeoutExpired:
             res.append((sub, FAIL, "timed out after 120 s"))
             continue
@@ -268,7 +268,7 @@ def update_check(ctx, p):
     data = os.path.join(ctx.install_dir, "data")
 
     def run(*argv):
-        r = subprocess.run([app, *argv, "--dest", data], capture_output=True, text=True, timeout=180, env=env)
+        r = subprocess.run([app, *argv, "--dest", data], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, env=env)
         return r.returncode, (r.stdout + r.stderr).strip()
 
     def status():
@@ -326,7 +326,7 @@ def uninstall_residue(ctx, p):
                 shutil.copy2(f, keep)
             except OSError:
                 pass
-    r = subprocess.run([app, "uninstall", "--yes", "--dest", ctx.install_dir], capture_output=True, text=True, timeout=300, env=env)
+    r = subprocess.run([app, "uninstall", "--yes", "--dest", ctx.install_dir], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300, env=env)
     says = ((r.stdout + r.stderr).strip().splitlines() or [""])[-1][:120]
     left, t0 = [], time.time()
     while True:
@@ -334,7 +334,7 @@ def uninstall_residue(ctx, p):
         left = []
         if os.name == "nt":
             q = subprocess.run(["powershell", "-NoProfile", "-Command", WIN_RESIDUE.replace("$args[0]", "'" + os.path.normpath(ctx.install_dir).replace("'", "''") + "'")],
-                               capture_output=True, text=True, timeout=120)
+                               capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120)
             left = [ln.strip() for ln in q.stdout.splitlines() if ln.strip()]
             if q.returncode != 0:
                 left.append("the residue look itself failed: " + (q.stderr.strip().splitlines() or [""])[-1][:120])

@@ -191,7 +191,7 @@ jobs:
           $rc = $LASTEXITCODE
           # every failed case as an annotation (readable without the logs): the case line and the line that says what it got
           $lines = @(Get-Content "$env:LOGS\regress.txt")
-          for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i] -match '^\s+(FAIL|ERROR)\s') { $got = if ($i + 2 -lt $lines.Count) { $lines[$i + 2].Trim() } else { '' }; Write-Output ("::error::" + ($lines[$i].Trim() -replace '\s+', ' ') + " :: " + $got) } }
+          for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i] -match '^\s+(FAIL|ERROR)\s') { $got = if ($i + 2 -lt $lines.Count) { $lines[$i + 2].Trim() } else { '' }; if ($got -like 'Traceback*') { $k = $i + 2; while ($k + 1 -lt $lines.Count -and $lines[$k + 1].Trim() -and $lines[$k + 1] -notmatch '^\s+(FAIL|ERROR|FLAG|XPASS)\s') { $k++ }; $got = (($lines[($i + 2)..$k] | ForEach-Object { $_.Trim() }) | Select-Object -Last 3) -join ' | ' }; Write-Output ("::error::" + ($lines[$i].Trim() -replace '\s+', ' ') + " :: " + $got) } }
           $tot = $lines | Where-Object { $_ -match '^total\s' } | Select-Object -First 1
           if ($tot) { Write-Output ("::notice::regression totals (checks pass fail xfail xpass flag skip pending error): " + ($tot -replace '\s+', ' ')) }
           if ($rc -ne 0) { Write-Output "::error::the regression suite failed (exit $rc); see regress.txt"; exit 1 }
