@@ -34,10 +34,13 @@ jobs:
           tag = sys.argv[1]
           r = json.load(open("rel.json"))
           names = {a["name"] for a in r["assets"]}
-          want = {"SHA256SUMS", "logout-search-setup.exe", "logout-search-linux-x86_64.tar.gz", "logout-search-macos-arm64.tar.gz",
+          want = {"SHA256SUMS", "logout-search-setup.exe", "logout-search-linux-x86_64.tar.gz",
                   "logout-search-windows-x86_64.zip", f"logout-search-{tag}.tar.gz", f"logout-search-installer-{tag}.tar.gz"}
           if r["isDraft"] or want - names:
               sys.exit(f"::error::{tag}: draft={r['isDraft']} missing {sorted(want - names)}")
+          # the macOS bundle may be left out of a release (owner 2026-11-18: no Mac build for now); said, not refused
+          if "logout-search-macos-arm64.tar.gz" not in names:
+              print(f"::warning::{tag} has no macOS bundle: Macs keep the release they have")
           PY
           mkdir dl && cd dl
           gh release download "$tag" --repo "$REPO" --pattern SHA256SUMS --pattern 'logout-search-*'
