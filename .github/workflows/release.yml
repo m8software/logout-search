@@ -1,4 +1,4 @@
-# A tag v* makes a release: the source, the installer, the one-folder bundles for Linux, Windows and macOS
+# A tag v* makes a release: the source, the installer, the one-folder bundles for Linux and Windows
 # (bundle.yml), their SHA-256 sums, and a signed statement of which commit and workflow produced them (verify
 # with `gh attestation verify <file> --repo <owner>/<repo>`).
 #

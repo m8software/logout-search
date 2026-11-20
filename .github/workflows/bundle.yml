@@ -2,8 +2,8 @@
 # the installer, the update tools and the libraries inside. Built on every push and pull request so a break shows at
 # once; release.yml calls this and attaches the archives to the release.
 #
-# Systems: Linux x86_64, Windows x86_64, macOS arm64. onnxruntime 1.30 publishes no macOS x86_64 wheel, so Intel Macs
-# have no bundle; they can run the engine from source with Python 3.12.
+# Systems: Linux x86_64 and Windows x86_64. No macOS bundle is built for now (the steps for macOS arm64 are kept below;
+# onnxruntime 1.30 publishes no macOS x86_64 wheel, so Intel Macs would have none either way).
 name: bundle
 
 on:
@@ -23,7 +23,7 @@ jobs:
       matrix:
         # Linux on the oldest machine offered: the bundle carries the build machine's Python, which needs that
         # machine's C library or newer (built on 24.04 it would not start on Debian 12 or Ubuntu 22.04)
-        os: [ubuntu-22.04, windows-latest]
+        os: [ubuntu-22.04, windows-latest]      # no macOS build for now; add macos-latest to bring it back
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

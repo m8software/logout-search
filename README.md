@@ -6,12 +6,13 @@ is answered from that file, on your machine, and is sent nowhere.
 This repository is the engine and everything used to build its data. It is published from our
 private working repository by copying the current files, without history.
 
-**State, 2026-11-08:** the engine runs on Linux, Windows and macOS, and in a Docker container (`apps/search/docker`, no database). The data release
+**State, 2026-11-08:** the engine runs on Linux and Windows, and in a Docker container (`apps/search/docker`, no database). The data release
 `proto-20261108-rc15` is signed and published as the Hugging Face dataset
 [logoutsearch/logout-search](https://huggingface.co/datasets/logoutsearch/logout-search), which also
 holds the public key and the install command. One program, `logout-search`, installs the data, starts the engine,
-keeps it updated and connects the browser extension; the bundles for Linux, Windows and macOS (Apple silicon) are
-built by `.github/workflows/bundle.yml` and attached to each release. They are not signed or notarised yet.
+keeps it updated and connects the browser extension; the bundles for Linux and Windows are
+built by `.github/workflows/bundle.yml` and attached to each release. They are not signed yet. There is no macOS
+build for now.
 
 
 ## What you need
@@ -19,7 +20,7 @@ built by `.github/workflows/bundle.yml` and attached to each release. They are n
 Minimums:
 
 - **Memory:** 4 GB
-- **Processor:** 2 cores, 2015 or newer (Intel Core 6th generation, AMD Ryzen or Apple silicon)
+- **Processor:** 2 cores, 2015 or newer (Intel Core 6th generation or AMD Ryzen)
 - **Storage:** 50 GB free, on an SSD
 
 ## Other devices and pairing
