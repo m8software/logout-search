@@ -9,7 +9,8 @@ open_index(tantivy, path) opens `path` in place when both lock files are there a
 Otherwise it opens a writable overlay: a cache folder holding the two lock files and one symlink
 per index file, so nothing is ever written into the release (its manifest hashes stay true).
 The overlay folder is named by the index's real path, so a restart reuses it; its links are
-refreshed on every open, so a release swapped in place is seen. Where the overlay lives:
+refreshed on every open, so a release swapped in place is seen. An overlay whose release is gone is removed
+at the next open (sweep): on Windows its hard links would otherwise keep that release's index files on disk. Where the overlay lives:
 $LOGOUT_TV_OVERLAY_DIR, else <tmp>/logout-tv-overlay-<uid>.
 
 Windows (2026-11-14, the downloaded program never started: os.getuid does not exist there, and making a symlink
@@ -73,7 +74,43 @@ def make_overlay(path: str) -> str:
     for f in LOCKS:
         with open(os.path.join(ov, f), "ab"):
             pass
+    sweep(os.path.dirname(ov), keep=ov)
     return ov
+
+
+def _stale(path: str) -> bool:
+    """An overlay entry that no longer points at a release file: a symlink whose target is gone, or a hard link that is
+    the last copy (the release it came from was deleted, so this link alone keeps the file on disk)."""
+    if os.path.islink(path):
+        return not os.path.exists(path)
+    try:
+        return os.stat(path).st_nlink <= 1
+    except OSError:
+        return True
+
+
+def sweep(root: str, keep: str | None = None) -> list:
+    """Remove the overlay folders under `root` whose every index entry is stale. An overlay is named by its release's
+    path, so each release leaves one behind; on Windows its hard links kept a pruned release's index files on disk
+    (about 2.4 GB per release). A folder with no index entry, or any live one, is left alone. Never raises."""
+    import shutil
+    gone = []
+    try:
+        names = os.listdir(root)
+    except OSError:
+        return gone
+    for n in names:
+        d = os.path.join(root, n)
+        if d == keep or os.path.islink(d) or not os.path.isdir(d):
+            continue
+        try:
+            entries = [os.path.join(d, e) for e in os.listdir(d) if e not in LOCKS and not e.endswith(".tmp")]
+        except OSError:
+            continue
+        if entries and all(_stale(e) for e in entries):
+            shutil.rmtree(d, ignore_errors=True)
+            gone.append(n)
+    return gone
 
 
 def open_index(tantivy, path: str):

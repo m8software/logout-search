@@ -68,7 +68,8 @@ cd apps/search/docker && docker compose up -d
 
 One container (the published image `ghcr.io/m8software/logout-search`, x86-64; `docker-compose.build.yml` builds it
 from this source instead): the engine and the AI-app connector at `http://127.0.0.1:8091/mcp`. No database. The first start
-downloads the signed search data (about 11 GB, 18 GB once unpacked) into a volume. The wiki page **Docker** has the
+downloads the signed search data (about 11 GB, 18 GB once unpacked) into a volume; the daily update adds the add-ons
+and the stored answers, about 28 GB in all. The wiki page **Docker** has the
 details.
 
 ## Quick start (from source)

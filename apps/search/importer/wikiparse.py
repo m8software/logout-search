@@ -39,6 +39,65 @@ def _plain(node) -> str:
     return _WS.sub(" ", node.strip_code(normalize=True, collapse=True)).strip()
 
 
+# Templates that carry text in the article as Wikipedia shows it. Removing them with the rest dropped that text:
+# "(April 12, 1861{{snd}}May 26, 1865" read "1861May 26", "Nordstrom.{{As of|2024|lc=y}}, Nordstrom Rack" read
+# "Nordstrom., Nordstrom Rack". These are rendered as text first; every other template is still removed.
+# The engine renders the same set on text it reads (serve/api/card_text.py, _render_template); keep the two in step.
+_DASHES = {"snd": " \u2013 ", "spnd": " \u2013 ", "sndash": " \u2013 ", "spaced ndash": " \u2013 ", "spaced en dash": " \u2013 ",
+           "spaced en dash space": " \u2013 ", "ndash": "\u2013", "en dash": "\u2013", "nsndns": "\u2013", "mdash": "\u2014",
+           "em dash": "\u2014", "spaced mdash": " \u2014 ", "spaced em dash": " \u2014 ", "snds": " \u2013 ", "nbsp": " ",
+           "spaces": " ", "sp": " "}
+_MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November",
+           "December")
+
+
+def _month(x: str) -> str | None:
+    x = x.strip()
+    if x.isdigit() and 1 <= int(x) <= 12:
+        return _MONTHS[int(x) - 1]
+    return next((m for m in _MONTHS if x.lower() in (m.lower(), m[:3].lower())), None) if x else None
+
+
+def _date(pos: list[str], us: bool) -> str:
+    y = pos[0] if pos else ""
+    if not re.fullmatch(r"\d{3,4}", y):
+        return ""
+    mo = _month(pos[1]) if len(pos) > 1 else None
+    d = pos[2] if len(pos) > 2 and pos[2].isdigit() else None
+    if mo and d:
+        return f"{mo} {int(d)}, {y}" if us else f"{int(d)} {mo} {y}"
+    return f"{mo} {y}" if mo else y
+
+
+def _template_text(t) -> str | None:
+    """The text a simple template shows in the article, or None when it is one to remove."""
+    name = _WS.sub(" ", str(t.name)).strip().lower()
+    if name in _DASHES:
+        return _DASHES[name]
+    pos = [_plain(p.value) for p in t.params if not p.showkey]
+    named = {str(p.name).strip().lower(): _plain(p.value) for p in t.params if p.showkey}
+    if name in ("as of", "asof"):
+        when = _date(pos, named.get("df", "").startswith("us") or named.get("df") == "mdy")
+        if not when:
+            return None
+        word = "Since" if named.get("since") in ("y", "yes") else "As of"
+        if named.get("lc") in ("y", "yes"):
+            word = word.lower()
+        return " " + (named.get("alt") or f"{word} {when}")
+    if name in ("circa", "c.") and pos and pos[0]:
+        return "c. " + pos[0]
+    if (name == "lang" or name.startswith("lang-")) and pos:
+        return pos[-1] if name == "lang" else pos[0]
+    if name in ("nowrap", "nobr", "small", "big", "nobold", "abbr", "convert") and pos:
+        return " ".join(pos[:2]) if name == "convert" and len(pos) >= 2 else pos[0]
+    if name == "start date" and pos:
+        return _date(pos, False) or None
+    if name == "nihongo" and len(pos) >= 2 and pos[0]:
+        extra = ", ".join(x for x in pos[1:3] if x)
+        return f"{pos[0]} ({extra})" if extra else pos[0]
+    return None
+
+
 def parse_article(item: tuple[int, int, str, str]) -> tuple | None:
     """(page_id, rev_id, title, wikitext) -> row, or None for a disambiguation page."""
     page_id, rev_id, title, text = item
@@ -63,10 +122,15 @@ def parse_article(item: tuple[int, int, str, str]) -> tuple | None:
         ht = _plain(h.title)
         if ht and not _DROP_SECTIONS.match(ht):
             headings.append(ht)
-    # Remove templates, tables, refs and files before taking the lead text.
+    # Render the templates that carry text (dashes, "As of", circa, ...), then remove the rest, tables, refs and files
+    # before taking the lead text.
     for t in code.filter_templates(recursive=False):
         try:
-            code.remove(t)
+            text = _template_text(t)
+            if text is None:
+                code.remove(t)
+            else:
+                code.replace(t, text)
         except ValueError:
             pass
     for tag in code.filter_tags(recursive=False):
@@ -82,7 +146,7 @@ def parse_article(item: tuple[int, int, str, str]) -> tuple | None:
                 code.remove(wl)
             except ValueError:
                 pass
-    body = _plain(code)
+    body = re.sub(r"([.!?] )(as of|since) ", lambda m: m.group(1) + m.group(2).capitalize() + " ", _plain(code))  # {{As of|lc=y}} after a full stop
     return (page_id, rev_id, title, " | ".join(headings)[:1000], body[:LEAD_CHARS],
             " ; ".join(infobox)[:INFOBOX_CHARS])
 

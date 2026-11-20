@@ -6757,6 +6757,9 @@ def _is_infra(domain: str | None, typed: str) -> bool:
     return not (typed and ("." in typed or tight(typed).startswith(tight(label))))
 
 
+_QUALIFIER = re.compile(r"\s*\([^)]*\)$")     # "Frozen (2013 film)" -> "Frozen"
+
+
 def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: dict | None = None, typed: str = "") -> list[dict]:
     """rows: (id, kind, name, url, domain, wiki, pop, hist [, demand, descr, pos]). Best weighted score first, one row per
     thing (Google, Google Search and about.google are one, shown with the site the card would call official), names not
@@ -6837,8 +6840,13 @@ def rank_suggestions(rows: list[tuple], exact_ids: set, n: int = SUGGEST_N, w: d
         rep = max((m for m in g if m[1][1] == "site"), key=own, default=None) if len(g) > 1 and r[1] == "site" else None
         if rep is not None and own(rep)[0]:
             r = rep[1]
-        # the shortest name in the group: "Google", not "Google Search"
-        label = min((m[2] for m in g), key=lambda x: (len(x), x)) if len(g) > 1 else label
+        # the shortest name in the group: "Google", not "Google Search". A shorter name that is another member's
+        # qualified title is not this row's: "Frozen (musical)" named the row that opens Frozen (2013 film), and "Bing
+        # (bread)" the search engine's. Such a row shows the name without the bracket: "Frozen", "Bing".
+        if len(g) > 1:
+            short = min((m[2] for m in g), key=lambda x: (len(x), x))
+            bare = _QUALIFIER.sub("", short)
+            label = bare if short != label and bare != short and bare == _QUALIFIER.sub("", label) else short
         reps.append((sc, r, label))
     if v2 and reps:
         adj, pfx_by_idx = _rerank_suggest_entries([(sc, r[1], r[4], label) for sc, r, label in reps], typed, ww)

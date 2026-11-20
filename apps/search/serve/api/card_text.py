@@ -149,11 +149,31 @@ _STRAY_CLOSE = re.compile(r"(?:[" + _GAP + r",;:])*[,;:][" + _GAP + r"]*\)")
 _STRAY_DOUBLE = re.compile(r"([,;])(?:[" + _GAP + r"]*\1)+")
 
 
+# What the importer left where it deleted a text-bearing template, in data built before it rendered them (wikiparse.py,
+#): "Nordstrom., Nordstrom Rack" ({{As of}} between a full stop and a comma) and "1861May 26" ({{snd}}, the
+# spaced dash between two dates). A full stop after an abbreviation keeps its comma ("Inc., commonly known").
+_STOP_COMMA = re.compile(r"\b([A-Za-z][a-z]{3,})\.,\s+([a-z]?)(?=\w)")
+_ABBREV = {"inc", "corp", "ltd", "bros", "assn", "dept", "univ", "intl", "govt", "approx", "prof", "sept", "jan", "feb",
+           "aug", "oct", "nov", "dec", "est"}
+_YEAR_MONTH = re.compile(r"(\d{4})(" + "|".join(("January", "February", "March", "April", "May", "June", "July", "August",
+                                                 "September", "October", "November", "December")) + r")(?= \d)")
+
+
+def _stop_comma(m: "re.Match") -> str:
+    if m.group(1).lower() in _ABBREV:
+        return m.group(0)
+    return m.group(1) + ". " + m.group(2).upper()
+
+
 def collapse_stray_punctuation(t: str) -> str:
-    """t with the marks a removed template or emptied bracket leaves in a bracket, and doubled commas or semicolons, collapsed."""
+    """t with the marks a removed template or emptied bracket leaves in a bracket, doubled commas or semicolons, a comma
+    left after a full stop, and a lost dash between a year and a date, collapsed or put back."""
     t = _STRAY_OPEN.sub("(", t)
     t = _STRAY_CLOSE.sub(")", t)
-    return _STRAY_DOUBLE.sub(r"\1", t)
+    t = _STRAY_DOUBLE.sub(r"\1", t)
+    if ".," in t:
+        t = _STOP_COMMA.sub(_stop_comma, t)
+    return _YEAR_MONTH.sub("\\1 \u2013 \\2", t)
 
 
 def strip_wiki_markup(text: str) -> str:
@@ -161,7 +181,7 @@ def strip_wiki_markup(text: str) -> str:
     if not text:
         return text
     if not any(c in text for c in "[]{}<>&'"):
-        return collapse_stray_punctuation(text) if any(c in text for c in ",;:") else text
+        return collapse_stray_punctuation(text) if any(c in text for c in ",;:") or _YEAR_MONTH.search(text) else text
     if "{{" in text:
         text = _TPL_SIMPLE.sub(_render_template, text)
         text = re.sub(r"(?<=[^\s(\[\ue001])\ue001", " ", text).replace("\ue001", "")     # a rendered "As of" follows a space

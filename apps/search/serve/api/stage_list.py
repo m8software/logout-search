@@ -766,8 +766,8 @@ def office_rows(t: str, today: dt.date | None = None) -> list[dict]:
     return out
 
 def with_office_rows(res: list[dict], card: dict | None) -> list[dict]:
-    """The offices' sites just under the card's article (or first, when the article is not listed); a site already in
-    the list moves up instead of showing twice."""
+    """The offices' sites just under the card's article and the person's own site when either is near the top (else
+    first); a site already in the list moves up instead of showing twice."""
     if not card or not card.get("title") or not res:
         return res
     try:
@@ -780,7 +780,10 @@ def with_office_rows(res: list[dict], card: dict | None) -> list[dict]:
     rest = [r for r in res if (r.get("url") or "").rstrip("/") not in urls]
     art = next((i for i, r in enumerate(rest) if r.get("source") == "wikipedia"
                 and r.get("title", "").rsplit(" — Wikipedia", 1)[0] == card["title"]), None)
-    at = (art + 1) if art is not None else 0
+    # the person's own site stays above the office's: "trump" led with whitehouse.gov over donaldjtrump.com
+    own = next((i for i, r in enumerate(rest[:3]) if r.get("source") == "site"
+                and r.get("title", "") == card["title"] + " — official site"), None)
+    at = max((art + 1) if art is not None else 0, (own + 1) if own is not None else 0)
     return rest[:at] + [dict(r) for r in rows] + rest[at:]
 
 def curated_fill(top: list[dict], base: list[dict], skip=()) -> list[dict]:
