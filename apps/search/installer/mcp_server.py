@@ -388,6 +388,19 @@ def http_handler(search, version: str, origins=()):
             self.close_connection = True             # the body may be unread
             self._send(status, {"jsonrpc": "2.0", "id": None, "error": {"code": code, "message": message}}, extra)
 
+        def _drain(self, length: int) -> None:
+            """Read and drop an oversized body (up to 8 MiB) so the client is still listening when the 413 goes out;
+            closing on a client mid-send gives it a broken pipe instead of the answer."""
+            left = min(max(length, 0), 8 * HTTP_MAX_BODY)
+            try:
+                while left > 0:
+                    chunk = self.rfile.read(min(left, 65536))
+                    if not chunk:
+                        break
+                    left -= len(chunk)
+            except OSError:
+                pass
+
         def _path(self) -> str:
             return urllib.parse.urlsplit(self.path).path.rstrip("/") or "/"
 
@@ -424,6 +437,7 @@ def http_handler(search, version: str, origins=()):
             except ValueError:
                 return self._fault(411, -32600, "Length required")
             if length < 0 or length > HTTP_MAX_BODY:
+                self._drain(length)
                 return self._fault(413, -32600, "Request too large")
             try:
                 raw = self.rfile.read(length)
