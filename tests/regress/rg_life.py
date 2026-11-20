@@ -258,6 +258,49 @@ def install_tools(ctx, p):
     return res
 
 
+def mcp_connector(ctx, p):
+    """The AI-app connector, run the way an AI app runs it: the installed program with `mcp`, messages over its
+    stdin/stdout. Both generations of the protocol must list the tool and one fixed search must come back with pages."""
+    app = app_path(ctx)
+    if not os.path.exists(app):
+        return [("mcp", SKIP, f"{app} not found")]
+    modern = {"io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {}}
+    msgs = [{"jsonrpc": "2.0", "id": 1, "method": "server/discover", "params": {"_meta": modern}},
+            {"jsonrpc": "2.0", "id": 2, "method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "regress", "version": "0"}}},
+            {"jsonrpc": "2.0", "method": "notifications/initialized"},
+            {"jsonrpc": "2.0", "id": 3, "method": "tools/list"},
+            {"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "web_search", "arguments": {"query": p.get("query", "wikipedia")}}},
+            {"jsonrpc": "2.0", "id": 5, "method": "tools/call", "params": {"name": "web_search", "arguments": {"query": p.get("query", "wikipedia")}, "_meta": modern}}]
+    env = dict(os.environ, **({"HOME": ctx.home} if ctx.home else {}))
+    wait_ready(ctx, 180)                             # the update check before this case may have restarted the engine
+    try:
+        r = subprocess.run([app, "mcp", "--port", str(ctx.port)], input=("\n".join(json.dumps(m) for m in msgs) + "\n").encode("utf-8"),
+                           capture_output=True, timeout=180, env=env)
+    except subprocess.TimeoutExpired:
+        return [("mcp", FAIL, "did not end within 180 s of its input closing")]
+    if r.returncode == 2 and b"invalid choice" in r.stderr:
+        return [("mcp", SKIP, "this version of the program has no mcp command (added after v0.4.43)")]
+    res = [("exit", PASS if r.returncode == 0 else FAIL, f"exit {r.returncode}")]
+    try:
+        got = {m.get("id"): m for m in (json.loads(l) for l in r.stdout.decode("utf-8").splitlines())}
+    except ValueError:
+        return res + [("stdout", FAIL, "a line on stdout is not JSON: " + r.stdout.decode("utf-8", "replace")[:120])]
+    res.append(("stdout", PASS if set(got) == {1, 2, 3, 4, 5} else FAIL, f"replies to {sorted(got, key=str)}; expected 1-5 and nothing else"))
+    def at(i, *path):
+        v = got.get(i, {})
+        for k in path:
+            v = v.get(k) if isinstance(v, dict) else (v[k] if isinstance(v, list) and len(v) > k else None)
+        return v
+    res.append(("discover", PASS if "2026-07-28" in (at(1, "result", "supportedVersions") or []) else FAIL, str(at(1, "result", "supportedVersions"))))
+    res.append(("initialize", PASS if at(2, "result", "protocolVersion") == "2025-11-25" else FAIL, str(at(2, "result", "protocolVersion"))))
+    res.append(("tools/list", PASS if at(3, "result", "tools", 0, "name") == "web_search" else FAIL, str(at(3, "result", "tools", 0, "name"))))
+    for i, era in ((4, "handshake"), (5, "per-request")):
+        text = at(i, "result", "content", 0, "text") or ""
+        good = at(i, "result", "isError") is False and "Pages:" in text and "http" in text
+        res.append((f"search ({era})", PASS if good else FAIL, text.splitlines()[0][:100] if text else str(got.get(i))[:100]))
+    return res
+
+
 def update_check(ctx, p):
     """The in-product updater on the beta channel: asked to check now, it must report a check with no failure and no rollback
     within wait_s. (The install is disposable: the channel is changed.)"""
@@ -408,4 +451,4 @@ def restart_profile(ctx, p):
     return [("profile", PASS if ready_at is not None else FAIL, f"ready after {ready_at and round(ready_at)} s; first {p.get('watch_s', 300)} s: {summ}; samples in {out}")]
 
 
-CHECKS = {f.__name__: f for f in (restart_profile, restart_serving, restart_stored, takein_serving, takein_refused, setup_exits, install_tools, update_check, uninstall_residue)}
+CHECKS = {f.__name__: f for f in (restart_profile, restart_serving, restart_stored, takein_serving, takein_refused, setup_exits, install_tools, mcp_connector, update_check, uninstall_residue)}

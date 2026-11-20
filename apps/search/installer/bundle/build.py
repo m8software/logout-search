@@ -43,7 +43,7 @@ NEWS_FILES = ["poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py", "schem
 # analysed with the launcher so every library and standard-library module they import is in the bundle
 ANALYSED = [os.path.join(INSTALLER, "logout_search.py"), os.path.join(ENGINE, "search_api.py"), os.path.join(ENGINE, "native_host.py"),
             os.path.join(ENGINE, "rtc_peer.py"), os.path.join(ENGINE, "av_absent.py"), os.path.join(INSTALLER, "install.py"), os.path.join(RELEASE, "update_fetch.py"), os.path.join(RELEASE, "update_apply.py"),
-            os.path.join(INSTALLER, "autoupdate.py"), os.path.join(INSTALLER, "selftest.py"), os.path.join(INSTALLER, "doctor.py"), os.path.join(INSTALLER, "firstrun.py")] + [os.path.join(NEWS, f) for f in ("poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py")]
+            os.path.join(INSTALLER, "autoupdate.py"), os.path.join(INSTALLER, "selftest.py"), os.path.join(INSTALLER, "doctor.py"), os.path.join(INSTALLER, "firstrun.py"), os.path.join(INSTALLER, "mcp_server.py")] + [os.path.join(NEWS, f) for f in ("poller.py", "sports.py", "wxall.py", "fx.py", "newsdb.py")]
 ICON = os.path.join(HERE, "logout-search.ico")
 COLLECT_ALL = ["onnxruntime", "tokenizers", "tantivy", "psycopg", "psycopg_binary",
                "aiortc", "aioice", "pylibsrtp", "google_crc32c", "qrcode"]      # the peer (other devices pair through it)
@@ -194,6 +194,13 @@ def smoke(folder: str) -> None:
         assert au["enabled"] is True and au["channel"] == "stable", au
         doc = run("doctor", "--dest", t, "--port", "1")      # the report is in the bundle and works with no engine and no install
         assert "logout search doctor" in doc and "engine: not running" in doc, doc
+        mcp = subprocess.run([exe, "mcp", "--port", "1"], capture_output=True, timeout=60, input=(           # the AI-app connector: in the bundle, lists its tool,
+            b'{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}\n'
+            b'{"jsonrpc":"2.0","id":2,"method":"tools/list"}\n'
+            b'{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"web_search","arguments":{"query":"wikipedia"}}}\n')).stdout
+        got = {m["id"]: m for m in map(json.loads, mcp.splitlines())}                                          # and with no engine says so (never another machine)
+        assert got[2]["result"]["tools"][0]["name"] == "web_search" and got[3]["result"]["isError"] is True \
+            and "not running" in got[3]["result"]["content"][0]["text"], mcp
     imp_z = json.loads(run("engine", "--check-imports"))
     assert imp_z.get("zstd") is True, imp_z                 # a zstd release (the publisher's default) unpacks as it downloads
     net = json.loads(run("net-check"))                   # HTTPS with certificates checked, as setup and the updater need

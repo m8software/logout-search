@@ -1,0 +1,6 @@
+# the build context is apps/search; only these folders are copied, and never a model file or a cache
+**/__pycache__
+**/*.pyc
+serve/api/models
+installer/bundle/dist
+installer/bundle/build

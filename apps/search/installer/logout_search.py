@@ -20,6 +20,7 @@ at logon, and connects the browser extension to it (gate T7 of SEARCH-HOME-ENGIN
     logout-search admin     pin show|set PIN|clear --dest BASE     (the admin PIN: on this computer only; adminpin.py)
     logout-search host      register|unregister --dest BASE [--port 8090] [--print]
     logout-search host      run --dest BASE [--port 8090]              (what the browser starts; see `host register`)
+    logout-search mcp       [--port 8090] [--print-config] [--http [HOST:]PORT [--allow-origin HOST]]   (web search for an AI app on this computer; see mcp_server.py)
     logout-search peer      --dest BASE [--port 8090]                  (what `start` runs beside the engine; see below)
     logout-search version   [--dest BASE]
     logout-search uninstall [--dest BASE] [--yes]                 (stop it, stop it starting at logon, remove it all)
@@ -1485,6 +1486,11 @@ def main(argv=None) -> int:
     h.add_argument("--dest", help="the data folder (default: the usual one, BASE/data)")
     h.add_argument("--port", type=int, default=8090)
     h.add_argument("--print", action="store_true")
+    mc = sp.add_parser("mcp", help="web search for an AI app on this computer (a Model Context Protocol server on stdin/stdout); the app starts it")
+    mc.add_argument("--port", type=int, default=8090)
+    mc.add_argument("--print-config", action="store_true", help="print what to paste into the AI app's settings; start nothing")
+    mc.add_argument("--http", metavar="[HOST:]PORT", help="serve at http://HOST:PORT/mcp instead of stdin/stdout, for an app that takes an address (HOST defaults to 127.0.0.1)")
+    mc.add_argument("--allow-origin", action="append", default=[], metavar="HOST", help="with --http: also answer a web page served from HOST (pages on this computer are always answered)")
     pn = sp.add_parser("pin", help="the admin PIN: show it, set it (4 to 8 digits), or --clear it")
     pn.add_argument("value", nargs="?", help="the new PIN; leave out to show the current one")
     pn.add_argument("--clear", action="store_true", help="remove the PIN")
@@ -1577,6 +1583,14 @@ def main(argv=None) -> int:
             host_run(a)
         else:
             return host_register(a)
+    elif a.cmd == "mcp":
+        import mcp_server
+        if a.print_config:
+            print(json.dumps(mcp_server.client_config(program(), a.port), indent=1))
+            return 0
+        if a.http:
+            return mcp_server.main_http(a.http, a.port, VERSION, a.allow_origin)
+        return mcp_server.main(a.port, VERSION)
     elif a.cmd == "pin":
         return admin_command("clear" if a.clear else "set" if a.value else "show", a.value, os.path.abspath(a.dest))
     elif a.cmd == "uninstall":

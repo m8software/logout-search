@@ -6,7 +6,7 @@ is answered from that file, on your machine, and is sent nowhere.
 This repository is the engine and everything used to build its data. It is published from our
 private working repository by copying the current files, without history.
 
-**State, 2026-11-08:** the engine runs on Linux, Windows and macOS, or in Docker. The data release
+**State, 2026-11-08:** the engine runs on Linux, Windows and macOS, and in a Docker container (`apps/search/docker`, no database). The data release
 `proto-20261108-rc15` is signed and published as the Hugging Face dataset
 [logoutsearch/logout-search](https://huggingface.co/datasets/logoutsearch/logout-search), which also
 holds the public key and the install command. One program, `logout-search`, installs the data, starts the engine,
@@ -35,6 +35,40 @@ finds the engine; tap **Pair** once and that device reaches it from any network.
   through a relay on our server. The relay carries it and cannot read it.
 
 The engine's side of this is `apps/search/serve/api/rtc_peer.py`.
+
+## Web search for an AI app on the same computer
+
+An AI app that accepts MCP servers (a desktop chat app, an editor, a local-model front end) can search your engine
+instead of a paid search API. The app starts `logout-search mcp` itself; that program asks the engine on `127.0.0.1`
+and hands back titles, addresses and excerpts.
+
+```
+logout-search mcp --print-config     # prints the block to paste into the app's MCP settings
+```
+
+- The question goes from the app to the engine on your machine and nowhere else. If the engine is not running, the
+  tool says so. It never asks the public site instead.
+- Nothing is written down: neither this program nor the engine writes a search to disk.
+- It returns what the index holds (an excerpt of about 300 characters per page, plus a direct answer when there is
+  one). It does not fetch pages.
+
+An app that takes an address instead (one in a container, or in the browser) connects over HTTP:
+`logout-search mcp --http 8091` serves `http://127.0.0.1:8091/mcp`, on this computer only, and refuses requests sent
+by web pages. For questions that need a whole page, give the app a page-reading tool as well (the wiki says why).
+
+Both generations of the protocol are served (2026-07-28, and the `initialize` handshake of 2025-11-25 and earlier).
+The code is `apps/search/installer/mcp_server.py`; the wiki page **AI apps** has the steps.
+
+## Docker
+
+```
+cd apps/search/docker && docker compose up -d
+```
+
+One container (the published image `ghcr.io/m8software/logout-search`, x86-64; `docker-compose.build.yml` builds it
+from this source instead): the engine and the AI-app connector at `http://127.0.0.1:8091/mcp`. No database. The first start
+downloads the signed search data (about 11 GB, 18 GB once unpacked) into a volume. The wiki page **Docker** has the
+details.
 
 ## Quick start (from source)
 
@@ -73,8 +107,8 @@ taken on our public server, which runs both add-ons.
 | Path | What it is |
 |---|---|
 | `apps/search/serve/api/` | The engine: `search_api.py` and what it loads. `Dockerfile` builds it; `Dockerfile.rtc` adds the peer that lets other devices on your network reach it |
+| `apps/search/docker/` | The Docker option: `Dockerfile`, `docker-compose.yml` (the published image; `docker-compose.build.yml` builds it here) and the entrypoint that installs the data and starts the engine and the AI-app connector |
 | `apps/search/installer/` | `logout_search.py`: the one program on a home computer (install, start, update, start at logon, browser host); `install.py`: downloads a signed data release, checks every file, makes it current (standard library only); `bundle/build.py`: the PyInstaller bundle |
-| `apps/search/local/` | Running the engine at home on Linux (`install-linux.sh`, `docker-compose.yml`) |
 | `apps/search/extension/`, `extension-default/` | Browser extensions that connect a search page to the engine on the same computer |
 | `apps/search/release/` | How a data release is assembled, checked, signed and updated; `release/buildbox/rc9-*` and `rc9p-*` are the scripts that built the latest one; `release/hf_dataset.py` publishes it |
 | `apps/search/importer/`, `refresh/`, `news/` | How the data is built from its sources |

@@ -1,0 +1,25 @@
+# Logout Search in Docker: the engine and the AI-app connector, one container, one volume. No database.
+#     docker compose up -d          (pulls the image; the first start downloads the search data: about 11 GB, 18 GB once unpacked; resumable)
+#     docker compose logs -f        (watch the download, then "ready")
+#     docker compose pull && docker compose up -d      (a newer program)
+# To build the image from this source instead, add docker-compose.build.yml (see its first lines).
+# An AI app on this computer connects to http://127.0.0.1:8091/mcp ; one in this compose project to
+# http://logout-search:8091/mcp . See the wiki page "Docker".
+name: logout-search
+
+services:
+  logout-search:
+    image: ghcr.io/m8software/logout-search:latest      # x86-64; built by .github/workflows/image.yml
+    restart: unless-stopped        # also how a data update restarts the engine (exit code 75)
+    init: true
+    stop_grace_period: 30s
+    volumes:
+      - logout-search-data:/data
+    ports:
+      - "127.0.0.1:8091:8091"      # this computer only. There is no password: do not publish it wider without thinking
+    environment:
+      LOGOUT_AUTOUPDATE: ${LOGOUT_AUTOUPDATE:-1}
+      LOGOUT_MCP_ALLOW_ORIGIN: ${LOGOUT_MCP_ALLOW_ORIGIN:-}
+
+volumes:
+  logout-search-data:

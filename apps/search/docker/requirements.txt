@@ -1,0 +1,7 @@
+# What the image installs: the engine's libraries at the versions it is tested with, then what the launcher and the
+# news collector add (the same pins as installer/bundle/requirements.txt; tests/unit/test-search-docker.sh compares them).
+-r ../serve/api/requirements.txt
+feedparser==6.0.12
+defusedxml==0.7.1
+zstandard==0.25.0
+certifi==2026.10.23

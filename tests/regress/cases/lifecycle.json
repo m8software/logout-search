@@ -95,6 +95,19 @@
    ]
   },
   {
+   "id": "LIF-008",
+   "title": "the AI-app connector: `logout-search mcp` lists its tool to both protocol generations and one search returns pages",
+   "guards": [
+    " MCP connector"
+   ],
+   "severity": "high",
+   "check": "mcp_connector",
+   "params": {},
+   "needs": [
+    "install"
+   ]
+  },
+  {
    "id": "LIF-099",
    "title": "uninstall --yes exits 0 and leaves nothing: no process, no autostart entry, no Apps entry, no Start menu item, no folder",
    "guards": [

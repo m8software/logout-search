@@ -177,7 +177,7 @@ cmd_stats() {
 }
 
 cmd_host() {
-    "${REPO}/apps/search/local/install-linux.sh" \
+    "${REPO}/apps/search/tools/dev-host.sh" \
         --engine-cmd "ssh -o BatchMode=yes ${JUMP} \"ssh -o BatchMode=yes ${INDEXHOST} 'sudo -n bash ${JOBS}/nh-dev.sh'\""
     # the unpacked extension lives outside git: a worktree that gets removed would take the
     # browser's copy with it. Same ID either way (manifest "key").

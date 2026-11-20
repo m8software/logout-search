@@ -2,7 +2,7 @@
 # (bundle.yml), their SHA-256 sums, and a signed statement of which commit and workflow produced them (verify
 # with `gh attestation verify <file> --repo <owner>/<repo>`).
 #
-# What this does NOT build: an engine image (the servers' own). The data is not here either: the bundle's
+# What this does NOT build: the Docker image (image.yml does, on its own tag) or the servers' own engine image. The data is not here either: the bundle's
 # `logout-search install` downloads the signed release from the Hugging Face dataset.
 name: release
 
