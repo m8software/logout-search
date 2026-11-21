@@ -49,8 +49,9 @@ bc = open(f"{S}/docker/docker-compose.build.yml").read()
 ok("the build file builds this source under a local name", "dockerfile: docker/Dockerfile" in bc and "image: logout-search:local" in bc and "ports" not in bc)
 wf = [p for p in (f"{R}/.github/workflows/image.yml", f"{S}/tools/public-repo/root/.github/workflows/image.yml") if os.path.exists(p)]
 wt = open(wf[0]).read() if wf else ""
-ok("the image workflow runs on its own tag (not a release tag), may push packages and nothing more",
-   'tags: ["image-*"]' in wt and '"v*"' not in wt and "packages: write" in wt and "contents: write" not in wt
+ok("the image workflow runs on its own tag or a promotion (not a release tag), may push packages and sign in to the MCP Registry, nothing more",
+   'tags: ["image-*", "promote-v*"]' in wt and '"v*"' not in wt and "packages: write" in wt and "contents: write" not in wt
+   and "id-token: write" in wt and sorted(set(re.findall(r"^\s+([a-z-]+): write\b", wt, re.M))) == ["id-token", "packages"]
    and "-f apps/search/docker/Dockerfile" in wt, wf)
 
 # the entrypoint, with a stand-in for the program that records how it was called
