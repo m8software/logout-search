@@ -3,6 +3,14 @@
 A web search engine that runs on your own computer. The index is a file you download; a search
 is answered from that file, on your machine, and is sent nowhere.
 
+- **Try it first, nothing to install:** [search.logout.cloud](https://search.logout.cloud) runs this same engine.
+- **Install it:** download the Linux or Windows build from the [latest release](https://github.com/m8software/logout-search/releases/latest),
+  or run it in Docker (below). The data updates itself every day.
+- **Give your AI app web search without an API key:** the engine comes with an MCP connector for local-model
+  front ends, desktop chat apps and editors (below). It is listed in the
+  [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.m8software/logout-search`.
+- **Works offline** once the data is downloaded. No account, no tracking, no ads.
+
 This repository is the engine and everything used to build its data. It is published from our
 private working repository by copying the current files, without history.
 
