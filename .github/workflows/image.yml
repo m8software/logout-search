@@ -1,5 +1,8 @@
 # A tag image-<version> builds the Docker image (apps/search/docker) and publishes it to this repository's
-# package registry as ghcr.io/<owner>/<repo>:<version> and :latest. It is separate from release.yml on purpose:
+# package registry as ghcr.io/<owner>/<repo>:<version> and :latest. A tag promote-v<X.Y.Z> (promote.yml makes that
+# release the latest) does the same with version X.Y.Z, so every promoted release gets its image.
+# Then the MCP Registry entry (server.json) is republished at that version, pointing at that image; a version the
+# registry already has (a rollback to an older release) is left as it is. It is separate from release.yml on purpose:
 # a v* tag makes a program release, and an image can be rebuilt without one.
 #
 # The image holds the program only. The search data is downloaded by the container's first start, from the
@@ -8,7 +11,7 @@ name: image
 
 on:
   push:
-    tags: ["image-*"]
+    tags: ["image-*", "promote-v*"]
 
 permissions:
   contents: read
@@ -19,6 +22,7 @@ jobs:
     permissions:
       contents: read
       packages: write        # push to ghcr.io
+      id-token: write        # the MCP Registry login (GitHub OIDC, no stored secret)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -27,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           image="ghcr.io/${GITHUB_REPOSITORY,,}"
-          version="${GITHUB_REF_NAME#image-}"
+          version="${GITHUB_REF_NAME#image-}"; version="${version#promote-v}"
           [[ "$version" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,60}$ ]] || { echo "tag ${GITHUB_REF_NAME}: the part after image- is not a usable image tag" >&2; exit 1; }
           docker build -f apps/search/docker/Dockerfile \
             --label "org.opencontainers.image.source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
@@ -51,3 +55,22 @@ jobs:
           docker push "${IMAGE}:${VERSION}"
           docker push "${IMAGE}:latest"
           docker inspect --format '{{.Id}} {{.Size}}' "${IMAGE}:${VERSION}"
+      - name: MCP Registry
+        env:
+          PUBLISHER: https://github.com/modelcontextprotocol/registry/releases/download/v1.8.10/mcp-publisher_linux_amd64.tar.gz
+          PUBLISHER_SHA256: 32d287ed6fb7dc04eddd2621097784c06a355b2348b35ccc630a1643aa75ff4a
+        run: |
+          set -euo pipefail
+          name=$(jq -r .name server.json)
+          if curl -fsS "https://registry.modelcontextprotocol.io/v0/servers?search=${name##*/}" \
+               | jq -e --arg n "$name" --arg v "$VERSION" '[.servers[].server | select(.name == $n and .version == $v)] | length > 0' >/dev/null; then
+            echo "registry already has ${name} ${VERSION}: not republished"; exit 0
+          fi
+          curl -fsSL "$PUBLISHER" -o publisher.tgz
+          echo "${PUBLISHER_SHA256}  publisher.tgz" | sha256sum -c -
+          tar xzf publisher.tgz mcp-publisher
+          jq --arg v "$VERSION" --arg i "${IMAGE}:${VERSION}" '.version = $v | .packages[0].identifier = $i' server.json > server.next.json
+          mv server.next.json server.json
+          ./mcp-publisher validate
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
