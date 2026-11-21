@@ -134,7 +134,20 @@ for fn, want in ((refuse, "not running"), (starting, "still starting"), (slow, "
 ok("every request went to 127.0.0.1 and nowhere else", len(asked) == 3 and all(u.startswith("http://127.0.0.1:8090/instant?q=private+matter") for u in asked), asked)
 ok("it is asked as a submitted search (full=1), so a one-word query gets pages", all(u.endswith("&full=1") for u in asked), asked)
 src = open(os.path.join(R, "apps/search/installer/mcp_server.py")).read()
-ok("the source names no other host to ask", "logout.cloud" not in src and src.count("urlopen(") == 1 and src.count("http://127.0.0.1:{port}/instant") == 1)
+ok("the source asks one place: 127.0.0.1, or the public site only where the demo switch is on",
+   src.count("urlopen(") == 1 and src.count("http://127.0.0.1:{port}/instant") == 1 and src.count("DEMO_URL if DEMO else") == 1
+   and src.count('DEMO = os.environ.get("LOGOUT_MCP_DEMO") == "1"') == 1)
+ok("demo is off unless the environment says so, and then the tool promises the query stays here",
+   m.DEMO is False and "never leaves this machine" in m.TOOL["description"] and "search.logout.cloud" not in m.TOOL["description"] + m.INSTRUCTIONS + m.TOOL["title"])
+import subprocess
+demo = subprocess.run([sys.executable, "-c", "import json,sys; sys.path.insert(0, sys.argv[1]); import mcp_server as d; print(json.dumps([d.DEMO, d.TOOL['title'], d.TOOL['description'], d.INSTRUCTIONS]))",
+                       os.path.join(R, "apps/search/installer")], env={**os.environ, "LOGOUT_MCP_DEMO": "1"}, capture_output=True, text=True)
+dj = json.loads(demo.stdout or "[]")
+ok("demo on: title, description and instructions all say the query goes to search.logout.cloud, none promises it stays",
+   len(dj) == 4 and dj[0] is True and all("search.logout.cloud" in x for x in dj[1:]) and not any("never leaves" in x or "stay on this machine" in x for x in dj[1:]), dj)
+off = subprocess.run([sys.executable, "-c", "import sys; sys.path.insert(0, sys.argv[1]); import mcp_server as d; print(d.DEMO)",
+                      os.path.join(R, "apps/search/installer")], env={**os.environ, "LOGOUT_MCP_DEMO": "true"}, capture_output=True, text=True)
+ok("demo needs exactly LOGOUT_MCP_DEMO=1: another value leaves it off", off.stdout.strip() == "False", off.stdout)
 
 # --- cancellation: no reply follows for a request the client gave up on
 import time

@@ -13,6 +13,9 @@ that is not this computer), so a site open in the browser cannot search through 
 What it never does:
   * ask anything but 127.0.0.1. When the engine is not running the tool says so; it does not fall back to the public
     site, because a search the user believed stayed on this machine would then leave it.
+    The one exception is the demo mode, which only the person starting the program can turn on (LOGOUT_MCP_DEMO=1,
+    for a directory's test container that has no engine): searches then go to search.logout.cloud, and the server's
+    instructions, the tool's title and its description all say so instead of promising the query stays here.
   * write a query anywhere. stderr carries method names and error types only. (The engine does not either: its
     result store is written only by its own warm-up requests, never by a search that comes in.)
   * fetch a result's page. It returns what the index holds (title, address, an excerpt of about 300 characters).
@@ -44,8 +47,14 @@ META_SERVER = "io.modelcontextprotocol/serverInfo"
 
 NAME = "logout-search"
 TITLE = "Logout Search"
-INSTRUCTIONS = ("Web search answered from the Logout Search index stored on this computer. Queries stay on this machine. "
-                "Results are titles, addresses and short excerpts; the pages themselves are not fetched.")
+DEMO = os.environ.get("LOGOUT_MCP_DEMO") == "1"      # set by whoever starts the program, never by a request
+DEMO_URL = "https://search.logout.cloud/api/instant"
+INSTALL = "https://github.com/m8software/logout-search"
+INSTRUCTIONS = (("DEMO MODE: no Logout Search engine is installed here, so each query is sent to the public site "
+                 f"search.logout.cloud and answered there. Install Logout Search ({INSTALL}) for searches that stay on "
+                 "your own computer. ") if DEMO else
+                "Web search answered from the Logout Search index stored on this computer. Queries stay on this machine. ") \
+    + "Results are titles, addresses and short excerpts; the pages themselves are not fetched."
 MAX_RESULTS = 10
 DEFAULT_RESULTS = 5
 MAX_QUERY = 200          # the engine's own limit
@@ -56,9 +65,11 @@ TIMEOUT_S = 30           # a first search after start-up has taken 7 s on a slow
 
 TOOL = {
     "name": "web_search",
-    "title": "Web search (on this computer)",
+    "title": "Web search (demo: answered by search.logout.cloud)" if DEMO else "Web search (on this computer)",
     "description": (
-        "Search the web using the Logout Search index stored on this computer. The query never leaves this machine. "
+        ("Search the web with Logout Search in demo mode: the query is sent to the public site search.logout.cloud "
+         "(an installed copy answers on your own computer instead). " if DEMO else
+         "Search the web using the Logout Search index stored on this computer. The query never leaves this machine. ") +
         "Returns a direct answer when the index has one (a date, a person, a number), a short summary of the main "
         "subject when there is one, recent news headlines when the query is in the news, and a ranked list of pages: "
         "title, address and an excerpt of about 300 characters. Pages are not fetched, so quote only what the "
@@ -89,9 +100,9 @@ def engine_search(port: int):
     def search(query: str) -> dict:
         # full=1: a submitted search. Without it the engine treats the text as still being typed and a short query
         # ("iran", "rust") gets suggestions and no pages.
-        url = f"http://127.0.0.1:{port}/instant?{urllib.parse.urlencode({'q': query, 'full': '1'})}"
+        url = f"{DEMO_URL if DEMO else f'http://127.0.0.1:{port}/instant'}?{urllib.parse.urlencode({'q': query, 'full': '1'})}"
         try:
-            with urllib.request.urlopen(url, timeout=TIMEOUT_S) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "logout-search-mcp"}) if DEMO else url, timeout=TIMEOUT_S) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
             if e.code == 503:
@@ -100,8 +111,12 @@ def engine_search(port: int):
         except (urllib.error.URLError, ConnectionError, TimeoutError, OSError) as e:
             if isinstance(e, TimeoutError) or "timed out" in str(getattr(e, "reason", e)):
                 raise ToolError(f"Logout Search did not answer within {TIMEOUT_S} seconds. Try again.") from None
+            if DEMO:
+                raise ToolError("The demo could not reach search.logout.cloud, so nothing was searched. Try again.") from None
             raise ToolError("Logout Search is not running on this computer, so nothing was searched. "
-                            "Start it (the Logout Search entry in the start menu, or `logout-search start`) and try again.") from None
+                            "Start it (the Logout Search entry in the start menu, or `logout-search start`) and try again. "
+                            f"Not installed yet? Get it at {INSTALL}, or try the same engine in a browser at "
+                            "https://search.logout.cloud.") from None
         except ValueError:
             raise ToolError("Logout Search sent an answer that could not be read. Nothing was searched.") from None
     return search
