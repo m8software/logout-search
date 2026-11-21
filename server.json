@@ -1,0 +1,15 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.m8software/logout-search",
+  "title": "Logout Search",
+  "description": "Private web search you run yourself: a local engine with a search tool for AI apps. No API key.",
+  "repository": { "url": "https://github.com/m8software/logout-search", "source": "github" },
+  "version": "0.4.46",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/m8software/logout-search:0.4.46-mcp",
+      "transport": { "type": "streamable-http", "url": "http://localhost:8091/mcp" }
+    }
+  ]
+}

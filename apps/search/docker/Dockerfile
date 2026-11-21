@@ -27,6 +27,8 @@ COPY --from=kern /src/libivf_kern.so /app/serve/api/libivf_kern.so
 RUN python /app/installer/logout_search.py engine --check-imports \
     && install -d -o 1000 -g 1000 /data
 USER 1000:1000
+# the MCP Registry (registry.modelcontextprotocol.io) checks this label against server.json's name
+LABEL io.modelcontextprotocol.server.name="io.github.m8software/logout-search"
 # a named volume takes /data's owner from the image; a folder of your own must be writable by uid 1000
 VOLUME /data
 # 8091: the AI-app connector (http://HOST:8091/mcp). The engine's own port stays inside the container.
