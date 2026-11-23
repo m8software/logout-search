@@ -216,6 +216,10 @@ class HfApi:
     def list_repo_files(self, repo, repo_type): return ["files/old.bin", "latest.json", "latest.json.sig", ".gitattributes", "README.md",
                                                  "addons/se-howto/manifest.json", "addons/se-howto/files/se-howto.sqlite.xz", "lists/manifest.json"]
     def upload_folder(self, repo_id, folder_path, repo_type, ignore_patterns, delete_patterns, commit_message): rec("upload_folder", ignore_patterns, delete_patterns)
+    def hf_hub_download(self, repo, filename, repo_type):
+        p = os.environ["HF_STUB_LOG"] + ".ga"
+        open(p, "w").write(open(os.environ["HF_STUB_GA"]).read() if os.environ.get("HF_STUB_GA") else "*.bin filter=lfs diff=lfs merge=lfs -text\n")
+        return p
     def create_tag(self, repo, tag, revision, repo_type, tag_message): rec("create_tag", tag, revision)
     def delete_tag(self, repo, tag, repo_type): rec("delete_tag", tag)
     def list_repo_refs(self, repo, repo_type):
@@ -231,7 +235,9 @@ PY
 out=$(HF_STUB_LOG="$tmp/calls" PYTHONPATH="$tmp/stub" "${HF[@]}" upload "$ST" --repo test-org/logout-search --token-file "$tmp/token" 2>&1); rc=$?
 [[ $rc -eq 0 ]] || bad "upload with the stand-in failed (rc=$rc)" "$out"
 order=$(python3 -c "import json; print(' '.join(json.loads(l)[0] for l in open('$tmp/calls')))")
-[[ "$order" == "init create_repo upload_folder create_commit create_tag" ]] && ok "create (private) -> upload -> latest.json -> tag, in that order" || bad "call order" "$order"
+[[ "$order" == "init create_repo create_commit upload_folder create_commit create_tag" ]] && ok "create (private) -> binary rules -> upload -> latest.json -> tag, in that order" || bad "call order" "$order"
+grep -m1 '"create_commit"' "$tmp/calls" | grep -q '\[".gitattributes"\]' && ok "missing binary rules (.fieldnorm, refused by the Hub 2026-11-23) go up in .gitattributes before the files" || bad "no gitattributes commit" "$(cat "$tmp/calls")"
+python3 -c "import sys; sys.path.insert(0, '$(dirname "${HF[-1]}")'); import hf_dataset as h; print(h.gitattributes_with_binaries(''), end='')" > "$tmp/ga-full"
 grep -q '"create_repo", "test-org/logout-search", "dataset", true' "$tmp/calls" && ok "the repository is created private unless --public" || bad "not private" "$(cat "$tmp/calls")"
 grep -q '"upload_folder", \["latest.json", "latest.json.sig"\], \["files/old.bin"\]' "$tmp/calls" \
     && ok "the release goes up without latest.json, and the file it no longer has goes in the same commit" || bad "upload args" "$(grep upload_folder "$tmp/calls")"
@@ -242,7 +248,7 @@ grep -q '"upload_folder", \["latest.json", "latest.json.sig"\], \["files/old.bin
 grep -q '"create_tag", "fx-2", "c0ffee"' "$tmp/calls" && grep -q '"create_commit", \["latest.json", "latest.json.sig"\]' "$tmp/calls" \
     && ok "the tag is the release id, on the latest.json commit (so the tag holds this release's latest.json)" || bad "tag/latest" "$(cat "$tmp/calls")"
 : > "$tmp/calls"
-HF_STUB_TAGGED=1 HF_STUB_LOG="$tmp/calls" PYTHONPATH="$tmp/stub" "${HF[@]}" upload "$ST" --repo test-org/logout-search --token-file "$tmp/token" >/dev/null 2>&1 || bad "re-upload with the stand-in failed"
+HF_STUB_GA="$tmp/ga-full" HF_STUB_TAGGED=1 HF_STUB_LOG="$tmp/calls" PYTHONPATH="$tmp/stub" "${HF[@]}" upload "$ST" --repo test-org/logout-search --token-file "$tmp/token" >/dev/null 2>&1 || bad "re-upload with the stand-in failed"
 order=$(python3 -c "import json; print(' '.join(json.loads(l)[0] for l in open('$tmp/calls')))")
 [[ "$order" == "init create_repo upload_folder create_commit delete_tag create_tag" ]] && ok "a re-upload of the same release moves its tag to the new latest.json commit" || bad "re-upload tag" "$order"
 ! grep -q "secret-token" <<<"$out" && ok "the token is never printed" || bad "token printed" "$out"

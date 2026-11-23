@@ -36,6 +36,7 @@ build_hash() {  # sq-engine.sh's own function, read from it so the two cannot dr
 
 cmd_setup() {
     remote true || die "server unreachable (ssh $HOST)"
+    # shellcheck disable=SC2088  # intended: the message names the path on testbox literally
     remote "test ! -e ~/$RDIR" || die "~/$RDIR already exists on testbox: someone's earlier run, or ours not torn down — look before removing it"
     local lsha rsha
     lsha=$(sha256sum "${SQ_TST_LOCAL_RELEASE:-$HOME/search-eval/rc8-acc}/manifest.json" | cut -d' ' -f1)

@@ -16,7 +16,6 @@ Unchanged files are hard-linked from the old release (no copy, no extra disk); S
 place, with secure_delete ON. This script never runs VACUUM.
 """
 import argparse
-import fcntl
 import json
 import os
 import shutil
@@ -378,7 +377,12 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
     base, pkg = os.path.abspath(base), os.path.abspath(pkg)
     lock = open(os.path.join(base, ".apply.lock"), "w")
     try:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if os.name == "nt":      # no fcntl on Windows: every Windows data update failed to import (2026-11-23, buildbox)
+            import msvcrt
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
         raise uc.UpdateError("another apply is running on this directory")
     cur = current_id(base)

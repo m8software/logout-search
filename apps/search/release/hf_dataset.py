@@ -550,6 +550,19 @@ BETA_LAST = ("latest-beta.json", "latest-beta.json.sig")   # the beta channel's 
 # published beside the releases, each signed on its own, never a release's stale file: the add-ons (install.py ADDONS) and the
 # daily curated lists (install.py `lists update`, sent by data-update-publish.sh)
 KEEP_DIRS = ("addons/", "lists/")
+# the Hub refuses a binary file sent as a plain git file, and decides by .gitattributes; the index and table files of a
+# release are binary whatever their size (a 2026-11-23 daily was refused over a small tantivy .fieldnorm)
+BINARY_PATTERNS = ("*.sqlite", "*.fast", "*.fieldnorm", "*.idx", "*.pos", "*.term", "*.store", "*.del", "*.usearch",
+                   "*.f16", "*.f32", "*.i8", "*.u8", "*.vec")
+
+
+def gitattributes_with_binaries(current: str) -> str | None:
+    """The .gitattributes text with every BINARY_PATTERNS rule present, or None when nothing is missing."""
+    have = {ln.split()[0] for ln in current.splitlines() if ln.strip() and not ln.startswith("#")}
+    add = [f"{p} filter=lfs diff=lfs merge=lfs -text" for p in BINARY_PATTERNS if p not in have]
+    if not add:
+        return None
+    return current.rstrip("\n") + "\n" + "\n".join(add) + "\n"
 
 
 def pointer_ops(out: str, channel: str, beta_exists: bool) -> list:
@@ -584,6 +597,13 @@ def upload(out: str, repo: str, token_file: str, public: bool, dry_run: bool, ch
     stale = sorted(p for p in remote - set(local) - set(LAST) - set(BETA_LAST) - {".gitattributes"} if not p.startswith(KEEP_DIRS))
     if any(c in p for p in stale for c in "*?[]"):
         raise DatasetError(f"a remote path holds a glob character, it cannot be removed by name: {stale[:3]}")
+    ga = ""
+    if ".gitattributes" in remote:
+        ga = open(api.hf_hub_download(repo, ".gitattributes", repo_type="dataset")).read()
+    new_ga = gitattributes_with_binaries(ga)
+    if new_ga is not None:
+        api.create_commit(repo, repo_type="dataset", commit_message="gitattributes: release index files are binary",
+                          operations=[CommitOperationAdd(path_in_repo=".gitattributes", path_or_fileobj=new_ga.encode())])
     # a re-run after a failure re-sends only what the Xet store does not already hold
     api.upload_folder(repo_id=repo, folder_path=out, repo_type="dataset", ignore_patterns=list(LAST),
                       delete_patterns=stale or None, commit_message=f"release {rid}")
