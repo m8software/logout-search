@@ -31,6 +31,9 @@ SEARCH = os.path.dirname(INSTALLER)
 ENGINE = os.path.join(SEARCH, "serve", "api")
 RELEASE = os.path.join(SEARCH, "release")
 NEWS = os.path.join(SEARCH, "news")
+# update_common imports trgm from here at run time (sys.path), which the analysis cannot see: named below (2026-11-23, buildbox:
+# "No module named 'trgm'" patching lookup.sqlite)
+LOOKUP_TOOLS = os.path.join(SEARCH, "tools", "sqlite_lookups")
 
 # what the engine image copies (serve/api/Dockerfile), less the servers' own tools; shipped on disk so search_api.py runs as a file
 ENGINE_FILES = ["search_api.py", "lookups_sqlite.py", "lookups_release.py", "kinds_release.py", "tv_open.py", "release_root.py",
@@ -98,7 +101,7 @@ def pyinstaller(stage: str, work: str, dist: str) -> None:
                          "(it is FFmpeg with GPL codecs; the peer uses serve/api/av_absent.py in its place)")
     args = ["--noconfirm", "--clean", "--onedir", "--name", "logout-search", "--console", "--icon", ICON,
             "--workpath", work, "--distpath", dist, "--specpath", work,
-            "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE,
+            "--paths", INSTALLER, "--paths", RELEASE, "--paths", ENGINE, "--paths", LOOKUP_TOOLS, "--hidden-import", "trgm",
             "--add-data", f"{os.path.join(stage, 'engine')}{os.pathsep}engine",
             "--add-data", f"{os.path.join(stage, 'news')}{os.pathsep}news", "--paths", NEWS,
             "--hidden-import", "feedparser", "--hidden-import", "defusedxml.ElementTree", "--hidden-import", "certifi", "--hidden-import", "zstandard",

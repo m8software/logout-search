@@ -216,6 +216,14 @@ def check_imports() -> int:
         out["zstd"] = _i.stream_decoder("zstd") is not None
     except Exception:  # noqa: BLE001
         out["zstd"] = False
+    # the data update's own modules: trgm is imported at run time and was left out of v0.4.48-v0.4.51 (buildbox could not patch
+    # lookup.sqlite, 2026-11-23), so a bundle without any of them fails its smoke instead of a customer's update
+    for name in ("update_apply", "update_common", "release_ptr", "trgm", "sem_ivf"):
+        try:
+            __import__(name)
+            out["mod_" + name] = "ok"
+        except Exception as e:  # noqa: BLE001
+            out["mod_" + name] = f"MISSING ({type(e).__name__}: {e})"[:200]
     out["engine_dir"] = engine_dir()
     out["engine_files"] = sorted(f for f in os.listdir(engine_dir()) if f.endswith((".py", ".json"))) if os.path.isdir(engine_dir()) else []
     print(json.dumps(out, indent=1, sort_keys=True))
