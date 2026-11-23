@@ -46,11 +46,23 @@ FAIL_AFTER = os.environ.get("LOGOUT_UPDATE_FAIL_AFTER", "")      # test hook: ki
 FAIL_WORKER = os.environ.get("LOGOUT_UPDATE_FAIL_WORKER", "")    # test hook: a SQLite worker kill -9s itself after patching this file (a basename)
 
 
+def _engine_dir() -> str | None:
+    """The engine's folder: serve/api in a checkout, or the Windows/Linux bundle's `engine/` beside this module (there is no
+    serve/api in a bundle: buildbox, 2026-11-23, "No such file ... _internal\\..\\serve\\api\\tv_open.py")."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for d in (os.path.join(here, "..", "serve", "api"), os.path.join(here, "engine"), os.path.join(here, "..", "engine")):
+        if os.path.isfile(os.path.join(d, "tv_open.py")):
+            return os.path.normpath(d)
+    return None
+
+
 def _open_tantivy(tantivy, path: str):
     """tantivy.Index.open that works on a read-only folder (serve/api/tv_open.py writable overlay)."""
     import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        "tv_open", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "serve", "api", "tv_open.py"))
+    eng = _engine_dir()
+    if eng is None:
+        raise uc.UpdateError("the engine's tv_open.py is not beside this program: cannot open the text index to check it")
+    spec = importlib.util.spec_from_file_location("tv_open", os.path.join(eng, "tv_open.py"))
     tv_open = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tv_open)
     return tv_open.open_index(tantivy, path)
@@ -562,8 +574,8 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
             raise uc.UpdateError("the staged release fails the engine's checks: " + "; ".join(errs[:5]))
         for d, _, fs in os.walk(stage):
             if "ivf.json" in fs:
-                api = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "serve", "api")
-                if os.path.isdir(api):
+                api = _engine_dir()
+                if api:
                     sys.path.insert(0, api)
                     import sem_ivf
                     sem_ivf.IvfIndex(d, to)

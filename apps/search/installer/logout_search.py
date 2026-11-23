@@ -218,12 +218,17 @@ def check_imports() -> int:
         out["zstd"] = False
     # the data update's own modules: trgm is imported at run time and was left out of v0.4.48-v0.4.51 (buildbox could not patch
     # lookup.sqlite, 2026-11-23), so a bundle without any of them fails its smoke instead of a customer's update
-    for name in ("update_apply", "update_common", "release_ptr", "trgm", "sem_ivf"):
+    for name in ("update_apply", "update_common", "release_ptr", "trgm", "sem_ivf", "release_check"):
         try:
             __import__(name)
             out["mod_" + name] = "ok"
         except Exception as e:  # noqa: BLE001
             out["mod_" + name] = f"MISSING ({type(e).__name__}: {e})"[:200]
+    try:                                                  # and it finds the engine's tv_open.py (it looked in serve/api, not in a bundle)
+        import update_apply as _ua
+        out["mod_update_engine_dir"] = "ok" if _ua._engine_dir() else "MISSING (no tv_open.py beside update_apply)"
+    except Exception as e:  # noqa: BLE001
+        out["mod_update_engine_dir"] = f"MISSING ({type(e).__name__})"
     out["engine_dir"] = engine_dir()
     out["engine_files"] = sorted(f for f in os.listdir(engine_dir()) if f.endswith((".py", ".json"))) if os.path.isdir(engine_dir()) else []
     print(json.dumps(out, indent=1, sort_keys=True))
