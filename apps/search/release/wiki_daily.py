@@ -595,6 +595,15 @@ def run_daily(a) -> dict:
         lookup_info = _update_lookup(os.path.join(rel_stage, "lookup.sqlite"), reg_info, release_id)
         log(f"step lookup: {round(time.time() - t_step)} s"); t_step = time.time()
         pic_info = _update_pictures(os.path.join(rel_stage, "pictures.sqlite"), reg_info["deleted_dids"], release_id)
+        weekly_info = None
+        if getattr(a, "weekly_dir", None):   # the weekly page views, sitelinks and facts (wiki_weekly.py): never fails the day
+            try:
+                import wiki_weekly
+                weekly_info = wiki_weekly.apply(rel_stage, prev_rel, release_id, os.path.abspath(a.weekly_dir))
+            except Exception as e:           # the hard-linked signals.bin / facts.sqlite of the previous release stay
+                weekly_info = {"failed": f"{type(e).__name__}: {str(e)[:300]}"}
+                log(f"WEEKLY FAILED (the day's build goes on with last week's numbers): {weekly_info['failed']}")
+            log(f"step weekly: {round(time.time() - t_step)} s"); t_step = time.time()
         purged = purge_tombstoned(rel_stage)
         log(f"step pictures + purge of deleted ids: {round(time.time() - t_step)} s; {purged}"); t_step = time.time()
 
@@ -687,7 +696,7 @@ def run_daily(a) -> dict:
     result = {
         "dry_run": False, "day": a.day, "prev_release": prev_id, "release": release_id,
         "fetch": fetch_info, "wikidelta": delta_summary, "embed": embed_info,
-        "registry": reg_info["stats"], "lookup": lookup_info, "pictures": pic_info,
+        "registry": reg_info["stats"], "lookup": lookup_info, "pictures": pic_info, "weekly": weekly_info,
         "ivf_recall": recall_info, "release_delta": rd_report, "store_affected": store_info,
         "update_pkg": pkg_info, "package_files": len(pkg_manifest["files"]),
         "updates_manifest": pointer_info, "seconds": round(time.time() - t0, 2),
@@ -718,6 +727,8 @@ def main() -> int:
     r.add_argument("--sha1sums", help="optional Wikimedia sha1sums file/URL to verify download")
     r.add_argument("--deletes-file", help="optional TSV (page_id TAB title) of deletions instead of Wikimedia API")
     r.add_argument("--no-api", action="store_true", help="skip live Wikimedia API calls (alias text / delete log)")
+    r.add_argument("--weekly-dir", help="a prepared weekly folder (wiki_weekly.py prepare): page views, sitelinks and facts "
+                                        "are refreshed in this day's release; a failure there leaves them as they were")
     r.add_argument("--hold-hours", type=float, default=8.0, help="vandalism hold window in hours (default 8)")
     r.add_argument("--now", help="ISO UTC reference time for hold cutoff (default: current UTC)")
     r.add_argument("--since", help="ISO UTC start of delete-log window")

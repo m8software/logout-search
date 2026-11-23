@@ -3226,9 +3226,19 @@ def _tide_answer(almanac, p: dict, now: dt.datetime, lat: float, lon: float, tz,
     return almanac.tide_answer(p, now, events, tz or now.astimezone().tzinfo, label, station, km)
 
 
+def _frost_answer(almanac, p: dict, lat: float, lon: float, label: str | None) -> dict | None:
+    """The last spring and first fall freeze from the nearest NOAA station that has them (almanac.nearest_frost_station,
+    within FROST_MAX_KM); a town with no station in reach, or an engine without the file, has no frost answer."""
+    near = almanac.nearest_frost_station(lat, lon)
+    if not near:
+        return None
+    return almanac.frost_answer(p, near[0], near[1], label)
+
+
 def almanac_answer(q: str) -> dict | None:
-    """almanac.py: sunrise and sunset, day length, the moon's phase and its rise and set, the seasons. All of
-    it is calculated here; the only thing read is the weather card's town table (a place's point and time zone). An
+    """almanac.py: sunrise and sunset, day length, the moon's phase and its rise and set, the seasons, tides,
+    eclipses, meteor showers and frost dates. All of it is calculated here or read from tables shipped beside the
+    code; the only other thing read is the weather card's town table (a place's point and time zone). An
     engine image without the module has no such answers. Never cached: the answer is about now."""
     try:
         import almanac
@@ -3244,12 +3254,12 @@ def almanac_answer(q: str) -> dict | None:
     try:
         if c is None or c.closed or c.broken:
             c = _news_connect(WX_DB, wx=True)
-        where = _almanac_town(c, p["place"], world=p["kind"] != "tide")      # tides are US stations only
+        where = _almanac_town(c, p["place"], world=p["kind"] not in ("tide", "frost"))      # tides and frost dates: US stations only
     except Exception:                                   # no town table (a box without the weather data): no US place
         if c is not None:
             c.close()
         c = None
-        where = _almanac_town(None, p["place"], world=p["kind"] != "tide")
+        where = _almanac_town(None, p["place"], world=p["kind"] not in ("tide", "frost"))
     if c is not None:
         with _pool_lock:
             if len(pool) < 4:
@@ -3272,6 +3282,11 @@ def almanac_answer(q: str) -> dict | None:
     if p["kind"] == "tide":
         try:
             return _tide_answer(almanac, p, now, lat, lon, tz, label) if lat is not None else None
+        except Exception:                               # an answer is extra: never fail the search over it
+            return None
+    if p["kind"] == "frost":
+        try:
+            return _frost_answer(almanac, p, lat, lon, label) if lat is not None else None
         except Exception:                               # an answer is extra: never fail the search over it
             return None
     return almanac.answer(p, now, lat, lon, tz, label)
@@ -3358,6 +3373,28 @@ def facts_card(q: str) -> dict | None:
         import facts
         _facts_store.append(facts.Facts.open(lk.root))
     return _facts_store[0].answer(q, lk) if _facts_store[0] else None
+
+
+# A fact question with a misspelt name (facts.py SEARCH_FACTS_RESPELL, 2026-11-22: "how tall is skatteboo"): asked only
+# when the answer box is still empty, and only for an article among the list's first FACTS_LEAD_ROWS rows.
+FACTS_LEAD_ROWS = 3
+
+
+def facts_lead(rows: list | None) -> tuple:
+    """The addresses of the Wikipedia articles among the list's first rows."""
+    return tuple(r["url"] for r in (rows or [])[:FACTS_LEAD_ROWS] if r.get("source") == "wikipedia" and r.get("url"))
+
+
+def facts_respelt(q: str, lead: tuple) -> dict | None:
+    if not FACTS_ON or not lead:
+        return None
+    lk = lookups()
+    if lk is None or lk.name != "release":
+        return None
+    if not _facts_store:
+        import facts
+        _facts_store.append(facts.Facts.open(lk.root))
+    return _facts_store[0].respelt(q, lk, lead) if _facts_store[0] else None
 
 
 # Where the older box and the facts file both answer and the older box's value is the build's weaker choice:
@@ -7653,6 +7690,10 @@ class Handler(BaseHTTPRequestHandler):
                     ans = ans if ans and ans.get("answer") else (cached(("facts", q.lower()), lambda: [facts_card(q)])[0] or ans)  #
                     if FACTS_OVER_BOX and ans and ans.get("question") in FACTS_OVER:                                          #
                         ans = prefer_facts(ans, cached(("facts", q.lower()), lambda: [facts_card(q)])[0])
+                    if not (ans and ans.get("answer")):                 # a misspelt name: only an article the list leads with
+                        lead_urls = facts_lead(fin["results"] if fin is not None else built[0])
+                        if lead_urls:
+                            ans = cached(("facts_respelt", q.lower(), lead_urls), lambda: [facts_respelt(q, lead_urls)])[0] or ans
             except Exception as e:                          # an answer is extra: never fail the rest
                 self.log_message("answer failed: %s", type(e).__name__)
                 ans = None

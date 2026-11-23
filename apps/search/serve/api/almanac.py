@@ -1,8 +1,9 @@
 """Sun, moon, season and tide answers computed on the box: sunrise and sunset, day length, the moon's
-phase, moonrise and moonset, the next four phases, the first day of each season, and the day's high and low tides
-(the wording here; the prediction is tide_model.py, the nearest NOAA station is the caller's).
+phase, moonrise and moonset, the next four phases, the first day of each season, the day's high and low tides
+(the wording here; the prediction is tide_model.py, the nearest NOAA station is the caller's), and from tables shipped
+beside it (phase 3): solar and lunar eclipses, meteor showers, and the dates of the last and first freeze.
 
-    parse(q)  -> {"kind": "sun"|"moon"|"season", "what", "day", "place", "year"} or None   which searches are the question
+    parse(q)  -> {"kind": "sun"|"moon"|"season"|"tide"|"eclipse"|"meteor"|"frost", "what", "day", "place", "year"} or None
     answer(p, now, lat=None, lon=None, tz=None, label=None) -> {"answer", "title", "detail", "question"} or None
 
 Pure local code, standard library only: nothing is fetched, nothing leaves the box. The caller (search_api) turns the
@@ -23,7 +24,10 @@ solstice 2027". A place needs "in/at/for/near": "sunrise florida" (a city), "sun
 from __future__ import annotations
 
 import datetime as dt
+import gzip
+import json
 import math
+import os
 import re
 
 UTC = dt.timezone.utc
@@ -272,11 +276,53 @@ _DAY_OFF = {"tomorrow": 1}
 _HERE = re.compile(r"\s+(?:here|near\s+me|in\s+my\s+(?:area|location|town|city)|at\s+my\s+location|where\s+i\s+am)$")
 
 
+# A whole search that is only the thing's name (owner 2026-11-23: "a search for moon should show the cards we have for
+# moon, high tide, tide or low tide, tide state etc should give tide info for closest using location"). Exact matches
+# only: "tide pods" or "moon river" stay ordinary searches, and the answer sits above the usual list. Tide, sun and
+# frost need a point (the searcher's location or the home point); without one the caller gives no answer.
+def _b(kind, what, **kw):
+    return dict({"kind": kind, "what": what, "day": 0, "place": None, "year": None, "bare": True}, **kw)
+
+
+_BARE = {}
+for _w in ("moon", "the moon", "moon today", "moon tonight", "moon now", "moon phase today", "lunar phase", "moon cycle"):
+    _BARE[_w] = _b("moon", "phase")
+for _w in ("full moon", "next full moon", "full moon date"):
+    _BARE[_w] = _b("moon", "nextfull")
+for _w in ("new moon", "next new moon"):
+    _BARE[_w] = _b("moon", "nextnew")
+for _w in ("tide", "tides", "the tide", "tide now", "tide state", "tide status", "current tide", "tide today", "tides now",
+           "is the tide in", "is the tide out", "is the tide coming in", "is the tide going out", "is it high tide",
+           "is it low tide", "tide level", "tide chart", "tide table"):
+    _BARE[_w] = _b("tide", "all")
+for _w in ("high tide", "high tides", "next high tide", "high tide today"):
+    _BARE[_w] = _b("tide", "high")
+for _w in ("low tide", "low tides", "next low tide", "low tide today"):
+    _BARE[_w] = _b("tide", "low")
+for _w in ("sun", "the sun", "sun today", "daylight", "sun times"):
+    _BARE[_w] = _b("sun", "sunrise")
+for _w in ("eclipse", "eclipses", "an eclipse"):
+    _BARE[_w] = _b("eclipse", "any", type=None, span=None)
+for _w in ("solar eclipse", "solar eclipses", "sun eclipse"):
+    _BARE[_w] = _b("eclipse", "solar", type=None, span=None)
+for _w in ("lunar eclipse", "lunar eclipses", "moon eclipse", "blood moon"):
+    _BARE[_w] = _b("eclipse", "lunar", type=None, span=None)
+for _w in ("meteor shower", "meteor showers", "meteors", "shooting stars"):
+    _BARE[_w] = _b("meteor", "next", code=None)
+for _w in ("frost", "frost date", "last frost", "first frost", "freeze date", "frost dates near me"):
+    _BARE[_w] = _b("frost", "last" if _w.startswith("last") else "first" if _w.startswith("first") else "both")
+
+
 def parse(q: str) -> dict | None:
     if not q or len(q) > 80:
         return None
     t = " ".join(q.lower().strip().rstrip("?!. ").replace(",", " ").split())
     t = _HERE.sub("", t)                                  # "sunset near me" is the bare question
+    if t in _BARE:
+        return dict(_BARE[t])
+    sky = _parse_sky(t)
+    if sky:
+        return sky
     for rx, kind in ((_SUN, "sun"), (_SUN_VERB, "sun"), (_DAYLEN, "sun"), (_MOON_RS, "moon")):
         m = rx.match(t)
         if not m:
@@ -557,6 +603,410 @@ def season_answer(p: dict, now: dt.datetime, tz) -> dict | None:
             "detail": "Northern Hemisphere. Times from the U.S. Naval Observatory.", "question": "season", "draw": draw}
 
 
+# ---------------------------------------------------------------------------------------------- eclipses, showers, frost
+# Phase 3. Two tables ship beside this file, each from one authority and each compared with a second copy of it in
+# tests/unit/test-search-almanac-sky.sh (fixtures under tests/unit/fixtures/):
+#   almanac_sky.json.gz    eclipses 2024-2050: NASA GSFC Five Millennium Catalogs of Solar and Lunar Eclipses (Espenak and
+#                          Meeus); meteor showers: the International Meteor Organization's calendars, Table 5 (Working List
+#                          of Visual Meteor Showers), one table per year, its dates accurate only for that year
+#   frost_normals.tsv.gz   NOAA NCEI 1991-2020 U.S. Climate Normals, freeze probability dates per weather station
+# What is not in them is not answered: no eclipse outside 2024-2050, no shower date in a year with no IMO table, no frost date
+# for a town with no NOAA station in reach, and no "is the eclipse visible in <place>" (NASA's regions are shown as NASA
+# writes them; a place's own circumstances are not calculated).
+SKY_DATA = os.environ.get("SEARCH_ALMANAC_SKY", os.path.join(os.path.dirname(os.path.abspath(__file__)), "almanac_sky.json.gz"))
+FROST_DATA = os.environ.get("SEARCH_FROST_DATA", os.path.join(os.path.dirname(os.path.abspath(__file__)), "frost_normals.tsv.gz"))
+FROST_MAX_KM = float(os.environ.get("SEARCH_FROST_MAX_KM", "40"))
+_cache: dict = {}
+
+
+def sky_data() -> dict | None:
+    if "sky" not in _cache:
+        try:
+            with gzip.open(SKY_DATA, "rt", encoding="utf-8") as f:
+                _cache["sky"] = json.load(f)
+        except (OSError, ValueError):                            # an older image, or no file: no such answers
+            _cache["sky"] = None
+    return _cache["sky"]
+
+
+def _km(lat_a: float, lon_a: float, lat_b: float, lon_b: float) -> float:
+    pa, pb = _R(lat_a), _R(lat_b)
+    h = math.sin((pb - pa) / 2) ** 2 + math.cos(pa) * math.cos(pb) * math.sin(_R(lon_b - lon_a) / 2) ** 2
+    return 12742.0 * math.asin(math.sqrt(h))
+
+
+_FROST_COLS = ("l10", "l50", "l90", "f10", "f50", "f90", "l28", "f28", "gsl")
+
+
+def frost_stations() -> list | None:
+    """[{id, name, state, lat, lon, elev, l10 ... gsl}] from frost_normals.tsv.gz, or None without the file."""
+    if "frost" not in _cache:
+        try:
+            rows = []
+            with gzip.open(FROST_DATA, "rt", encoding="utf-8") as f:
+                for line in f:
+                    c = line.rstrip("\n").split("\t")
+                    if len(c) != 6 + len(_FROST_COLS):
+                        continue
+                    rows.append({"id": c[0], "name": c[1], "state": c[2], "lat": float(c[3]), "lon": float(c[4]), "elev": int(c[5]),
+                                 **{k: c[6 + i] or None for i, k in enumerate(_FROST_COLS)}})
+            _cache["frost"] = rows or None
+        except (OSError, ValueError):
+            _cache["frost"] = None
+    return _cache["frost"]
+
+
+def nearest_frost_station(lat: float, lon: float, max_km: float | None = None) -> tuple[dict, float] | None:
+    """The closest NOAA station that has its 32 F dates, and how far away it is; None beyond max_km."""
+    best, best_km = None, None
+    for s in frost_stations() or []:
+        if abs(s["lat"] - lat) > 1.0:                           # a degree of latitude is 111 km: past any cap
+            continue
+        d = _km(lat, lon, s["lat"], s["lon"])
+        if best_km is None or d < best_km:
+            best, best_km = s, d
+    limit = FROST_MAX_KM if max_km is None else max_km
+    return (best, best_km) if best is not None and best_km <= limit else None
+
+
+_ECL_T = r"(?:total|annular|partial|hybrid|penumbral)"
+_ECL = re.compile(r"^(?:(?P<q>(?:when\s+(?:is|will|does)|what\s+(?:day|date)\s+is)\s+(?:the\s+)?)|(?P<there>(?:is\s+there|will\s+there\s+be)\s+an?\s+))?"
+                  r"(?P<next>(?:next|upcoming)\s+)?(?:(?P<t1>" + _ECL_T + r")\s+)?(?:(?P<k1>solar|lunar)\s+)?(?:(?P<t2>" + _ECL_T + r")\s+)?eclipses?"
+                  r"(?:\s+(?:in\s+|for\s+)?(?P<when>20\d\d|this\s+year|today|tonight))?$")
+_ECL_YEAR_FIRST = re.compile(r"^(?P<when>20\d\d)\s+(?:(?P<t1>" + _ECL_T + r")\s+)?(?P<k1>solar|lunar)\s+eclipses?$")
+_SHOWERS = {"perseid": "PER", "geminid": "GEM", "quadrantid": "QUA", "lyrid": "LYR", "april lyrid": "LYR", "orionid": "ORI", "leonid": "LEO",
+            "draconid": "DRA", "ursid": "URS", "eta aquarid": "ETA", "eta aquariid": "ETA", "southern delta aquarid": "SDA",
+            "southern delta aquariid": "SDA"}
+_METEOR = re.compile(r"^(?P<q>(?:when\s+(?:is|are|do|does|will)\s+)?(?:the\s+)?)(?P<name>" + "|".join(sorted(_SHOWERS, key=len, reverse=True)) + r")s?"
+                     r"(?P<ms>\s+meteor\s+showers?)?(?P<pk>\s+peaks?)?(?:\s+(?:in\s+)?(?P<when>20\d\d|this\s+year))?$")
+_METEOR_ANY = re.compile(r"^(?P<q>is\s+there\s+(?:a\s+)?|when\s+(?:is|are)\s+(?:the\s+)?)?(?P<next>next\s+)?meteor\s+showers?"
+                         r"(?:\s+(?P<when>tonight|today|this\s+year|20\d\d|calendar(?:\s+20\d\d)?))?$")
+_FROST = re.compile(r"^(?P<q>(?:what|when)\s+(?:is|are|was)\s+(?:the\s+)?)?(?:(?:average|avg|typical|expected|usual)\s+)?"
+                    r"(?:(?P<which>last|first)\s+(?:(?P<season>spring|fall|autumn)\s+)?(?:killing\s+)?(?:frost|freeze)s?(?P<date>\s+dates?)?|(?P<both>(?:frost|freeze)\s+dates?))"
+                    r"(?:\s+(?:in|at|for|near)\s+(?P<place>[a-z][a-z .'-]{1,40}?))?$")
+
+
+def _parse_sky(t: str) -> dict | None:
+    """The eclipse, meteor-shower and frost questions (t is the question lower-cased and trimmed)."""
+    m = _ECL.match(t) or _ECL_YEAR_FIRST.match(t)
+    if m:
+        g = m.groupdict()
+        t1, t2 = g.get("t1"), g.get("t2")
+        asked = bool(g.get("q") or g.get("there") or g.get("next") or g.get("when"))
+        if not asked or (t1 and t2):                            # "eclipse", "total eclipse", "solar eclipse": names of things
+            return None
+        when = g.get("when")
+        return {"kind": "eclipse", "what": g.get("k1") or "any", "type": t1 or t2, "day": 0, "place": None,
+                "year": int(when) if when and when.isdigit() else None,
+                "span": when if when in ("today", "tonight", "this year") else None}
+    m = _METEOR.match(t)
+    if m and ("when" in m.group("q") or m.group("ms") or m.group("pk") or m.group("when")):    # "the perseids": a name
+        w = m.group("when")
+        return {"kind": "meteor", "what": "shower", "code": _SHOWERS[m.group("name")], "day": 0, "place": None,
+                "year": int(w) if w and w.isdigit() else None}
+    m = _METEOR_ANY.match(t)
+    if m and (m.group("q") or m.group("next") or m.group("when")):
+        w = m.group("when") or ""
+        year = re.search(r"20\d\d", w)
+        what = "year" if year or "calendar" in w or w == "this year" else "next" if m.group("next") or not w else "tonight"
+        return {"kind": "meteor", "what": what, "code": None, "day": 0, "place": None, "year": int(year.group()) if year else None}
+    m = _FROST.match(t)
+    if m:
+        g = m.groupdict()
+        if not (g["q"] or g["date"] or g["both"] or g["place"]):
+            return None                                         # "last frost", "first frost": a band, a game, a poem
+        which = g["which"] or "both"
+        if (which == "last" and g["season"] in ("fall", "autumn")) or (which == "first" and g["season"] == "spring"):
+            return None
+        return {"kind": "frost", "what": which, "day": 0, "place": (g["place"] or "").strip() or None, "year": None}
+    return None
+
+
+# ---- eclipses
+_ECL_KIND = {"S": "solar", "L": "lunar"}
+_ECL_TYPE = {"T": "Total", "A": "Annular", "H": "Hybrid", "P": "Partial", "N": "Penumbral"}
+_ECL_NOTE = "Eclipse Predictions by Fred Espenak (NASA's GSFC). Regions are as NASA names them; what a town sees is not calculated here."
+
+
+def eclipse_time(row: dict) -> dt.datetime:
+    """Greatest eclipse in UT: the catalog's time is TD, and each row carries its own delta T."""
+    y, m, d = map(int, row["d"].split("-"))
+    h, mi, s = map(int, row["td"].split(":"))
+    return dt.datetime(y, m, d, tzinfo=UTC) + dt.timedelta(hours=h, minutes=mi, seconds=s - row["dt"])
+
+
+def _ecl_name(r: dict) -> str:
+    return f"{_ECL_TYPE[r['t']].lower()} {_ECL_KIND[r['k']]} eclipse"
+
+
+def _hm(minutes: float) -> str:
+    m = int(round(minutes))
+    return f"{m // 60} h {m % 60:02d} min" if m >= 60 else f"{m} min"
+
+
+def _fit(parts: list[str], limit: int = 160) -> str:
+    """Whole sentences, dropped from the end until the line fits the 160 characters the page shows."""
+    parts = [x for x in parts if x]
+    while parts and len(" ".join(parts)) > limit:
+        parts = parts[:-1]
+    return " ".join(parts)
+
+
+def _fit_list(items: list[str], limit: int = 140) -> str:
+    """As many of the items as fit, joined by semicolons."""
+    out = ""
+    for x in items:
+        if len(out) + len(x) + 2 > limit:
+            break
+        out += ("; " if out else "") + x
+    return out
+
+
+def _ecl_facts(r: dict, t: dt.datetime, tz) -> list:
+    lt = _rounded(t, tz)
+    f = [["Type", _ECL_TYPE[r["t"]]], ["Greatest", _clock(lt) + _zone(lt)]]
+    if r["k"] == "S":
+        f.append(["Magnitude", f"{r['mag']:.3f}"])
+        if r.get("dur"):
+            f.append(["Longest", f"{int(r['dur'][:2])} min {int(r['dur'][3:5])} s"])
+        if r.get("width"):
+            f.append(["Path width", f"{r['width']} km"])
+    else:
+        f.append(["Penumbral mag.", f"{r['pen']:.3f}"] if r["t"] == "N" else ["Umbral mag.", f"{r['mag']:.3f}"])
+        if r.get("par"):
+            f.append(["Partial phase", _hm(r["par"])])
+        if r.get("tot"):
+            f.append(["Totality", _hm(r["tot"])])
+    return f[:6]
+
+
+def _ecl_card(r: dict, t: dt.datetime, tz, after: list) -> tuple[dict, str]:
+    lt = _rounded(t, tz)
+    seen = f"Seen from {r['region']}." if r.get("region") else ""
+    path = ""
+    if r["k"] == "S" and r["t"] != "P" and r.get("path"):
+        path = f"{_ECL_TYPE[r['t']]} along {r['path']}." if r["t"] != "H" else f"Central along {r['path']}."
+    detail = _fit([f"Greatest eclipse {_clock(lt)}{_zone(lt)}.", seen, path, "NASA."])
+    draw = {"kind": "eclipse", "icon": _ECL_KIND[r["k"]], "facts": _ecl_facts(r, t, tz), "region": r.get("region", ""), "path": r.get("path", ""),
+            "next": [[_short(_rounded(x, tz)), f"{_ECL_TYPE[y['t']]} {_ECL_KIND[y['k']]}"] for x, y in after], "note": _ECL_NOTE}
+    return draw, detail
+
+
+def _in_days(days: int) -> str:
+    return ("today" if days == 0 else "tomorrow" if days == 1 else f"in {days} days" if days < 100
+            else f"in {round(days / 30.4)} months" if days < 700 else f"in {days / 365.25:.1f} years")
+
+
+def eclipse_answer(p: dict, now: dt.datetime, tz) -> dict | None:
+    data = sky_data()
+    if not data:
+        return None
+    rows = sorted(((eclipse_time(r), r) for r in data["eclipses"]), key=lambda x: x[0])
+    first, last = rows[0][0].year, rows[-1][0].year
+    want = lambda r: (p["what"] == "any" or _ECL_KIND[r["k"]] == p["what"]) and (not p["type"] or _ECL_TYPE[r["t"]].lower() == p["type"])
+    today = now.astimezone(tz).date()
+    label = " ".join(x for x in (p["type"], None if p["what"] == "any" else p["what"], "eclipse") if x)
+    after = lambda t: [(x, y) for x, y in rows if x > t and want(y)][:4]
+
+    def one(t, r, head):
+        draw, detail = _ecl_card(r, t, tz, after(t))
+        lt = _rounded(t, tz)
+        return {"answer": _when(t, tz, year=True), "title": f"{head} {_ecl_name(r)}" + ("" if head in ("Today:", "Tonight:") else f" ({_in_days((lt.date() - today).days)})"),
+                "detail": detail, "question": "eclipse", "draw": draw}
+
+    year = p["year"] or (today.year if p["span"] == "this year" else None)
+    if p["span"] in ("today", "tonight"):
+        if p["span"] == "today":
+            hit = [(t, r) for t, r in rows if want(r) and t.astimezone(tz).date() == today]
+        else:                                                    # tonight: from 6 pm to 6 am, so one at 12:12 am is tonight's
+            local = now.astimezone(tz)
+            begin = local.replace(hour=18, minute=0, second=0, microsecond=0) - dt.timedelta(days=1 if local.hour < 6 else 0)
+            hit = [(t, r) for t, r in rows if want(r) and begin <= t < begin + dt.timedelta(hours=12)]
+        if hit:
+            out = one(*hit[0], "Today:" if p["span"] == "today" else "Tonight:")
+            out["answer"] = f"Yes: {_ecl_name(hit[0][1])} {p['span']}, greatest {_clock(_rounded(hit[0][0], tz))}{_zone(_rounded(hit[0][0], tz))}"
+            return out
+        nxt = next(((t, r) for t, r in rows if t > now and want(r)), None)
+        if nxt is None:
+            return None
+        out = one(*nxt, "Next:")
+        out["answer"] = f"No {label} {p['span']}"
+        out["detail"] = _fit([f"Next: {_when(nxt[0], tz, year=True)}.", out["detail"]])
+        return out
+    if year is not None:
+        if not first <= year <= last:
+            return None
+        hit = [(t, r) for t, r in rows if want(r) and t.astimezone(tz).year == year]
+        if not hit:
+            return {"answer": f"No {label} in {year}", "title": f"{label.capitalize()}s in {year}", "question": "eclipse",
+                    "detail": "NASA's Five Millennium Catalog lists none.", "draw": {"kind": "eclipse", "icon": "lunar" if p["what"] == "lunar" else "solar",
+                                                                                     "facts": [], "next": [], "note": _ECL_NOTE}}
+        names = [f"{_short(_rounded(t, tz))} {_ECL_TYPE[r['t']].lower()}" + (f" {_ECL_KIND[r['k']]}" if p["what"] == "any" else "") for t, r in hit]
+        draw, detail = _ecl_card(hit[0][1], hit[0][0], tz, [])
+        draw["facts"] = []
+        draw["next"] = [[_short(_rounded(t, tz)), f"{_ECL_TYPE[r['t']]} {_ECL_KIND[r['k']]}"] for t, r in hit][:6]
+        draw["region"] = draw["path"] = ""
+        head = f"{len(hit)} {label}{'s' if len(hit) != 1 else ''} in {year}: "
+        text = head + _fit_list(names, 160 - len(head))
+        return {"answer": text, "title": f"{label.capitalize()}s in {year}",
+                "detail": f"First: {_fit([_when(hit[0][0], tz)])}. Times and regions from NASA.", "question": "eclipse", "draw": draw}
+    nxt = next(((t, r) for t, r in rows if t > now and want(r)), None)
+    return one(*nxt, "Next") if nxt else None
+
+
+# ---- meteor showers
+def _md(s: str, year: int = 2001) -> dt.date:
+    return dt.date(year, int(s[:2]), int(s[3:5]))
+
+
+def _major(s: dict) -> bool:
+    z = s["zhr"].rstrip("+")
+    return z.isdigit() and int(z) >= 10 and not s["name"].startswith("Daytime") and not s.get("ref_only")
+
+
+def _active(s: dict, day: dt.date) -> bool:
+    a, b = _md(s["from"], day.year), _md(s["to"], day.year)
+    return a <= day <= b if a <= b else day >= a or day <= b      # December into January
+
+
+def _zhr(s: dict) -> str:
+    return s["zhr"] if s["zhr"].rstrip("+").isdigit() else "varies"
+
+
+def _md_short(s: str) -> str:
+    d = _md(s)
+    return f"{d.strftime('%b')} {d.day}"
+
+
+_METEOR_NOTE = ("Dates are UT, from the International Meteor Organization's calendar. ZHR is the most an observer sees under perfectly dark "
+                "skies with the radiant overhead.")
+
+
+def _shower_card(s: dict, peak: dt.date, upcoming: list) -> tuple[dict, int]:
+    # the peak night begins the evening before its UT date: the moon as at noon UT the day before (the American Meteor
+    # Society's figure for the same nights is within 3 points; tests/unit/test-search-almanac-sky.sh)
+    lit = round(moon_now(dt.datetime(peak.year, peak.month, peak.day, tzinfo=UTC) - dt.timedelta(hours=12))[1] * 100)
+    facts = [["Peak", _md_short(s["max"])], ["ZHR", _zhr(s)], ["Active", f"{_md_short(s['from'])} – {_md_short(s['to'])}"],
+             ["Moon", f"about {lit}% lit"], ["Speed", f"{s['v']} km/s"]]
+    return {"kind": "meteor", "facts": facts, "mark": "Peak", "next": upcoming, "note": _METEOR_NOTE}, lit
+
+
+def _upcoming(tables: dict, since: dt.date, n: int = 4, skip: str | None = None) -> list:
+    out = sorted(((_md(s["max"], int(y)), s) for y, tbl in tables.items() for s in tbl if _major(s) and s["code"] != skip), key=lambda x: x[0])
+    return [[s["name"], _md_short(s["max"]), _zhr(s)] for d, s in out if d >= since][:n]
+
+
+def _shower(s: dict, y: int, today: dt.date, tables: dict, head: str | None = None) -> dict:
+    peak = _md(s["max"], y)
+    card, lit = _shower_card(s, peak, _upcoming(tables, peak + dt.timedelta(days=1), 4, s["code"]))
+    days = (peak - today).days
+    ago = "today" if days == 0 else "tomorrow" if days == 1 else f"in {days} days" if days > 1 else f"{-days} days ago"
+    return {"answer": f"{peak.strftime('%A')}, {peak.strftime('%B')} {peak.day}, {peak.year} (UT)", "title": f"{s['name']} meteor shower peak ({ago})",
+            "detail": _fit([f"Active {_md_short(s['from'])} – {_md_short(s['to'])}.", f"Moon about {lit}% lit around the peak.",
+                            f"ZHR {_zhr(s)}: the most an observer sees under perfect skies.", "IMO date, UT."]),
+            "question": "meteor", "draw": card}
+
+
+def meteor_answer(p: dict, now: dt.datetime, tz) -> dict | None:
+    data = sky_data()
+    if not data or not data.get("showers"):
+        return None
+    tables = data["showers"]
+    today = now.astimezone(tz).date()
+    if p["what"] == "shower":
+        for y in ([p["year"]] if p["year"] else [today.year, today.year + 1]):
+            s = next((s for s in tables.get(str(y), []) if s["code"] == p["code"]), None)
+            if s is not None and (p["year"] or _md(s["max"], y) >= today):
+                return _shower(s, y, today, tables)
+        return None
+    if p["what"] == "year":
+        y = p["year"] or today.year
+        tbl = tables.get(str(y))
+        if not tbl:
+            return None
+        row = [[s["name"], _md_short(s["max"]), _zhr(s)] for s in sorted((s for s in tbl if _major(s)), key=lambda s: _md(s["max"], y))]
+        return {"answer": f"{len(row)} major meteor showers in {y}", "title": f"Meteor showers {y}: peak dates (UT) and ZHR",
+                "detail": _fit_list([f"{n} {d}" for n, d, _z in row]) + " (UT, IMO).", "question": "meteor",
+                "draw": {"kind": "meteor", "facts": [], "next": row[:12], "mark": None,
+                         "note": "Major showers: ZHR 10 or more, not daytime. " + _METEOR_NOTE}}
+    peaks = sorted(((_md(s["max"], int(y)), s, int(y)) for y, tbl in tables.items() for s in tbl if _major(s)), key=lambda x: x[0])
+    nxt = next(((d, s, y) for d, s, y in peaks if d >= today), None)
+    if p["what"] == "next":
+        return _shower(nxt[1], nxt[2], today, tables) if nxt else None
+    tbl = tables.get(str(today.year))
+    if not tbl or nxt is None:
+        return None                                              # no calendar for this year: no "tonight"
+    # Table 5 gives a date in UT and no hour (an hour is in some showers' own paragraphs, not in the table): a peak date
+    # within a day of the local date is "around the peak", and nothing finer is claimed
+    near = next(((d, s, y) for d, s, y in peaks if abs((d - today).days) <= 1), None)
+    if near:
+        d, s, y = near
+        out = _shower(s, y, today, tables)
+        out["answer"] = f"{s['name']}: peak {_md_short(s['max'])} (UT), within a day of tonight"
+        out["title"] = f"{s['name']} meteor shower · ZHR {_zhr(s)}"
+        return out
+    act = [s for s in tbl if _major(s) and _active(s, today)]
+    d, s, y = nxt
+    words = (", ".join(f"{a['name']} (peak {_md_short(a['max'])})" for a in act) + " active.") if act else ""
+    return {"answer": "No major meteor shower peaks tonight", "title": f"Next peak: {s['name']}, {_MONTHS[d.month - 1]} {d.day}",
+            "detail": _fit([words, f"Next peak: {s['name']} {_md_short(s['max'])} (UT), ZHR {_zhr(s)}."]), "question": "meteor",
+            "draw": {"kind": "meteor", "facts": [["Tonight", "no major peak"]], "mark": None, "next": _upcoming(tables, today, 4),
+                     "note": "Major showers: ZHR 10 or more, not daytime. " + _METEOR_NOTE}}
+
+
+# ---- frost
+_MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+
+
+def _fd(s: str) -> str:
+    return f"{_MONTHS[int(s[:2]) - 1]} {int(s[3:5])}"
+
+
+def _fs(s: str) -> str:
+    return f"{_MONTHS[int(s[:2]) - 1][:3]} {int(s[3:5])}"
+
+
+def _doy(s: str | None) -> int | None:
+    return dt.date(2001, int(s[:2]), int(s[3:5])).timetuple().tm_yday if s else None
+
+
+def frost_answer(p: dict, station: dict, km: float, label: str | None) -> dict | None:
+    """NOAA's meaning of the dates: l10 is the date on or after which there is a 10% chance of the last spring freeze (32 F
+    or colder); f10 the date on or before which there is a 10% chance of the first fall freeze."""
+    s = station
+    if not (s.get("l50") and s.get("f50")):
+        return None
+    miles = km / 1.609344
+    where = f"{s['name']}, {s['state']} ({miles:.0f} mi)" if miles >= 1 else f"{s['name']}, {s['state']}"
+    title = (f"{label} · " if label else "") + f"32°F freeze · NOAA station {where}"
+    last = f"In half of years there is still a freeze on or after {_fd(s['l50'])}" + (f", in 1 year in 10 on or after {_fs(s['l10'])}" if s.get("l10") else "") + "."
+    first = f"In half of years the first freeze comes on or before {_fd(s['f50'])}" + (f", in 1 year in 10 on or before {_fs(s['f10'])}" if s.get("f10") else "") + "."
+    src = "NOAA 1991-2020 normals."
+    if p["what"] == "last":
+        ans, detail = f"Last spring freeze about {_fd(s['l50'])}", _fit([last, src])
+    elif p["what"] == "first":
+        ans, detail = f"First fall freeze about {_fd(s['f50'])}", _fit([first, src])
+    else:
+        calendar = _doy(s["l50"]) < _doy(s["f50"])               # a warm station's first freeze can come before its last
+        ans = (f"Last freeze about {_fs(s['l50'])}, first about {_fs(s['f50'])}" if calendar
+               else f"First freeze about {_fs(s['f50'])}, last about {_fs(s['l50'])}")
+        detail = _fit([last, first, src] if calendar else [first, last, src])
+    facts = [["Last spring", _fs(s["l50"])], ["First fall", _fs(s["f50"])]]
+    if s.get("gsl"):
+        facts.append(["Freeze-free", f"{s['gsl']} days"])
+    if s.get("l28") and s.get("f28"):
+        facts += [["Last at 28°F", _fs(s["l28"])], ["First at 28°F", _fs(s["f28"])]]
+    def bar(a, b, c):                                            # None when the dates run over New Year (a warm station)
+        days = [_doy(a), _doy(b), _doy(c)]
+        ok = all(x is not None for x in days) and days == sorted(days)
+        return {"days": days, "labels": [_fs(x) if x else "" for x in (a, b, c)]} if ok else None
+    s_bars = bool(bar(s.get("l90"), s["l50"], s.get("l10")) and bar(s.get("f10"), s["f50"], s.get("f90")))
+    draw = {"kind": "frost", "mark": "Last spring" if p["what"] == "last" else "First fall" if p["what"] == "first" else None, "facts": facts,
+            "last": bar(s.get("l90"), s["l50"], s.get("l10")), "first": bar(s.get("f10"), s["f50"], s.get("f90")),
+            "note": f"NOAA station {where}. 1991-2020 U.S. Climate Normals: the 50% date" + (", with the 10% and 90% dates as the bars' ends" if s_bars else "") + ". Your own yard can differ."}
+    return {"answer": ans, "title": title, "detail": detail, "question": "frost", "draw": draw}
+
+
 def answer(p: dict, now: dt.datetime | None = None, lat: float | None = None, lon: float | None = None, tz=None,
            label: str | None = None) -> dict | None:
     """The answer box for a parsed question. tz: a tzinfo (None = this computer's zone)."""
@@ -565,6 +1015,12 @@ def answer(p: dict, now: dt.datetime | None = None, lat: float | None = None, lo
     try:
         if p["kind"] == "season":
             return season_answer(p, now, tz)
+        if p["kind"] == "eclipse":
+            return eclipse_answer(p, now, tz)
+        if p["kind"] == "meteor":
+            return meteor_answer(p, now, tz)
+        if p["kind"] == "frost":
+            return None                                          # needs a station: search_api picks it (frost_answer)
         if p["kind"] == "moon":
             return moon_answer(p, now, lat, lon, tz, label)
         if lat is None or lon is None:

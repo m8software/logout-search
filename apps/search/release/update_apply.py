@@ -39,7 +39,7 @@ def self_cmd() -> list:
 import numpy as np  # noqa: E402
 
 import release_check as rc  # noqa: E402  (client-safe: no psycopg, no exporter)
-from release_ptr import current_id, fsync_path, fsync_tree, set_pointer  # noqa: E402,F401  (stdlib-only; shared with installer/install.py)
+from release_ptr import current_id, fsync_path, fsync_tree, rmtree_all, set_pointer  # noqa: E402,F401  (stdlib-only; shared with installer/install.py)
 import update_common as uc  # noqa: E402
 
 FAIL_AFTER = os.environ.get("LOGOUT_UPDATE_FAIL_AFTER", "")      # test hook: kill -9 self at "staged" | "renamed"
@@ -311,7 +311,7 @@ class _SqliteWorkers:
 
     def _run(self, args: tuple) -> dict:
         p = subprocess.Popen(self_cmd() + ["_sqlite-op"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                             preexec_fn=_pdeathsig, text=True)
+                             **({} if os.name == "nt" else {"preexec_fn": _pdeathsig}), text=True)   # Windows has no preexec_fn (buildbox, 2026-11-23)
         with self.lock:
             self.procs.append(p)
         out, _ = p.communicate(json.dumps(args))
@@ -365,7 +365,7 @@ def prune_old_releases(base: str, keep: set) -> list:
         d = os.path.join(rel_dir, name)
         if name in keep or name.startswith(".") or not os.path.isfile(os.path.join(d, "manifest.json")):
             continue
-        shutil.rmtree(d, ignore_errors=True)
+        rmtree_all(d)
         gone.append(name)
     return gone
 
@@ -422,7 +422,7 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
     rel_dir = os.path.join(base, "releases")
     for stale in sorted(os.listdir(rel_dir)):
         if stale.startswith(".staging-"):
-            shutil.rmtree(os.path.join(rel_dir, stale), ignore_errors=True)
+            rmtree_all(os.path.join(rel_dir, stale))
     final = os.path.join(rel_dir, to)
     if os.path.exists(final):                       # an earlier apply died between the rename and the pointer swap
         old_m = json.load(open(os.path.join(final, "manifest.json")))
@@ -575,8 +575,8 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
             for f in fs:
                 if f.endswith(".lock"):                  # Tantivy made it while opening the index above; it must be writable
                     os.remove(os.path.join(d, f))        # when the engine opens the folder, so none is left behind
-                elif os.path.join(d, f) not in linked:
-                    os.chmod(os.path.join(d, f), 0o444)
+                elif os.path.join(d, f) not in linked and os.name != "nt":   # Windows: a read-only file is one rmtree cannot
+                    os.chmod(os.path.join(d, f), 0o444)                       # remove, so an old release would never be pruned
         fsync_tree(stage)
         if FAIL_AFTER == "staged":
             os.kill(os.getpid(), signal.SIGKILL)

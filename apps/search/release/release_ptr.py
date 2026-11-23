@@ -10,6 +10,7 @@ the pointer the same way: ONE rename(2) of a fresh symlink. Layout (SEARCH-UPDAT
 Imports nothing outside the standard library on purpose: a client without numpy can use it.
 """
 import os
+import sys
 
 
 def fsync_path(p: str) -> None:
@@ -88,3 +89,26 @@ def current_id(base: str, name: str = "current"):
         if os.path.normcase(real) != os.path.normcase(os.path.abspath(p)):
             return os.path.basename(real)
     return None
+
+
+def rmtree_all(d: str) -> None:
+    """shutil.rmtree that also removes read-only files: on Windows a read-only file cannot be deleted, and releases are
+    installed read-only, so an old release folder was never pruned (2026-11-23). Errors after the retry are ignored, as before."""
+    import shutil
+    import stat
+
+    def retry(fn, path, _exc):
+        try:
+            for q in (os.path.dirname(path), path):       # the folder that holds it, then the entry itself
+                try:
+                    os.chmod(q, os.stat(q).st_mode | stat.S_IWRITE | (stat.S_IEXEC if os.path.isdir(q) else 0))
+                except OSError:
+                    pass
+            fn(path)
+        except OSError:
+            pass
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(d, onexc=retry)
+    else:
+        shutil.rmtree(d, onerror=retry)
+

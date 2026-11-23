@@ -649,6 +649,9 @@ def check(base: str, data: str, *, platform: str, mine: str, app_dir: str, progr
     s = load(data)
     s.update(requested=False, last_check=now or time.time())
     s.pop("followup", None)
+    # on record at once: a data update can take many minutes (rc15 -> rc16 is 2 GB), and until this save `autoupdate status`
+    # showed no check at all (the regression suite's LIF-007 gave up after 150 s, 2026-11-23)
+    save(data, dict(s, last_result="checking now (started " + time.strftime("%H:%M", time.localtime(s["last_check"])) + ")"))
     ch = channel_of(s)
     result, act = [], None
     # 1. an answers part that was "not yet": look at it again (waits while the engine makes progress); only a real failure

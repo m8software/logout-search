@@ -54,6 +54,12 @@ INSTITUTION_NOUNS = ("school", "college", "university")
 # facts set wants the team's venue): measured, not assumed. See Facts.known_name_kind.
 N_HOST, N_DOMAIN, N_ACCOUNT, N_SELF = 4, 5, 7, 11    # lookups_release: a site's host label, its domain, an account's handle, a site's own name
 N_SITE_KINDS = (N_SITE_LABEL, N_HOST, N_DOMAIN, N_SELF)
+# A misspelt name still gets its answer (owner, 2026-11-22: "how tall is skatteboo" led the list with Cam Skattebo's
+# article and showed no height). SEARCH_FACTS_RESPELL=1 (default; =0 is off): see Facts.respelt / Facts.respelled.
+RESPELL_ON = os.environ.get("SEARCH_FACTS_RESPELL", "1") == "1"
+RESPELL_MIN = 5                             # letters a word needs before one of them may be a slip (stage_base.TYPO_MIN)
+RESPELL_WORDS = 4                           # a longer name is not respelt
+_LETTERS = "abcdefghijklmnopqrstuvwxyz"
 BARE_SCAN_MAX = 300                         # names read per key to find "X (…)" titles; more than that: no answer
 _QUALIFIED = re.compile(r"^(.+) \([^()]+\)$")
 
@@ -68,6 +74,21 @@ def unicode_key(s: str) -> str:
 def norm_key(s: str) -> str:
     """search_api.norm_key: letters and digits only, lowercase."""
     return "".join(_TOKEN.findall(s.lower()))
+
+
+def one_edit(w: str) -> set[str]:
+    """Every spelling one slip from the word w: a letter added, dropped or changed, or two neighbours swapped
+    (stage_base.one_edit, letters only)."""
+    out = set()
+    for i in range(len(w) + 1):
+        out.update(w[:i] + ch + w[i:] for ch in _LETTERS)
+        if i < len(w):
+            out.add(w[:i] + w[i + 1:])
+            out.update(w[:i] + ch + w[i + 1:] for ch in _LETTERS)
+            if i + 1 < len(w):
+                out.add(w[:i] + w[i + 1] + w[i] + w[i + 2:])
+    out.discard(w)
+    return out
 
 
 def pattern_regex(p: str) -> str:
@@ -394,7 +415,7 @@ class Facts(ReleaseTable):
         d = next(iter(found), None)
         return d if d is not None and self.has(d, pid) else None
 
-    def resolve(self, name: str, pid: int, lk) -> int | None:
+    def resolve(self, name: str, pid: int, lk, bare: bool = True) -> int | None:
         """The article the name means that has the fact: the most viewed one (signals wiki.pageviews). A name that is
         no article's ("tesla": the title is a disambiguation page) is tried as a site's first label, and the articles
         whose official site that is ("Tesla, Inc.") — the engine's own official-site names, nothing matched here."""
@@ -412,14 +433,73 @@ class Facts(ReleaseTable):
                 pv = lk.S(d, "sitelinks") or 0
             if pv > best_pv:
                 best, best_pv = d, pv
-        if best is None and BARE_TITLE:
+        if best is None and BARE_TITLE and bare:
             best = self.qualified(keys, named, pid, lk)
         return best
+
+    def respelled(self, name: str, pid: int, lk, lead: tuple = ()) -> int | None:
+        """SEARCH_FACTS_RESPELL: the article a misspelt name means, or None. Asked only after every reading of the
+        question found no article under the name as typed.
+
+        The rule. The typed name must name NOTHING: no article and no site ("marne" is a river with no height on
+        file, not a slip for "marie"; a real name is never respelt). Then every spelling ONE slip away in ONE word
+        of at least RESPELL_MIN letters ("skatteboo" -> "skattebo"; "cam skatteboo" -> "cam skattebo") is asked
+        the same way the typed name was. The answer is the most viewed article among those that have the fact,
+        and only when the result list already leads with it (lead: the addresses of its first Wikipedia rows).
+        The list found that article by its own means, so two things agree; either alone is a guess — "barkley"
+        names no article (a disambiguation page) and is one letter from Steve Backley, while the list leads with
+        Charles Barkley: no card; "mediacor" is one letter from Mediacorp and from the less viewed MediaCore, and
+        the list led with MediaCore: no card. A name of more than RESPELL_WORDS words, or with no word that long,
+        is left alone."""
+        folded = "".join(ch for ch in unicodedata.normalize("NFKD", name) if not unicodedata.combining(ch))
+        words = _TOKEN.findall(folded.lower())
+        if not words or len(words) > RESPELL_WORDS:
+            return None
+        typed = self.entity_keys(name)
+        if any(lk.names1(k, kind) for k in typed for kind in (N_ALIAS,) + N_SITE_KINDS):
+            return None
+        near = set()
+        for i, w in enumerate(words):
+            if len(w) >= RESPELL_MIN and w.isalpha():
+                near.update("".join(words[:i] + [v] + words[i + 1:]) for v in one_edit(w))
+        near -= set(typed)
+        if not near:
+            return None
+        best, best_pv = None, -1
+        for key, _score in lk.near_names({"keys": sorted(near)}):
+            d = self.resolve(key, pid, lk, bare=False)
+            if d is None:
+                continue
+            try:
+                pv = lk.S(d, "pageviews") or 0
+            except (KeyError, ValueError, IndexError):
+                pv = lk.S(d, "sitelinks") or 0
+            if pv > best_pv:
+                best, best_pv = d, pv
+        return best if best is not None and _WIKI + (lk.title(best) or "").replace(" ", "_") in lead else None
 
     # -- cards
     def answer(self, q: str, lk, today: dt.date | None = None) -> dict | None:
         """The answer card for a fact question, or a list card, or None. lk is the engine's ReleaseLookups
         (names1, title, S)."""
+        card = self.fact_answer(q, lk, today, self.resolve)
+        if card:
+            return card
+        lst = self.parse_list(q)
+        return self.list_card(*lst, lk=lk) if lst else None
+
+    def respelt(self, q: str, lk, lead: tuple, today: dt.date | None = None) -> dict | None:
+        """The answer card for a fact question whose name is misspelt (respelled), marked "respelled"; None when the
+        rule is off or finds nothing. For the caller to ask when answer() gave no card. lead = the addresses of the
+        Wikipedia articles the result list leads with; lk also needs near_names."""
+        if not RESPELL_ON or not lead:
+            return None
+        card = self.fact_answer(q, lk, today, lambda name, pid, lk_: self.respelled(name, pid, lk_, tuple(lead)))
+        if card:
+            card["respelled"] = True
+        return card
+
+    def fact_answer(self, q: str, lk, today, resolve) -> dict | None:
         named = known = None
         for pid, name in self.parse(q):
             if INSTITUTION_NAME_ON and self.is_institution_name(q, name):
@@ -437,14 +517,13 @@ class Facts(ReleaseTable):
                         known = self.known_name_kind(q, lk)
                     if known:
                         continue
-            d = self.resolve(name, pid, lk)
+            d = resolve(name, pid, lk)
             if d is None:
                 continue
             card = self.fact_card(d, pid, lk, today)
             if card:
                 return card
-        lst = self.parse_list(q)
-        return self.list_card(*lst, lk=lk) if lst else None
+        return None
 
     def fact_card(self, d: int, pid: int, lk, today: dt.date | None = None) -> dict | None:
         p = self.props[pid]
