@@ -87,16 +87,63 @@ def zst_compress(src: str, dst: str, level: int = 19) -> int:
     return os.path.getsize(dst)
 
 
+def _zstd_reader(f):
+    """A decompressing binary reader over the open file f, from Python itself (3.14's compression.zstd, or the `zstandard`
+    package the Windows bundle ships), or None when neither is here. Windows has no zstd command (buildbox, 2026-11-23)."""
+    try:
+        from compression import zstd            # Python 3.14+
+        return zstd.ZstdFile(f)
+    except ImportError:
+        pass
+    try:
+        import zstandard
+        return zstandard.ZstdDecompressor().stream_reader(f)   # one frame: zstd -T1 writes one
+    except ImportError:
+        return None
+
+
+# UPDATE_NO_CLI=1 takes the Windows path on any system (no zstd or cp command), so the Linux tests cover it
+NO_CLI = os.environ.get("UPDATE_NO_CLI") == "1"
+
+
+def _zstd_cli() -> bool:
+    return not NO_CLI and shutil.which("zstd") is not None
+
+
 def zst_decompress(src: str, dst: str) -> None:
+    if not _zstd_cli():
+        try:
+            import zstandard                    # the Windows bundle's: the same call install.py uses on every install
+        except ImportError:
+            zstandard = None
+        if zstandard is not None:
+            try:
+                with open(src, "rb") as fi, open(dst, "wb") as fo:
+                    zstandard.ZstdDecompressor().copy_stream(fi, fo)
+            except zstandard.ZstdError as e:
+                raise UpdateError(f"zstd -d failed on {src}: {e}"[:300])
+            return
+        with open(src, "rb") as fi:
+            rd = _zstd_reader(fi)
+            if rd is None:
+                raise UpdateError(f"cannot decompress {src}: no zstd command and no zstd module in this Python")
+            try:
+                with open(dst, "wb") as fo:
+                    shutil.copyfileobj(rd, fo, 1 << 20)
+            except Exception as e:  # noqa: BLE001 - a corrupt or cut file: the module's own error type varies
+                raise UpdateError(f"zstd -d failed on {src}: {type(e).__name__}: {e}"[:300])
+        return
     r = subprocess.run(["zstd", "-dq", "-f", "-o", dst, src], capture_output=True)
     if r.returncode:
         raise UpdateError(f"zstd -d failed on {src}: {r.stderr.decode()[:200]}")
 
 
 def copy_file(src: str, dst: str) -> None:
-    """A real copy (reflink when the filesystem has it): the destination will be written to."""
-    r = subprocess.run(["cp", "--reflink=auto", "--", src, dst], capture_output=True)
-    if r.returncode:
+    """A real copy (reflink when the filesystem has it): the destination will be written to. No `cp` on Windows."""
+    r = None
+    if os.name != "nt" and not NO_CLI and shutil.which("cp"):
+        r = subprocess.run(["cp", "--reflink=auto", "--", src, dst], capture_output=True)
+    if r is None or r.returncode:
         shutil.copyfile(src, dst)
     os.chmod(dst, 0o644)
 
@@ -455,9 +502,18 @@ class _open_rows:
     """Open a rows file for reading lines. A `.zst` path is streamed through `zstd -dc` (nothing is decompressed to disk), and a
     non-zero exit from zstd, even after the last line, raises UpdateError."""
     def __init__(self, src):
-        self.src, self.proc = src, None
+        self.src, self.proc, self.raw = src, None, None
 
     def __enter__(self):
+        if self.src.endswith(".zst") and not _zstd_cli():   # Windows: decompressed in Python, still streamed
+            import io
+            self.raw = open(self.src, "rb")
+            rd = _zstd_reader(self.raw)
+            if rd is None:
+                self.raw.close()
+                raise UpdateError(f"cannot read {self.src}: no zstd command and no zstd module in this Python")
+            self.f = io.TextIOWrapper(io.BufferedReader(rd, 1 << 20), encoding="utf-8")
+            return self.f
         if self.src.endswith(".zst"):
             self.proc = subprocess.Popen(["zstd", "-dc", self.src], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1 << 20)
             return self.proc.stdout
@@ -466,7 +522,13 @@ class _open_rows:
 
     def __exit__(self, et, ev, tb):
         if self.proc is None:
-            self.f.close()
+            try:
+                self.f.close()
+            finally:
+                if self.raw is not None:
+                    self.raw.close()
+            if et is not None and self.raw is not None and not issubclass(et, (UpdateError, ValueError)):
+                raise UpdateError(f"zstd -d failed on {self.src}: {et.__name__}: {ev}"[:300]) from ev
             return False
         if et is not None and not issubclass(et, ValueError):
             self.proc.kill()                       # the caller gave up (or an error that is not about the text): stop zstd

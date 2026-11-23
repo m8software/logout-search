@@ -63,8 +63,9 @@ def adopt(base: str, release_dir: str) -> str:
     dst = os.path.join(base, "releases", rid)
     if os.path.exists(dst):
         raise uc.UpdateError(f"{dst} already exists")
-    r = subprocess.run(["cp", "-a", "--reflink=auto", "-l", "--", release_dir.rstrip("/"), dst], capture_output=True)
-    if r.returncode:
+    r = subprocess.run(["cp", "-a", "--reflink=auto", "-l", "--", release_dir.rstrip("/"), dst], capture_output=True) \
+        if os.name != "nt" and shutil.which("cp") else None          # no cp on Windows
+    if r is None or r.returncode:
         shutil.rmtree(dst, ignore_errors=True)         # `cp -l` may have made the destination (and some links) before it was refused
         shutil.copytree(release_dir, dst)
     set_pointer(base, "current", rid)
