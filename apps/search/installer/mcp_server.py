@@ -126,6 +126,25 @@ def _one_line(text) -> str:
     return " ".join(str(text or "").split())
 
 
+def _flight_line(it: dict) -> str:
+    """One item of an airport's status as a phrase."""
+    mins = lambda k: f"{it[k]} min" if isinstance(it.get(k), int) else ""
+    why = f" ({_one_line(it.get('reason'))})" if it.get("reason") else ""
+    kind = it.get("kind")
+    if kind == "ground_stop":
+        return "ground stop" + (f" until {_one_line(it.get('until'))}" if it.get("until") else "") + why
+    if kind == "ground_delay":
+        return "ground delay" + (f" averaging {mins('avg')}" if mins("avg") else "") + (f", up to {mins('max')}" if mins("max") else "") + why
+    if kind in ("departure", "arrival"):
+        span = " to ".join(x for x in (mins("min"), mins("max")) if x)
+        return f"{kind} delays" + (f" of {span}" if span else "") + (f", {_one_line(it.get('trend'))}" if it.get("trend") else "") + why
+    if kind == "closure":
+        return "airport closed" + (f", reopens {_one_line(it.get('reopen'))}" if it.get("reopen") else "")
+    if kind == "notice":
+        return f"notice: {_one_line(it.get('text'))}" if it.get("text") else ""
+    return ""
+
+
 def render(body: dict, limit: int) -> str:
     """The engine's answer as text for a model: the direct answer, the subject, news, then the pages."""
     out = []
@@ -144,6 +163,30 @@ def render(body: dict, limit: int) -> str:
     about = c.get("lead") or c.get("description")
     if c.get("title") and about:
         out.append(f"About {_one_line(c['title'])}: {_one_line(about)}" + (f"\nSource: {c['url']}" if c.get("url") else ""))
+    fl = body.get("flights") or {}
+    if fl.get("airports"):                       # the FAA's airport status, from the engine's own table
+        rows = ["Airport status (FAA" + (f", {fl['age_min']} min old" if isinstance(fl.get("age_min"), int) else "") + "):"]
+        for a in fl["airports"][:3]:
+            name = f"{_one_line(a.get('name'))} ({_one_line(a.get('code'))})"
+            if fl.get("stale"):
+                rows.append(f"- {name}: the status is too old to show")
+                continue
+            lines = [_flight_line(it) for it in (a.get("items") or [])]
+            rows.append(f"- {name}: " + ("; ".join(x for x in lines if x) or "no delays reported"))
+        if fl.get("link"):
+            rows.append(f"Source: {fl['link']}")
+        out.append("\n".join(rows))
+    ot = body.get("ontime") or {}
+    if ot.get("routes"):                         # a flight number's record in the government's monthly file
+        rows = [f"{_one_line(ot.get('airline'))} {ot.get('number')}, on-time record for {_one_line(ot.get('month'))} (not live status):"]
+        for r in ot["routes"][:3]:
+            bits = [f"usually departs {_one_line(r['dep'])}" if r.get("dep") else "", f"arrives {_one_line(r['arr'])}" if r.get("arr") else "",
+                    f"on time {r['ontime_pct']}% of {r.get('flights')} flights" if isinstance(r.get("ontime_pct"), int) else f"flew {r.get('flights')} times",
+                    f"{r['cancelled']} cancelled" if r.get("cancelled") else ""]
+            rows.append(f"- {_one_line(r.get('from'))} to {_one_line(r.get('to'))}: " + ", ".join(b for b in bits if b))
+        if ot.get("link"):
+            rows.append(f"Source: {ot['link']}")
+        out.append("\n".join(rows))
     news = [n for n in (body.get("news") or []) if n.get("title") and n.get("url")][:5]
     if news:
         rows = ["Recent news:"]

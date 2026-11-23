@@ -132,3 +132,18 @@ for `libav*` and `libx26*` in the built image finds 0 files.
    package of the rtc image.
 3. The LGPL libraries (psycopg and the ones bundled with it) are met by shipping them as separate, replaceable shared
    libraries, which a Docker image and a pip install both do. A frozen single-file installer would not.
+
+## Live data: airport status
+
+Not software, listed here because the collector (`news/wxall.py`) fetches it on every install. Both arrive as whole
+files on a schedule; a search reads the local copy and never causes a request.
+
+| Data | Source | Licence | Credit shown |
+|---|---|---|---|
+| Airport delays, ground stops and closures (US) | FAA National Airspace System status, `nasstatus.faa.gov/api/airport-status-information` | US government work, public domain in the United States (17 U.S.C. 105) | "FAA National Airspace System status", linked, on the card |
+| Tide harmonic constants, datums and station offsets (US), shipped as `serve/api/tides.json.gz`; the highs and lows are calculated by this software | NOAA Center for Operational Oceanographic Products and Services (CO-OPS), `api.tidesandcurrents.noaa.gov` | US government work, public domain in the United States (17 U.S.C. 105) | "NOAA station <name>" and "Calculated here from NOAA constants; not for navigation" on the box |
+| Cities outside the United States with their position, population and time zone, for sun and moon answers ("sunset in london"), shipped as `serve/api/world_cities.tsv.gz`. Changed from the original: only cities of 15,000 people or more outside the US, nine of the columns, positions rounded | GeoNames `cities15000`, `countryInfo`, `admin1CodesASCII` (download.geonames.org/export/dump) | Creative Commons Attribution 4.0 (creativecommons.org/licenses/by/4.0) | "City data from GeoNames (geonames.org), CC BY 4.0, filtered" in this file and on the licences page |
+| Equinox and solstice times 2025-2045 (a table in `serve/api/almanac.py`); sun and moon times are calculated by this software | U.S. Naval Observatory, Astronomical Applications, `aa.usno.navy.mil` | US government work, public domain in the United States (17 U.S.C. 105) | "Times from the U.S. Naval Observatory" on the box |
+| Airport names, codes, towns and positions | OurAirports `airports.csv` (ourairports.com/data) | Public domain (the project's own dedication) | none required |
+| On-time record by flight number (monthly, about two months late) | Bureau of Transportation Statistics, Marketing Carrier On-Time Performance, `transtats.bts.gov/PREZIP` | US government work, public domain in the United States (17 U.S.C. 105) | "Bureau of Transportation Statistics", linked, on the card |
+

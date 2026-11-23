@@ -91,6 +91,35 @@ def load_codes(vec_dirs) -> dict[int, np.ndarray]:
     return out
 
 
+def _text_rows(path: str):
+    with gzip.open(path, "rt", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            i, _, text = line.rstrip("\n").partition("\t")
+            if i:
+                yield int(i), text
+
+
+def cmd_reuse(a) -> None:
+    """Vectors made for an earlier text file are kept for every article whose text is the same in the new one (rc16: the
+    catch-up was embedded while the daily runs still went). OUT_VECS gets shard-reuse.{ids,bits}.npy with the kept codes;
+    TODO gets the rows that still need the embedder (their shards go into OUT_VECS next to it: the ids do not overlap)."""
+    import hashlib
+    h = lambda t: hashlib.blake2b(t.encode("utf-8", "replace"), digest_size=8).digest()   # noqa: E731
+    old = {pid: h(text) for pid, text in _text_rows(a.old_texts)}
+    codes = load_codes(a.old_vecs)
+    ids, keep, todo = [], [], 0
+    os.makedirs(a.out_vecs, exist_ok=True)
+    with gzip.open(a.todo, "wt", encoding="utf-8") as out:
+        for pid, text in _text_rows(a.new_texts):
+            if old.get(pid) == h(text) and pid in codes:
+                ids.append(pid); keep.append(codes[pid])
+            else:
+                out.write(f"{pid}\t{text}\n"); todo += 1
+    np.save(os.path.join(a.out_vecs, "shard-reuse.ids.npy"), np.array(ids, np.int64))
+    np.save(os.path.join(a.out_vecs, "shard-reuse.bits.npy"), np.stack(keep) if keep else np.zeros((0, uc.DIM_BYTES), np.uint8))
+    log(json.dumps({"stage": "reuse", "kept": len(ids), "todo": todo}))
+
+
 def cmd_merge(a) -> None:
     t0 = time.time()
     page_ids = {pid for _o, pid, _t, _l in changed_rows(a.changed)}      # ids only: the leads of a 2 M-row set stay out of memory
@@ -171,6 +200,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     t = sub.add_parser("texts"); t.add_argument("changed"); t.add_argument("out"); t.add_argument("--split", type=int, default=1)
+    ru = sub.add_parser("reuse", help="keep earlier vectors for articles whose text did not change; list the rest for the embedder")
+    ru.add_argument("old_texts"); ru.add_argument("old_vecs"); ru.add_argument("new_texts"); ru.add_argument("out_vecs"); ru.add_argument("todo")
     m = sub.add_parser("merge")
     m.add_argument("prev_ivf"); m.add_argument("out_ivf"); m.add_argument("release")
     m.add_argument("--vectors", required=True, nargs="+", help="one or more embed-full.py output folders"); m.add_argument("--changed", required=True); m.add_argument("--deleted", required=True)
@@ -183,7 +214,7 @@ def main() -> None:
     r.add_argument("--max-drop", type=float, default=0.01, help="largest recall loss against --fresh")
     r.add_argument("--min-recall", type=float, default=0.90, help="floor when there is no --fresh folder")
     a = ap.parse_args()
-    {"texts": cmd_texts, "merge": cmd_merge, "recall": cmd_recall}[a.cmd](a)
+    {"texts": cmd_texts, "reuse": cmd_reuse, "merge": cmd_merge, "recall": cmd_recall}[a.cmd](a)
 
 
 if __name__ == "__main__":

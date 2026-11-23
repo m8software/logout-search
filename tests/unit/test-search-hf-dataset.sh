@@ -214,7 +214,7 @@ class HfApi:
     def __init__(self, token): rec("init", token == "secret-token")
     def create_repo(self, repo, repo_type, private, exist_ok): rec("create_repo", repo, repo_type, private)
     def list_repo_files(self, repo, repo_type): return ["files/old.bin", "latest.json", "latest.json.sig", ".gitattributes", "README.md",
-                                                 "addons/se-howto/manifest.json", "addons/se-howto/files/se-howto.sqlite.xz"]
+                                                 "addons/se-howto/manifest.json", "addons/se-howto/files/se-howto.sqlite.xz", "lists/manifest.json"]
     def upload_folder(self, repo_id, folder_path, repo_type, ignore_patterns, delete_patterns, commit_message): rec("upload_folder", ignore_patterns, delete_patterns)
     def create_tag(self, repo, tag, revision, repo_type, tag_message): rec("create_tag", tag, revision)
     def delete_tag(self, repo, tag, repo_type): rec("delete_tag", tag)
@@ -237,6 +237,8 @@ grep -q '"upload_folder", \["latest.json", "latest.json.sig"\], \["files/old.bin
     && ok "the release goes up without latest.json, and the file it no longer has goes in the same commit" || bad "upload args" "$(grep upload_folder "$tmp/calls")"
 ! grep -qE '"upload_folder".*addons/' "$tmp/calls" \
     && ok "a release upload never removes the add-ons published beside it (addons/ is not part of a release)" || bad "add-ons removed by a release upload" "$(grep upload_folder "$tmp/calls")"
+! grep -qE '"upload_folder".*lists/' "$tmp/calls" \
+    && ok "nor the daily lists (lists/ is published by its own job)" || bad "lists removed by a release upload" "$(grep upload_folder "$tmp/calls")"
 grep -q '"create_tag", "fx-2", "c0ffee"' "$tmp/calls" && grep -q '"create_commit", \["latest.json", "latest.json.sig"\]' "$tmp/calls" \
     && ok "the tag is the release id, on the latest.json commit (so the tag holds this release's latest.json)" || bad "tag/latest" "$(cat "$tmp/calls")"
 : > "$tmp/calls"

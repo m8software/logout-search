@@ -34,11 +34,11 @@ H, M = 3600, 60
 # each preset: which collectors run, and the collectors' environment (news/poller.py, news/wxall.py)
 PRESETS = {
     "full": ({"news": True, "sports": True, "weather": True},
-             {"NEWS_POLL_SCALE": 1, "WX_EVERY_NBH_S": 3 * H, "WX_EVERY_NBE_S": 6 * H, "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M, "WX_EVERY_RADAR_S": 10 * M}),
+             {"NEWS_POLL_SCALE": 1, "WX_EVERY_NBH_S": 3 * H, "WX_EVERY_NBE_S": 6 * H, "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M, "WX_EVERY_RADAR_S": 10 * M, "WX_EVERY_NAS_S": 5 * M}),
     "balanced": ({"news": True, "sports": True, "weather": True},
-                 {"NEWS_POLL_SCALE": 2, "WX_EVERY_NBH_S": 4 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 20 * M, "WX_EVERY_ALERTS_S": 10 * M, "WX_EVERY_RADAR_S": 20 * M}),
+                 {"NEWS_POLL_SCALE": 2, "WX_EVERY_NBH_S": 4 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 20 * M, "WX_EVERY_ALERTS_S": 10 * M, "WX_EVERY_RADAR_S": 20 * M, "WX_EVERY_NAS_S": 10 * M}),
     "light": ({"news": True, "sports": True, "weather": True},
-              {"NEWS_POLL_SCALE": 4, "WX_EVERY_NBH_S": 6 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 30 * M, "WX_EVERY_ALERTS_S": 15 * M, "WX_EVERY_RADAR_S": 0}),
+              {"NEWS_POLL_SCALE": 4, "WX_EVERY_NBH_S": 6 * H, "WX_EVERY_NBE_S": 12 * H, "WX_EVERY_METARS_S": 30 * M, "WX_EVERY_ALERTS_S": 15 * M, "WX_EVERY_RADAR_S": 0, "WX_EVERY_NAS_S": 15 * M}),
     "search": ({"news": False, "sports": False, "weather": False}, {}),
 }
 # what each choice is called, and what it downloads a day (the tray and the page show these)
@@ -139,7 +139,7 @@ def effective(data: str, metered=None) -> dict:
         h = s["weather_every_h"]
         on = {k: s[k] for k in COLLECTORS}
         env = {"NEWS_POLL_SCALE": s["news_every"], "WX_EVERY_NBH_S": h * H, "WX_EVERY_NBE_S": max(6, h) * H,
-               "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M, "WX_EVERY_RADAR_S": 10 * M}
+               "WX_EVERY_METARS_S": 10 * M, "WX_EVERY_ALERTS_S": 5 * M, "WX_EVERY_RADAR_S": 10 * M, "WX_EVERY_NAS_S": 5 * M}
     else:
         on, env = PRESETS[applied]
     if os.environ.get("LOGOUT_COLLECTORS", "") == "0":          # tests, a machine that wants only search

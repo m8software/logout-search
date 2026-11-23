@@ -224,7 +224,7 @@ check("every value is text", all(isinstance(v, str) for v in a.values()), True)
 # --- wiring
 api = os.environ["API"]
 src = open(api + "/search_api.py", encoding="utf-8").read()
-check("/instant asks instant_answer first and does not cache it", "ans = instant_answer(q) or cached((\"answer\", q.lower())" in src, True)
+check("/instant asks instant_answer first and does not cache it", "ans = instant_answer(q) or almanac_answer(q) or cached((\"answer\", q.lower())" in src, True)
 check("a missing module means no answer, not an error", "except ImportError:\n        return None\n" in src, True)
 fn = src[src.index("def instant_answer(q: str)"):src.index("def answer(q: str)")]
 check("the rates are read through the cache, only for a currency-shaped query, and passed in",

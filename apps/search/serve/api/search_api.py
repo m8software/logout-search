@@ -3119,6 +3119,164 @@ def instant_answer(q: str) -> dict | None:
     return instant_answers.instant(q, rates=cached(("fx_rates",), lambda: [fx_rates()])[0])
 
 
+# A city outside the US named without its country must have this many people ("sunset in march" is not March,
+# England, 21,000); with the country any city in the list answers ("sunset in tromso norway").
+WORLD_BARE_MIN_POP = int(os.environ.get("SEARCH_WORLD_BARE_MIN_POP", "50000"))
+WORLD_NOT_A_CITY = {"bali"}                             # the island, not Bali in Rajasthan
+
+
+def _almanac_world(place: str):
+    """(label, lat, lon, tz name, population, country or province named) for a city outside the United States
+    (world_places.py, GeoNames), or None: no such city, or an engine without the list."""
+    try:
+        import world_places
+        found = (world_places.cities() or None) and world_places.cities().find(place)
+    except Exception:
+        return None
+    if not found:
+        return None
+    city, named = found
+    if not named:                                       # a bare name: only when it can hardly mean anything else
+        k = world_places.key(place)
+        code = world_places.cities().countries.get(k)
+        if city["pop"] < WORLD_BARE_MIN_POP or k in US_STATES or k in WORLD_NOT_A_CITY or (code and code != city["code"]):
+            return None                                 # "florida" (Cuba), "mexico" (Philippines), "march" (England)
+    return f"{city['name']}, {city['country']}", city["lat"], city["lon"], city["tz"], city["pop"], named
+
+
+def _almanac_us_town(c, place: str):
+    """(label, lat, lon, tz name, population, state named, near the searcher) by the weather card's rules: the
+    nearest town of that name, a small one needs its state or to be nearby. None: no such town."""
+    near = _near.get()
+    w = weather_place(f"weather in {place}")
+    if not w:
+        return None
+    _focus, name, state = w
+    for key in dict.fromkeys((name, _TOWN_TYPE.sub("", name).strip())):
+        if not key:
+            continue
+        if near:
+            town = c.execute(WX_TOWN_NEAR_SQL, {"k": key, "s": state, "p": WX_TOWN_MIN_POP, "lat": near[0], "lon": near[1]}).fetchone()
+        else:
+            town = c.execute(WX_TOWN_SQL, {"k": key, "s": state}).fetchone()
+        if town:
+            local = bool(near) and abs(town[2] - near[0]) < 0.5 and abs(town[3] - near[1]) < 0.6
+            if state is None and (town[4] or 0) < WX_TOWN_MIN_POP and not local:
+                return None
+            pop = town[4] or 0
+            if near and not local and state is None:    # the nearest of that name answers; the biggest one is what
+                big = c.execute(WX_TOWN_SQL, {"k": key, "s": None}).fetchone()      # a city elsewhere is weighed against
+                pop = max(pop, (big[4] or 0) if big else 0)
+            return f"{town[0]}, {town[1]}", town[2], town[3], town[6], pop, state is not None, local
+    return None
+
+
+def _almanac_town(c, place: str | None, world: bool = True):
+    """(label, lat, lon, tz name) for an almanac question: the named place, else the searcher's point or the home
+    point with the nearest town's name and zone. None: no such place, or no point at all.
+
+    A named place is a US town (the weather card's table) or, when world, a city elsewhere. Which, for a name both
+    have ("london", "paris", "birmingham"): the US town when the question adds its state or the searcher is beside
+    it; the other city when the question adds its country or province; else whichever has more people. The label
+    names the state or the country, so the reader sees which one answered. c None: no town table, world only."""
+    if place:
+        us = _almanac_us_town(c, place) if c is not None else None
+        city = _almanac_world(place) if world else None
+        if us and (us[5] or not city or (not city[5] and (us[6] or us[4] >= city[4]))):
+            return us[:4]
+        return city[:4] if city else None
+    if c is None:
+        return None
+    pt = home_point()
+    if not pt:
+        return None
+    town = c.execute(WX_NEAREST_SQL, {"p": WX_NEAREST_MIN_POP, "lat": pt[0], "lon": pt[1]}).fetchone()
+    return (f"{town[0]}, {town[1]}" if town else None), pt[0], pt[1], (town[6] if town else None)
+
+
+# Tides (phase 2): tide_model.py predicts highs and lows from NOAA's harmonic constants (tides.json.gz, shipped
+# beside the code: no data release, nothing fetched). A town more than TIDE_MAX_KM from every station has no tides.
+TIDE_DATA = os.environ.get("SEARCH_TIDE_DATA", os.path.join(os.path.dirname(os.path.abspath(__file__)), "tides.json.gz"))
+TIDE_MAX_KM = float(os.environ.get("SEARCH_TIDE_MAX_KM", "40"))
+_tide_stations: list = []                # [Stations] once loaded, [None] when the file or module is missing
+_tide_lock = threading.Lock()
+
+
+def tide_stations():
+    with _tide_lock:
+        if not _tide_stations:
+            try:
+                import tide_model
+                _tide_stations.append(tide_model.load(TIDE_DATA))
+            except Exception:                           # an older image, or no data file: no tide answers
+                _tide_stations.append(None)
+        return _tide_stations[0]
+
+
+def _tide_answer(almanac, p: dict, now: dt.datetime, lat: float, lon: float, tz, label: str | None) -> dict | None:
+    st = tide_stations()
+    if st is None:
+        return None
+    station = st.nearest(lat, lon, TIDE_MAX_KM)
+    if not station:
+        return None                                     # inland: an ordinary search
+    import tide_model
+    km = tide_model.great_circle_km(lat, lon, station["lat"], station["lon"])
+    events = st.events(station["id"], now - dt.timedelta(days=1), now + dt.timedelta(days=3)) or []
+    return almanac.tide_answer(p, now, events, tz or now.astimezone().tzinfo, label, station, km)
+
+
+def almanac_answer(q: str) -> dict | None:
+    """almanac.py: sunrise and sunset, day length, the moon's phase and its rise and set, the seasons. All of
+    it is calculated here; the only thing read is the weather card's town table (a place's point and time zone). An
+    engine image without the module has no such answers. Never cached: the answer is about now."""
+    try:
+        import almanac
+    except ImportError:
+        return None
+    p = almanac.parse(q) or almanac.parse_bare_tide(q)      # "high tide atlantic city": only if that is a town
+    if not p:
+        return None
+    where = None
+    pool = _news_pool if (WX_SQLITE == NEWS_SQLITE if NEWS_BACKEND == "sqlite" else WX_DB == NEWS_DB) else _wx_pool
+    with _pool_lock:
+        c = pool.pop() if pool else None
+    try:
+        if c is None or c.closed or c.broken:
+            c = _news_connect(WX_DB, wx=True)
+        where = _almanac_town(c, p["place"], world=p["kind"] != "tide")      # tides are US stations only
+    except Exception:                                   # no town table (a box without the weather data): no US place
+        if c is not None:
+            c.close()
+        c = None
+        where = _almanac_town(None, p["place"], world=p["kind"] != "tide")
+    if c is not None:
+        with _pool_lock:
+            if len(pool) < 4:
+                pool.append(c)
+            else:
+                c.close()
+    if p["place"] and not where:
+        return None                                     # a place we do not know: an ordinary search
+    label, lat, lon, tzname = where or (None, None, None, None)
+    tz = None
+    if tzname:
+        try:
+            from zoneinfo import ZoneInfo
+            tz = ZoneInfo(tzname)
+        except Exception:
+            tz = None
+        if tz is None and p["place"]:
+            return None                                 # a named place whose zone this runtime cannot read: no wrong clock
+    now = dt.datetime.now(dt.timezone.utc)
+    if p["kind"] == "tide":
+        try:
+            return _tide_answer(almanac, p, now, lat, lon, tz, label) if lat is not None else None
+        except Exception:                               # an answer is extra: never fail the search over it
+            return None
+    return almanac.answer(p, now, lat, lon, tz, label)
+
+
 def answer(q: str) -> dict | None:
     """The answer box for a question about a named thing, or None."""
     pq = parse_question(q)
@@ -3615,6 +3773,13 @@ FROM standings WHERE league = :l AND (:g IS NULL OR grp = :g) ORDER BY grp, rank
     ns.register(WX_ALERTS_SQL, """SELECT event, severity, headline, ends, same, poly FROM wx_alerts
 WHERE EXISTS (SELECT 1 FROM json_each(same) a JOIN json_each(:c) b ON a.value = b.value) OR poly IS NOT NULL""",
                 row=ns.row_with(**{"4": ns.from_json, "5": ns.from_json}))
+    ns.register(AIRPORTS_SQL, AIRPORTS_SQL)
+    ns.register(AIRPORT_FEED_SQL, AIRPORT_FEED_SQL)
+    ns.register(AIRPORT_STATUS_SQL, "SELECT code, item FROM airport_status WHERE code IN (SELECT value FROM json_each(:c)) ORDER BY code, n")
+    ns.register(AIRPORT_OBS_SQL, "SELECT id, obs FROM wx_obs WHERE id IN (SELECT value FROM json_each(:i)) AND at > now_s() - 3 * 3600",
+                row=ns.row_with(**{"1": ns.from_json}))
+    ns.register(FLIGHT_ONTIME_SQL, "SELECT origin, dest, n, done, ontime, cancelled, dep, arr FROM flight_ontime WHERE carrier = :c AND num = :n ORDER BY n DESC")
+    ns.register(FLIGHT_ONTIME_FEED_SQL, FLIGHT_ONTIME_FEED_SQL)
 
 _SEVERITY = {"Extreme": 0, "Severe": 1, "Moderate": 2, "Minor": 3, "Unknown": 4}
 
@@ -3876,6 +4041,97 @@ def weather(q: str) -> dict | None:
         else:
             c.close()
     return out
+
+
+# Airport status: "delays at ewr", "is jfk closed". wxall.py keeps the FAA's whole-country status file
+# and the airport list in the news store (beside wx_*); a search reads those tables and never calls out. Which
+# searches are the question is airport_status.py's (pure, tested on its own). Computed for each request and never
+# cached or stored: a delay is minutes old. SEARCH_AIRPORTS=0 turns it off; a store without the tables (a poller
+# from before) answers nothing. The news file only: each statement below is the key its SQLite form is registered
+# under (_register_news_sqlite), and the Postgres store, retired, never had these tables.
+AIRPORTS_ON = os.environ.get("SEARCH_AIRPORTS", "1") != "0"
+AIRPORTS_SQL = "SELECT code, icao, name, city, state, kind, sched FROM airports"
+AIRPORT_FEED_SQL = "SELECT updated, fetched FROM airport_feed WHERE id = 1"
+AIRPORT_STATUS_SQL = "SELECT code, item FROM airport_status WHERE code = ANY(%(c)s) ORDER BY code, n"
+AIRPORT_OBS_SQL = "SELECT id, obs FROM wx_obs WHERE id = ANY(%(i)s) AND at > now() - interval '3 hours'"
+# A flight number ("ua 123"): its record in the government's monthly on-time file, kept by wxall.py too. A record of
+# last month, not live status; no card unless the airline flew that number in the month on file.
+FLIGHT_ONTIME_SQL = "SELECT origin, dest, n, done, ontime, cancelled, dep, arr FROM flight_ontime WHERE carrier = %(c)s AND num = %(n)s ORDER BY n DESC"
+FLIGHT_ONTIME_FEED_SQL = "SELECT year, month FROM flight_ontime_feed WHERE id = 1"
+AIRPORTS_KEEP_S = 3600                    # the list changes weekly
+_airports = {"until": 0.0, "index": None}
+_airports_lock = threading.Lock()
+
+
+def _wx_rows(sql: str, params: dict):
+    """One query on the store that holds wx_* (the news store, or SEARCH_WX_DB / SEARCH_WX_SQLITE); None when it
+    cannot be read (no such table, the store is away), [] when it has no such row."""
+    shared = (WX_SQLITE == NEWS_SQLITE) if NEWS_BACKEND == "sqlite" else (WX_DB == NEWS_DB)
+    idle = _news_pool if shared else _wx_pool
+    with _pool_lock:
+        conn = idle.pop() if idle else None
+    try:
+        if conn is None or conn.closed or conn.broken:
+            conn = _news_connect(dbname=WX_DB, wx=True)
+        got = conn.execute(sql, params).fetchall()
+    except psycopg.Error:
+        if conn is not None:
+            conn.close()
+        return None
+    with _pool_lock:
+        if len(idle) >= 4:
+            conn.close()
+        else:
+            idle.append(conn)
+    return got
+
+
+def _airport_index():
+    import airport_status
+    now = time.monotonic()
+    with _airports_lock:
+        if now < _airports["until"]:
+            return _airports["index"]
+    rows = _wx_rows(AIRPORTS_SQL, {})
+    index = airport_status.Index(rows) if rows else None
+    with _airports_lock:
+        _airports["index"], _airports["until"] = index, now + (AIRPORTS_KEEP_S if index else 60)
+    return index
+
+
+def airport_card(q: str) -> dict | None:
+    """The airport status card for a search that asks for one, else None."""
+    import airport_status
+    if not AIRPORTS_ON or not airport_status.maybe(q):
+        return None
+    index = _airport_index()
+    hit = airport_status.resolve(index, q) if index else None
+    if not hit:
+        return None
+    airports, bare = hit
+    feed = _wx_rows(AIRPORT_FEED_SQL, {})
+    if not feed:
+        return None
+    status = _wx_rows(AIRPORT_STATUS_SQL, {"c": [a["code"] for a in airports]})
+    if status is None:
+        return None
+    obs = _wx_rows(AIRPORT_OBS_SQL, {"i": [a["icao"] for a in airports if a["icao"]]})
+    return airport_status.card(airports, status, feed[0], obs or [], time.time(), bare)
+
+
+def flight_ontime_card(q: str) -> dict | None:
+    """The on-time record card for a search that is a flight number, else None."""
+    import airport_status
+    if not AIRPORTS_ON or not airport_status.flight_maybe(q):
+        return None
+    asked = airport_status.flight_asked(q)
+    if not asked:
+        return None
+    flown = _wx_rows(FLIGHT_ONTIME_SQL, {"c": asked[0], "n": asked[1]})
+    feed = _wx_rows(FLIGHT_ONTIME_FEED_SQL, {}) if flown else None
+    if not flown or not feed:
+        return None
+    return airport_status.flight_card(asked[0], asked[1], flown, feed[0], _airport_index(), sure=asked[2])
 
 
 # "mets game tonight" when the Mets have nothing in the next 7 days (2026-09-30): the page says so
@@ -7353,6 +7609,18 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.log_message("weather failed: %s", type(e).__name__)
                 wx = None
+            try:                                            # an airport's delays: minutes old, never cached
+                with stage("airport"):
+                    flights = airport_card(q) if len(q) >= 5 and not wx else None
+            except Exception as e:
+                self.log_message("airport status failed: %s", type(e).__name__)
+                flights = None
+            try:                                            # a flight number's on-time record
+                with stage("ontime"):
+                    ontime = flight_ontime_card(q) if len(q) >= 3 and not wx and not flights else None
+            except Exception as e:
+                self.log_message("on-time record failed: %s", type(e).__name__)
+                ontime = None
             try:                                            # NFL/NBA team named (no page asks ESPN)
                 with stage("espn"):
                     espn = (cached(("espn", q.lower()), lambda: [browser_scores(q) if len(q) >= 3 else None])[0] if want
@@ -7381,7 +7649,7 @@ class Handler(BaseHTTPRequestHandler):
                 with stage("answer"):
                     # a sum, a unit conversion or the time somewhere: computed here, never cached (the
                     # time moves), and it takes the answer box before a Wikidata fact
-                    ans = instant_answer(q) or cached(("answer", q.lower()), lambda: [answer(q)])[0]
+                    ans = instant_answer(q) or almanac_answer(q) or cached(("answer", q.lower()), lambda: [answer(q)])[0]
                     ans = ans if ans and ans.get("answer") else (cached(("facts", q.lower()), lambda: [facts_card(q)])[0] or ans)  #
                     if FACTS_OVER_BOX and ans and ans.get("question") in FACTS_OVER:                                          #
                         ans = prefer_facts(ans, cached(("facts", q.lower()), lambda: [facts_card(q)])[0])
@@ -7414,7 +7682,7 @@ class Handler(BaseHTTPRequestHandler):
             body = {"suggest": sug, "phrases": phrases, "results": shown,
                     "shop": shop, "confident": conf, "card": card,
                     "news": latest, "news_hot": got_news.get("hot", False), "news_more": got_news.get("more", False), "mine": got_news.get("mine") or [], "answer": ans,
-                    "games": games, "standings": table, "no_game": no_game, "espn": espn, "weather": wx, "place": place, "kinds": kinds,
+                    "games": games, "standings": table, "no_game": no_game, "espn": espn, "weather": wx, "flights": flights, "ontime": ontime, "place": place, "kinds": kinds,
                     "ms": ms, "stages": st, "intent": intent, "local": local, "suggest_lead": lead, **sig}
             try:
                 data = json.dumps(body).encode()

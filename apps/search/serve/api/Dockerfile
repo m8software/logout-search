@@ -59,7 +59,7 @@ RUN pip install --no-cache-dir "tantivy==0.26.2"
 RUN chmod -R a+rX /models
 # one malloc arena pair, not one per thread: anonymous memory after 3,060 queries 2.67 -> 2.12 GB (rc3, testbox 2026-10-05)
 ENV MALLOC_ARENA_MAX=2
-COPY search_api.py site_pages.py lookups_sqlite.py lookups_release.py kinds_release.py tv_open.py release_root.py sem_ivf.py gov_state.py state_anchor.py result_store.py compute_cache.py provenance.py parts.py stage_version.py stage_aliases.py start_trace.py warmplan.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py card_text.py stage_base.py stage_parts.py site_slots.py facts.py news_sqlite.py instant_answers.py product_table.py ranker.json warmplans.json shop_stores.json warm.py native_host.py NOTICE ./
+COPY search_api.py site_pages.py lookups_sqlite.py lookups_release.py kinds_release.py tv_open.py release_root.py sem_ivf.py gov_state.py state_anchor.py result_store.py compute_cache.py provenance.py parts.py stage_version.py stage_aliases.py start_trace.py warmplan.py stage_assembly.py stage_local.py stage_verdict.py stage_place.py stage_list.py stage_card.py card_text.py stage_base.py stage_parts.py site_slots.py facts.py news_sqlite.py instant_answers.py airport_status.py almanac.py tide_model.py tides.json.gz world_places.py world_cities.tsv.gz product_table.py ranker.json warmplans.json shop_stores.json warm.py native_host.py NOTICE ./
 COPY licenses/ /app/licenses/
 COPY --from=kern /src/libivf_kern.so /app/libivf_kern.so
 USER 1000:1000

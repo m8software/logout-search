@@ -60,6 +60,15 @@ CREATE TABLE IF NOT EXISTS wx_obs (id TEXT PRIMARY KEY, obs TEXT, at REAL);
 CREATE TABLE IF NOT EXISTS wx_fc (id TEXT PRIMARY KEY, hours TEXT, days TEXT, cycle REAL, days_cycle REAL);
 CREATE TABLE IF NOT EXISTS wx_alerts (id TEXT PRIMARY KEY, event TEXT, severity TEXT, headline TEXT,
     ends TEXT, same TEXT, poly TEXT);
+-- (wxall.py): US airports and the FAA's airport status. Times are Unix seconds, item is a JSON object.
+CREATE TABLE IF NOT EXISTS airports (code TEXT PRIMARY KEY, icao TEXT, name TEXT, city TEXT, state TEXT,
+    lat REAL, lon REAL, kind TEXT, sched INTEGER);
+CREATE TABLE IF NOT EXISTS airport_status (code TEXT, n INTEGER, item TEXT, PRIMARY KEY (code, n));
+CREATE TABLE IF NOT EXISTS airport_feed (id INTEGER PRIMARY KEY, updated REAL, fetched REAL);
+-- the month's on-time record by airline, flight number and route (BTS); dep/arr are the usual scheduled times, local HHMM
+CREATE TABLE IF NOT EXISTS flight_ontime (carrier TEXT, num INTEGER, origin TEXT, dest TEXT, n INTEGER, done INTEGER,
+    ontime INTEGER, cancelled INTEGER, dep INTEGER, arr INTEGER, PRIMARY KEY (carrier, num, origin, dest));
+CREATE TABLE IF NOT EXISTS flight_ontime_feed (id INTEGER PRIMARY KEY, year INTEGER, month INTEGER, fetched REAL);
 
 -- sports.py (personal box only) and weather.py (the home forecast): keys/broadcasts are JSON arrays
 CREATE TABLE IF NOT EXISTS games (league TEXT NOT NULL, game_id TEXT NOT NULL, start_utc REAL NOT NULL,

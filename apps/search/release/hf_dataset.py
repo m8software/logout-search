@@ -547,7 +547,9 @@ def check(out: str, pubkey: str) -> dict:
 # ------------------------------------------------------------------------------------------------ upload
 LAST = ("latest.json", "latest.json.sig")
 BETA_LAST = ("latest-beta.json", "latest-beta.json.sig")   # the beta channel's pointer: installs on `beta` follow it, the others never read it
-KEEP_DIRS = ("addons/",)     # published beside the releases, each signed on its own (install.py ADDONS): never a release's stale file
+# published beside the releases, each signed on its own, never a release's stale file: the add-ons (install.py ADDONS) and the
+# daily curated lists (install.py `lists update`, sent by data-update-publish.sh)
+KEEP_DIRS = ("addons/", "lists/")
 
 
 def pointer_ops(out: str, channel: str, beta_exists: bool) -> list:

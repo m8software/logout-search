@@ -218,7 +218,9 @@ def api_revisions(revids, batch: int = 50, gap: float = 1.0) -> dict[int, str]:
             j = json.load(r)
         for pg in j.get("query", {}).get("pages", []):
             for rv in pg.get("revisions", []):
-                out[rv["revid"]] = rv["slots"]["main"]["content"]
+                text = rv.get("slots", {}).get("main", {}).get("content")
+                if text is not None:                 # a revision an admin hid has no content: its page is left as it is
+                    out[rv["revid"]] = text
         time.sleep(gap)
     return out
 
@@ -547,12 +549,18 @@ def cmd_incr(a, deletes=None) -> None:
                         rows_del.append((int(p_s), unescape(t) or t))
             return rows_del
     if deletes is not None or not a.no_api:
-        for pid, title in (deletes or api_deletes)(a.since or "", cutoff):
+        # the window starts where the last run's ended; without a start the API would walk the whole delete log
+        prev = db.execute("SELECT value FROM meta WHERE key = 'incr_cutoff'").fetchone()
+        since = a.since or (prev[0] if prev else "")
+        if not since and deletes is None:
+            raise SystemExit("incr: no --since and the state has no incr_cutoff from an earlier run; pass --since for the first day")
+        for pid, title in (deletes or api_deletes)(since, cutoff):
             if db.execute("SELECT 1 FROM docs WHERE page_id = ?", (pid,)).fetchone():
                 out.delete(pid, title)
                 db.execute("DELETE FROM docs WHERE page_id = ?", (pid,))
                 n_del += 1
     db.execute("INSERT OR REPLACE INTO meta VALUES ('incr_day', ?)", (a.day,))
+    db.execute("INSERT OR REPLACE INTO meta VALUES ('incr_cutoff', ?)", (cutoff,))
     summary = out.finish(dict(stats, mode="incr", day=a.day, cutoff=cutoff, pages=len(best), redirect_changes=redirect_changes,
                               alias_candidates=n_alias, deleted_by_log=n_del, seconds=round(time.time() - t0),
                               docs_after=db.execute("SELECT count(*) FROM docs").fetchone()[0]))
@@ -565,43 +573,58 @@ def cmd_incr(a, deletes=None) -> None:
 
 def cmd_combine(a) -> None:
     """ONE change set from the catch-up and the daily runs, relative to the release's baseline: the last row of a page wins,
-    `new` means the page is not in the baseline state, a page deleted at the end is a deletion only if the baseline held it."""
+    `new` means the page is not in the baseline state, a page deleted at the end is a deletion only if the baseline held it.
+    A page is `alias_only` only if every row it has in every input is: one real change anywhere makes it a `change`.
+    Two passes, so the rows themselves are never held in memory (the rc16 catch-up alone is 4.5 GB compressed): the first
+    reads ids and operations, the second copies each page's row from the last input that has it. Rows come out in input order, not sorted."""
     t0 = time.time()
     base = sqlite3.connect(f"file:{a.baseline}?mode=ro", uri=True)
-    rows: dict[int, list[str]] = {}
-    gone: set[int] = set()
+    last: dict[int, int] = {}                      # page -> index of the input holding its last row; -1 = deleted at the end
+    real: set[int] = set()                         # pages with at least one row that is not alias_only
     n_in = {"rows": 0, "deleted": 0}
-    for d in a.dirs:
+    for k, d in enumerate(a.dirs):
         with gzip.open(os.path.join(d, "changed.tsv.gz"), "rt", encoding="utf-8", newline="") as f:
             for line in f:
-                p = line.rstrip("\n").split("\t")
-                pid = int(p[1])
-                rows[pid] = p
-                gone.discard(pid)
+                op, _, rest = line.partition("\t")
+                pid = int(rest.partition("\t")[0])
+                if last.get(pid, 0) == -1:
+                    real.discard(pid)              # deleted, then back: what counts is what happened since
+                last[pid] = k
+                if op != "alias_only":
+                    real.add(pid)
                 n_in["rows"] += 1
         with open(os.path.join(d, "deleted.tsv"), encoding="utf-8", newline="") as f:
             for line in f:
                 if line.strip():
                     pid = int(line.split("\t")[0])
-                    rows.pop(pid, None)
-                    gone.add(pid)
+                    last[pid] = -1
+                    real.add(pid)                  # a page that comes back after a deletion is not "aliases only"
                     n_in["deleted"] += 1
     out = Out(a.out)
-    titles = {}
-    for pid, p in sorted(rows.items()):
-        in_base = base.execute("SELECT 1 FROM docs WHERE page_id = ?", (pid,)).fetchone() is not None
-        op = "change" if in_base else "new"
-        if p[0] == "alias_only" and in_base:
-            op = "alias_only"                      # nothing but its aliases moved since the baseline
-        out.changed.write("\t".join([op] + p[1:]) + "\n")
-        out.n[op] += 1
-    for pid in sorted(gone):
+    for k, d in enumerate(a.dirs):
+        written: set[int] = set()                  # one row a page per input is what wikidelta writes; a repeat is dropped
+        with gzip.open(os.path.join(d, "changed.tsv.gz"), "rt", encoding="utf-8", newline="") as f:
+            for line in f:
+                rest = line.partition("\t")[2]
+                pid = int(rest.partition("\t")[0])
+                if last.get(pid) != k or pid in written:
+                    continue
+                written.add(pid)
+                _combine_write(out, base, pid, rest, pid in real)
+    for pid in sorted(p for p, k in last.items() if k == -1):
         r = base.execute("SELECT title FROM docs WHERE page_id = ?", (pid,)).fetchone()
         if r:
             out.delete(pid, r[0])
     summary = out.finish(dict(mode="combined", inputs=len(a.dirs), rows_in=n_in["rows"], deletions_in=n_in["deleted"],
                               seconds=round(time.time() - t0)))
     log(json.dumps(summary, sort_keys=True))
+
+
+def _combine_write(out, base, pid: int, rest: str, real: bool) -> None:
+    in_base = base.execute("SELECT 1 FROM docs WHERE page_id = ?", (pid,)).fetchone() is not None
+    op = "new" if not in_base else ("change" if real else "alias_only")
+    out.changed.write(op + "\t" + rest)
+    out.n[op] += 1
 
 
 def main() -> None:

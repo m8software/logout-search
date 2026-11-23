@@ -39,7 +39,8 @@ INSTANT_KEYS = ("suggest", "phrases", "results", "confident", "card", "answer", 
                 "ms",                             # engine time, shown on the page
                 "news", "news_hot", "news_more", "games",   # the user's feeds + personal sources
                 "mine",                           # "From your sources": own feed items of any age (2026-11-13)
-                "kinds", "weather")               # "Top <kind>" box; a town's forecast (2026-10-01)
+                "kinds", "weather",               # "Top <kind>" box; a town's forecast (2026-10-01)
+                "flights", "ontime")              # an airport's delays; a flight number's on-time record
 RESULT_KEYS = ("url", "title", "content", "source", "official", "lat", "lon",   # lat/lon: a place's point, for directions
                "pid", "hours", "hours_asof", "hours_src", "hours_stale", "site",           # a place's hours, their date and source
                "author", "author_url", "answer_author", "answer_author_url",             # a Stack Exchange page's credits

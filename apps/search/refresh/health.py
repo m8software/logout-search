@@ -117,6 +117,8 @@ LIVE_SQL = {
         "games": "SELECT count(*), :now - max(updated) FROM games WHERE start_utc BETWEEN :now - 86400 AND :now + 86400",
         "weather": "SELECT :now - max(updated) FROM weather",
         "wx": "SELECT :now - (SELECT max(at) FROM wx_obs), :now - (SELECT max(cycle) FROM wx_fc)",
+        "nas": "SELECT :now - (SELECT fetched FROM airport_feed WHERE id = 1), (SELECT count(*) FROM airports)",
+        "ontime": "SELECT year, month FROM flight_ontime_feed WHERE id = 1",
     },
 }
 
@@ -166,6 +168,34 @@ def check_live(now: float) -> list[dict]:
             if fc_age is None or fc_age > 12 * H:
                 why.append("NBM forecast cycle " + ("never" if fc_age is None else f"{fc_age / H:.1f} h old") + " (budget 12)")
             out.append(_live("wxall", "stale" if why else "ok", why, obs_age, "", "search-wxall"))
+            # airport status, asked last: a store from before it has no such table, and that must not cost the rows
+            # above. The news file only: the Postgres store never had these tables.
+            if not os.environ.get("NEWS_SQLITE"):
+                return out
+            try:
+                nas_age, n_airports = q("nas")
+            except sqlite3.Error:
+                out.append(_live("airports", "unknown", ["no airport tables (the weather collector is older than)"], None, "", "search-wxall"))
+            else:
+                why = []
+                if nas_age is None or nas_age > 30 * 60:
+                    why.append("FAA airport status " + ("never fetched" if nas_age is None else f"{nas_age / 60:.0f} min old") + " (budget 30)")
+                if not n_airports:
+                    why.append("no airport list")
+                detail = f"{n_airports} airports"
+                try:                                 # the monthly on-time file is published about two months late
+                    got = q("ontime")
+                    if got is None:
+                        why.append("no on-time record yet")
+                    else:
+                        t = time.gmtime(now)
+                        behind = (t.tm_year - int(got[0])) * 12 + t.tm_mon - int(got[1])
+                        detail += f", on-time record {int(got[0])}-{int(got[1]):02d}"
+                        if behind > 5:
+                            why.append(f"on-time record is {behind} months old (budget 5)")
+                except sqlite3.Error:
+                    why.append("no on-time table (the weather collector is older)")
+                out.append(_live("airports", "stale" if why else "ok", why, nas_age, detail, "search-wxall"))
         finally:
             close()
     except (psycopg.Error, sqlite3.Error) as e:

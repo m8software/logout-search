@@ -14,6 +14,17 @@ from NOAA bulk files, so "weather in chicago" is a local table read like everyth
   (radar.weather.gov/ridge/standard/<station>_0.gif, public domain, ~90 KB), asked every
   10 minutes with "only if newer"; the last 10 per station are kept as files and the page
   plays them as a loop from our own server.
+  Airport status (FAA, US government work): every delay, ground stop and closure
+  in the country in one small XML file (nasstatus.faa.gov, ~2 KB), every 5 min. The server
+  sends no Last-Modified, so it is fetched each time and dated by its own Update_Time.
+  Airports (OurAirports airports.csv, public domain, ~13 MB): weekly; the US airports with
+  a 3-letter code are kept (about 1,070).
+  On-time record (Bureau of Transportation Statistics, US government work): the
+  month's file of every scheduled flight of the large US airlines (transtats.bts.gov/PREZIP,
+  ~33 MB zipped, 630,000 flights, published about two months late). The site's file list
+  (~160 KB) is read weekly and a file is downloaded only when it is a newer month. Kept:
+  one row per airline, flight number and route (how often it flew, on time, cancelled, its
+  usual times). Tail numbers and single flights are not kept.
 
 Nothing here knows where home is, and a search never causes a request.
 """
@@ -32,7 +43,9 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 import zipfile
 
 import newsdb  # noqa: E402  (Postgres or the NEWS_SQLITE file)
@@ -47,7 +60,16 @@ POP = "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/cities
 # USGS Geographic Names (public domain): every named community, incorporated or not (~46 MB zip)
 GNIS = "https://prd-tnm.s3.amazonaws.com/StagedProducts/GeographicNames/DomesticNames/DomesticNames_National_Text.zip"
 GNIS_KIND = "populated place"
-EVERY = {"alerts": 300, "metars": 600, "nbh": 3600, "nbe": 6 * 3600, "towns": 7 * 86400, "radar": 600}
+NAS = "https://nasstatus.faa.gov/api/airport-status-information"
+AIRPORTS = "https://davidmegginson.github.io/ourairports-data/airports.csv"
+AIRPORTS_MIN = 500            # fewer US airports than this: the file's layout changed, keep the old list
+NAS_MAX_BYTES = 2 * 1024 * 1024
+ONTIME_INDEX = "https://transtats.bts.gov/PREZIP/"
+# the site renamed these files once ("(Beginning_January_2018)" lost its brackets), so the name is read from its own list
+ONTIME_FILE = re.compile(r'"(/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_[A-Za-z0-9_()]*?_(20\d\d)_(\d{1,2})\.zip)"')
+ONTIME_MIN_FLIGHTS = 100_000  # a month has about 600,000; fewer than this is not a month's file
+EVERY = {"alerts": 300, "metars": 600, "nbh": 3600, "nbe": 6 * 3600, "towns": 7 * 86400, "radar": 600,
+         "nas": 300, "airports": 7 * 86400, "ontime": 7 * 86400}
 # A home computer (installer/logout_search.py's collectors, homesettings.py's Data use) sets how often each part is
 # fetched: WX_EVERY_<PART>_S in seconds; 0 = never (the Light setting skips the 28 MB hourly bulletin and keeps the
 # 8-day one). Anything else unparseable keeps the default.
@@ -86,6 +108,9 @@ CREATE TABLE IF NOT EXISTS wx_fc (id text PRIMARY KEY, hours jsonb, days jsonb, 
 CREATE TABLE IF NOT EXISTS wx_alerts (id text PRIMARY KEY, event text, severity text, headline text,
     ends text, same text[], poly jsonb);
 """
+# The airport and flight tables exist only in the news file (schema-sqlite.sql): Postgres is retired, and on a
+# host that still writes to it these parts are never fetched.
+SQLITE_ONLY = ("airports", "nas", "ontime")
 
 
 def log(msg: str) -> None:
@@ -606,6 +631,197 @@ def latest_cycle(product: str, now: dt.datetime) -> tuple[str, dt.datetime] | No
 
 
 # ---------------------------------------------------------------------------
+# Airports and their status
+# ---------------------------------------------------------------------------
+AIRPORT_COUNTRIES = frozenset(("US", "PR", "GU", "VI", "AS", "MP"))
+AIRPORT_KINDS = {"large_airport": 0, "medium_airport": 1, "small_airport": 2}
+_AIRPORT_CODE = re.compile(r"^[A-Z][A-Z0-9]{2}$")
+_ICAO = re.compile(r"^[A-Z]{4}$")
+
+
+def parse_airports(text: str) -> list[tuple]:
+    """OurAirports airports.csv -> (code, icao, name, city, state, lat, lon, kind, sched) for US airports with a
+    3-letter code: every large and medium one, and a small one only with scheduled flights. The code is the
+    one the FAA's status file uses (IATA, else the FAA's own); the METAR station is the ICAO code as listed
+    (PANC, PHNL, TJSJ: never "K" + code)."""
+    try:
+        rows = list(csv.DictReader(io.StringIO(text)))
+    except csv.Error as e:
+        raise ValueError(f"airports.csv unreadable: {e}") from e
+    best: dict[str, tuple] = {}
+    for r in rows:
+        kind = r.get("type") or ""
+        if r.get("iso_country") not in AIRPORT_COUNTRIES or kind not in AIRPORT_KINDS:
+            continue
+        sched = 1 if r.get("scheduled_service") == "yes" else 0
+        if kind == "small_airport" and not sched:
+            continue
+        code = (r.get("iata_code") or r.get("local_code") or "").strip().upper()
+        lat, lon = _f(r.get("latitude_deg") or ""), _f(r.get("longitude_deg") or "")
+        if not _AIRPORT_CODE.match(code) or not (r.get("name") or "").strip() or lat is None or lon is None:
+            continue
+        icao = next((c for c in ((r.get("icao_code") or "").strip().upper(), (r.get("gps_code") or "").strip().upper())
+                     if _ICAO.match(c)), "")
+        region = (r.get("iso_region") or "").split("-")
+        state = region[1] if len(region) > 1 and r["iso_country"] == "US" else r["iso_country"]
+        row = (code, icao, r["name"].strip()[:120], (r.get("municipality") or "").strip()[:80], state, lat, lon, kind, sched)
+        old = best.get(code)
+        if old is None or (AIRPORT_KINDS[kind], -sched) < (AIRPORT_KINDS[old[7]], -old[8]):
+            best[code] = row
+    if len(best) < AIRPORTS_MIN:
+        raise ValueError(f"airports.csv: read {len(best)} US airports, expected over {AIRPORTS_MIN} — has the file's layout changed?")
+    return sorted(best.values())
+
+
+_HOURS = re.compile(r"(\d+)\s*hours?")
+_MINS = re.compile(r"(\d+)\s*minutes?")
+
+
+def nas_minutes(text: str | None) -> int | None:
+    """"1 hour and 15 minutes" -> 75; "33 minutes" -> 33; anything else -> None."""
+    h, m = _HOURS.search(text or ""), _MINS.search(text or "")
+    if not h and not m:
+        return None
+    return (int(h.group(1)) * 60 if h else 0) + (int(m.group(1)) if m else 0)
+
+
+_REASON = {"vol": "volume", "wx": "weather", "rwy": "runway", "eq": "equipment", "equip": "equipment", "staff": "staffing",
+           "tm initiatives": "traffic management", "tm": "traffic management", "mit": "", "stop": ""}
+
+
+def nas_reason(raw: str | None) -> str:
+    """The FAA's codes as words: "VOL:Multi-taxi" -> "volume (multi-taxi)"; "TM Initiatives:MIT:VOL" ->
+    "traffic management (volume)"; plain text ("low visibility") stays."""
+    parts = []
+    for p in (raw or "").split(":"):
+        p = " ".join(p.split()).lower()
+        p = _REASON.get(p, p)
+        if p and p not in parts:
+            parts.append(p)
+    if not parts:
+        return ""
+    return (parts[0] + (f" ({', '.join(parts[1:])})" if parts[1:] else ""))[:80]
+
+
+# A NOTAM that closes the whole airport: "AP CLSD" followed by nothing, or by its dates. "AP CLSD TO NON SKED
+# TRANSIENT GA ACFT EXC PPR" (LAX, SAN and LAS carried one for months in 2026) closes it to a few private
+# aircraft; calling that "closed" would be false, so it is passed on as a notice with its own words.
+_FULL_CLOSURE = re.compile(r"\bAP CLSD(?:\s+(?:DLY\s+)?\d{4,10}-\d{4,10})?\s*$")
+
+
+def nas_closed(notam: str) -> bool:
+    return bool(_FULL_CLOSURE.search(" ".join((notam or "").upper().split())))
+
+
+def parse_nas(body: bytes) -> tuple[float, dict[str, list[dict]]]:
+    """The FAA's airport status XML -> (its Update_Time as Unix seconds, {airport code: [item, ...]}).
+    Raises ValueError when the file is not the layout this was written for, so the old rows are kept and
+    the health check sees them age instead of the card saying "no delays"."""
+    if len(body) > NAS_MAX_BYTES or b"<!DOCTYPE" in body or b"<!ENTITY" in body:
+        raise ValueError(f"airport status: {len(body)} bytes, or a document type declaration — not read")
+    try:
+        root = ET.fromstring(body)
+    except ET.ParseError as e:
+        raise ValueError(f"airport status is not XML: {e}") from e
+    if root.tag != "AIRPORT_STATUS_INFORMATION":
+        raise ValueError(f"airport status: root element {root.tag[:40]!r} — has the layout changed?")
+    try:
+        updated = dt.datetime.strptime((root.findtext("Update_Time") or "").strip(), "%a %b %d %H:%M:%S %Y GMT") \
+            .replace(tzinfo=dt.timezone.utc).timestamp()
+    except ValueError as e:
+        raise ValueError(f"airport status: Update_Time {root.findtext('Update_Time')!r} unreadable") from e
+    out: dict[str, list[dict]] = {}
+    known = unread = 0
+    t = lambda el, tag: " ".join((el.findtext(tag) or "").split())
+    for dtype in root.findall("Delay_type"):
+        name = t(dtype, "Name").lower()
+        entries = [el for el in dtype.iter() if el.find("ARPT") is not None]
+        for el in entries:
+            code = t(el, "ARPT").upper()
+            if not _AIRPORT_CODE.match(code):
+                unread += 1
+                continue
+            items = []
+            if name.startswith("ground delay"):
+                items.append({"kind": "ground_delay", "reason": nas_reason(t(el, "Reason")),
+                              "avg": nas_minutes(t(el, "Avg")), "max": nas_minutes(t(el, "Max"))})
+            elif name.startswith("ground stop"):
+                items.append({"kind": "ground_stop", "reason": nas_reason(t(el, "Reason")), "until": t(el, "End_Time")[:40]})
+            elif "arrival/departure" in name:
+                for ad in el.findall("Arrival_Departure"):
+                    kind = (ad.get("Type") or "").strip().lower()
+                    if kind in ("arrival", "departure"):
+                        items.append({"kind": kind, "reason": nas_reason(t(el, "Reason")), "min": nas_minutes(t(ad, "Min")),
+                                      "max": nas_minutes(t(ad, "Max")), "trend": t(ad, "Trend").lower()[:12]})
+            elif "closure" in name:
+                notam = t(el, "Reason")
+                when = {"start": t(el, "Start").rstrip(".")[:40], "reopen": t(el, "Reopen").rstrip(".")[:40]}
+                items.append({"kind": "closure", **when} if nas_closed(notam) else {"kind": "notice", "text": notam[:300], **when})
+            if items:
+                known += 1
+                out.setdefault(code, []).extend(items)
+            else:
+                unread += 1
+    if unread and not known:
+        raise ValueError(f"airport status: {unread} entries and none readable — has the layout changed?")
+    return updated, out
+
+
+def ontime_latest(index_html: str) -> tuple[int, int, str] | None:
+    """The site's file list -> (year, month, path) of the newest month's file, or None."""
+    found = [(int(y), int(m), path) for path, y, m in ONTIME_FILE.findall(index_html) if 1 <= int(m) <= 12]
+    return max(found) if found else None
+
+
+ONTIME_COLUMNS = ("Marketing_Airline_Network", "Flight_Number_Marketing_Airline", "Origin", "Dest", "CRSDepTime", "CRSArrTime",
+                  "ArrDel15", "Cancelled")
+
+
+def _hhmm(v: str) -> int | None:
+    return int(v) if v.isdigit() and int(v) % 100 < 60 and int(v) <= 2400 else None
+
+
+def parse_ontime(lines) -> list[tuple]:
+    """The month's flights (CSV lines) -> one row per airline, flight number and route:
+    (carrier, num, origin, dest, scheduled, completed, on time, cancelled, usual departure, usual arrival).
+    On time is the government's own measure: at the gate less than 15 minutes late. The usual times are the
+    most common scheduled ones (local, HHMM). Nothing about a single flight or aircraft is kept."""
+    try:
+        rd = csv.reader(lines)
+        head = [h.strip() for h in next(rd, [])]
+        col = {h: i for i, h in enumerate(head)}
+        if any(c not in col for c in ONTIME_COLUMNS):
+            raise ValueError(f"on-time file: columns {[c for c in ONTIME_COLUMNS if c not in col]} missing — has the layout changed?")
+        ix = [col[c] for c in ONTIME_COLUMNS]
+        top = max(ix)
+        agg: dict[tuple, list] = {}
+        flights = 0
+        for r in rd:
+            if len(r) <= top:
+                continue
+            carrier, num, origin, dest, dep, arr, late, cancelled = (r[i].strip() for i in ix)
+            if not (carrier and num.isdigit() and len(origin) == 3 and len(dest) == 3):
+                continue
+            flights += 1
+            a = agg.setdefault((carrier.upper(), int(num), origin.upper(), dest.upper()), [0, 0, 0, 0, {}, {}])
+            a[0] += 1
+            if cancelled.startswith("1"):
+                a[3] += 1
+            elif late:                                   # empty for a diverted flight: neither on time nor late
+                a[1] += 1
+                a[2] += 1 if late.startswith("0") else 0
+            for slot, v in ((4, _hhmm(dep)), (5, _hhmm(arr))):
+                if v is not None:
+                    a[slot][v] = a[slot].get(v, 0) + 1
+    except csv.Error as e:
+        raise ValueError(f"on-time file unreadable: {e}") from e
+    if flights < ONTIME_MIN_FLIGHTS:
+        raise ValueError(f"on-time file: {flights:,} flights, expected over {ONTIME_MIN_FLIGHTS:,} — has the layout changed?")
+    usual = lambda times: max(times.items(), key=lambda kv: (kv[1], -kv[0]))[0] if times else None
+    return [(k[0], k[1], k[2], k[3], a[0], a[1], a[2], a[3], usual(a[4]), usual(a[5])) for k, a in sorted(agg.items())]
+
+
+# ---------------------------------------------------------------------------
 # The loop
 # ---------------------------------------------------------------------------
 def load_towns(conn) -> None:
@@ -668,6 +884,52 @@ def load_nbm(conn, product: str, seen: dict) -> None:
     log(f"{product} {cycle:%Y-%m-%d %H}Z: {len(parsed):,} stations")
 
 
+def load_airports(conn) -> None:
+    rows = parse_airports(fetch(AIRPORTS).decode("utf-8", "replace"))
+    with conn.transaction():
+        conn.execute("DELETE FROM airports")
+        conn.executemany("INSERT INTO airports (code, icao, name, city, state, lat, lon, kind, sched) "
+                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", rows)
+    log(f"airports: {len(rows):,}")
+
+
+def load_nas(conn) -> None:
+    updated, got = parse_nas(fetch(NAS, "application/xml"))
+    rows = [(code, n, json.dumps(item)) for code, items in sorted(got.items()) for n, item in enumerate(items)]
+    with conn.transaction():
+        conn.execute("DELETE FROM airport_status")
+        conn.executemany("INSERT INTO airport_status (code, n, item) VALUES (%s, %s, %s)", rows)
+        conn.execute("INSERT INTO airport_feed (id, updated, fetched) VALUES (1, %s, %s) "
+                     "ON CONFLICT (id) DO UPDATE SET updated = EXCLUDED.updated, fetched = EXCLUDED.fetched",
+                     (updated, time.time()))
+    log(f"airport status: {len(got):,} airports, {len(rows):,} items, FAA time {dt.datetime.fromtimestamp(updated, dt.timezone.utc):%H:%M}Z")
+
+
+def load_ontime(conn) -> None:
+    newest = ontime_latest(fetch(ONTIME_INDEX, "text/html").decode("utf-8", "replace"))
+    if newest is None:
+        raise ValueError("on-time file list: no monthly file named in it — has the page changed?")
+    year, month, path = newest
+    have = conn.execute("SELECT year, month FROM flight_ontime_feed WHERE id = 1").fetchone()
+    if have and (have[0], have[1]) >= (year, month):
+        log(f"on-time record: {have[0]}-{have[1]:02d} is the newest")
+        return
+    with zipfile.ZipFile(io.BytesIO(fetch(urllib.parse.urljoin(ONTIME_INDEX, urllib.parse.quote(path))))) as z:
+        name = next((n for n in z.namelist() if n.lower().endswith(".csv")), None)
+        if name is None:
+            raise ValueError("on-time file: no CSV in the zip")
+        with z.open(name) as f:
+            rows = parse_ontime(io.TextIOWrapper(f, encoding="utf-8", errors="replace", newline=""))
+    with conn.transaction():
+        conn.execute("DELETE FROM flight_ontime")
+        conn.executemany("INSERT INTO flight_ontime (carrier, num, origin, dest, n, done, ontime, cancelled, dep, arr) "
+                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", rows)
+        conn.execute("INSERT INTO flight_ontime_feed (id, year, month, fetched) VALUES (1, %s, %s, %s) "
+                     "ON CONFLICT (id) DO UPDATE SET year = EXCLUDED.year, month = EXCLUDED.month, fetched = EXCLUDED.fetched",
+                     (year, month, time.time()))
+    log(f"on-time record: {year}-{month:02d}, {len(rows):,} flight-number routes")
+
+
 def load_alerts(conn) -> None:
     alerts = parse_alerts(json.loads(fetch(ALERTS, "application/geo+json")))
     with conn.transaction():
@@ -695,13 +957,18 @@ def run(once: bool = False) -> None:
             due["towns"] = 0.0
         else:
             due["towns"] = time.time() + EVERY["towns"]
+        if not newsdb.is_sqlite():
+            due.update({k: float("inf") for k in SQLITE_ONLY})
+        elif EVERY["airports"] != float("inf") and conn.execute("SELECT count(*) FROM airports").fetchone()[0] > 0:
+            due["airports"] = time.time() + EVERY["airports"]      # a restart does not download the list again
         while True:
             if RADAR_DIR and RADAR_DEMAND and EVERY["radar"] != float("inf"):
                 if any(sid not in radar.get("fetched_ids", ()) for sid in read_radar_interest(RADAR_DIR)):
                     due["radar"] = 0.0
             for part, step in (("towns", load_towns), ("metars", load_metars), ("alerts", load_alerts),
                                ("nbh", lambda c: load_nbm(c, "nbhtx", seen)), ("nbe", lambda c: load_nbm(c, "nbetx", seen)),
-                               ("radar", lambda c: load_radar(c, radar))):
+                               ("radar", lambda c: load_radar(c, radar)), ("airports", load_airports), ("nas", load_nas),
+                               ("ontime", load_ontime)):
                 if time.time() < due[part]:
                     continue
                 try:

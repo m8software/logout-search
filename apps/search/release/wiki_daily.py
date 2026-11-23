@@ -352,6 +352,55 @@ def _update_pictures(pic_path: str, deleted_dids: list[int], release_id: str) ->
     return {"removed": removed}
 
 
+def purge_tombstoned(rel_dir: str) -> dict:
+    """Rows of every other SQLite file that still name a doc_id the registry has tombstoned (facts, lists, pictures, ...):
+    update_apply.check_tombstones refuses a release that keeps them (rc16's first package: facts.sqlite.facts, 30,564 rows).
+    A file that needs a delete is first given its own copy: it may be a hard link to the previous release's file."""
+    reg = sqlite3.connect(f"file:{os.path.join(rel_dir, 'registry.sqlite')}?mode=ro", uri=True)
+    tomb = [(r[0],) for r in reg.execute("SELECT doc_id FROM tombstones")] if "tombstones" in _table_names(reg) else []
+    reg.close()
+    out: dict = {}
+    if not tomb:
+        return out
+    for dp, dirs, fns in os.walk(rel_dir):
+        dirs.sort()
+        for fn in sorted(fns):
+            path = os.path.join(dp, fn)
+            if not fn.endswith(".sqlite") or os.path.samefile(path, os.path.join(rel_dir, "registry.sqlite")):
+                continue
+            rel = os.path.relpath(path, rel_dir).replace(os.sep, "/")
+
+            def hits(db):
+                plain, _r, _f, _s = uc.sqlite_objects(db)
+                db.execute("CREATE TEMP TABLE _tomb (id INTEGER PRIMARY KEY)")
+                db.executemany("INSERT INTO _tomb VALUES (?)", tomb)
+                found = {}
+                for t in plain:
+                    if "doc_id" in [r[1] for r in db.execute(f"PRAGMA table_info({uc._q(t)})")]:
+                        n = db.execute(f"SELECT count(*) FROM {uc._q(t)} WHERE doc_id IN (SELECT id FROM _tomb)").fetchone()[0]
+                        if n:
+                            found[t] = n
+                return found
+
+            db = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+            found = hits(db)
+            db.close()
+            if not found:
+                continue
+            if os.stat(path).st_nlink > 1:
+                shutil.copyfile(path, path + ".own")
+                os.replace(path + ".own", path)
+            db = sqlite3.connect(path)
+            db.execute("CREATE TEMP TABLE _tomb (id INTEGER PRIMARY KEY)")
+            db.executemany("INSERT INTO _tomb VALUES (?)", tomb)
+            for t in found:
+                db.execute(f"DELETE FROM {uc._q(t)} WHERE doc_id IN (SELECT id FROM _tomb)")
+            db.commit()
+            db.close()
+            out[rel] = found
+    return out
+
+
 def _licence_for(rel: str, prev_licences: dict[str, str]) -> str:
     if rel in prev_licences:
         return prev_licences[rel]
@@ -546,6 +595,8 @@ def run_daily(a) -> dict:
         lookup_info = _update_lookup(os.path.join(rel_stage, "lookup.sqlite"), reg_info, release_id)
         log(f"step lookup: {round(time.time() - t_step)} s"); t_step = time.time()
         pic_info = _update_pictures(os.path.join(rel_stage, "pictures.sqlite"), reg_info["deleted_dids"], release_id)
+        purged = purge_tombstoned(rel_stage)
+        log(f"step pictures + purge of deleted ids: {round(time.time() - t_step)} s; {purged}"); t_step = time.time()
 
         os.makedirs(os.path.join(rel_stage, "text"), exist_ok=True)
         os.makedirs(os.path.join(rel_stage, "vectors"), exist_ok=True)
@@ -651,6 +702,9 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     rs = sub.add_parser("restamp", help="stamp the carried-over sidecars of an assembled release and rewrite its manifest")
     rs.add_argument("rel_dir"); rs.add_argument("--sign")
+    pg = sub.add_parser("purge", help="remove rows that name a tombstoned doc_id from every SQLite file of a built release, and rewrite its manifest")
+    pg.add_argument("rel_dir")
+    pg.add_argument("--sign")
     r = sub.add_parser("run", help="run one daily incremental Wikipedia update end to end")
     r.add_argument("--day", required=True, help="incremental dump day YYYYMMDD")
     r.add_argument("--state", required=True, help="wikidelta state sqlite path")
@@ -693,6 +747,12 @@ def main() -> int:
         done = restamp_sidecars(a.rel_dir, mp["release"])
         write_release_manifest(a.rel_dir, mp, mp["release"], a.sign)
         print(json.dumps({"restamped": done, "release": mp["release"]}))
+        return 0
+    if a.cmd == "purge":
+        mp = json.load(open(os.path.join(a.rel_dir, "manifest.json"), encoding="utf-8"))
+        done = purge_tombstoned(a.rel_dir)
+        write_release_manifest(a.rel_dir, mp, mp["release"], a.sign)
+        print(json.dumps({"purged": done, "release": mp["release"]}))
         return 0
     print(json.dumps(run_daily(a), sort_keys=True))
     return 0

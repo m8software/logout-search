@@ -99,6 +99,19 @@ ok("default is five pages", "5. Page 5" in rpc("tools/call", {"name": "web_searc
    and "6. Page 6" not in rpc("tools/call", {"name": "web_search", "arguments": {"query": "eiffel"}})["result"]["content"][0]["text"])
 ok("a null answer is left out", "Direct answer" not in m.render({**BODY, "answer": {"title": "X", "answer": None, "detail": "No height on record"}}, 5))
 ok("nothing found says so", "No results" in m.render({"results": []}, 5))
+fl = {"airports": [{"code": "LGA", "name": "LaGuardia Airport", "items": [{"kind": "ground_delay", "reason": "low visibility", "avg": 61, "max": 123}, {"kind": "notice", "text": "AP CLSD TO NON SKED"}]},
+                   {"code": "JFK", "name": "John F Kennedy International Airport", "items": []}], "age_min": 2, "stale": False, "link": "https://nasstatus.faa.gov/"}
+txt = m.render({"flights": fl}, 5)
+ok("an airport's delays are told in words, with the FAA as the source", "Airport status (FAA, 2 min old)" in txt
+   and "LaGuardia Airport (LGA): ground delay averaging 61 min, up to 123 min (low visibility); notice: AP CLSD TO NON SKED" in txt
+   and "John F Kennedy International Airport (JFK): no delays reported" in txt and "Source: https://nasstatus.faa.gov/" in txt, txt)
+otx = m.render({"ontime": {"airline": "United Airlines", "number": 328, "month": "2026-09", "link": "https://www.transtats.bts.gov/",
+                           "routes": [{"from": "EWR", "to": "LAX", "dep": "5:40 pm", "arr": "8:55 pm", "flights": 12, "ontime_pct": 80, "cancelled": 1},
+                                      {"from": "LAX", "to": "EWR", "dep": "6:00 am", "arr": "", "flights": 3, "ontime_pct": None, "cancelled": 0}]}}, 5)
+ok("a flight number's on-time record is told as a record, not live status", "United Airlines 328, on-time record for 2026-09 (not live status):" in otx
+   and "- EWR to LAX: usually departs 5:40 pm, arrives 8:55 pm, on time 80% of 12 flights, 1 cancelled" in otx
+   and "- LAX to EWR: usually departs 6:00 am, flew 3 times" in otx and "Source: https://www.transtats.bts.gov/" in otx, otx)
+ok("a stale airport status says so and names no delay", "too old to show" in m.render({"flights": dict(fl, stale=True)}, 5) and "ground delay" not in m.render({"flights": dict(fl, stale=True)}, 5))
 for loose in ("3", 3.0):
     lt3 = rpc("tools/call", {"name": "web_search", "arguments": {"query": "eiffel", "max_results": loose}})["result"]
     ok(f"max_results sent as {loose!r} is read as 3", lt3["isError"] is False and "3. Page 3" in lt3["content"][0]["text"] and "4. Page 4" not in lt3["content"][0]["text"])

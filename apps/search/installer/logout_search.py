@@ -405,7 +405,7 @@ def start_updater(data: str, engine, port=None, has_se: bool = False):
 # NAME` at low priority, is started again if it stops (never stopping the engine), and stops with `start`.
 COLLECTORS = {"news": "poller.py", "sports": "sports.py", "weather": "wxall.py"}
 OWN_SETTINGS = {"news": ("NEWS_POLL_SCALE",), "sports": (),                  # a change restarts only that one
-                "weather": ("WX_EVERY_NBH_S", "WX_EVERY_NBE_S", "WX_EVERY_METARS_S", "WX_EVERY_ALERTS_S", "WX_EVERY_RADAR_S")}
+                "weather": ("WX_EVERY_NBH_S", "WX_EVERY_NBE_S", "WX_EVERY_METARS_S", "WX_EVERY_ALERTS_S", "WX_EVERY_RADAR_S", "WX_EVERY_NAS_S")}
 # The shipped headline list: search.logout.cloud's own (feeds-public.tsv, ADR-062). Owner 2026-11-14: "ship the public
 # feed list too" -- an installed engine reads the same list as the public site, plus the feeds its user adds.
 HOME_FEED_LIST = "feeds-public.tsv"
