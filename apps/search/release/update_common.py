@@ -482,7 +482,7 @@ def write_rows(diff: dict, path: str) -> int:
     """The diff (as sqlite_diff returns it) as a deterministic logout-rows/2 file. Returns the number of bytes written."""
     def line(f, o):
         f.write(json.dumps(o, separators=(",", ":"), sort_keys=True) + "\n")
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         line(f, {"format": ROWS_FORMAT, "header": diff["header"],
                  "counts": {"tables": {t: [len(d["removed"]), len(d["upsert"])] for t, d in diff["tables"].items()},
                             "fts": {t: len(d["touched"]) for t, d in diff["fts"].items()}}})
@@ -688,7 +688,7 @@ def tv_sort_segments(path: str) -> bool:
     text = json.dumps(meta, separators=(",", ":"))
     if text == raw:
         return False
-    with open(p + ".tmp", "w", encoding="utf-8") as f:      # write and replace: a copied release file may be read-only
+    with open(p + ".tmp", "w", encoding="utf-8", newline="\n") as f:      # write and replace: a copied release file may be read-only
         f.write(text)
     os.replace(p + ".tmp", p)
     return True
@@ -721,7 +721,7 @@ def _ivf_write(out: str, cent, lists_assign, ids, codes_getter, rows: int, meta:
         step = 200_000
         for s in range(0, rows, step):
             f.write(np.ascontiguousarray(codes_getter(order[s:s + step])).tobytes())
-    with open(os.path.join(out, "ivf.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "ivf.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(meta, f, indent=1, sort_keys=True)
         f.write("\n")
 

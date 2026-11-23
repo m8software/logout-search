@@ -376,7 +376,7 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
     t0 = time.time()
     jobs = max(1, int(jobs or default_jobs()))
     base, pkg = os.path.abspath(base), os.path.abspath(pkg)
-    lock = open(os.path.join(base, ".apply.lock"), "w")
+    lock = open(os.path.join(base, ".apply.lock"), "w", encoding="utf-8", newline="\n")
     try:
         if os.name == "nt":      # no fcntl on Windows: every Windows data update failed to import (2026-11-23, buildbox)
             import msvcrt
@@ -555,7 +555,7 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
                 raise uc.UpdateError(f"{f['path']}: staged sha256 differs from the manifest")
         lm["local"] = {"applied_from": cur, "update_sha256": uc.sha256_bytes(body),
                        "note": "manifest.published.json is the signed manifest; SQLite files patched in place differ from its sha256/bytes (published_*) and are verified by content_sha256"}
-        open(os.path.join(stage, "manifest.json"), "w").write(json.dumps(lm, indent=1, sort_keys=True))
+        open(os.path.join(stage, "manifest.json"), "w", encoding="utf-8", newline="\n").write(json.dumps(lm, indent=1, sort_keys=True))
         # ---- the engine's own checks, on the staged folder
         errs = rc.check_release(stage)
         if errs:
@@ -569,7 +569,7 @@ def apply(base: str, pkg: str, pubkey: str = None, insecure_no_signature: bool =
                     sem_ivf.IvfIndex(d, to)
         # ---- what this apply proved, so the next one need not re-read an unchanged hard-linked file (size + mtime + inode + the sha256 proved)
         rec = {f["path"]: _stat_key(os.path.join(stage, f["path"])) + [local[f["path"]]["sha256"]] for f in new_m["files"] if f["path"] in proved}
-        with open(os.path.join(stage, VERIFIED), "w") as vf:
+        with open(os.path.join(stage, VERIFIED), "w", encoding="utf-8", newline="\n") as vf:
             json.dump({"format": "logout-verified/1", "release": to, "files": rec}, vf, sort_keys=True)
         # ---- read-only, durable, then the swap
         for d, dirs, fs in os.walk(stage):
