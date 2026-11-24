@@ -1,5 +1,7 @@
 # logout search
 
+[![m8software/logout-search MCP server](https://glama.ai/mcp/servers/m8software/logout-search/badges/score.svg)](https://glama.ai/mcp/servers/m8software/logout-search)
+
 A web search engine that runs on your own computer. The index is a file you download; a search
 is answered from that file, on your machine, and is sent nowhere.
 
